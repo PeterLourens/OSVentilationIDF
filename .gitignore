@@ -2,3 +2,4 @@
 .vscode/launch.json
 .devcontainer
 build
+.vscode/c_cpp_properties.json
