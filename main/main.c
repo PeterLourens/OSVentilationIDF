@@ -6,8 +6,8 @@
 #include <esp_err.h>
 
 #define I2C_PORT I2C_NUM_0
-#define I2C_MASTER_SCL_IO 33
-#define I2C_MASTER_SDA_IO 34
+#define I2C_MASTER_SCL_IO 38
+#define I2C_MASTER_SDA_IO 39
 #define I2C_FREQ_HZ 100000
 
 #define TCA9548A_I2C_ADDRESS 0x70
