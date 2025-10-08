@@ -1,4 +1,3 @@
-# Ignore development environment folders
 .devcontainer
 build
 .vscode
