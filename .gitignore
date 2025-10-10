@@ -1,3 +1,5 @@
 .devcontainer
-build
 .vscode
+build
+managed_components
+
