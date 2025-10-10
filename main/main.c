@@ -68,7 +68,6 @@ void app_main(void)
     dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
     dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
     dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
-    // dev.cfg.master.clk_speed = CONFIG_EXAMPLE_I2C_CLOCK_HZ;
 
     // AHT20 sensor descriptor
     aht20.mode = AHT_MODE_NORMAL;
@@ -76,7 +75,6 @@ void app_main(void)
 
     // Initialize the I2C master bus
     err = i2cdev_init();
-
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "I2C master bus initialization failed: %s", esp_err_to_name(err));
