@@ -126,6 +126,6 @@ direct_dependencies:
 - esp-idf-lib/scd4x
 - esp-idf-lib/tca9548
 - idf
-manifest_hash: 000b578e6ec985c7618d376852bef941bbfdf2c58058f1eb6675cf6e1a198fdd
+manifest_hash: a394cca10649d4e2818a5c1856e063c87ebcab73b5681d361861fb14bc70e572
 target: esp32s3
 version: 2.0.0
