@@ -12,8 +12,37 @@ void task_i2c_code(void *pvParameters)
     uint16_t co2 = 0;
 
     esp_err_t err = ESP_OK;
+    const char *TAG1 = "i2c init";
 
     // init I2C bus and sensors
+    err = init_i2c_master0();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG1, "I2C master bus initialization failed: %s", esp_err_to_name(err));
+    }
+
+    // Init TCA9548a multiplexer
+    err = init_i2c_multiplexer_tca9548a();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG1, "TCA9548A initialization failed: %s", esp_err_to_name(err));
+    }
+
+    // Init AHT20 sensor
+    err = init_i2c_sensor_aht20();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG1, "AHT20 initialization failed: %s", esp_err_to_name(err));
+    }
+
+    // Init SCD4x sensor
+    err = init_i2c_sensor_scd4x();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG1, "SCD4x initialization failed: %s", esp_err_to_name(err));
+    }
+
+    // Temp function to init sensors
     read_sensors();
 
     while (1)

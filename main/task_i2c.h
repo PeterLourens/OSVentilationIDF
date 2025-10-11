@@ -7,5 +7,6 @@
 // Function declarations
 void start_task_i2c(void);
 void task_i2c_code(void *);
+void read_sensors(void);
 
 #endif
