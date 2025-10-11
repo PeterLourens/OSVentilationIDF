@@ -14,6 +14,13 @@ void task_i2c_code(void *pvParameters)
     esp_err_t err = ESP_OK;
     const char *TAG1 = "i2c init";
 
+    /*
+    Whats next:
+    - Init sensors should have input the channel. This required when reading config file
+    - Add second master bus
+    - Add sensor to second master bus
+    */
+
     // init I2C bus and sensors
     err = init_i2c_master0();
     if (err != ESP_OK)
@@ -41,9 +48,6 @@ void task_i2c_code(void *pvParameters)
     {
         ESP_LOGE(TAG1, "SCD4x initialization failed: %s", esp_err_to_name(err));
     }
-
-    // Temp function to init sensors
-    read_sensors();
 
     while (1)
     {
