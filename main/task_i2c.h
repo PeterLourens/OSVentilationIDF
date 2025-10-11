@@ -2,5 +2,10 @@
 #define TASK_I2C_H
 
 #include "globals.h"
+#include "i2c_functions.h"
+
+// Function declarations
+void start_task_i2c(void);
+void task_i2c_code(void *);
 
 #endif

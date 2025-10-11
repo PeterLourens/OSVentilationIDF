@@ -1,32 +1,12 @@
 #include "i2c_functions.h"
 
-#define I2C_MASTER_NUM I2C_NUM_0
-#define I2C_MASTER_SDA_IO 39
-#define I2C_MASTER_SCL_IO 38
-#define I2C_MASTER_FREQ_HZ 100000
-
-#define TCA9548_ADDR 0x70 // Default address
-#define AHT20_ADDR 0x38
-#define SCD41_ADDR 0x62
-#define AHT_TYPE AHT_TYPE_AHT20
-
-// Master bus device
-static i2c_dev_t dev = {0};
-
-// sensors
-static aht_t aht20 = {0};
-static i2c_dev_t scd41 = {0};
-
-// I2c multiplexer
-static i2c_dev_t i2c_switch = {0};
-
 static const char *TAG = "i2c test";
 
 void read_sensors(void)
 {
-    float temperature = 0;
-    float humidity = 0;
-    uint16_t co2 = 0;
+    // float temperature = 0;
+    // float humidity = 0;
+    // uint16_t co2 = 0;
 
     esp_err_t err = ESP_OK;
 
@@ -112,7 +92,7 @@ void read_sensors(void)
 
     vTaskDelay(pdMS_TO_TICKS(5100)); // Wait for sensor to be ready
 
-    while (1)
+    /*while (1)
     {
         // Read AHT20 data
         err = tca9548_set_channels(&i2c_switch, 0x01); // Select channel 0
@@ -127,5 +107,5 @@ void read_sensors(void)
         printf("SCD41 on TCA9548A Channel 1 → CO2: %.2d ppm, Temp: %.2f °C, Humidity: %.2f %%\n", co2, temperature, humidity);
 
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
-    }
+    }*/
 }
