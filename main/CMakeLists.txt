@@ -1,2 +1,2 @@
-idf_component_register(SRCS "main.c" "globals.c"
+idf_component_register(SRCS "task_i2c.c" "i2c_functions.c" "main.c" "globals.c" "i2c_functions.c" "task_i2c.c"
                     INCLUDE_DIRS ".")
