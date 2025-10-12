@@ -10,8 +10,8 @@
 
 // Function declarations
 esp_err_t init_i2c_master0(void);
-esp_err_t init_i2c_sensor_aht20(void);
-esp_err_t init_i2c_sensor_scd4x(void);
+esp_err_t init_i2c_sensor_aht20(int);
+esp_err_t init_i2c_sensor_scd4x(int);
 esp_err_t init_i2c_multiplexer_tca9548a(void);
 
 // Should dissapear

@@ -26,7 +26,7 @@ esp_err_t init_i2c_multiplexer_tca9548a(void)
     return err;
 }
 
-esp_err_t init_i2c_sensor_aht20(void)
+esp_err_t init_i2c_sensor_aht20(int channel)
 {
     esp_err_t err = ESP_OK;
     err = aht_init_desc(&aht20, AHT20_ADDR, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
@@ -48,7 +48,7 @@ esp_err_t init_i2c_sensor_aht20(void)
     return err;
 }
 
-esp_err_t init_i2c_sensor_scd4x(void)
+esp_err_t init_i2c_sensor_scd4x(int channel)
 {
     esp_err_t err = ESP_OK;
     err = scd4x_init_desc(&scd41, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
