@@ -9,4 +9,9 @@
 #include "nvs_flash.h"      // NVS initialization
 #include "nvs.h"            // NVS read/write APIs
 
+// Function declarations
+esp_err_t init_nvs(void);
+esp_err_t init_littlefs(void);
+esp_err_t read_file(const char *, char *, size_t);
+
 #endif
