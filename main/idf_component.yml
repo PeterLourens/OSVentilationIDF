@@ -19,3 +19,4 @@ dependencies:
   esp-idf-lib/scd4x: ^1.0.8
   esp-idf-lib/tca9548: ^1.0.7
   joltwallet/littlefs: ^1.20.1
+  esp-idf-lib/bme680: ^1.0.7

@@ -10,6 +10,7 @@
 #include <aht.h>
 #include <tca9548.h>
 #include <scd4x.h>
+#include <bme680.h>
 
 // I2C Bus0 configuration
 #define I2C_MASTER_NUM I2C_NUM_0
@@ -20,6 +21,7 @@
 #define TCA9548_ADDR 0x70       // Default address
 #define AHT20_ADDR 0x38         // Default address
 #define SCD41_ADDR 0x62         // Default address
+#define BME680_ADDR 0x76        // Default address
 #define AHT_TYPE AHT_TYPE_AHT20 // AHT20 also works for DHT20
 
 #define SMALL_CONFIG_ITEM 16
@@ -34,6 +36,7 @@
 extern i2c_dev_t dev;        // Master bus device
 extern aht_t aht20;          // AHT sensors
 extern i2c_dev_t scd41;      // SCD41 sensors
+extern bme680_t bme680;      // SCD41 sensors
 extern i2c_dev_t i2c_switch; // I2c multiplexer
 
 // Task handles
