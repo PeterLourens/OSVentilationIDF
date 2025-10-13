@@ -80,3 +80,53 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
     fclose(file);
     return ESP_OK;
 }
+
+esp_err_t load_bus0_sensor_config(const char *config_name)
+{
+    static const char *TAG = "settings";
+
+    char buffer[XXLARGE_CONFIG_ITEM];
+    char path[64];
+
+    snprintf(path, sizeof(path), "/littlefs/%s.json", config_name);
+
+    esp_err_t err = read_file(path, buffer, sizeof(buffer));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    for (int i = 0; i < BUS_MAX_SENSORS; i++)
+    {
+        char key_type[32], key_valve[32], key_location[32], key_rh[32], key_co2[32];
+        snprintf(key_type, sizeof(key_type), "b0_s%d_type", i);
+        snprintf(key_valve, sizeof(key_valve), "b0_s%d_valve", i);
+        snprintf(key_location, sizeof(key_location), "b0_s%d_location", i);
+        snprintf(key_rh, sizeof(key_rh), "b0_s%d_rh", i);
+        snprintf(key_co2, sizeof(key_co2), "b0_s%d_co2", i);
+
+        cJSON *type = cJSON_GetObjectItem(json, key_type);
+        cJSON *valve = cJSON_GetObjectItem(json, key_valve);
+        cJSON *location = cJSON_GetObjectItem(json, key_location);
+        cJSON *rh = cJSON_GetObjectItem(json, key_rh);
+        cJSON *co2 = cJSON_GetObjectItem(json, key_co2);
+
+        strncpy(bus0_sensor_settings[i].type, cJSON_IsString(type) ? type->valuestring : "", SMALL_CONFIG_ITEM);
+        strncpy(bus0_sensor_settings[i].valve, cJSON_IsString(valve) ? valve->valuestring : "", MEDIUM_CONFIG_ITEM);
+        strncpy(bus0_sensor_settings[i].location, cJSON_IsString(location) ? location->valuestring : "", LARGE_CONFIG_ITEM);
+        bus0_sensor_settings[i].rh_enabled = cJSON_IsString(rh) && strcmp(rh->valuestring, "On") == 0;
+        bus0_sensor_settings[i].co2_enabled = cJSON_IsString(co2) && strcmp(co2->valuestring, "On") == 0;
+    }
+
+    cJSON_Delete(json);
+    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);
+    return ESP_OK;
+}

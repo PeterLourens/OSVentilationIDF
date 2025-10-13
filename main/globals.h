@@ -22,6 +22,14 @@
 #define SCD41_ADDR 0x62         // Default address
 #define AHT_TYPE AHT_TYPE_AHT20 // AHT20 also works for DHT20
 
+#define SMALL_CONFIG_ITEM 16
+#define MEDIUM_CONFIG_ITEM 32
+#define LARGE_CONFIG_ITEM 64
+#define XLARGE_CONFIG_ITEM 128
+#define XXLARGE_CONFIG_ITEM 1024
+
+#define BUS_MAX_SENSORS 8
+
 // I2C Devices
 extern i2c_dev_t dev;        // Master bus device
 extern aht_t aht20;          // AHT sensors
@@ -30,5 +38,18 @@ extern i2c_dev_t i2c_switch; // I2c multiplexer
 
 // Task handles
 extern TaskHandle_t task_i2c;
+
+// Sensor configuration structure
+typedef struct
+{
+    char type[SMALL_CONFIG_ITEM];
+    char valve[MEDIUM_CONFIG_ITEM];
+    char location[LARGE_CONFIG_ITEM];
+    bool rh_enabled;
+    bool co2_enabled;
+} bus_sensor_t;
+
+extern bus_sensor_t bus0_sensor_settings[];
+extern bus_sensor_t bus1_sensor_settings[];
 
 #endif

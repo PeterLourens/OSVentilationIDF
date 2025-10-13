@@ -31,6 +31,14 @@ void app_main(void)
         return;
     }
 
+    // Load sensor configuration for bus 0
+    err = load_bus0_sensor_config("bus0_sensors");
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load bus 0 sensor configuration");
+        return;
+    }
+
     // Start tasks
     start_task_i2c();
 }
