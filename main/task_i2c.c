@@ -9,6 +9,9 @@ void task_i2c_code(void *pvParameters)
 {
     float temperature = 0;
     float humidity = 0;
+    float pressure = 0;
+    float gas_resistance = 0;
+
     uint16_t co2 = 0;
 
     esp_err_t err = ESP_OK;
@@ -76,6 +79,15 @@ void task_i2c_code(void *pvParameters)
         err = tca9548_set_channels(&i2c_switch, 0x03); // Select channel 0
         err = aht_get_data(&aht20, &temperature, &humidity);
         printf("AHT20 on TCA9548A Channel 2 → Temp: %.2f °C, Humidity: %.2f %%\n", temperature, humidity);
+
+        vTaskDelay(pdMS_TO_TICKS(100)); // Delay between readings
+
+        // Read BME680 data
+        err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 0
+        err = bme680_force_measurement(&bme680);
+        // err = bme680_get_results_float(&bme680, &temperature, &humidity, &pressure, &gas_resistance);
+
+        // printf("BME680 on TCA9548A Channel 4 → Temp: %.2f °C, Humidity: %.2f %%, Pressure: %.2f hPa, Gas: %.2f Ω\n", temperature, humidity, pressure / 100.0, gas_resistance);
 
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
