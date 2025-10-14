@@ -9,11 +9,12 @@
 #include "nvs_flash.h"      // NVS initialization
 #include "nvs.h"            // NVS read/write APIs
 #include "cJSON.h"          // JSON parsing
+#include <dirent.h>         // Directory operations
 
 // Function declarations
 esp_err_t init_nvs(void);
 esp_err_t init_littlefs(void);
 esp_err_t read_file(const char *, char *, size_t);
-esp_err_t load_bus0_sensor_config(const char *);
+esp_err_t load_sensor_config(const char *);
 
 #endif

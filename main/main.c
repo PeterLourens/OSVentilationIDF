@@ -9,11 +9,12 @@ void app_main(void)
     esp_err_t err = ESP_OK;
 
     // Set log levels
-    esp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);     // Suppress info/debug from i2cdev
-    esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL); // Suppress low-level I2C driver logs
-    esp_log_level_set("scd4x", PROJECT_LOG_LEVEL);      // Suppress SCD4X driver logs
-    esp_log_level_set("tca9548", PROJECT_LOG_LEVEL);    // Suppress TCA9548 driver logs
-    esp_log_level_set("aht", PROJECT_LOG_LEVEL);        // Suppress TCA9548 driver logs
+    esp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);       // Suppress info/debug from i2cdev
+    esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);   // Suppress low-level I2C driver logs
+    esp_log_level_set("scd4x", PROJECT_LOG_LEVEL);        // Suppress SCD4X driver logs
+    esp_log_level_set("tca9548", PROJECT_LOG_LEVEL);      // Suppress TCA9548 driver logs
+    esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
+    esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
 
     // Initialize NVS
     err = init_nvs();
@@ -32,7 +33,7 @@ void app_main(void)
     }
 
     // Load sensor configuration for bus 0
-    err = load_bus0_sensor_config("bus0_sensors");
+    err = load_sensor_config("bus0_sensor_config");
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to load bus 0 sensor configuration");
@@ -40,5 +41,5 @@ void app_main(void)
     }
 
     // Start tasks
-    start_task_i2c();
+    // start_task_i2c();
 }

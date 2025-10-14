@@ -29,7 +29,7 @@ esp_err_t init_littlefs(void)
     esp_err_t err = ESP_OK;
 
     const esp_vfs_littlefs_conf_t conf = {
-        .base_path = "/littlefs",
+        .base_path = "/data",
         .partition_label = "storage",
         .format_if_mount_failed = false,
         .dont_mount = false,
@@ -78,17 +78,40 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
     buffer[len] = '\0'; // Null-terminate
 
     fclose(file);
+
+    if (len == 0)
+    {
+        ESP_LOGW(TAG, "Read 0 bytes from file: %s", path);
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
+
     return ESP_OK;
 }
 
-esp_err_t load_bus0_sensor_config(const char *config_name)
+esp_err_t load_sensor_config(const char *config_name)
 {
-    static const char *TAG = "settings";
+    const char *TAG = "Config";
+    char path[128];
 
-    char buffer[XXLARGE_CONFIG_ITEM];
-    char path[64];
+    if (!config_name || strlen(config_name) > 48)
+    {
+        ESP_LOGE(TAG, "Invalid config name");
+        return ESP_ERR_INVALID_ARG;
+    }
 
-    snprintf(path, sizeof(path), "/littlefs/%s.json", config_name);
+    char *buffer = malloc(4096);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+    // memset(buffer, 0, XXXLARGE_CONFIG_ITEM);
+
+    snprintf(path, sizeof(path), "/data/%s.json", config_name);
+
+    ESP_LOGI(TAG, "Attempting to read config: %s", path);
 
     esp_err_t err = read_file(path, buffer, sizeof(buffer));
     if (err != ESP_OK)
@@ -96,11 +119,18 @@ esp_err_t load_bus0_sensor_config(const char *config_name)
         ESP_LOGE(TAG, "Failed to read config file: %s", path);
         return err;
     }
+    else
+    {
+        ESP_LOGI(TAG, "Config file %s read successfully", path);
+    }
 
-    cJSON *json = cJSON_Parse(buffer);
+    ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
+
+    /*cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        ESP_LOGW(TAG, "Raw content: %s", buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -119,14 +149,34 @@ esp_err_t load_bus0_sensor_config(const char *config_name)
         cJSON *rh = cJSON_GetObjectItem(json, key_rh);
         cJSON *co2 = cJSON_GetObjectItem(json, key_co2);
 
-        strncpy(bus0_sensor_settings[i].type, cJSON_IsString(type) ? type->valuestring : "", SMALL_CONFIG_ITEM);
-        strncpy(bus0_sensor_settings[i].valve, cJSON_IsString(valve) ? valve->valuestring : "", MEDIUM_CONFIG_ITEM);
-        strncpy(bus0_sensor_settings[i].location, cJSON_IsString(location) ? location->valuestring : "", LARGE_CONFIG_ITEM);
+        if (!type)
+            ESP_LOGW(TAG, "Missing key: %s", key_type);
+        if (!valve)
+            ESP_LOGW(TAG, "Missing key: %s", key_valve);
+        if (!location)
+            ESP_LOGW(TAG, "Missing key: %s", key_location);
+        if (!rh)
+            ESP_LOGW(TAG, "Missing key: %s", key_rh);
+        if (!co2)
+            ESP_LOGW(TAG, "Missing key: %s", key_co2);
+
+        strncpy(bus0_sensor_settings[i].type, cJSON_IsString(type) ? type->valuestring : "", SMALL_CONFIG_ITEM - 1);
+        bus0_sensor_settings[i].type[SMALL_CONFIG_ITEM - 1] = '\0';
+
+        strncpy(bus0_sensor_settings[i].valve, cJSON_IsString(valve) ? valve->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+        bus0_sensor_settings[i].valve[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+        strncpy(bus0_sensor_settings[i].location, cJSON_IsString(location) ? location->valuestring : "", LARGE_CONFIG_ITEM - 1);
+        bus0_sensor_settings[i].location[LARGE_CONFIG_ITEM - 1] = '\0';
+
         bus0_sensor_settings[i].rh_enabled = cJSON_IsString(rh) && strcmp(rh->valuestring, "On") == 0;
         bus0_sensor_settings[i].co2_enabled = cJSON_IsString(co2) && strcmp(co2->valuestring, "On") == 0;
     }
 
     cJSON_Delete(json);
-    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);
+    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);*/
+
+    free(buffer);
+
     return ESP_OK;
 }
