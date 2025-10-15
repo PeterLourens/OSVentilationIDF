@@ -54,18 +54,40 @@ esp_err_t init_littlefs(void)
     }
 
     ESP_LOGI(TAG, "LittleFS mounted. Total: %d bytes, Used: %d bytes", total, used);
+
+    DIR *dir = opendir("/data");
+    if (!dir)
+    {
+        ESP_LOGE("LITTLEFS", "Failed to open /data");
+        return ESP_FAIL;
+    }
+
+    struct dirent *entry;
+    char full_path[270];
+    struct stat st;
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        snprintf(full_path, sizeof(full_path), "/data/%s", entry->d_name);
+
+        if (stat(full_path, &st) == 0)
+        {
+            ESP_LOGI("LITTLEFS", "Found: %s (%ld bytes)", entry->d_name, st.st_size);
+        }
+        else
+        {
+            ESP_LOGW("LITTLEFS", "Found: %s (size unknown)", entry->d_name);
+        }
+    }
+
+    closedir(dir);
+
     return ESP_OK;
 }
 
 esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
 {
-    static const char *TAG = "settings";
-
-    if (!path || !buffer || bufferSize == 0)
-    {
-        ESP_LOGE(TAG, "Invalid arguments");
-        return ESP_ERR_INVALID_ARG;
-    }
+    const char *TAG = "settings";
 
     FILE *file = fopen(path, "r");
     if (!file)
@@ -74,19 +96,26 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
         return ESP_FAIL;
     }
 
-    size_t len = fread(buffer, 1, bufferSize - 1, file);
-    buffer[len] = '\0'; // Null-terminate
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);
+    rewind(file);
+
+    ESP_LOGI(TAG, "File size reported: %ld bytes", size);
+    ESP_LOGI(TAG, "Buffer size: %d bytes", bufferSize);
+
+    if (size > bufferSize - 1)
+    {
+        ESP_LOGW(TAG, "File too large for buffer");
+        fclose(file);
+        return ESP_ERR_NO_MEM;
+    }
+
+    size_t len = fread(buffer, 1, size, file);
+    buffer[len] = '\0';
 
     fclose(file);
 
-    if (len == 0)
-    {
-        ESP_LOGW(TAG, "Read 0 bytes from file: %s", path);
-        return ESP_ERR_INVALID_SIZE;
-    }
-
-    ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
-
+    ESP_LOGI(TAG, "Read %d bytes from file", len);
     return ESP_OK;
 }
 
@@ -101,7 +130,7 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
-    char *buffer = malloc(4096);
+    char *buffer = malloc(40960);
     if (!buffer)
     {
         ESP_LOGE(TAG, "Failed to allocate buffer");

@@ -10,6 +10,7 @@
 #include "nvs.h"            // NVS read/write APIs
 #include "cJSON.h"          // JSON parsing
 #include <dirent.h>         // Directory operations
+#include <sys/stat.h>       // File status
 
 // Function declarations
 esp_err_t init_nvs(void);
