@@ -119,6 +119,7 @@ esp_err_t load_sensor_config(const char *config_name)
 {
     const char *TAG = "Config";
     char path[128];
+    size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
     if (!config_name || strlen(config_name) > 48)
     {
@@ -126,16 +127,15 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
-    size_t bufferSize = 4096; // Define actual size
+    snprintf(path, sizeof(path), "/data/%s.json", config_name);
+    ESP_LOGI(TAG, "Attempting to read config: %s", path);
+
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
         ESP_LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
-
-    snprintf(path, sizeof(path), "/data/%s.json", config_name);
-    ESP_LOGI(TAG, "Attempting to read config: %s", path);
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
@@ -145,25 +145,41 @@ esp_err_t load_sensor_config(const char *config_name)
         return err;
     }
 
-    ESP_LOGI(TAG, "Config file %s read successfully", path);
-    ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
-
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
         ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    // Determine bus index from config_name
+    int bus_index = -1;
+    if (strncmp(config_name, "bus0", 4) == 0)
+    {
+        bus_index = 0;
+    }
+    else if (strncmp(config_name, "bus1", 4) == 0)
+    {
+        bus_index = 1;
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Unknown bus prefix in config name: %s", config_name);
+        cJSON_Delete(json);
+        free(buffer);
+        return ESP_ERR_INVALID_ARG;
     }
 
     for (int i = 0; i < BUS_MAX_SENSORS; i++)
     {
         char key_type[32], key_valve[32], key_location[32], key_rh[32], key_co2[32];
-        snprintf(key_type, sizeof(key_type), "b0_s%d_type", i);
-        snprintf(key_valve, sizeof(key_valve), "b0_s%d_valve", i);
-        snprintf(key_location, sizeof(key_location), "b0_s%d_location", i);
-        snprintf(key_rh, sizeof(key_rh), "b0_s%d_rh", i);
-        snprintf(key_co2, sizeof(key_co2), "b0_s%d_co2", i);
+        snprintf(key_type, sizeof(key_type), "b%d_s%d_type", bus_index, i);
+        snprintf(key_valve, sizeof(key_valve), "b%d_s%d_valve", bus_index, i);
+        snprintf(key_location, sizeof(key_location), "b%d_s%d_location", bus_index, i);
+        snprintf(key_rh, sizeof(key_rh), "b%d_s%d_rh", bus_index, i);
+        snprintf(key_co2, sizeof(key_co2), "b%d_s%d_co2", bus_index, i);
 
         cJSON *type = cJSON_GetObjectItem(json, key_type);
         cJSON *valve = cJSON_GetObjectItem(json, key_valve);
@@ -182,23 +198,24 @@ esp_err_t load_sensor_config(const char *config_name)
         if (!co2)
             ESP_LOGW(TAG, "Missing key: %s", key_co2);
 
-        strncpy(bus0_sensor_settings[i].type, cJSON_IsString(type) ? type->valuestring : "", SMALL_CONFIG_ITEM - 1);
-        bus0_sensor_settings[i].type[SMALL_CONFIG_ITEM - 1] = '\0';
+        bus_sensor_t *settings = (bus_index == 0) ? &bus0_sensor_settings[i] : &bus1_sensor_settings[i];
 
-        strncpy(bus0_sensor_settings[i].valve, cJSON_IsString(valve) ? valve->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-        bus0_sensor_settings[i].valve[MEDIUM_CONFIG_ITEM - 1] = '\0';
+        strncpy(settings->type, cJSON_IsString(type) ? type->valuestring : "", SMALL_CONFIG_ITEM - 1);
+        settings->type[SMALL_CONFIG_ITEM - 1] = '\0';
 
-        strncpy(bus0_sensor_settings[i].location, cJSON_IsString(location) ? location->valuestring : "", LARGE_CONFIG_ITEM - 1);
-        bus0_sensor_settings[i].location[LARGE_CONFIG_ITEM - 1] = '\0';
+        strncpy(settings->valve, cJSON_IsString(valve) ? valve->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+        settings->valve[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-        bus0_sensor_settings[i].rh_enabled = cJSON_IsString(rh) && strcmp(rh->valuestring, "On") == 0;
-        bus0_sensor_settings[i].co2_enabled = cJSON_IsString(co2) && strcmp(co2->valuestring, "On") == 0;
+        strncpy(settings->location, cJSON_IsString(location) ? location->valuestring : "", LARGE_CONFIG_ITEM - 1);
+        settings->location[LARGE_CONFIG_ITEM - 1] = '\0';
+
+        settings->rh_enabled = cJSON_IsString(rh) && strcmp(rh->valuestring, "On") == 0;
+        settings->co2_enabled = cJSON_IsString(co2) && strcmp(co2->valuestring, "On") == 0;
     }
 
     cJSON_Delete(json);
-    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);
-
     free(buffer);
 
+    ESP_LOGI(TAG, "Bus%d sensor config loaded from %s", bus_index, path);
     return ESP_OK;
 }

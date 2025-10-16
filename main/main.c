@@ -40,6 +40,13 @@ void app_main(void)
         return;
     }
 
+    err = load_sensor_config("bus1_sensor_config");
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load bus 1 sensor configuration");
+        return;
+    }
+
     // Start tasks
     // start_task_i2c();
 }
