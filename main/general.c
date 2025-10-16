@@ -148,7 +148,7 @@ esp_err_t load_sensor_config(const char *config_name)
     ESP_LOGI(TAG, "Config file %s read successfully", path);
     ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
 
-    /*cJSON *json = cJSON_Parse(buffer);
+    cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
@@ -196,7 +196,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
 
     cJSON_Delete(json);
-    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);*/
+    ESP_LOGI(TAG, "Bus0 sensor config loaded from %s", path);
 
     free(buffer);
 
