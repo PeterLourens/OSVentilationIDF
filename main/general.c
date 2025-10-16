@@ -81,41 +81,37 @@ esp_err_t init_littlefs(void)
     }
 
     closedir(dir);
-
     return ESP_OK;
 }
 
 esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
 {
-    const char *TAG = "settings";
+    static const char *TAG = "settings";
 
-    FILE *file = fopen(path, "r");
+    if (!path || !buffer || bufferSize == 0)
+    {
+        ESP_LOGE(TAG, "Invalid arguments");
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    FILE *file = fopen(path, "rb"); // Use binary mode for safety
     if (!file)
     {
         ESP_LOGE(TAG, "Failed to open file: %s", path);
         return ESP_FAIL;
     }
 
-    fseek(file, 0, SEEK_END);
-    long size = ftell(file);
-    rewind(file);
-
-    ESP_LOGI(TAG, "File size reported: %ld bytes", size);
-    ESP_LOGI(TAG, "Buffer size: %d bytes", bufferSize);
-
-    if (size > bufferSize - 1)
-    {
-        ESP_LOGW(TAG, "File too large for buffer");
-        fclose(file);
-        return ESP_ERR_NO_MEM;
-    }
-
-    size_t len = fread(buffer, 1, size, file);
-    buffer[len] = '\0';
-
+    size_t len = fread(buffer, 1, bufferSize - 1, file); // Leave space for '\0'
+    buffer[len] = '\0';                                  // Null-terminate
     fclose(file);
 
-    ESP_LOGI(TAG, "Read %d bytes from file", len);
+    if (len == 0)
+    {
+        ESP_LOGW(TAG, "Read 0 bytes from file: %s", path);
+        return ESP_ERR_INVALID_SIZE;
+    }
+
+    ESP_LOGI(TAG, "Read %zu bytes from %s", len, path);
     return ESP_OK;
 }
 
@@ -130,29 +126,26 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
-    char *buffer = malloc(40960);
+    size_t bufferSize = 4096; // Define actual size
+    char *buffer = malloc(bufferSize);
     if (!buffer)
     {
         ESP_LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
-    // memset(buffer, 0, XXXLARGE_CONFIG_ITEM);
 
     snprintf(path, sizeof(path), "/data/%s.json", config_name);
-
     ESP_LOGI(TAG, "Attempting to read config: %s", path);
 
-    esp_err_t err = read_file(path, buffer, sizeof(buffer));
+    esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        free(buffer);
         return err;
     }
-    else
-    {
-        ESP_LOGI(TAG, "Config file %s read successfully", path);
-    }
 
+    ESP_LOGI(TAG, "Config file %s read successfully", path);
     ESP_LOGI(TAG, "Buffer content:\n%s", buffer);
 
     /*cJSON *json = cJSON_Parse(buffer);
