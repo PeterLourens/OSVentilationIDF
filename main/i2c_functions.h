@@ -8,14 +8,21 @@
 
 #include "globals.h"
 
-// Function declarations
-esp_err_t init_i2c_master0(void);
-esp_err_t init_i2c_sensor_aht20(int);
-esp_err_t init_i2c_sensor_scd4x(int);
-esp_err_t init_i2c_sensor_bme680(int);
-esp_err_t init_i2c_multiplexer_tca9548a(void);
+typedef struct
+{
+    float temperature;
+    float humidity;
+    float pressure;
+    float gas_resistance;
+    esp_err_t status;
+} bme680_data_t;
 
-// Should dissapear
-// void read_sensors(void);
+// Function declarations
+esp_err_t i2c_init_master0(void);
+esp_err_t i2c_init_sensor_aht20(int);
+esp_err_t i2c_init_sensor_scd4x(int);
+esp_err_t i2c_init_multiplexer_tca9548a(void);
+esp_err_t i2c_init_sensor_bme680(int);
+bme680_data_t i2c_sensor_read_bme680(int);
 
 #endif

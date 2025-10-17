@@ -9,12 +9,9 @@ void task_i2c_code(void *pvParameters)
 {
     float temperature = 0;
     float humidity = 0;
-    float pressure = 0;
-    float gas_resistance = 0;
-
     uint16_t co2 = 0;
-
     esp_err_t err = ESP_OK;
+    
     const char *TAG1 = "i2c init";
 
     /*
@@ -25,35 +22,35 @@ void task_i2c_code(void *pvParameters)
     */
 
     // init I2C bus and sensors
-    err = init_i2c_master0();
+    err = i2c_init_master0();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "I2C master bus initialization failed: %s", esp_err_to_name(err));
     }
 
     // Init TCA9548a multiplexer
-    err = init_i2c_multiplexer_tca9548a();
+    err = i2c_init_multiplexer_tca9548a();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "TCA9548A initialization failed: %s", esp_err_to_name(err));
     }
 
     // Init AHT20 sensor
-    err = init_i2c_sensor_aht20(0x01);
+    err = i2c_init_sensor_aht20(0x01);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "AHT20 initialization failed: %s", esp_err_to_name(err));
     }
 
     // Init AHT20 sensor
-    err = init_i2c_sensor_aht20(0x03);
+    err = i2c_init_sensor_aht20(0x03);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "AHT20 initialization failed: %s", esp_err_to_name(err));
     }
 
     // Init SCD4x sensor
-    err = init_i2c_sensor_scd4x(0x02);
+    err = i2c_init_sensor_scd4x(0x02);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "SCD4x initialization failed: %s", esp_err_to_name(err));
@@ -84,10 +81,15 @@ void task_i2c_code(void *pvParameters)
 
         // Read BME680 data
         err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 0
-        err = bme680_force_measurement(&bme680);
-        // err = bme680_get_results_float(&bme680, &temperature, &humidity, &pressure, &gas_resistance);
-
-        // printf("BME680 on TCA9548A Channel 4 → Temp: %.2f °C, Humidity: %.2f %%, Pressure: %.2f hPa, Gas: %.2f Ω\n", temperature, humidity, pressure / 100.0, gas_resistance);
+        bme680_data_t data = i2c_sensor_read_bme680(4);
+        if (data.status == ESP_OK)
+        {
+            ESP_LOGI(TAG1, "Ch4 -> Temp: %.2f°C, Hum: %.2f%%, Press: %.2f hPa, Gas: %.2fΩ", data.temperature, data.humidity, data.pressure, data.gas_resistance);
+        }
+        else
+        {
+            ESP_LOGE(TAG1, "Failed to read BME680 on channel 4");
+        }
 
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
