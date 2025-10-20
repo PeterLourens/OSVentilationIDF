@@ -27,7 +27,7 @@ void task_i2c_code(void *pvParameters)
     {
         ESP_LOGE(TAG1, "I2C master bus initialization failed: %s", esp_err_to_name(err));
     }
-
+    /*
     // Init TCA9548a multiplexer
     err = i2c_init_multiplexer_tca9548a();
     if (err != ESP_OK)
@@ -54,14 +54,14 @@ void task_i2c_code(void *pvParameters)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "SCD4x initialization failed: %s", esp_err_to_name(err));
-    }
+    }*/
 
     // Init BME680 sensor
-    /*err = i2c_init_sensor_bme680(0x04);
+    err = i2c_init_sensor_bme680(0x04);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG1, "BME680 initialization failed: %s", esp_err_to_name(err));
-    }*/
+    }
     memset(&bme680, 0, sizeof(bme680_t));
 
     bme680_init_desc(&bme680, BME680_ADDR, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
@@ -92,6 +92,7 @@ void task_i2c_code(void *pvParameters)
 
     while (1)
     {
+        /*
         // Read AHT20 data
         err = tca9548_set_channels(&i2c_switch, 0x01); // Select channel 0
         err = aht_get_data(&aht20, &temperature, &humidity);
@@ -112,10 +113,11 @@ void task_i2c_code(void *pvParameters)
         printf("AHT20 on TCA9548A Channel 2 → Temp: %.2f °C, Humidity: %.2f %%\n", temperature, humidity);
 
         vTaskDelay(pdMS_TO_TICKS(100)); // Delay between readings
+        */
 
         // Read BME680 data
-        err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 0
-        /*bme680_data_t data = i2c_sensor_read_bme680(4);
+        // err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 0
+        bme680_data_t data = i2c_sensor_read_bme680(4);
 
         if (data.status == ESP_OK)
         {
@@ -124,7 +126,8 @@ void task_i2c_code(void *pvParameters)
         else
         {
             ESP_LOGE(TAG1, "Failed to read BME680 on channel 4");
-        }*/
+        }
+
         // trigger the sensor to start one TPHG measurement cycle
         if (bme680_force_measurement(&bme680) == ESP_OK)
         {
