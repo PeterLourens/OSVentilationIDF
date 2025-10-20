@@ -6,6 +6,7 @@
 #include <freertos/task.h>
 #include <esp_log.h>
 #include <esp_err.h>
+#include <driver/i2c_master.h>
 
 #include <aht.h>
 #include <tca9548.h>
@@ -14,8 +15,10 @@
 
 // I2C Bus0 configuration
 #define I2C_MASTER_NUM I2C_NUM_0
-#define I2C_MASTER_SDA_IO 39
-#define I2C_MASTER_SCL_IO 38
+// #define I2C_MASTER_SDA_IO 39
+// #define I2C_MASTER_SCL_IO 38
+#define I2C_MASTER_SDA_IO 41
+#define I2C_MASTER_SCL_IO 40
 #define I2C_MASTER_FREQ_HZ 100000
 
 #define TCA9548_ADDR 0x70       // Default address

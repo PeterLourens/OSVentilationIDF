@@ -48,5 +48,5 @@ void app_main(void)
     }
 
     // Start tasks
-    // start_task_i2c();
+    start_task_i2c();
 }

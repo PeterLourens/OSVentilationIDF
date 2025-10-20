@@ -76,41 +76,54 @@ esp_err_t i2c_init_sensor_bme680(int channel)
 {
     esp_err_t err = ESP_OK;
 
-    err = bme680_init_desc(&bme680, BME680_ADDR, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    err = bme680_init_desc(&bme680, 0x76, I2C_NUM_0, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to init BME680 descriptor", esp_err_to_name(err));
+        return err;
+    }
 
     err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 4
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to switch TCA9548A channel: %s", esp_err_to_name(err));
+        return err;
     }
     vTaskDelay(pdMS_TO_TICKS(10));
 
+    err = bme680_init_sensor(&bme680);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to init BME680 sensor", esp_err_to_name(err));
+        return err;
+    }
+
     // Configure oversampling
-    err = bme680_set_oversampling_rates(&bme680, BME680_OSR_8X, BME680_OSR_8X, BME680_OSR_8X);
+    /*err = bme680_set_oversampling_rates(&bme680, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
     if (err != ESP_OK)
     {
         return err;
-    }
+    }*/
 
     // Configure filter
-    err = bme680_set_filter_size(&bme680, BME680_IIR_SIZE_3);
+    /*err = bme680_set_filter_size(&bme680, BME680_IIR_SIZE_3);
     if (err != ESP_OK)
     {
         return err;
-    }
+    }*/
 
     // Configure heater
-    err = bme680_set_heater_profile(&bme680, 0, 320, 150); // profile 0: 320°C, 150ms
+    /*err = bme680_set_heater_profile(&bme680, 0, 320, 150); // profile 0: 320°C, 150ms
     if (err != ESP_OK)
     {
         return err;
-    }
+    }*/
 
-    err = bme680_use_heater_profile(&bme680, 0);
+    /*err = bme680_use_heater_profile(&bme680, 0);
     if (err != ESP_OK)
     {
         return err;
-    }
+    }*/
 
     return err;
 }
@@ -120,7 +133,7 @@ bme680_data_t i2c_sensor_read_bme680(int channel)
     bme680_data_t result;
     esp_err_t err;
 
-    //uint32_t duration = bme680_get_measurement_duration(&bme680);
+    // uint32_t duration = bme680_get_measurement_duration(&bme680);
 
     // Trigger measurement
     err = bme680_force_measurement(&bme680);
@@ -130,8 +143,11 @@ bme680_data_t i2c_sensor_read_bme680(int channel)
         return result;
     }
 
+    uint32_t duration;
+    bme680_get_measurement_duration(&bme680, &duration);
+
     // Wait for measurement to complete
-    vTaskDelay(pdMS_TO_TICKS(200));
+    vTaskDelay(pdMS_TO_TICKS(duration));
 
     // Read results
     bme680_values_float_t values;
