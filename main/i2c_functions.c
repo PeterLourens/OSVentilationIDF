@@ -7,9 +7,9 @@ esp_err_t i2c_init_master0(void)
     esp_err_t err = ESP_OK;
 
     // I2C master descriptor
-    dev.port = I2C_MASTER_NUM;
-    dev.cfg.sda_io_num = I2C_MASTER_SDA_IO;
-    dev.cfg.scl_io_num = I2C_MASTER_SCL_IO;
+    dev.port = I2C_NUM_0;
+    dev.cfg.sda_io_num = I2C_MASTER_BUS0_SDA_IO;
+    dev.cfg.scl_io_num = I2C_MASTER_BUS0_SCL_IO;
     dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
     dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
     dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
@@ -18,21 +18,53 @@ esp_err_t i2c_init_master0(void)
     return err;
 }
 
-esp_err_t i2c_init_multiplexer_tca9548a(void)
+esp_err_t i2c_init_master1(void)
 {
     esp_err_t err = ESP_OK;
-    err = tca9548_init_desc(&i2c_switch, TCA9548_ADDR, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
-    err = tca9548_set_channels(&i2c_switch, 0x01); // Select channel 0
+
+    // I2C master descriptor
+    dev.port = I2C_NUM_0;
+    dev.cfg.sda_io_num = I2C_MASTER_BUS1_SDA_IO;
+    dev.cfg.scl_io_num = I2C_MASTER_BUS1_SCL_IO;
+    dev.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
+    dev.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
+    dev.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
+
+    err = i2cdev_init();
+    return err;
+}
+
+esp_err_t i2c_init_multiplexer_tca9548a(uint8_t i2c_master_bus_number)
+{
+    esp_err_t err = ESP_OK;
+
+    switch (i2c_master_bus_number)
+    {
+    case 0:
+        err = tca9548_init_desc(&i2c_switch0, TCA9548_I2C_ADDR, I2C_NUM_0, I2C_MASTER_BUS0_SDA_IO, I2C_MASTER_BUS0_SCL_IO);
+        if (err != ESP_OK)
+            return err;
+        err = tca9548_set_channels(&i2c_switch0, 0x01); // Select channel 0
+        if (err != ESP_OK)
+            return err;
+        break;
+    case 1:
+        err = tca9548_init_desc(&i2c_switch1, TCA9548_I2C_ADDR, I2C_NUM_1, I2C_MASTER_BUS1_SDA_IO, I2C_MASTER_BUS1_SCL_IO);
+        err = tca9548_set_channels(&i2c_switch1, 0x01); // Select channel 0
+        break;
+    default:
+        return ESP_ERR_INVALID_ARG;
+    }
     return err;
 }
 
 esp_err_t i2c_init_sensor_aht20(int channel)
 {
     esp_err_t err = ESP_OK;
-    err = aht_init_desc(&aht20, AHT20_ADDR, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    err = aht_init_desc(&aht20, AHT20_I2C_ADDR, I2C_NUM_0, I2C_MASTER_BUS0_SDA_IO, I2C_MASTER_BUS0_SCL_IO);
 
     // First change channel and then init sensor
-    err = tca9548_set_channels(&i2c_switch, 0x01); // Select channel 0
+    err = tca9548_set_channels(&i2c_switch0, 0x01); // Select channel 0
     if (err != ESP_OK)
     {
         return err;
@@ -51,9 +83,9 @@ esp_err_t i2c_init_sensor_aht20(int channel)
 esp_err_t i2c_init_sensor_scd4x(int channel)
 {
     esp_err_t err = ESP_OK;
-    err = scd4x_init_desc(&scd41, I2C_MASTER_NUM, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    err = scd4x_init_desc(&scd41, I2C_NUM_0, I2C_MASTER_BUS0_SDA_IO, I2C_MASTER_BUS0_SCL_IO);
 
-    err = tca9548_set_channels(&i2c_switch, 0x02); // Select channel 1
+    err = tca9548_set_channels(&i2c_switch0, 0x02); // Select channel 1
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to switch TCA9548A channel: %s", esp_err_to_name(err));
@@ -76,14 +108,14 @@ esp_err_t i2c_init_sensor_bme680(int channel)
 {
     esp_err_t err = ESP_OK;
 
-    err = bme680_init_desc(&bme680, 0x76, I2C_NUM_0, I2C_MASTER_SDA_IO, I2C_MASTER_SCL_IO);
+    err = bme680_init_desc(&bme680, 0x76, I2C_NUM_0, I2C_MASTER_BUS0_SDA_IO, I2C_MASTER_BUS0_SCL_IO);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to init BME680 descriptor", esp_err_to_name(err));
         return err;
     }
 
-    err = tca9548_set_channels(&i2c_switch, 0x04); // Select channel 4
+    err = tca9548_set_channels(&i2c_switch0, 0x04); // Select channel 4
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to switch TCA9548A channel: %s", esp_err_to_name(err));
@@ -99,31 +131,31 @@ esp_err_t i2c_init_sensor_bme680(int channel)
     }
 
     // Configure oversampling
-    /*err = bme680_set_oversampling_rates(&bme680, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
+    err = bme680_set_oversampling_rates(&bme680, BME680_OSR_4X, BME680_OSR_NONE, BME680_OSR_2X);
     if (err != ESP_OK)
     {
         return err;
-    }*/
+    }
 
     // Configure filter
-    /*err = bme680_set_filter_size(&bme680, BME680_IIR_SIZE_3);
+    err = bme680_set_filter_size(&bme680, BME680_IIR_SIZE_3);
     if (err != ESP_OK)
     {
         return err;
-    }*/
+    }
 
     // Configure heater
-    /*err = bme680_set_heater_profile(&bme680, 0, 320, 150); // profile 0: 320°C, 150ms
+    err = bme680_set_heater_profile(&bme680, 0, 320, 150); // profile 0: 320°C, 150ms
     if (err != ESP_OK)
     {
         return err;
-    }*/
+    }
 
-    /*err = bme680_use_heater_profile(&bme680, 0);
+    err = bme680_use_heater_profile(&bme680, 0);
     if (err != ESP_OK)
     {
         return err;
-    }*/
+    }
 
     return err;
 }

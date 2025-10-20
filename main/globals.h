@@ -13,19 +13,25 @@
 #include <scd4x.h>
 #include <bme680.h>
 
-// I2C Bus0 configuration
-#define I2C_MASTER_NUM I2C_NUM_0
-// #define I2C_MASTER_SDA_IO 39
-// #define I2C_MASTER_SCL_IO 38
-#define I2C_MASTER_SDA_IO 41
-#define I2C_MASTER_SCL_IO 40
+// I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
 
-#define TCA9548_ADDR 0x70       // Default address
-#define AHT20_ADDR 0x38         // Default address
-#define SCD41_ADDR 0x62         // Default address
-#define BME680_ADDR 0x76        // Default address
+// I2C Bus0 configuration
+// #define I2C_MASTER_NUM I2C_NUM_0
+#define I2C_MASTER_BUS0_SDA_IO 39
+#define I2C_MASTER_BUS0_SCL_IO 38
+
+// I2C Bus1 configuration
+#define I2C_MASTER_BUS1_SDA_IO 41
+#define I2C_MASTER_BUS1_SCL_IO 40
+
+// I2C Device Addresses
+#define TCA9548_I2C_ADDR 0x70   // Default address
+#define AHT20_I2C_ADDR 0x38     // Default address
 #define AHT_TYPE AHT_TYPE_AHT20 // AHT20 also works for DHT20
+#define SCD41_I2C_ADDR 0x62     // Default address
+#define BME680_I2C_ADDR 0x76    // Default address
+#define DS3231_I2C_ADDR 0x68    // Default address
 
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
@@ -37,11 +43,12 @@
 #define BUS_MAX_SENSORS 8
 
 // I2C Devices
-extern i2c_dev_t dev;        // Master bus device
-extern aht_t aht20;          // AHT sensors
-extern i2c_dev_t scd41;      // SCD41 sensors
-extern bme680_t bme680;      // SCD41 sensors
-extern i2c_dev_t i2c_switch; // I2c multiplexer
+extern i2c_dev_t dev;         // Master bus device
+extern aht_t aht20;           // AHT sensors
+extern i2c_dev_t scd41;       // SCD41 sensors
+extern bme680_t bme680;       // SCD41 sensors
+extern i2c_dev_t i2c_switch0; // I2c multiplexer bus 0
+extern i2c_dev_t i2c_switch1; // I2c multiplexer bus 1
 
 // Task handles
 extern TaskHandle_t task_i2c;

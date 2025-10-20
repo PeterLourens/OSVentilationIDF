@@ -21,7 +21,7 @@ typedef struct
 esp_err_t i2c_init_master0(void);
 esp_err_t i2c_init_sensor_aht20(int);
 esp_err_t i2c_init_sensor_scd4x(int);
-esp_err_t i2c_init_multiplexer_tca9548a(void);
+esp_err_t i2c_init_multiplexer_tca9548a(uint8_t);
 esp_err_t i2c_init_sensor_bme680(int);
 bme680_data_t i2c_sensor_read_bme680(int);
 
