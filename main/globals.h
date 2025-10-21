@@ -43,15 +43,19 @@
 #define BUS_MAX_SENSORS 8
 
 // I2C Devices
-extern i2c_dev_t dev;         // Master bus device
-extern aht_t aht20;           // AHT sensors
-extern i2c_dev_t scd41;       // SCD41 sensors
-extern bme680_t bme680;       // SCD41 sensors
+extern i2c_dev_t master0;     // Master bus0 device
+extern i2c_dev_t master1;     // Master bus1 device
+extern aht_t aht20_bus0;      // AHT bus0 sensors
+extern aht_t aht20_bus1;      // AHT bus1 sensors
+extern i2c_dev_t scd41_bus0;  // SCD41 bus0 sensors
+extern i2c_dev_t scd41_bus1;  // SCD41 bus1 sensors
+extern bme680_t bme680_bus0;  // BME680 bus0 sensors
+extern bme680_t bme680_bus1;  // BME680 bus1 sensors
 extern i2c_dev_t i2c_switch0; // I2c multiplexer bus 0
 extern i2c_dev_t i2c_switch1; // I2c multiplexer bus 1
 
 // Task handles
-extern TaskHandle_t task_i2c;
+extern TaskHandle_t task_i2c_sensors;
 
 // Sensor configuration structure
 typedef struct
