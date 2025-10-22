@@ -193,3 +193,37 @@ esp_err_t i2c_init_sensor_scd4x(uint8_t i2c_master_bus_number, int channel)
     }
     return err;
 }
+
+esp_err_t i2c_init_rtc()
+{
+    esp_err_t err = ESP_OK;
+
+    err = ds3231_init_desc(&ds3231_rtc_bus1, I2C_NUM_1, I2C_MASTER_BUS1_SDA_IO, I2C_MASTER_BUS1_SCL_IO);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to init_desc DS3231 RTC on bus1: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    return err;
+}
+
+esp_err_t i2c_rtc_set_esp()
+{
+    esp_err_t err = ESP_OK;
+
+    // Set DS3231 time to ESP32 time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    err = ds3231_set_time(&ds3231_rtc_bus1, &timeinfo);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to set DS3231 RTC time on bus1: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    return err;
+}
