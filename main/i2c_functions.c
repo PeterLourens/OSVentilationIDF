@@ -1,6 +1,6 @@
 #include "i2c_functions.h"
 
-static const char *TAG = "i2c test";
+static const char *TAG = "i2c functions";
 
 esp_err_t i2c_init_master0(void)
 {
