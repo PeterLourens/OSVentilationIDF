@@ -42,8 +42,14 @@
 #define BUS_MAX_SENSORS 8
 
 // I2C Devices
-extern i2c_dev_t master0;         // Master bus0 device
-extern i2c_dev_t master1;         // Master bus1 device
+extern i2c_master_bus_handle_t bus0;
+extern i2c_master_bus_handle_t bus1;
+extern i2c_master_dev_handle_t tca9548_bus0;
+extern i2c_master_dev_handle_t tca9548_bus1;
+
+// old
+//  extern i2c_dev_t master0;         // Master bus0 device
+//  extern i2c_dev_t master1;         // Master bus1 device
 extern aht_t aht20_bus0;          // AHT bus0 sensors
 extern aht_t aht20_bus1;          // AHT bus1 sensors
 extern i2c_dev_t scd41_bus0;      // SCD41 bus0 sensors
@@ -68,5 +74,7 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[];
 extern bus_sensor_t bus1_sensor_settings[];
+
+extern struct tm rtctime;
 
 #endif

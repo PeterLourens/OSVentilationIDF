@@ -27,6 +27,7 @@ void task_i2c_sensors_code(void *pvParameters)
         ESP_LOGE(TAG1, "TCA9548A initialization failed: %s", esp_err_to_name(err));
     }
 
+    /*
     // Init AHT20 sensor
     err = i2c_init_sensor_aht20(0, 0x01);
     if (err != ESP_OK)
@@ -55,8 +56,17 @@ void task_i2c_sensors_code(void *pvParameters)
         ESP_LOGE(TAG1, "SCD4x initialization failed: %s", esp_err_to_name(err));
     }
 
+    // Init DS3131 RTC
+    memset(&ds3231_rtc_bus1, 0, sizeof(i2c_dev_t));
+    err = i2c_init_rtc();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG1, "DS3231 initialization failed: %s", esp_err_to_name(err));
+    }*/
+
     while (1)
     {
+        /*
         // Read AHT20 data on bus0 channel 0
         err = tca9548_set_channels(&i2c_switch0, 0x01); // Select channel 0
         err = aht_get_data(&aht20_bus0, &temperature, &humidity);
@@ -83,6 +93,24 @@ void task_i2c_sensors_code(void *pvParameters)
         err = aht_get_data(&aht20_bus1, &temperature, &humidity);
         printf("AHT20 on bus1, TCA9548A channel 2 → Temp: %.2f °C, Humidity: %.2f %%\n", temperature, humidity);
 
+        vTaskDelay(pdMS_TO_TICKS(100)); // Delay between readings
+
+        // DS3231 Read
+        if (ds3231_get_time(&ds3231_rtc_bus1, &rtctime) != ESP_OK)
+        {
+            printf("Could not get time\n");
+        }
+
+        printf("%04d-%02d-%02d %02d:%02d:%02d", rtctime.tm_year + 1900, rtctime.tm_mon + 1, rtctime.tm_mday, rtctime.tm_hour, rtctime.tm_min, rtctime.tm_sec);
+*/
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
 }
+
+/*    int year;
+    int month;
+    int day;
+    int hour;
+    int minute;
+    int second;
+    int day_of_week;*/

@@ -7,14 +7,24 @@ esp_err_t i2c_init_master0(void)
     esp_err_t err = ESP_OK;
 
     // I2C master descriptor
-    master0.port = I2C_NUM_0;
+    /*master0.port = I2C_NUM_0;
     master0.cfg.sda_io_num = I2C_MASTER_BUS0_SDA_IO;
     master0.cfg.scl_io_num = I2C_MASTER_BUS0_SCL_IO;
     master0.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
     master0.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
-    master0.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
+    master0.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;*/
 
-    err = i2cdev_init();
+    i2c_master_bus_config_t bus0_cfg = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = 0,
+        .sda_io_num = I2C_MASTER_BUS0_SDA_IO,
+        .scl_io_num = I2C_MASTER_BUS0_SCL_IO,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    err = i2c_new_master_bus(&bus0_cfg, &bus0);
+
+    // err = i2cdev_init();
     return err;
 }
 
@@ -23,20 +33,36 @@ esp_err_t i2c_init_master1(void)
     esp_err_t err = ESP_OK;
 
     // I2C master descriptor
-    master1.port = I2C_NUM_1;
+    /*master1.port = I2C_NUM_1;
     master1.cfg.sda_io_num = I2C_MASTER_BUS1_SDA_IO;
     master1.cfg.scl_io_num = I2C_MASTER_BUS1_SCL_IO;
     master1.cfg.sda_pullup_en = GPIO_PULLUP_ENABLE;
     master1.cfg.scl_pullup_en = GPIO_PULLUP_ENABLE;
     master1.cfg.master.clk_speed = I2C_MASTER_FREQ_HZ;
 
-    err = i2cdev_init();
+    err = i2cdev_init();*/
+
+    i2c_master_bus_config_t bus1_cfg = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = 1,
+        .sda_io_num = I2C_MASTER_BUS1_SDA_IO,
+        .scl_io_num = I2C_MASTER_BUS1_SCL_IO,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+    err = i2c_new_master_bus(&bus1_cfg, &bus1);
+
     return err;
 }
 
 esp_err_t i2c_init_multiplexer_tca9548a(uint8_t i2c_master_bus_number)
 {
     esp_err_t err = ESP_OK;
+
+    i2c_master_dev_config_t dev_cfg = {
+        .device_addr = 0x76, // or 0x77 for BME680
+        .scl_speed_hz = 100000,
+    };
 
     switch (i2c_master_bus_number)
     {
@@ -208,7 +234,7 @@ esp_err_t i2c_init_rtc()
     return err;
 }
 
-esp_err_t i2c_rtc_set_esp()
+/*esp_err_t i2c_rtc_get_time()
 {
     esp_err_t err = ESP_OK;
 
@@ -226,4 +252,4 @@ esp_err_t i2c_rtc_set_esp()
     }
 
     return err;
-}
+}*/
