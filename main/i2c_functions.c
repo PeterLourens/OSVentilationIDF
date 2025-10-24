@@ -59,12 +59,29 @@ esp_err_t i2c_init_multiplexer_tca9548a(uint8_t i2c_master_bus_number)
 {
     esp_err_t err = ESP_OK;
 
-    i2c_master_dev_config_t dev_cfg = {
-        .device_addr = 0x76, // or 0x77 for BME680
+    i2c_device_config_t tca9548_cfg = {
+        .device_address = TCA9548_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
 
-    switch (i2c_master_bus_number)
+    i2c_master_dev_handle_t tca9548_handle;
+
+    esp_err_t err = i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Send channel mask to select active channel
+    uint8_t data = channel_mask;
+    err = i2c_master_transmit(dev_handle, &data, 1, -1);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("TCA9548A", "Failed to select channel: %s", esp_err_to_name(err));
+    }
+
+    /*switch (i2c_master_bus_number)
     {
     case 0:
         err = tca9548_init_desc(&i2c_switch0, TCA9548_I2C_ADDR, I2C_NUM_0, I2C_MASTER_BUS0_SDA_IO, I2C_MASTER_BUS0_SCL_IO);
@@ -96,7 +113,7 @@ esp_err_t i2c_init_multiplexer_tca9548a(uint8_t i2c_master_bus_number)
         break;
     default:
         return ESP_ERR_INVALID_ARG;
-    }
+    }*/
     return err;
 }
 
