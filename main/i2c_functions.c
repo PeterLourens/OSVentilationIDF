@@ -43,16 +43,17 @@ esp_err_t i2c_init_master1(void)
     return err;
 }
 
-esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t i2c_bus_handle, i2c_master_dev_handle_t i2c_dev_handle)
+esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     esp_err_t err = ESP_OK;
 
     i2c_device_config_t tca9548_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = TCA9548_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
 
-    err = i2c_master_bus_add_device(i2c_bus_handle, &tca9548_cfg, &i2c_dev_handle);
+    err = i2c_master_bus_add_device(bus_handle, &tca9548_cfg, dev_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
@@ -70,8 +71,6 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
         return ESP_ERR_INVALID_ARG;
     }
 
-    // Send channel mask to select active channel
-    // uint8_t data = channel;
     err = i2c_master_transmit(dev_handle, &channel, 1, -1);
     if (err != ESP_OK)
     {
@@ -80,18 +79,19 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     return err;
 }
 
-esp_err_t i2c_aht20_init(i2c_master_bus_handle_t i2c_bus_handle, i2c_master_dev_handle_t i2c_dev_handle)
+esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     esp_err_t err = ESP_OK;
     i2c_device_config_t aht20_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = AHT20_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
-    err = i2c_master_bus_add_device(i2c_bus_handle, &aht20_cfg, &i2c_dev_handle);
+    err = i2c_master_bus_add_device(i2c_bus0_handle, &aht20_cfg, dev_handle);
     return err;
 }
 
-esp_err_t aht20_read(i2c_master_dev_handle_t aht20_handle, float *temperature, float *humidity)
+esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
 {
     esp_err_t err = ESP_OK;
 
@@ -99,7 +99,7 @@ esp_err_t aht20_read(i2c_master_dev_handle_t aht20_handle, float *temperature, f
         return ESP_ERR_INVALID_STATE;
 
     uint8_t cmd[] = {0xAC, 0x33, 0x00};
-    err = i2c_master_transmit(aht20_handle, cmd, sizeof(cmd), -1);
+    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1);
 
     vTaskDelay(pdMS_TO_TICKS(80)); // Wait for measurement
 
@@ -113,4 +113,54 @@ esp_err_t aht20_read(i2c_master_dev_handle_t aht20_handle, float *temperature, f
     *temperature = ((float)raw_temperature * 200 / 1048576.0) - 50;
 
     return err;
+}
+
+esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
+{
+    i2c_device_config_t scd41_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = SCD41_I2C_ADDR,
+        .scl_speed_hz = 100000,
+    };
+
+    esp_err_t err = i2c_master_bus_add_device(bus_handle, &scd41_cfg, dev_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to add device: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // First give a soft reset to ensure the sensor can be initialized properly
+    uint8_t reset_cmd[2] = {0x36, 0x32};
+    i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    // Start periodic measurement(command 0x21B1)
+    uint8_t cmd[2] = {0x21, 0xB1};
+    err = i2c_master_transmit(*dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to start periodic measurement: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    ESP_LOGI("SCD41", "SCD41 initialized and continuous measurement started");
+    return ESP_OK;
+}
+
+uint8_t scd41_crc8(const uint8_t *data, size_t len)
+{
+    uint8_t crc = 0xFF;
+    for (size_t i = 0; i < len; i++)
+    {
+        crc ^= data[i];
+        for (uint8_t b = 0; b < 8; b++)
+        {
+            if (crc & 0x80)
+                crc = (crc << 1) ^ 0x31;
+            else
+                crc <<= 1;
+        }
+    }
+    return crc;
 }

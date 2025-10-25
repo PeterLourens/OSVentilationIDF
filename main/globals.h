@@ -26,11 +26,10 @@
 #define I2C_MASTER_BUS1_SCL_IO 40
 
 // I2C Device Addresses
-#define TCA9548_I2C_ADDR 0x70   // Default address
-#define AHT20_I2C_ADDR 0x38     // Default address
-#define AHT_TYPE AHT_TYPE_AHT20 // AHT20 also works for DHT20
-#define SCD41_I2C_ADDR 0x62     // Default address
-#define DS3231_I2C_ADDR 0x68    // Default address
+#define TCA9548_I2C_ADDR 0x70 // Default address
+#define AHT20_I2C_ADDR 0x38   // Default address
+#define SCD41_I2C_ADDR 0x62   // Default address
+#define DS3231_I2C_ADDR 0x68  // Default address
 
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
@@ -48,6 +47,8 @@ extern i2c_master_dev_handle_t tca9548_bus0_handle;
 extern i2c_master_dev_handle_t tca9548_bus1_handle;
 extern i2c_master_dev_handle_t aht20_bus0_handle;
 extern i2c_master_dev_handle_t aht20_bus1_handle;
+extern i2c_master_dev_handle_t scd41_bus0_handle;
+extern i2c_master_dev_handle_t scd41_bus1_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
