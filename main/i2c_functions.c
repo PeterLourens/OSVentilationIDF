@@ -80,18 +80,18 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     return err;
 }
 
-esp_err_t i2c_aht20_init(void)
+esp_err_t i2c_aht20_init(i2c_master_bus_handle_t i2c_bus_handle, i2c_master_dev_handle_t i2c_dev_handle)
 {
     esp_err_t err = ESP_OK;
     i2c_device_config_t aht20_cfg = {
         .device_address = AHT20_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
-    err = i2c_master_bus_add_device(i2c_bus0_handle, &aht20_cfg, &aht20_bus0_handle);
+    err = i2c_master_bus_add_device(i2c_bus_handle, &aht20_cfg, &i2c_dev_handle);
     return err;
 }
 
-esp_err_t aht20_read(float *temperature, float *humidity)
+esp_err_t aht20_read(i2c_master_dev_handle_t aht20_handle, float *temperature, float *humidity)
 {
     esp_err_t err = ESP_OK;
 
@@ -99,7 +99,7 @@ esp_err_t aht20_read(float *temperature, float *humidity)
         return ESP_ERR_INVALID_STATE;
 
     uint8_t cmd[] = {0xAC, 0x33, 0x00};
-    err = i2c_master_transmit(aht20_bus0_handle, cmd, sizeof(cmd), -1);
+    err = i2c_master_transmit(aht20_handle, cmd, sizeof(cmd), -1);
 
     vTaskDelay(pdMS_TO_TICKS(80)); // Wait for measurement
 
@@ -112,5 +112,5 @@ esp_err_t aht20_read(float *temperature, float *humidity)
     *humidity = ((float)raw_humidity * 100) / 1048576.0;
     *temperature = ((float)raw_temperature * 200 / 1048576.0) - 50;
 
-    return ESP_OK;
+    return err;
 }

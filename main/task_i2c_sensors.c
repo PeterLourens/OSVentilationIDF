@@ -37,7 +37,7 @@ void task_i2c_sensors_code(void *pvParameters)
             ESP_LOGI(I2C_SENSOR_TASK_TAG, "TCA9548A channel set to %d", ch);
         }
 
-        err = i2c_aht20_init();
+        err = i2c_aht20_init(i2c_bus0_handle, aht20_bus0_handle);
         if (err != ESP_OK)
         {
             ESP_LOGE(I2C_SENSOR_TASK_TAG, "AHT20 initialization failed: %s", esp_err_to_name(err));
@@ -45,7 +45,7 @@ void task_i2c_sensors_code(void *pvParameters)
 
         float temperature = 0.0f;
         float humidity = 0.0f;
-        err = aht20_read(&temperature, &humidity);
+        err = aht20_read(aht20_bus0_handle,&temperature, &humidity);
         if (err != ESP_OK)
         {
             ESP_LOGE(I2C_SENSOR_TASK_TAG, "AHT20 read failed: %s", esp_err_to_name(err));
