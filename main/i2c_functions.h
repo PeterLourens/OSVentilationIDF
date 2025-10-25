@@ -14,5 +14,6 @@ esp_err_t i2c_aht20_init(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);
 esp_err_t aht20_read(i2c_master_dev_handle_t, float *, float *);
 esp_err_t i2c_init_scd41(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);
 uint8_t scd41_crc8(const uint8_t *, size_t);
+esp_err_t scd41_read(i2c_master_dev_handle_t, uint16_t *, float *, float *);
 
 #endif

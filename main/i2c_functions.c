@@ -131,9 +131,14 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     }
 
     // First give a soft reset to ensure the sensor can be initialized properly
-    uint8_t reset_cmd[2] = {0x36, 0x32};
-    i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
-    vTaskDelay(pdMS_TO_TICKS(10));
+    // uint8_t reset_cmd[2] = {0x36, 0x32};
+    // i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
+    // vTaskDelay(pdMS_TO_TICKS(10));
+
+    // Stop any ongoing measurement (command 0x3F86)
+    uint8_t stop_cmd[2] = {0x3F, 0x86};
+    i2c_master_transmit(*dev_handle, stop_cmd, 2, pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     // Start periodic measurement(command 0x21B1)
     uint8_t cmd[2] = {0x21, 0xB1};
@@ -163,4 +168,46 @@ uint8_t scd41_crc8(const uint8_t *data, size_t len)
         }
     }
     return crc;
+}
+
+esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2_ppm, float *temperature, float *humidity)
+{
+    esp_err_t err;
+    uint8_t cmd[2] = {0xEC, 0x05}; // Read measurement command
+
+    // Send read command
+    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to send read command: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Read 9 bytes: CO₂ (2+CRC), Temp (2+CRC), RH (2+CRC)
+    uint8_t raw[9];
+    err = i2c_master_receive(dev_handle, raw, sizeof(raw), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to read measurement: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Parse CO₂
+    if (scd41_crc8(raw, 2) != raw[2])
+        return ESP_ERR_INVALID_CRC;
+    *co2_ppm = (raw[0] << 8) | raw[1];
+
+    // Parse Temperature
+    if (scd41_crc8(&raw[3], 2) != raw[5])
+        return ESP_ERR_INVALID_CRC;
+    uint16_t t_raw = (raw[3] << 8) | raw[4];
+    *temperature = -45.0f + 175.0f * ((float)t_raw / 65535.0f);
+
+    // Parse Humidity
+    if (scd41_crc8(&raw[6], 2) != raw[8])
+        return ESP_ERR_INVALID_CRC;
+    uint16_t rh_raw = (raw[6] << 8) | raw[7];
+    *humidity = 100.0f * ((float)rh_raw / 65535.0f);
+
+    return ESP_OK;
 }
