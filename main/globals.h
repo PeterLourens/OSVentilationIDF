@@ -8,11 +8,11 @@
 #include <esp_err.h>
 #include <driver/i2c_master.h>
 
-#include <aht.h>
-#include <tca9548.h>
-#include <scd4x.h>
-#include <bme680.h>
-#include <ds3231.h>
+// #include <aht.h>
+// #include <tca9548.h>
+// #include <scd4x.h>
+// #include <bme680.h>
+// #include <ds3231.h>
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -41,22 +41,11 @@
 
 #define BUS_MAX_SENSORS 8
 
-// I2C Devices
-extern i2c_master_bus_handle_t bus0;
-extern i2c_master_bus_handle_t bus1;
-extern i2c_master_dev_handle_t tca9548_bus0;
-extern i2c_master_dev_handle_t tca9548_bus1;
-
-// old
-//  extern i2c_dev_t master0;         // Master bus0 device
-//  extern i2c_dev_t master1;         // Master bus1 device
-extern aht_t aht20_bus0;          // AHT bus0 sensors
-extern aht_t aht20_bus1;          // AHT bus1 sensors
-extern i2c_dev_t scd41_bus0;      // SCD41 bus0 sensors
-extern i2c_dev_t scd41_bus1;      // SCD41 bus1 sensors
-extern i2c_dev_t i2c_switch0;     // I2c multiplexer bus 0
-extern i2c_dev_t i2c_switch1;     // I2c multiplexer bus 1
-extern i2c_dev_t ds3231_rtc_bus1; // DS3231 RTC
+// I2C Devices new driver style
+extern i2c_master_bus_handle_t i2c_bus0_handle;
+extern i2c_master_bus_handle_t i2c_bus1_handle;
+extern i2c_master_dev_handle_t tca9548_bus0_handle;
+extern i2c_master_dev_handle_t tca9548_bus1_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
@@ -75,6 +64,6 @@ typedef struct
 extern bus_sensor_t bus0_sensor_settings[];
 extern bus_sensor_t bus1_sensor_settings[];
 
-extern struct tm rtctime;
+// extern struct tm rtctime;
 
 #endif
