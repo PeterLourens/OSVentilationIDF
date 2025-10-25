@@ -69,7 +69,6 @@ void task_i2c_sensors_code(void *pvParameters)
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000)); // Delay after readings
-        //}
     }
 }
 
