@@ -49,20 +49,18 @@ void task_i2c_sensors_code(void *pvParameters)
                 ESP_LOGI(I2C_SENSOR_TASK_TAG, "TCA9548A channel set to %d", ch);
             }
 
-            // ESP_LOGI(I2C_SENSOR_TASK_TAG, "Scanning I2C devices on channel %d...", ch);
+            ESP_LOGI(I2C_SENSOR_TASK_TAG, "Scanning I2C devices on channel %d...", ch);
 
             // Scan I2C addresses from 0x03 to 0x77
-            /*for (uint8_t addr = 0x03; addr < 0x78; addr++)
+            for (uint8_t addr = 0x03; addr < 0x78; addr++)
             {
                 // Try to transmit 0 bytes to each address
-                // err = i2c_master_transmit(i2c_bus0_handle, &addr, NULL, 0, pdMS_TO_TICKS(100));
-                err = i2c_master_transmit(tca9548_bus0_handle, &addr, 1, -1);
-
+                err = i2c_master_write_to_device(I2C_NUM_0, addr, NULL, 0, pdMS_TO_TICKS(100));
                 if (err == ESP_OK)
                 {
                     ESP_LOGI(I2C_SENSOR_TASK_TAG, "Device found at address 0x%02X on channel %d", addr, ch);
                 }
-            }*/
+            }
             vTaskDelay(pdMS_TO_TICKS(10000)); // Delay after readings
         }
     }
