@@ -46,6 +46,8 @@ extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
 extern i2c_master_dev_handle_t tca9548_bus0_handle;
 extern i2c_master_dev_handle_t tca9548_bus1_handle;
+extern i2c_master_dev_handle_t aht20_bus0_handle;
+extern i2c_master_dev_handle_t aht20_bus1_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;

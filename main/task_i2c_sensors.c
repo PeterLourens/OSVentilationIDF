@@ -36,33 +36,40 @@ void task_i2c_sensors_code(void *pvParameters)
             ESP_LOGI(I2C_SENSOR_TASK_TAG, "TCA9548A channel set to %d", channel);
         }*/
         // Scan all 8 channels of the TCA9548A
-        for (uint8_t ch = 0x01; ch < 0x08; ch++)
+        // for (uint8_t ch = 0x01; ch < 0x08; ch++)
+        //{
+        uint8_t ch = 0x01;
+        err = i2c_tca9548_set_channel(tca9548_bus0_handle, ch);
+        if (err != ESP_OK)
         {
-            err = i2c_tca9548_set_channel(tca9548_bus0_handle, ch);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(I2C_SENSOR_TASK_TAG, "Failed to set channel %d: %s", ch, esp_err_to_name(err));
-                continue;
-            }
-            else
-            {
-                ESP_LOGI(I2C_SENSOR_TASK_TAG, "TCA9548A channel set to %d", ch);
-            }
-
-            ESP_LOGI(I2C_SENSOR_TASK_TAG, "Scanning I2C devices on channel %d...", ch);
-
-            // Scan I2C addresses from 0x03 to 0x77
-            for (uint8_t addr = 0x03; addr < 0x78; addr++)
-            {
-                // Try to transmit 0 bytes to each address
-                err = i2c_master_write_to_device(I2C_NUM_0, addr, NULL, 0, pdMS_TO_TICKS(100));
-                if (err == ESP_OK)
-                {
-                    ESP_LOGI(I2C_SENSOR_TASK_TAG, "Device found at address 0x%02X on channel %d", addr, ch);
-                }
-            }
-            vTaskDelay(pdMS_TO_TICKS(10000)); // Delay after readings
+            ESP_LOGE(I2C_SENSOR_TASK_TAG, "Failed to set channel %d: %s", ch, esp_err_to_name(err));
+            continue;
         }
+        else
+        {
+            ESP_LOGI(I2C_SENSOR_TASK_TAG, "TCA9548A channel set to %d", ch);
+        }
+
+        err = i2c_aht20_init();
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(I2C_SENSOR_TASK_TAG, "AHT20 initialization failed: %s", esp_err_to_name(err));
+        }
+
+        float temperature = 0.0f;
+        float humidity = 0.0f;
+        err = aht20_read(&temperature, &humidity);
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(I2C_SENSOR_TASK_TAG, "AHT20 read failed: %s", esp_err_to_name(err));
+        }
+        else
+        {
+            ESP_LOGI(I2C_SENSOR_TASK_TAG, "\nAHT20 Temperature: %.2f °C, Humidity: %.2f %%", temperature, humidity);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10000)); // Delay after readings
+        //}
     }
 }
 
