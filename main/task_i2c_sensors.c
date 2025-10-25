@@ -82,7 +82,7 @@ void task_i2c_sensors_code(void *pvParameters)
         err = i2c_tca9548_set_channel(tca9548_bus0_handle, ch);
         if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
         {
-            ESP_LOGI(I2C_SENSOR_TASK_TAG, "SCD41 Temperature : % .2f °C, Humidity: % .2f %%, CO₂: %u ppm", temp, rh, co2);
+            ESP_LOGI(I2C_SENSOR_TASK_TAG, "SCD41 Temperature: % .2f °C, Humidity: % .2f %%, CO₂: %u ppm", temp, rh, co2);
         }
         else
         {
