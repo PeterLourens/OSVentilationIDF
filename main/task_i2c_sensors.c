@@ -17,7 +17,7 @@ void task_i2c_sensors_code(void *pvParameters)
     esp_err_t err = ESP_OK;
 
     // Init TCA9548a multiplexer
-    err = i2c_init_tca9548();
+    err = i2c_init_tca9548(i2c_bus0_handle, tca9548_bus0_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE(I2C_SENSOR_TASK_TAG, "TCA9548A initialization failed: %s", esp_err_to_name(err));

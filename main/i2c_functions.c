@@ -43,7 +43,7 @@ esp_err_t i2c_init_master1(void)
     return err;
 }
 
-esp_err_t i2c_init_tca9548(void)
+esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t i2c_bus_handle, i2c_master_dev_handle_t i2c_dev_handle)
 {
     esp_err_t err = ESP_OK;
 
@@ -52,7 +52,7 @@ esp_err_t i2c_init_tca9548(void)
         .scl_speed_hz = 100000,
     };
 
-    err = i2c_master_bus_add_device(i2c_bus0_handle, &tca9548_cfg, &tca9548_bus0_handle);
+    err = i2c_master_bus_add_device(i2c_bus_handle, &tca9548_cfg, &i2c_dev_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
@@ -71,8 +71,8 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     }
 
     // Send channel mask to select active channel
-    uint8_t data = channel;
-    err = i2c_master_transmit(dev_handle, &data, 1, -1);
+    // uint8_t data = channel;
+    err = i2c_master_transmit(dev_handle, &channel, 1, -1);
     if (err != ESP_OK)
     {
         ESP_LOGE("TCA9548A", "Failed to select channel: %s", esp_err_to_name(err));
