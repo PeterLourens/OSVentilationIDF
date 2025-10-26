@@ -170,6 +170,40 @@ uint8_t scd41_crc8(const uint8_t *data, size_t len)
     return crc;
 }
 
+esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
+{
+    esp_err_t err;
+    uint8_t cmd[2] = {0xE4, 0xB8}; // Get data ready status command
+    uint8_t response[3];           // 2 data bytes + 1 CRC byte
+
+    // Send data ready check command
+    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to send data ready command: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Read response
+    err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to read data ready status: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Verify CRC
+    if (scd41_crc8(response, 2) != response[2])
+    {
+        return ESP_ERR_INVALID_CRC;
+    }
+
+    // Bit 11 indicates data ready status
+    *data_ready = (response[0] & 0x07) == 0x00 && (response[1] & 0xFF) == 0x00;
+
+    return ESP_OK;
+}
+
 esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2_ppm, float *temperature, float *humidity)
 {
     esp_err_t err;
