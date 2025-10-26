@@ -7,12 +7,7 @@
 #include <esp_log.h>
 #include <esp_err.h>
 #include <driver/i2c_master.h>
-
-// #include <aht.h>
-// #include <tca9548.h>
-// #include <scd4x.h>
-// #include <bme680.h>
-// #include <ds3231.h>
+#include <esp_timer.h>
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -38,7 +33,7 @@
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
 
-#define BUS_MAX_SENSORS 8
+#define CHANNELS_PER_BUS 8
 
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
@@ -54,6 +49,9 @@ extern i2c_master_dev_handle_t scd41_bus1_handle;
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_rtc;
 
+// Sensor readings queue
+extern QueueHandle_t sensor_queue;
+
 // Sensor configuration structure
 typedef struct
 {
@@ -67,6 +65,15 @@ typedef struct
 extern bus_sensor_t bus0_sensor_settings[];
 extern bus_sensor_t bus1_sensor_settings[];
 
-// extern struct tm rtctime;
+typedef struct
+{
+    uint8_t bus_id;    // 0 or 1
+    uint8_t channel;   // 0–7
+    float temperature; // °C
+    float humidity;    // %RH
+    uint16_t co2;      // ppm
+    int64_t timestamp; // µs since boot
+    bool valid;        // true if reading is valid
+} sensor_reading_t;
 
 #endif

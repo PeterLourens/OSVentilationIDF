@@ -15,6 +15,13 @@ void app_main(void)
     esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
     esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
 */
+    sensor_queue = xQueueCreate(1, sizeof(sensor_reading_t));
+    if (sensor_queue == NULL)
+    {
+        ESP_LOGE("QUEUE", "Failed to create sensor queue!");
+        abort(); // or handle error
+    }
+
     // Initialize NVS
     err = init_nvs();
     if (err != ESP_OK)
@@ -43,7 +50,6 @@ void app_main(void)
         ESP_LOGE(TAG, "I2C master bus1 initialization failed: %s", esp_err_to_name(err));
     }
 
-    /*
     // Load sensor configuration for bus 0
     err = load_sensor_config("bus0_sensor_config");
     if (err != ESP_OK)
@@ -58,8 +64,23 @@ void app_main(void)
         ESP_LOGE(TAG, "Failed to load bus 1 sensor configuration");
         return;
     }
-    */
 
     // Start tasks
     start_task_i2c_sensors();
+
+    sensor_reading_t reading;
+    while (1)
+    {
+        if (sensor_queue != NULL)
+        {
+            if (xQueuePeek(sensor_queue, &reading, portMAX_DELAY))
+            {
+                ESP_LOGI("CONSUMER",
+                         "Bus %d, CH%d @ %lld µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%u ppm",
+                         reading.bus_id, reading.channel, (long long)reading.timestamp,
+                         reading.temperature, reading.humidity, reading.co2);
+            }
+        }
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
 }

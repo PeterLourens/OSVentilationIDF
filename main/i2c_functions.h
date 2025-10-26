@@ -23,4 +23,10 @@ uint8_t scd41_crc8(const uint8_t *, size_t);
 esp_err_t scd41_data_ready(i2c_master_dev_handle_t, bool *);
 esp_err_t scd41_read(i2c_master_dev_handle_t, uint16_t *, float *, float *);
 
+// Functions to init and read sensors on mux channels based on config struct
+bool is_scd4x(const char *);
+bool is_aht20_family(const char *);
+esp_err_t init_sensors_on_mux_channels(void);
+esp_err_t read_sensors_on_mux_channels(void);
+
 #endif

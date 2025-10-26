@@ -245,3 +245,170 @@ esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2_ppm, floa
 
     return ESP_OK;
 }
+
+bool is_scd4x(const char *type)
+{
+    return (strcmp(type, "SCD41") == 0 || strcmp(type, "SCD40") == 0);
+}
+
+bool is_aht20_family(const char *type)
+{
+    return (strcmp(type, "AHT20") == 0 || strcmp(type, "DHT20") == 0);
+}
+
+esp_err_t init_sensors_on_mux_channels(void)
+{
+    esp_err_t err;
+
+    // --- Bus0 ---
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
+            continue;
+
+        uint8_t mask = (1 << ch);
+        err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
+        if (err != ESP_OK)
+            continue;
+
+        if (is_aht20_family(bus0_sensor_settings[ch].type))
+        {
+            err = i2c_aht20_init(i2c_bus0_handle, &aht20_bus0_handle);
+        }
+        else if (is_scd4x(bus0_sensor_settings[ch].type))
+        {
+            err = i2c_init_scd41(i2c_bus0_handle, &scd41_bus0_handle);
+        }
+    }
+
+    // --- Bus1 ---
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
+            continue;
+
+        uint8_t mask = (1 << ch);
+        err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
+        if (err != ESP_OK)
+            continue;
+
+        if (is_aht20_family(bus1_sensor_settings[ch].type))
+        {
+            err = i2c_aht20_init(i2c_bus1_handle, &aht20_bus1_handle);
+        }
+        else if (is_scd4x(bus1_sensor_settings[ch].type))
+        {
+            err = i2c_init_scd41(i2c_bus1_handle, &scd41_bus1_handle);
+        }
+    }
+
+    return ESP_OK;
+}
+
+esp_err_t read_sensors_on_mux_channels(void)
+{
+    esp_err_t err;
+    sensor_reading_t reading;
+
+    // --- Bus0 ---
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
+            continue;
+
+        uint8_t mask = (1 << ch);
+        err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
+        if (err != ESP_OK)
+            continue;
+
+        memset(&reading, 0, sizeof(reading));
+        reading.bus_id = 0;
+        reading.channel = ch;
+        reading.timestamp = esp_timer_get_time();
+
+        if (is_aht20_family(bus0_sensor_settings[ch].type))
+        {
+            float temp, rh;
+            if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
+            {
+                reading.temperature = temp;
+                if (bus0_sensor_settings[ch].rh_enabled)
+                    reading.humidity = rh;
+                reading.valid = true;
+            }
+        }
+        else if (is_scd4x(bus0_sensor_settings[ch].type))
+        {
+            uint16_t co2;
+            float temp, rh;
+            if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
+            {
+                if (bus0_sensor_settings[ch].co2_enabled)
+                    reading.co2 = co2;
+                if (bus0_sensor_settings[ch].rh_enabled)
+                {
+                    reading.temperature = temp;
+                    reading.humidity = rh;
+                }
+                reading.valid = true;
+            }
+        }
+
+        if (reading.valid)
+        {
+            xQueueOverwrite(sensor_queue, &reading);
+        }
+    }
+
+    // --- Bus1 ---
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
+            continue;
+
+        uint8_t mask = (1 << ch);
+        err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
+        if (err != ESP_OK)
+            continue;
+
+        memset(&reading, 0, sizeof(reading));
+        reading.bus_id = 1;
+        reading.channel = ch;
+        reading.timestamp = esp_timer_get_time();
+
+        if (is_aht20_family(bus1_sensor_settings[ch].type))
+        {
+            float temp, rh;
+            if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
+            {
+                reading.temperature = temp;
+                if (bus1_sensor_settings[ch].rh_enabled)
+                    reading.humidity = rh;
+                reading.valid = true;
+            }
+        }
+        else if (is_scd4x(bus1_sensor_settings[ch].type))
+        {
+            uint16_t co2;
+            float temp, rh;
+            if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
+            {
+                if (bus1_sensor_settings[ch].co2_enabled)
+                    reading.co2 = co2;
+                if (bus1_sensor_settings[ch].rh_enabled)
+                {
+                    reading.temperature = temp;
+                    reading.humidity = rh;
+                }
+                reading.valid = true;
+            }
+        }
+
+        if (reading.valid)
+        {
+            xQueueOverwrite(sensor_queue, &reading);
+        }
+    }
+
+    return ESP_OK;
+}

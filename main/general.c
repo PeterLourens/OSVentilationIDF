@@ -172,7 +172,7 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
-    for (int i = 0; i < BUS_MAX_SENSORS; i++)
+    for (int i = 0; i < CHANNELS_PER_BUS; i++)
     {
         char key_type[32], key_valve[32], key_location[32], key_rh[32], key_co2[32];
         snprintf(key_type, sizeof(key_type), "b%d_s%d_type", bus_index, i);

@@ -15,15 +15,7 @@ TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_rtc = NULL;
 
 // Sensor configuration structure
-bus_sensor_t bus0_sensor_settings[BUS_MAX_SENSORS];
-bus_sensor_t bus1_sensor_settings[BUS_MAX_SENSORS];
+bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
+bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 
-// Date and time information from RTC
-/*struct tm rtctime =
-    {
-        .tm_year = 116, // since 1900 (2016 - 1900)
-        .tm_mon = 9,    // 0-based
-        .tm_mday = 9,
-        .tm_hour = 13,
-        .tm_min = 50,
-        .tm_sec = 10};*/
+QueueHandle_t sensor_queue;
