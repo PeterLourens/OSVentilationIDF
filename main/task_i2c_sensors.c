@@ -16,6 +16,17 @@ void task_i2c_sensors_code(void *pvParameters)
     const char *I2C_SENSOR_TASK_TAG = "i2c sensors";
     esp_err_t err = ESP_OK;
 
+    sensor_queue = xQueueCreate(1, sizeof(sensor_reading_t));
+    if (sensor_queue == NULL)
+    {
+        ESP_LOGE("QUEUE", "Failed to create sensor queue!");
+        abort(); // or handle error
+    }
+    else
+    {
+        ESP_LOGI("QUEUE", "Sensor queue created successfully");
+    }
+
     err = init_sensors_on_mux_channels();
     if (err != ESP_OK)
     {

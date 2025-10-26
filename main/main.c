@@ -15,12 +15,6 @@ void app_main(void)
     esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
     esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
 */
-    sensor_queue = xQueueCreate(1, sizeof(sensor_reading_t));
-    if (sensor_queue == NULL)
-    {
-        ESP_LOGE("QUEUE", "Failed to create sensor queue!");
-        abort(); // or handle error
-    }
 
     // Initialize NVS
     err = init_nvs();
@@ -79,6 +73,10 @@ void app_main(void)
                          "Bus %d, CH%d @ %lld µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%u ppm",
                          reading.bus_id, reading.channel, (long long)reading.timestamp,
                          reading.temperature, reading.humidity, reading.co2);
+            }
+            else
+            {
+                ESP_LOGW("CONSUMER", "Failed to receive sensor reading from queue");
             }
         }
         vTaskDelay(pdMS_TO_TICKS(1000));
