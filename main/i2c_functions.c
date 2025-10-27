@@ -332,9 +332,12 @@ esp_err_t read_sensors_on_mux_channels(void)
             if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
             {
                 reading.temperature = temp;
-                if (bus0_sensor_settings[ch].rh_enabled)
-                    reading.humidity = rh;
+                reading.humidity = rh;
                 reading.valid = true;
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to read AHT20 on bus 0 channel %d", ch);
             }
         }
         else if (is_scd4x(bus0_sensor_settings[ch].type))
@@ -343,14 +346,14 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
             {
-                if (bus0_sensor_settings[ch].co2_enabled)
-                    reading.co2 = co2;
-                if (bus0_sensor_settings[ch].rh_enabled)
-                {
-                    reading.temperature = temp;
-                    reading.humidity = rh;
-                }
+                reading.co2 = co2;
+                reading.temperature = temp;
+                reading.humidity = rh;
                 reading.valid = true;
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to read SCD4x on bus 0 channel %d", ch);
             }
         }
 
@@ -382,9 +385,12 @@ esp_err_t read_sensors_on_mux_channels(void)
             if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
             {
                 reading.temperature = temp;
-                if (bus1_sensor_settings[ch].rh_enabled)
-                    reading.humidity = rh;
+                reading.humidity = rh;
                 reading.valid = true;
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to read AHT20 on bus 1 channel %d", ch);
             }
         }
         else if (is_scd4x(bus1_sensor_settings[ch].type))
@@ -393,14 +399,14 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
             {
-                if (bus1_sensor_settings[ch].co2_enabled)
-                    reading.co2 = co2;
-                if (bus1_sensor_settings[ch].rh_enabled)
-                {
-                    reading.temperature = temp;
-                    reading.humidity = rh;
-                }
+                reading.co2 = co2;
+                reading.temperature = temp;
+                reading.humidity = rh;
                 reading.valid = true;
+            }
+            else
+            {
+                ESP_LOGE(TAG, "Failed to read SCD4x on bus 1 channel %d", ch);
             }
         }
 
