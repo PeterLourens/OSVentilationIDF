@@ -4,7 +4,7 @@
     "b1_s0_location": "Bedroom1",
     "b1_s0_rh": "On",
     "b1_s0_co2": "Off",
-    "b1_s1_type": "AHT20",
+    "b1_s1_type": "None",
     "b1_s1_valve": "valve4",
     "b1_s1_location": "Bedroom2",
     "b1_s1_rh": "On",
