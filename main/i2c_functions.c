@@ -273,6 +273,15 @@ esp_err_t init_sensors_on_mux_channels(void)
 
         uint8_t mask = (0x01 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
+            continue;
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
+        }
         // if (err != ESP_OK)
         // continue;
 
@@ -315,6 +324,15 @@ esp_err_t init_sensors_on_mux_channels(void)
 
         uint8_t mask = (0x01 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
+        if (err != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to set channel %d on bus 1: %s", ch, esp_err_to_name(err));
+            continue;
+        }
+        else
+        {
+            ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
+        }
         // if (err != ESP_OK)
         // continue;
 
