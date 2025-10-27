@@ -263,19 +263,22 @@ esp_err_t init_sensors_on_mux_channels(void)
     // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
+        ESP_LOGI(TAG, "Checking sensor config on bus 0 channel %d: %s", ch, bus0_sensor_settings[ch].type);
+
         if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
         {
             ESP_LOGI(TAG, "No sensor configured on bus 0 channel %d", ch);
             continue;
         }
 
-        uint8_t mask = (1 << ch);
+        uint8_t mask = (0x01 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
-        if (err != ESP_OK)
-            continue;
+        // if (err != ESP_OK)
+        // continue;
 
         if (is_aht20_family(bus0_sensor_settings[ch].type))
         {
+
             err = i2c_aht20_init(i2c_bus0_handle, &aht20_bus0_handle);
             if (err != ESP_OK)
             {
@@ -303,16 +306,17 @@ esp_err_t init_sensors_on_mux_channels(void)
     // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
+        ESP_LOGI(TAG, "Checking sensor config on bus 1 channel %d: %s", ch, bus1_sensor_settings[ch].type);
         if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
         {
             ESP_LOGI(TAG, "No sensor configured on bus 1 channel %d", ch);
             continue;
         }
 
-        uint8_t mask = (1 << ch);
+        uint8_t mask = (0x01 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
-        if (err != ESP_OK)
-            continue;
+        // if (err != ESP_OK)
+        // continue;
 
         if (is_aht20_family(bus1_sensor_settings[ch].type))
         {
@@ -358,8 +362,8 @@ esp_err_t read_sensors_into_queue(void)
 
         uint8_t mask = (1 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
-        if (err != ESP_OK)
-            continue;
+        // if (err != ESP_OK)
+        // continue;
 
         snapshot[0][ch][3] = (double)esp_timer_get_time(); // timestamp
 
@@ -402,8 +406,8 @@ esp_err_t read_sensors_into_queue(void)
 
         uint8_t mask = (1 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
-        if (err != ESP_OK)
-            continue;
+        // if (err != ESP_OK)
+        // continue;
 
         snapshot[1][ch][3] = (double)esp_timer_get_time();
 
