@@ -18,4 +18,5 @@ TaskHandle_t task_i2c_rtc = NULL;
 bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 
+// Queue handles
 QueueHandle_t sensor_queue;

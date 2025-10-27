@@ -264,7 +264,10 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
+        {
+            ESP_LOGI(TAG, "No sensor configured on bus 0 channel %d", ch);
             continue;
+        }
 
         uint8_t mask = (1 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
@@ -301,7 +304,10 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
+        {
+            ESP_LOGI(TAG, "No sensor configured on bus 1 channel %d", ch);
             continue;
+        }
 
         uint8_t mask = (1 << ch);
         err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
@@ -337,14 +343,16 @@ esp_err_t init_sensors_on_mux_channels(void)
     return ESP_OK;
 }
 
-esp_err_t read_sensors_on_mux_channels(void)
+esp_err_t read_sensors_into_queue(void)
 {
     esp_err_t err;
-    sensor_reading_t reading;
+    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
+        snapshot[0][ch][4] = 0; // valid = false
+
         if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
             continue;
 
@@ -353,24 +361,17 @@ esp_err_t read_sensors_on_mux_channels(void)
         if (err != ESP_OK)
             continue;
 
-        memset(&reading, 0, sizeof(reading));
-        reading.bus_id = 0;
-        reading.channel = ch;
-        reading.timestamp = esp_timer_get_time();
+        snapshot[0][ch][3] = (double)esp_timer_get_time(); // timestamp
 
         if (is_aht20_family(bus0_sensor_settings[ch].type))
         {
             float temp, rh;
             if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
             {
-                ESP_LOGI(TAG, "AHT20 read on bus 0 channel %d: Temp=%.2f °C, RH=%.2f %%", ch, temp, rh);
-                reading.temperature = temp;
-                reading.humidity = rh;
-                reading.valid = true;
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read AHT20 on bus 0 channel %d", ch);
+                snapshot[0][ch][0] = temp;
+                if (bus0_sensor_settings[ch].rh_enabled)
+                    snapshot[0][ch][1] = rh;
+                snapshot[0][ch][4] = 1; // valid
             }
         }
         else if (is_scd4x(bus0_sensor_settings[ch].type))
@@ -379,27 +380,23 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
             {
-                ESP_LOGI(TAG, "SCD4x read on bus 0 channel %d: CO2=%u ppm, Temp=%.2f °C, RH=%.2f %%", ch, co2, temp, rh);
-                reading.co2 = co2;
-                reading.temperature = temp;
-                reading.humidity = rh;
-                reading.valid = true;
+                if (bus0_sensor_settings[ch].co2_enabled)
+                    snapshot[0][ch][2] = co2;
+                if (bus0_sensor_settings[ch].rh_enabled)
+                {
+                    snapshot[0][ch][0] = temp;
+                    snapshot[0][ch][1] = rh;
+                }
+                snapshot[0][ch][4] = 1;
             }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read SCD4x on bus 0 channel %d", ch);
-            }
-        }
-
-        if (reading.valid)
-        {
-            xQueueOverwrite(sensor_queue, &reading);
         }
     }
 
     // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
+        snapshot[1][ch][4] = 0;
+
         if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
             continue;
 
@@ -408,20 +405,17 @@ esp_err_t read_sensors_on_mux_channels(void)
         if (err != ESP_OK)
             continue;
 
-        memset(&reading, 0, sizeof(reading));
-        reading.bus_id = 1;
-        reading.channel = ch;
-        reading.timestamp = esp_timer_get_time();
+        snapshot[1][ch][3] = (double)esp_timer_get_time();
 
         if (is_aht20_family(bus1_sensor_settings[ch].type))
         {
             float temp, rh;
             if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
             {
-                ESP_LOGI(TAG, "AHT20 read on bus 1 channel %d: Temp=%.2f °C, RH=%.2f %%", ch, temp, rh);
-                reading.temperature = temp;
-                reading.humidity = rh;
-                reading.valid = true;
+                snapshot[1][ch][0] = temp;
+                if (bus1_sensor_settings[ch].rh_enabled)
+                    snapshot[1][ch][1] = rh;
+                snapshot[1][ch][4] = 1;
             }
             else
             {
@@ -434,23 +428,24 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
             {
-                ESP_LOGI(TAG, "SCD4x read on bus 1 channel %d: CO2=%u ppm, Temp=%.2f °C, RH=%.2f %%", ch, co2, temp, rh);
-                reading.co2 = co2;
-                reading.temperature = temp;
-                reading.humidity = rh;
-                reading.valid = true;
+                if (bus1_sensor_settings[ch].co2_enabled)
+                    snapshot[1][ch][2] = co2;
+                if (bus1_sensor_settings[ch].rh_enabled)
+                {
+                    snapshot[1][ch][0] = temp;
+                    snapshot[1][ch][1] = rh;
+                }
+                snapshot[1][ch][4] = 1;
             }
             else
             {
                 ESP_LOGE(TAG, "Failed to read SCD4x on bus 1 channel %d", ch);
             }
         }
-
-        if (reading.valid)
-        {
-            xQueueOverwrite(sensor_queue, &reading);
-        }
     }
+
+    // Overwrite the queue with the full snapshot
+    xQueueOverwrite(sensor_queue, &snapshot);
 
     return ESP_OK;
 }

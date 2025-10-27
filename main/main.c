@@ -62,23 +62,31 @@ void app_main(void)
     // Start tasks
     start_task_i2c_sensors();
 
-    sensor_reading_t reading;
+    // Read from queue and log
+    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
     while (1)
     {
-        if (sensor_queue != NULL)
+        if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
         {
-            if (xQueuePeek(sensor_queue, &reading, portMAX_DELAY))
+            for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
             {
-                ESP_LOGI("CONSUMER",
-                         "Bus %d, CH%d @ %lld µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%u ppm",
-                         reading.bus_id, reading.channel, (long long)reading.timestamp,
-                         reading.temperature, reading.humidity, reading.co2);
-            }
-            else
-            {
-                ESP_LOGW("CONSUMER", "Failed to receive sensor reading from queue");
+                for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+                {
+                    // if (snapshot[bus][ch][IDX_VALID])
+                    //{
+                    ESP_LOGI("CONSUMER",
+                             "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm",
+                             bus, ch,
+                             snapshot[bus][ch][IDX_TIMESTAMP],
+                             snapshot[bus][ch][IDX_TEMP],
+                             snapshot[bus][ch][IDX_HUMIDITY],
+                             snapshot[bus][ch][IDX_CO2]);
+                    //}
+                }
             }
         }
-        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        vTaskDelay(pdMS_TO_TICKS(2000));
     }
 }

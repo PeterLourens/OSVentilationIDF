@@ -33,7 +33,14 @@
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
 
+#define MAX_I2C_BUSES 2
 #define CHANNELS_PER_BUS 8
+#define DATA_FIELDS 5 // 0=temp, 1=humidity, 2=CO2, 3=timestamp, 4=valid
+#define IDX_TEMP 0
+#define IDX_HUMIDITY 1
+#define IDX_CO2 2
+#define IDX_TIMESTAMP 3
+#define IDX_VALID 4
 
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
@@ -64,16 +71,5 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[];
 extern bus_sensor_t bus1_sensor_settings[];
-
-typedef struct
-{
-    uint8_t bus_id;    // 0 or 1
-    uint8_t channel;   // 0–7
-    float temperature; // °C
-    float humidity;    // %RH
-    uint16_t co2;      // ppm
-    int64_t timestamp; // µs since boot
-    bool valid;        // true if reading is valid
-} sensor_reading_t;
 
 #endif

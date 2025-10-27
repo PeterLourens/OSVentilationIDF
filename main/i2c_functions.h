@@ -27,6 +27,6 @@ esp_err_t scd41_read(i2c_master_dev_handle_t, uint16_t *, float *, float *);
 bool is_scd4x(const char *);
 bool is_aht20_family(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
-esp_err_t read_sensors_on_mux_channels(void);
+esp_err_t read_sensors_into_queue(void);
 
 #endif
