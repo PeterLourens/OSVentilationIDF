@@ -274,10 +274,26 @@ esp_err_t init_sensors_on_mux_channels(void)
         if (is_aht20_family(bus0_sensor_settings[ch].type))
         {
             err = i2c_aht20_init(i2c_bus0_handle, &aht20_bus0_handle);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to initialize AHT20 on bus 0 channel %d: %s", ch, esp_err_to_name(err));
+            }
+            else
+            {
+                ESP_LOGI(TAG, "AHT20 initialized on bus 0 channel %d", ch);
+            }
         }
         else if (is_scd4x(bus0_sensor_settings[ch].type))
         {
             err = i2c_init_scd41(i2c_bus0_handle, &scd41_bus0_handle);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to initialize SCD4x on bus 0 channel %d: %s", ch, esp_err_to_name(err));
+            }
+            else
+            {
+                ESP_LOGI(TAG, "SCD4x initialized on bus 0 channel %d", ch);
+            }
         }
     }
 
@@ -295,10 +311,26 @@ esp_err_t init_sensors_on_mux_channels(void)
         if (is_aht20_family(bus1_sensor_settings[ch].type))
         {
             err = i2c_aht20_init(i2c_bus1_handle, &aht20_bus1_handle);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to initialize AHT20 on bus 1 channel %d: %s", ch, esp_err_to_name(err));
+            }
+            else
+            {
+                ESP_LOGI(TAG, "AHT20 initialized on bus 1 channel %d", ch);
+            }
         }
         else if (is_scd4x(bus1_sensor_settings[ch].type))
         {
             err = i2c_init_scd41(i2c_bus1_handle, &scd41_bus1_handle);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to initialize SCD4x on bus 1 channel %d: %s", ch, esp_err_to_name(err));
+            }
+            else
+            {
+                ESP_LOGI(TAG, "SCD4x initialized on bus 1 channel %d", ch);
+            }
         }
     }
 
@@ -331,6 +363,7 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
             {
+                ESP_LOGI(TAG, "AHT20 read on bus 0 channel %d: Temp=%.2f °C, RH=%.2f %%", ch, temp, rh);
                 reading.temperature = temp;
                 reading.humidity = rh;
                 reading.valid = true;
@@ -346,6 +379,7 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
             {
+                ESP_LOGI(TAG, "SCD4x read on bus 0 channel %d: CO2=%u ppm, Temp=%.2f °C, RH=%.2f %%", ch, co2, temp, rh);
                 reading.co2 = co2;
                 reading.temperature = temp;
                 reading.humidity = rh;
@@ -384,6 +418,7 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
             {
+                ESP_LOGI(TAG, "AHT20 read on bus 1 channel %d: Temp=%.2f °C, RH=%.2f %%", ch, temp, rh);
                 reading.temperature = temp;
                 reading.humidity = rh;
                 reading.valid = true;
@@ -399,6 +434,7 @@ esp_err_t read_sensors_on_mux_channels(void)
             float temp, rh;
             if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
             {
+                ESP_LOGI(TAG, "SCD4x read on bus 1 channel %d: CO2=%u ppm, Temp=%.2f °C, RH=%.2f %%", ch, co2, temp, rh);
                 reading.co2 = co2;
                 reading.temperature = temp;
                 reading.humidity = rh;
