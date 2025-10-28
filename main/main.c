@@ -65,7 +65,7 @@ void app_main(void)
     // Read from queue and log
     double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
-    while (1)
+    /*while (1)
     {
         if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
         {
@@ -88,5 +88,5 @@ void app_main(void)
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000));
-    }
+    }*/
 }
