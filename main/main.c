@@ -65,7 +65,7 @@ void app_main(void)
     // Read from queue and log
     double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
-    /*while (1)
+    while (1)
     {
         if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
         {
@@ -73,20 +73,20 @@ void app_main(void)
             {
                 for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
                 {
-                    // if (snapshot[bus][ch][IDX_VALID])
-                    //{
-                    ESP_LOGI("CONSUMER",
-                             "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm",
-                             bus, ch,
-                             snapshot[bus][ch][IDX_TIMESTAMP],
-                             snapshot[bus][ch][IDX_TEMP],
-                             snapshot[bus][ch][IDX_HUMIDITY],
-                             snapshot[bus][ch][IDX_CO2]);
-                    //}
+                    if (snapshot[bus][ch][IDX_VALID])
+                    {
+                        ESP_LOGI("CONSUMER",
+                                 "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm",
+                                 bus, ch,
+                                 snapshot[bus][ch][IDX_TIMESTAMP],
+                                 snapshot[bus][ch][IDX_TEMP],
+                                 snapshot[bus][ch][IDX_HUMIDITY],
+                                 snapshot[bus][ch][IDX_CO2]);
+                    }
                 }
             }
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000));
-    }*/
+    }
 }
