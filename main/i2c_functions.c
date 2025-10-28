@@ -130,26 +130,43 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
         return err;
     }
 
-    // First give a soft reset to ensure the sensor can be initialized properly
-    // uint8_t reset_cmd[2] = {0x36, 0x32};
-    // i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
-    // vTaskDelay(pdMS_TO_TICKS(10));
-
-    // Stop any ongoing measurement (command 0x3F86)
-    uint8_t stop_cmd[2] = {0x3F, 0x86};
-    i2c_master_transmit(*dev_handle, stop_cmd, 2, pdMS_TO_TICKS(100));
-    vTaskDelay(pdMS_TO_TICKS(500));
-
-    // Start periodic measurement(command 0x21B1)
-    uint8_t cmd[2] = {0x21, 0xB1};
-    err = i2c_master_transmit(*dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    // Perform soft reset
+    uint8_t reset_cmd[2] = {0x36, 0x32};
+    err = i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Failed to start periodic measurement: %s", esp_err_to_name(err));
+        ESP_LOGE("SCD41", "Failed to send reset command: %s", esp_err_to_name(err));
         return err;
     }
 
-    ESP_LOGI("SCD41", "SCD41 initialized and continuous measurement started");
+    // Wait for reset to complete (minimum 2ms)
+    vTaskDelay(pdMS_TO_TICKS(20));
+
+    // Stop any ongoing measurement
+    uint8_t stop_cmd[2] = {0x3F, 0x86};
+    err = i2c_master_transmit(*dev_handle, stop_cmd, 2, pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to stop measurement: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Wait for stop to complete
+    vTaskDelay(pdMS_TO_TICKS(500));
+
+    // Start periodic measurement
+    uint8_t start_cmd[2] = {0x21, 0xB1};
+    err = i2c_master_transmit(*dev_handle, start_cmd, 2, pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("SCD41", "Failed to start measurement: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    // Wait for first measurement to be ready (minimum 5 seconds)
+    vTaskDelay(pdMS_TO_TICKS(5000));
+
+    ESP_LOGI("SCD41", "SCD41 initialized successfully");
     return ESP_OK;
 }
 
@@ -172,76 +189,99 @@ uint8_t scd41_crc8(const uint8_t *data, size_t len)
 
 esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
 {
-    esp_err_t err;
-    uint8_t cmd[2] = {0xE4, 0xB8}; // Get data ready status command
-    uint8_t response[3];           // 2 data bytes + 1 CRC byte
+    if (!dev_handle || !data_ready)
+        return ESP_ERR_INVALID_ARG;
 
-    // Send data ready check command
-    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    uint8_t cmd[2] = {0xE4, 0xB8}; // Get data ready status
+    uint8_t response[3];           // MSB, LSB, CRC
+
+    esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Failed to send data ready command: %s", esp_err_to_name(err));
+        ESP_LOGE("SCD41", "Transmit failed: %s", esp_err_to_name(err));
         return err;
     }
 
-    // Read response
     err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Failed to read data ready status: %s", esp_err_to_name(err));
+        ESP_LOGE("SCD41", "Receive failed: %s", esp_err_to_name(err));
         return err;
     }
 
-    // Verify CRC
-    if (scd41_crc8(response, 2) != response[2])
+    // CRC check on first two data bytes
+    uint8_t crc = scd41_crc8(response, 2);
+    if (crc != response[2])
     {
+        ESP_LOGE("SCD41", "CRC mismatch: got 0x%02X, expected 0x%02X", response[2], crc);
         return ESP_ERR_INVALID_CRC;
     }
 
-    // Bit 11 indicates data ready status
-    *data_ready = (response[0] & 0x07) == 0x00 && (response[1] & 0xFF) == 0x00;
+    // Combine into 16-bit status word (MSB first)
+    uint16_t status = ((uint16_t)response[0] << 8) | response[1];
+
+    // Bit 15 (MSB) indicates data ready: 1 = ready
+    *data_ready = (status & 0x8000) != 0;
+
+    // ESP_LOGD("SCD41", "Status raw: MSB=0x%02X LSB=0x%02X (0x%04X), ready=%d", response[0], response[1], status, *data_ready);
 
     return ESP_OK;
 }
 
-esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2_ppm, float *temperature, float *humidity)
+esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *temp, float *rh)
 {
-    esp_err_t err;
-    uint8_t cmd[2] = {0xEC, 0x05}; // Read measurement command
+    if (!dev_handle || !co2 || !temp || !rh)
+    {
+        return ESP_ERR_INVALID_ARG;
+    }
 
-    // Send read command
-    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
+    uint8_t cmd[2] = {0xEC, 0x05}; // read measurement command
+    uint8_t response[9];           // 3 words (2 bytes + CRC each)
+
+    // Send read measurement command
+    esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
         ESP_LOGE("SCD41", "Failed to send read command: %s", esp_err_to_name(err));
         return err;
     }
 
-    // Read 9 bytes: CO₂ (2+CRC), Temp (2+CRC), RH (2+CRC)
-    uint8_t raw[9];
-    err = i2c_master_receive(dev_handle, raw, sizeof(raw), pdMS_TO_TICKS(100));
+    // Add delay between send and receive (minimum 1ms according to datasheet)
+    vTaskDelay(pdMS_TO_TICKS(5));
+
+    // Read 9 bytes with timeout
+    err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Failed to read measurement: %s", esp_err_to_name(err));
+        ESP_LOGE("SCD41", "Failed to read measurement data: %s", esp_err_to_name(err));
         return err;
     }
 
-    // Parse CO₂
-    if (scd41_crc8(raw, 2) != raw[2])
+    // Parse CO₂ with CRC check
+    if (scd41_crc8(response, 2) != response[2])
+    {
+        ESP_LOGE("SCD41", "CO2 CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    *co2_ppm = (raw[0] << 8) | raw[1];
+    }
+    *co2 = ((uint16_t)response[0] << 8) | response[1];
 
-    // Parse Temperature
-    if (scd41_crc8(&raw[3], 2) != raw[5])
+    // Parse Temperature with CRC check
+    if (scd41_crc8(response + 3, 2) != response[5])
+    {
+        ESP_LOGE("SCD41", "Temperature CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    uint16_t t_raw = (raw[3] << 8) | raw[4];
-    *temperature = -45.0f + 175.0f * ((float)t_raw / 65535.0f);
+    }
+    uint16_t raw_temp = ((uint16_t)response[3] << 8) | response[4];
+    *temp = -45.0f + 175.0f * ((float)raw_temp / 65535.0f);
 
-    // Parse Humidity
-    if (scd41_crc8(&raw[6], 2) != raw[8])
+    // Parse RH with CRC check
+    if (scd41_crc8(response + 6, 2) != response[8])
+    {
+        ESP_LOGE("SCD41", "Humidity CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    uint16_t rh_raw = (raw[6] << 8) | raw[7];
-    *humidity = 100.0f * ((float)rh_raw / 65535.0f);
+    }
+    uint16_t raw_rh = ((uint16_t)response[6] << 8) | response[7];
+    *rh = 100.0f * ((float)raw_rh / 65535.0f);
 
     return ESP_OK;
 }
@@ -263,8 +303,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
-        ESP_LOGI(TAG, "Checking sensor config on bus 0 channel %d: %s", ch, bus0_sensor_settings[ch].type);
-
+        // ESP_LOGI(TAG, "Checking sensor config on bus 0 channel %d: %s", ch, bus0_sensor_settings[ch].type);
         if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
         {
             ESP_LOGI(TAG, "No sensor configured on bus 0 channel %d", ch);
@@ -315,7 +354,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
-        ESP_LOGI(TAG, "Checking sensor config on bus 1 channel %d: %s", ch, bus1_sensor_settings[ch].type);
+        // ESP_LOGI(TAG, "Checking sensor config on bus 1 channel %d: %s", ch, bus1_sensor_settings[ch].type);
         if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
         {
             ESP_LOGI(TAG, "No sensor configured on bus 1 channel %d", ch);
@@ -329,10 +368,10 @@ esp_err_t init_sensors_on_mux_channels(void)
             ESP_LOGE(TAG, "Failed to set channel %d on bus 1: %s", ch, esp_err_to_name(err));
             continue;
         }
-        else
-        {
-            ESP_LOGI(TAG, "Channel %d on bus 1 set successfully", ch);
-        }
+        // else
+        // {
+        //     ESP_LOGI(TAG, "Channel %d on bus 1 set successfully", ch);
+        // }
         // if (err != ESP_OK)
         // continue;
 
@@ -385,10 +424,10 @@ esp_err_t read_sensors_into_queue(void)
             ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
             continue;
         }
-        else
-        {
-            ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
-        }
+        // else
+        // {
+        //     ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
+        // }
         // if (err != ESP_OK)
         // continue;
 
@@ -400,8 +439,7 @@ esp_err_t read_sensors_into_queue(void)
             if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
             {
                 snapshot[0][ch][0] = temp;
-                if (bus0_sensor_settings[ch].rh_enabled)
-                    snapshot[0][ch][1] = rh;
+                snapshot[0][ch][1] = rh;
                 snapshot[0][ch][4] = 1; // valid
             }
         }
@@ -409,17 +447,36 @@ esp_err_t read_sensors_into_queue(void)
         {
             uint16_t co2;
             float temp, rh;
-            if (scd41_read(scd41_bus0_handle, &co2, &temp, &rh) == ESP_OK)
+            bool data_ready = false;
+
+            // Check if data is ready
+            esp_err_t err = scd41_data_ready(scd41_bus0_handle, &data_ready);
+            if (err != ESP_OK)
             {
-                if (bus0_sensor_settings[ch].co2_enabled)
-                    snapshot[0][ch][2] = co2;
-                if (bus0_sensor_settings[ch].rh_enabled)
-                {
-                    snapshot[0][ch][0] = temp;
-                    snapshot[0][ch][1] = rh;
-                }
-                snapshot[0][ch][4] = 1;
+                ESP_LOGE(TAG, "Failed to check data ready status on channel %d: %s", ch, esp_err_to_name(err));
+                continue;
             }
+
+            if (!data_ready)
+            {
+                ESP_LOGW(TAG, "Data not ready on channel %d, waiting for next cycle", ch);
+                continue;
+            }
+
+            // Read data only when ready
+            err = scd41_read(scd41_bus0_handle, &co2, &temp, &rh);
+            if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG, "Failed to read SCD41 on channel %d: %s", ch, esp_err_to_name(err));
+                continue;
+            }
+
+            snapshot[0][ch][0] = temp;
+            snapshot[0][ch][1] = rh;
+            snapshot[0][ch][2] = co2;
+            snapshot[0][ch][4] = 1; // Mark as valid
+
+            // ESP_LOGI(TAG, "SCD41 read success - CO2: %d ppm, Temp: %.2f°C, RH: %.2f%%",co2, temp, rh);
         }
     }
 
@@ -438,10 +495,10 @@ esp_err_t read_sensors_into_queue(void)
             ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
             continue;
         }
-        else
-        {
-            ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
-        }
+        // else
+        // {
+        //     ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
+        // }
         // if (err != ESP_OK)
         // continue;
 
@@ -453,8 +510,7 @@ esp_err_t read_sensors_into_queue(void)
             if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
             {
                 snapshot[1][ch][0] = temp;
-                if (bus1_sensor_settings[ch].rh_enabled)
-                    snapshot[1][ch][1] = rh;
+                snapshot[1][ch][1] = rh;
                 snapshot[1][ch][4] = 1;
             }
             else
@@ -468,13 +524,9 @@ esp_err_t read_sensors_into_queue(void)
             float temp, rh;
             if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
             {
-                if (bus1_sensor_settings[ch].co2_enabled)
-                    snapshot[1][ch][2] = co2;
-                if (bus1_sensor_settings[ch].rh_enabled)
-                {
-                    snapshot[1][ch][0] = temp;
-                    snapshot[1][ch][1] = rh;
-                }
+                snapshot[1][ch][0] = temp;
+                snapshot[1][ch][1] = rh;
+                snapshot[1][ch][2] = co2;
                 snapshot[1][ch][4] = 1;
             }
             else

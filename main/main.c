@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define PROJECT_LOG_LEVEL ESP_LOG_WARN
+#define PROJECT_LOG_LEVEL ESP_LOG_ERROR
 
 void app_main(void)
 {

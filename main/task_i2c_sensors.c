@@ -64,12 +64,12 @@ void task_i2c_sensors_code(void *pvParameters)
         {
             ESP_LOGE(I2C_SENSOR_TASK_TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
         }
-        else
-        {
-            ESP_LOGI(I2C_SENSOR_TASK_TAG, "Sensor readings updated in queue");
-        }
+        // else
+        // {
+        //     ESP_LOGI(I2C_SENSOR_TASK_TAG, "Sensor readings updated in queue");
+        // }
 
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay after readings
+        vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
 }
 
