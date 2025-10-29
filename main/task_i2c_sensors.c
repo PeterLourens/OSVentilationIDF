@@ -6,9 +6,28 @@
 
 #include "task_i2c_sensors.h"
 
-void start_task_i2c_sensors(void)
+static const char *I2C_SENSOR_TASK_TAG = "i2c sensors task";
+
+esp_err_t start_task_i2c_sensors(void)
 {
-    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 10000, NULL, 6, &task_i2c_sensors);
+    BaseType_t xReturned;
+
+    if (task_i2c_sensors != NULL)
+    {
+        ESP_LOGW(I2C_SENSOR_TASK_TAG, "I2C sensors task already running");
+        return ESP_OK;
+    }
+
+    // xReturned = xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 4096 * 4, NULL, 1, &task_i2c_sensors);
+    xReturned = xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 10000, NULL, 6, &task_i2c_sensors);
+    if (xReturned != pdPASS)
+    {
+        ESP_LOGE(I2C_SENSOR_TASK_TAG, "Failed to create i2c_sensors task");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(I2C_SENSOR_TASK_TAG, "I2C sensors task created");
+    return ESP_OK;
 }
 
 void task_i2c_sensors_code(void *pvParameters)

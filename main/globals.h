@@ -4,12 +4,19 @@
 #include <stdio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/event_groups.h>
+#include <freertos/queue.h>
 #include <esp_log.h>
 #include <esp_err.h>
 #include <esp_timer.h>
+#include <esp_system.h>
+#include <esp_wifi.h>
+#include <esp_netif.h>
+#include <esp_mac.h>
 #include <driver/i2c_master.h>
-
-#include "i2c_functions.h"
+#include <time.h>
+#include <lwip/err.h>
+#include <lwip/sys.h>
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -58,6 +65,7 @@ extern i2c_master_dev_handle_t ds3231_bus1_handle;
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_ds3231;
+extern TaskHandle_t task_wifi;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -74,5 +82,19 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[];
 extern bus_sensor_t bus1_sensor_settings[];
+
+extern struct tm timeinfo;
+
+typedef struct
+{
+    char enable_dhcp[SMALL_CONFIG_ITEM];
+    char ssid[SMALL_CONFIG_ITEM];
+    char wifi_password[XLARGE_CONFIG_ITEM]; // WPA3 has max 63 characters
+    char ip_address[LARGE_CONFIG_ITEM];
+    char subnet_mask[LARGE_CONFIG_ITEM];
+    char gateway[LARGE_CONFIG_ITEM];
+    char primary_dns[LARGE_CONFIG_ITEM];
+    char secondary_dns[LARGE_CONFIG_ITEM];
+} Network_settings;
 
 #endif

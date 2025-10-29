@@ -7,7 +7,7 @@
 #include "i2c_ds3231.h"
 
 // Function declarations
-void start_task_i2c_sensors(void);
-void task_i2c_sensors_code(void *pvParameters);
+void start_task_i2c_ds3231(void);
+void task_i2c_ds3231_code(void *pvParameters);
 
 #endif
