@@ -6,8 +6,10 @@
 #include <freertos/task.h>
 #include <esp_log.h>
 #include <esp_err.h>
-#include <driver/i2c_master.h>
 #include <esp_timer.h>
+#include <driver/i2c_master.h>
+
+#include "i2c_functions.h"
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -51,10 +53,11 @@ extern i2c_master_dev_handle_t aht20_bus0_handle;
 extern i2c_master_dev_handle_t aht20_bus1_handle;
 extern i2c_master_dev_handle_t scd41_bus0_handle;
 extern i2c_master_dev_handle_t scd41_bus1_handle;
+extern i2c_master_dev_handle_t ds3231_bus1_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
-extern TaskHandle_t task_i2c_rtc;
+extern TaskHandle_t task_i2c_ds3231;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;

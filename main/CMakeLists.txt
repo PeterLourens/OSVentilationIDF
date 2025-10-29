@@ -1,3 +1,3 @@
-idf_component_register(SRCS "task_i2c_sensors.c" "i2c_functions.c" "main.c" "globals.c" "i2c_functions.c" "task_i2c_sensors.c" "general.c"
+idf_component_register(SRCS "task_i2c_ds3231.c" "i2c_functions.c" "i2c_ds3231.c" "i2c_sensors.c" "task_i2c_sensors.c" "main.c" "globals.c" "i2c_sensors.c" "task_i2c_sensors.c" "general.c" "i2c_functions.c" "i2c_ds3231.c"
                     INCLUDE_DIRS ".")
 littlefs_create_partition_image(storage ../data FLASH_IN_PROJECT)
