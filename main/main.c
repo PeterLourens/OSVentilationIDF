@@ -15,6 +15,8 @@ void app_main(void)
     esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
     esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs*/
 
+    esp_log_level_set("esp_netif_lwip", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
+
     // Initialize NVS
     err = init_nvs();
     if (err != ESP_OK)
