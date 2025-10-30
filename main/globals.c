@@ -22,6 +22,8 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 // Queue handles
 QueueHandle_t sensor_queue;
 
+//time structure
 struct tm timeinfo = {0};
 
-Network_settings networksettings;
+//Structs for settings
+Network_settings networksettings = {0};

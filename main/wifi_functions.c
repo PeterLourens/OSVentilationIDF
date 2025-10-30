@@ -96,11 +96,7 @@ esp_err_t wifi_manager_start_ap(void)
     ESP_LOGI(TAG, "WiFi AP started with SSID: %s", ESP_AP_SSID);
 
     // Wait for AP to start
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-                                           AP_STARTED_BIT,
-                                           pdFALSE,
-                                           pdFALSE,
-                                           portMAX_DELAY);
+    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
     if (bits & AP_STARTED_BIT)
     {
@@ -116,8 +112,8 @@ esp_err_t wifi_manager_connect(Network_settings *settings)
         return ESP_ERR_INVALID_ARG;
     }
 
-    // If DHCP is disabled, start AP mode
-    if (strcmp(settings->enable_dhcp, "false") == 0)
+    // If DHCP is disabled, or when network settings are not complete, start AP mode
+    if (strcmp(settings->enable_dhcp, "false") == 0 && (strlen(settings->ip_address) == 0 || strlen(settings->subnet_mask) == 0 || strlen(settings->gateway) == 0 || strlen(settings->primary_dns) == 0 || strlen(settings->secondary_dns) == 0))
     {
         ESP_LOGI(TAG, "DHCP disabled, starting AP mode");
         return wifi_manager_start_ap();
@@ -143,11 +139,7 @@ esp_err_t wifi_manager_connect(Network_settings *settings)
 
     ESP_LOGI(TAG, "wifi_manager_connect finished.");
 
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
-                                           WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
-                                           pdFALSE,
-                                           pdFALSE,
-                                           portMAX_DELAY);
+    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
     if (bits & WIFI_CONNECTED_BIT)
     {

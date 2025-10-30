@@ -97,4 +97,6 @@ typedef struct
     char secondary_dns[LARGE_CONFIG_ITEM];
 } Network_settings;
 
+extern Network_settings networksettings;
+
 #endif
