@@ -15,6 +15,12 @@ TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
 
+// Mutex handles
+SemaphoreHandle_t wifi_config_mutex = NULL;
+
+// Event group handles
+EventGroupHandle_t s_wifi_event_group = NULL;
+
 // Sensor configuration structure
 bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
@@ -22,8 +28,8 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 // Queue handles
 QueueHandle_t sensor_queue;
 
-//time structure
+// time structure
 struct tm timeinfo = {0};
 
-//Structs for settings
-Network_settings networksettings = {0};
+// Structs for settings
+Network_config network_config = {0};

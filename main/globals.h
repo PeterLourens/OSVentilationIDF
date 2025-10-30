@@ -6,6 +6,7 @@
 #include <freertos/task.h>
 #include <freertos/event_groups.h>
 #include <freertos/queue.h>
+#include "freertos/event_groups.h"
 #include <esp_log.h>
 #include <esp_err.h>
 #include <esp_timer.h>
@@ -17,6 +18,8 @@
 #include <time.h>
 #include <lwip/err.h>
 #include <lwip/sys.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -51,6 +54,11 @@
 #define IDX_TIMESTAMP 3
 #define IDX_VALID 4
 
+// WiFi event bits
+#define WIFI_CONNECTED_BIT BIT0
+#define WIFI_FAIL_BIT BIT1
+#define AP_STARTED_BIT BIT2
+
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
@@ -69,6 +77,12 @@ extern TaskHandle_t task_wifi;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
+
+// Mutex handles
+extern SemaphoreHandle_t wifi_config_mutex;
+
+// Event group handles
+extern EventGroupHandle_t s_wifi_event_group;
 
 // Sensor configuration structure
 typedef struct
@@ -95,8 +109,8 @@ typedef struct
     char gateway[LARGE_CONFIG_ITEM];
     char primary_dns[LARGE_CONFIG_ITEM];
     char secondary_dns[LARGE_CONFIG_ITEM];
-} Network_settings;
+} Network_config;
 
-extern Network_settings networksettings;
+extern Network_config network_config;
 
 #endif

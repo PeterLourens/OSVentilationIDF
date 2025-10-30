@@ -2,11 +2,10 @@
 
 #define PROJECT_LOG_LEVEL ESP_LOG_ERROR
 
-static const char *TAG = "main";
-
 void app_main(void)
 {
     esp_err_t err = ESP_OK;
+    static const char *TAG = "main";
 
     // Set log levels
     /*esp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);       // Suppress info/debug from i2cdev
@@ -14,8 +13,7 @@ void app_main(void)
     esp_log_level_set("scd4x", PROJECT_LOG_LEVEL);        // Suppress SCD4X driver logs
     esp_log_level_set("tca9548", PROJECT_LOG_LEVEL);      // Suppress TCA9548 driver logs
     esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
-    esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
-*/
+    esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs*/
 
     // Initialize NVS
     err = init_nvs();
@@ -60,35 +58,44 @@ void app_main(void)
         return;
     }
 
+    err = load_network_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load network settings");
+        return;
+    }
+
+    start_task_wifi();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to start Wifi task: %s", esp_err_to_name(err));
+    }
+
     // Start tasks
-    ESP_LOGI(TAG, "Starting I2C sensors task...");
     err = start_task_i2c_sensors();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to start I2C sensors task: %s", esp_err_to_name(err));
-        // return;
     }
 
-    // Verify task handle
-    if (task_i2c_sensors == NULL)
-    {
-        ESP_LOGE(TAG, "I2C sensors task handle is NULL after creation");
-        // return;
-    }
-
-    // Wait briefly to allow task to start
-    // vTaskDelay(pdMS_TO_TICKS(100));
-
-    // Check if task is running
-    // if (eTaskGetState(task_i2c_sensors) == eDeleted)
-    //{
-    //  ESP_LOGE(TAG, "I2C sensors task failed to start or was deleted");
-    // return;
-    //}
-
-    ESP_LOGI(TAG, "I2C sensors task started successfully");
-    // start_task_wifi();
     // start_task_ds3231();
+
+    // Print network settings
+    ESP_LOGI(TAG, "\nNetwork Settings:\n"
+                  "┌──────────────┬────────────────────────────────┐\n"
+                  "│ Setting      │ Value                          │\n"
+                  "├──────────────┼────────────────────────────────┤\n"
+                  "│ DHCP         │ %-30s │\n"
+                  "│ SSID         │ %-30s │\n"
+                  "| Wifi Pass.   | %-30s │\n"
+                  "│ IP Address   │ %-30s │\n"
+                  "│ Subnet Mask  │ %-30s │\n"
+                  "│ Gateway      │ %-30s │\n"
+                  "│ Primary DNS  │ %-30s │\n"
+                  "│ Secondary DNS│ %-30s │\n"
+                  "└──────────────┴────────────────────────────────┘",
+             network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
+             network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns);
 
     // Read from queue and log
     double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
@@ -122,6 +129,6 @@ void app_main(void)
             ESP_LOGE(TAG, "Sensor queue is NULL");
         }
 
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }

@@ -220,11 +220,20 @@ esp_err_t load_sensor_config(const char *config_name)
     return ESP_OK;
 }
 
-esp_err_t load_networksettings(void)
+esp_err_t load_network_config(void)
 {
     const char *TAG = "Config";
-    char path[] = "/data/networksettings.json";
+    char path[128] = "/data/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read network config: %s", path);
+
+    // Take mutex with timeout
+    /*if (xSemaphoreTake(wifi_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
+        return ESP_ERR_TIMEOUT;
+    }*/
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -236,7 +245,7 @@ esp_err_t load_networksettings(void)
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read network settings file: %s", path);
+        ESP_LOGE(TAG, "Failed to read config file: %s", path);
         free(buffer);
         return err;
     }
@@ -245,7 +254,7 @@ esp_err_t load_networksettings(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGW(TAG, "Raw content: %s", buffer);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -259,89 +268,47 @@ esp_err_t load_networksettings(void)
     cJSON *primary_dns = cJSON_GetObjectItem(json, "primary_dns");
     cJSON *secondary_dns = cJSON_GetObjectItem(json, "secondary_dns");
 
-    if( enable_dhcp && cJSON_IsString(enable_dhcp))
-    {
-        strncpy(networksettings.enable_dhcp, enable_dhcp->valuestring, sizeof(networksettings.enable_dhcp) - 1);
-        networksettings.enable_dhcp[sizeof(networksettings.enable_dhcp) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid DHCP setting in network settings");
-    }
-    
-    if (cJSON_IsString(ssid))
-    {
-        strncpy(networksettings.ssid, ssid->valuestring, sizeof(networksettings.ssid) - 1);
-        networksettings.ssid[sizeof(networksettings.ssid) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid SSID in network settings");
-    }
+    /*if (!type)
+        ESP_LOGW(TAG, "Missing key: %s", key_type);
+    if (!valve)
+        ESP_LOGW(TAG, "Missing key: %s", key_valve);
+    if (!location)
+        ESP_LOGW(TAG, "Missing key: %s", key_location);
+    if (!rh)
+        ESP_LOGW(TAG, "Missing key: %s", key_rh);
+    if (!co2)
+        ESP_LOGW(TAG, "Missing key: %s", key_co2);*/
 
-    if (cJSON_IsString(wifi_password))
-    {
-        strncpy(networksettings.wifi_password, wifi_password->valuestring, sizeof(networksettings.wifi_password) - 1);
-        networksettings.wifi_password[sizeof(networksettings.wifi_password) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid password in network settings");
-    }
-    
-    if (cJSON_IsString(ip_address))
-    {
-        strncpy(networksettings.ip_address, ip_address->valuestring, sizeof(networksettings.ip_address) - 1);
-        networksettings.ip_address[sizeof(networksettings.ip_address) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid IP address in network settings");
-    }
-    
-    if (cJSON_IsString(subnet_mask))
-    {
-        strncpy(networksettings.subnet_mask, subnet_mask->valuestring, sizeof(networksettings.subnet_mask) - 1);
-        networksettings.subnet_mask[sizeof(networksettings.subnet_mask) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid subnet mask in network settings");
-    }
-    
-    if (cJSON_IsString(gateway))
-    {
-        strncpy(networksettings.gateway, gateway->valuestring, sizeof(networksettings.gateway) - 1);
-        networksettings.gateway[sizeof(networksettings.gateway) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid gateway in network settings");
-    }
-    
-    if (cJSON_IsString(primary_dns))
-    {
-        strncpy(networksettings.primary_dns, primary_dns->valuestring, sizeof(networksettings.primary_dns) - 1);
-        networksettings.primary_dns[sizeof(networksettings.primary_dns) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid primary DNS in network settings");
-    }
-    
-    if (cJSON_IsString(secondary_dns))
-    {
-        strncpy(networksettings.secondary_dns, secondary_dns->valuestring, sizeof(networksettings.secondary_dns) - 1);
-        networksettings.secondary_dns[sizeof(networksettings.secondary_dns) - 1] = '\0';
-    }
-    else
-    {
-        ESP_LOGW(TAG, "Missing or invalid primary DNS in network settings");
-    }
+    strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    network_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.ssid, cJSON_IsString(ssid) ? ssid->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    network_config.ssid[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.wifi_password, cJSON_IsString(wifi_password) ? wifi_password->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.wifi_password[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.ip_address[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.subnet_mask[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.gateway[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.primary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    network_config.secondary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
 
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Network settings loaded from %s", path);
+    ESP_LOGI(TAG, "Network config loaded from %s", path);
+
+    // xSemaphoreGive(wifi_config_mutex);
+
     return ESP_OK;
 }
