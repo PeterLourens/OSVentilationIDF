@@ -149,7 +149,7 @@ esp_err_t load_sensor_config(const char *config_name)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGW(TAG, "Raw content: %s", buffer);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
