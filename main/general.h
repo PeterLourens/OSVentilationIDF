@@ -18,5 +18,6 @@ esp_err_t init_littlefs(void);
 esp_err_t read_file(const char *, char *, size_t);
 esp_err_t load_sensor_config(const char *);
 esp_err_t load_network_config(void);
+bool is_valid_ip_address(const char *);
 
 #endif

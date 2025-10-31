@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "globals.h"
+#include "general.h"
 
 #define MAXIMUM_RETRY 5
 

@@ -60,15 +60,39 @@ esp_err_t select_wifi_mode(void)
     }
     else
     {
-        // DHCP disabled - check static IP configuration
-        if (strlen(network_config.ip_address) > 0 &&
-            strlen(network_config.subnet_mask) > 0 &&
-            strlen(network_config.gateway) > 0 &&
-            strlen(network_config.primary_dns) > 0 &&
-            strlen(network_config.ssid) > 0 &&
+        // DHCP disabled - validate static IP configuration
+        bool valid_config = true;
+
+        if (!is_valid_ip_address(network_config.ip_address))
+        {
+            ESP_LOGE(TAG, "Invalid IP address: %s", network_config.ip_address);
+            valid_config = false;
+        }
+        if (!is_valid_ip_address(network_config.subnet_mask))
+        {
+            ESP_LOGE(TAG, "Invalid subnet mask: %s", network_config.subnet_mask);
+            valid_config = false;
+        }
+        if (!is_valid_ip_address(network_config.gateway))
+        {
+            ESP_LOGE(TAG, "Invalid gateway: %s", network_config.gateway);
+            valid_config = false;
+        }
+        if (!is_valid_ip_address(network_config.primary_dns))
+        {
+            ESP_LOGE(TAG, "Invalid primary DNS: %s", network_config.primary_dns);
+            valid_config = false;
+        }
+        if (strlen(network_config.secondary_dns) > 0 &&
+            !is_valid_ip_address(network_config.secondary_dns))
+        {
+            ESP_LOGE(TAG, "Invalid secondary DNS: %s", network_config.secondary_dns);
+            valid_config = false;
+        }
+
+        if (valid_config && strlen(network_config.ssid) > 0 &&
             strlen(network_config.wifi_password) > 0)
         {
-
             ESP_LOGI(TAG, "Attempting station mode with static IP");
             err = wifi_manager_connect(&network_config);
             if (err == ESP_OK)
@@ -79,7 +103,7 @@ esp_err_t select_wifi_mode(void)
         }
         else
         {
-            ESP_LOGW(TAG, "Incomplete static IP configuration");
+            ESP_LOGW(TAG, "Invalid static IP configuration or credentials");
         }
     }
 
