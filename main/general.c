@@ -267,6 +267,7 @@ esp_err_t load_network_config(void)
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
     }
+
     strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
     network_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
 
@@ -298,7 +299,15 @@ esp_err_t load_network_config(void)
 
     ESP_LOGI(TAG, "Network config loaded from %s", path);
 
-    
-
     return ESP_OK;
+}
+
+bool is_valid_ip_address(const char *ip_address)
+{
+    if (!ip_address || strlen(ip_address) == 0)
+    {
+        return false;
+    }
+    struct in_addr addr;
+    return inet_pton(AF_INET, ip_address, &addr) == 1;
 }

@@ -5,13 +5,6 @@ static int s_retry_num = 0;
 
 esp_err_t wifi_manager_init(void)
 {
-    // Create mutex for WiFi configuration
-    network_config_mutex = xSemaphoreCreateMutex();
-    if (network_config_mutex == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
-        return ESP_ERR_NO_MEM;
-    }
 
     // Create event group
     s_wifi_event_group = xEventGroupCreate();
@@ -158,7 +151,7 @@ esp_err_t wifi_manager_connect(Network_config *settings)
         return ESP_ERR_INVALID_ARG;
     }
 
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;

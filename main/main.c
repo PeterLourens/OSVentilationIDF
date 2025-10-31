@@ -17,6 +17,14 @@ void app_main(void)
 
     esp_log_level_set("esp_netif_lwip", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
 
+    // Create mutex for WiFi configuration, must be before loading config and wifi task start
+    network_config_mutex = xSemaphoreCreateMutex();
+    if (network_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+        // return ESP_ERR_NO_MEM;
+    }
+
     // Initialize NVS
     err = init_nvs();
     if (err != ESP_OK)
@@ -70,7 +78,7 @@ void app_main(void)
     }
     vTaskDelay(pdMS_TO_TICKS(200)); // Small delay to ensure config is settled
 
-    //Start tasks
+    // Start tasks
     start_task_wifi();
     if (err != ESP_OK)
     {
