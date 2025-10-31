@@ -79,7 +79,7 @@ extern TaskHandle_t task_wifi;
 extern QueueHandle_t sensor_queue;
 
 // Mutex handles
-extern SemaphoreHandle_t wifi_config_mutex;
+extern SemaphoreHandle_t network_config_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -102,13 +102,13 @@ extern struct tm timeinfo;
 typedef struct
 {
     char enable_dhcp[SMALL_CONFIG_ITEM];
-    char ssid[SMALL_CONFIG_ITEM];
-    char wifi_password[XLARGE_CONFIG_ITEM]; // WPA3 has max 63 characters
-    char ip_address[LARGE_CONFIG_ITEM];
-    char subnet_mask[LARGE_CONFIG_ITEM];
-    char gateway[LARGE_CONFIG_ITEM];
-    char primary_dns[LARGE_CONFIG_ITEM];
-    char secondary_dns[LARGE_CONFIG_ITEM];
+    char ssid[MEDIUM_CONFIG_ITEM];
+    char wifi_password[LARGE_CONFIG_ITEM]; // WPA3 has max 63 characters
+    char ip_address[MEDIUM_CONFIG_ITEM];
+    char subnet_mask[MEDIUM_CONFIG_ITEM];
+    char gateway[MEDIUM_CONFIG_ITEM];
+    char primary_dns[MEDIUM_CONFIG_ITEM];
+    char secondary_dns[MEDIUM_CONFIG_ITEM];
 } Network_config;
 
 extern Network_config network_config;

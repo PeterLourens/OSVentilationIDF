@@ -16,7 +16,7 @@ TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
 
 // Mutex handles
-SemaphoreHandle_t wifi_config_mutex = NULL;
+SemaphoreHandle_t network_config_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;

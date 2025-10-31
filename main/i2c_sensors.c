@@ -383,12 +383,6 @@ esp_err_t read_sensors_into_queue(void)
             ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
             continue;
         }
-        // else
-        // {
-        //     ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
-        // }
-        // if (err != ESP_OK)
-        // continue;
 
         snapshot[0][ch][3] = (double)esp_timer_get_time(); // timestamp
 

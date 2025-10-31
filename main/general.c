@@ -228,13 +228,6 @@ esp_err_t load_network_config(void)
 
     ESP_LOGI(TAG, "Attempting to read network config: %s", path);
 
-    // Take mutex with timeout
-    /*if (xSemaphoreTake(wifi_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
-        return ESP_ERR_TIMEOUT;
-    }*/
-
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
@@ -268,17 +261,12 @@ esp_err_t load_network_config(void)
     cJSON *primary_dns = cJSON_GetObjectItem(json, "primary_dns");
     cJSON *secondary_dns = cJSON_GetObjectItem(json, "secondary_dns");
 
-    /*if (!type)
-        ESP_LOGW(TAG, "Missing key: %s", key_type);
-    if (!valve)
-        ESP_LOGW(TAG, "Missing key: %s", key_valve);
-    if (!location)
-        ESP_LOGW(TAG, "Missing key: %s", key_location);
-    if (!rh)
-        ESP_LOGW(TAG, "Missing key: %s", key_rh);
-    if (!co2)
-        ESP_LOGW(TAG, "Missing key: %s", key_co2);*/
-
+    // Take mutex with timeout
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
     strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
     network_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
 
@@ -288,27 +276,29 @@ esp_err_t load_network_config(void)
     strncpy(network_config.wifi_password, cJSON_IsString(wifi_password) ? wifi_password->valuestring : "", LARGE_CONFIG_ITEM - 1);
     network_config.wifi_password[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    strncpy(network_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.ip_address[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    strncpy(network_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.subnet_mask[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    strncpy(network_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.gateway[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    strncpy(network_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.primary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.secondary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(network_config_mutex);
 
     cJSON_Delete(json);
     free(buffer);
 
     ESP_LOGI(TAG, "Network config loaded from %s", path);
 
-    // xSemaphoreGive(wifi_config_mutex);
+    
 
     return ESP_OK;
 }

@@ -6,8 +6,8 @@ static int s_retry_num = 0;
 esp_err_t wifi_manager_init(void)
 {
     // Create mutex for WiFi configuration
-    wifi_config_mutex = xSemaphoreCreateMutex();
-    if (wifi_config_mutex == NULL)
+    network_config_mutex = xSemaphoreCreateMutex();
+    if (network_config_mutex == NULL)
     {
         ESP_LOGE(TAG, "Failed to create WiFi config mutex");
         return ESP_ERR_NO_MEM;
@@ -18,7 +18,7 @@ esp_err_t wifi_manager_init(void)
     if (s_wifi_event_group == NULL)
     {
         ESP_LOGE(TAG, "Failed to create event group");
-        vSemaphoreDelete(wifi_config_mutex);
+        vSemaphoreDelete(network_config_mutex);
         return ESP_ERR_NO_MEM;
     }
 
@@ -158,7 +158,7 @@ esp_err_t wifi_manager_connect(Network_config *settings)
         return ESP_ERR_INVALID_ARG;
     }
 
-    if (xSemaphoreTake(wifi_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
@@ -222,7 +222,7 @@ esp_err_t wifi_manager_connect(Network_config *settings)
     ESP_ERROR_CHECK(esp_wifi_start());
 
     // Wait for connection with mutex released
-    xSemaphoreGive(wifi_config_mutex);
+    xSemaphoreGive(network_config_mutex);
 
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
 
@@ -241,13 +241,13 @@ esp_err_t wifi_manager_connect(Network_config *settings)
     return ESP_ERR_TIMEOUT;
 
 exit:
-    xSemaphoreGive(wifi_config_mutex);
+    xSemaphoreGive(network_config_mutex);
     return result;
 }
 
 esp_err_t wifi_manager_start_ap(void)
 {
-    if (xSemaphoreTake(wifi_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
@@ -258,7 +258,7 @@ esp_err_t wifi_manager_start_ap(void)
     if (!ap_netif)
     {
         ESP_LOGE(TAG, "Failed to create AP network interface");
-        xSemaphoreGive(wifi_config_mutex);
+        xSemaphoreGive(network_config_mutex);
         return ESP_FAIL;
     }
 
@@ -281,7 +281,7 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to set WiFi mode to AP: %s", esp_err_to_name(err));
-        xSemaphoreGive(wifi_config_mutex);
+        xSemaphoreGive(network_config_mutex);
         return err;
     }
 
@@ -290,7 +290,7 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to set AP config: %s", esp_err_to_name(err));
-        xSemaphoreGive(wifi_config_mutex);
+        xSemaphoreGive(network_config_mutex);
         return err;
     }
 
@@ -299,14 +299,14 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to start AP: %s", esp_err_to_name(err));
-        xSemaphoreGive(wifi_config_mutex);
+        xSemaphoreGive(network_config_mutex);
         return err;
     }
 
     // Wait for AP to start
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(5000));
 
-    xSemaphoreGive(wifi_config_mutex);
+    xSemaphoreGive(network_config_mutex);
 
     if (bits & AP_STARTED_BIT)
     {

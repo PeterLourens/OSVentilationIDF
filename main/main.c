@@ -53,6 +53,7 @@ void app_main(void)
         return;
     }
 
+    // Load sensor configuration for bus 1
     err = load_sensor_config("bus1_sensor_config");
     if (err != ESP_OK)
     {
@@ -60,13 +61,16 @@ void app_main(void)
         return;
     }
 
+    // Load network (wifi) configuration
     err = load_network_config();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to load network settings");
         return;
     }
+    vTaskDelay(pdMS_TO_TICKS(200)); // Small delay to ensure config is settled
 
+    //Start tasks
     start_task_wifi();
     if (err != ESP_OK)
     {
