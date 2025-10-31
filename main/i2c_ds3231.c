@@ -80,3 +80,107 @@ esp_err_t i2c_ds3231_read_time(i2c_master_dev_handle_t dev_handle, struct tm *ti
 
     return ESP_OK;
 }
+
+esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+{
+    const char *TAG = "NTP_SYNC";
+    esp_err_t err = ESP_OK;
+
+    // Take mutex to safely read config
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    char ntp_server[LARGE_CONFIG_ITEM];
+    char timezone[LARGE_CONFIG_ITEM];
+    strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
+    strncpy(timezone, time_config.timezone, sizeof(timezone));
+
+    xSemaphoreGive(time_config_mutex);
+
+    // Configure timezone
+    setenv("TZ", timezone, 1);
+    tzset();
+
+    // Configure SNTP
+    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, ntp_server);
+    esp_sntp_init();
+
+    ESP_LOGI(TAG, "SNTP initialized with server: %s, waiting for sync...", ntp_server);
+
+    // Wait for sync
+    int retry = 0;
+    const int retry_count = 15;
+    while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED && ++retry < retry_count)
+    {
+        ESP_LOGI(TAG, "Waiting for NTP sync... (%d/%d)", retry, retry_count);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    if (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED)
+    {
+        ESP_LOGE(TAG, "Failed to sync with NTP server");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    // Get current system time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // Write to DS3231
+    err = i2c_ds3231_write_time(dev_handle, &timeinfo);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to write time to DS3231: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    ESP_LOGI(TAG, "System and DS3231 synchronized. Time: %s, TZ: %s",
+             asctime(&timeinfo), timezone);
+
+    return ESP_OK;
+}
+
+uint8_t bin2bcd(uint8_t val)
+{
+    return ((val / 10) << 4) | (val % 10);
+}
+
+esp_err_t i2c_ds3231_write_time(i2c_master_dev_handle_t dev_handle, const struct tm *timeinfo)
+{
+    if (!timeinfo)
+        return ESP_ERR_INVALID_ARG;
+
+    // DS3231 expects: seconds, minutes, hours, day-of-week, date, month, year
+    uint8_t buffer[8];
+    buffer[0] = DS3231_REG_TIME;
+    buffer[1] = bin2bcd(timeinfo->tm_sec);
+    buffer[2] = bin2bcd(timeinfo->tm_min);
+    buffer[3] = bin2bcd(timeinfo->tm_hour);                              // 24-hour mode
+    buffer[4] = bin2bcd(timeinfo->tm_wday == 0 ? 7 : timeinfo->tm_wday); // Sunday=7
+    buffer[5] = bin2bcd(timeinfo->tm_mday);
+    buffer[6] = bin2bcd(timeinfo->tm_mon + 1);    // tm_mon is 0–11
+    buffer[7] = bin2bcd(timeinfo->tm_year % 100); // tm_year is years since 1900
+
+    esp_err_t err = i2c_master_transmit(dev_handle, buffer, sizeof(buffer), pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to write time to DS3231: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    ESP_LOGI(TAG, "DS3231 time set: %04d-%02d-%02d %02d:%02d:%02d",
+             timeinfo->tm_year + 1900,
+             timeinfo->tm_mon + 1,
+             timeinfo->tm_mday,
+             timeinfo->tm_hour,
+             timeinfo->tm_min,
+             timeinfo->tm_sec);
+
+    return ESP_OK;
+}

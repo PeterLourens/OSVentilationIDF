@@ -302,6 +302,64 @@ esp_err_t load_network_config(void)
     return ESP_OK;
 }
 
+esp_err_t load_time_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/time_config.json";
+    size_t bufferSize = XXLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read time config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *ntp_server = cJSON_GetObjectItem(json, "ntp_server");
+    cJSON *timezone = cJSON_GetObjectItem(json, "timezone");
+
+    // Take mutex with timeout
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire time config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    strncpy(time_config.ntp_server, cJSON_IsString(ntp_server) ? ntp_server->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    time_config.ntp_server[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(time_config.timezone, cJSON_IsString(timezone) ? timezone->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    time_config.timezone[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(time_config_mutex);
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "Network config loaded from %s", path);
+
+    return ESP_OK;
+}
+
 bool is_valid_ip_address(const char *ip_address)
 {
     if (!ip_address || strlen(ip_address) == 0)
@@ -310,4 +368,24 @@ bool is_valid_ip_address(const char *ip_address)
     }
     struct in_addr addr;
     return inet_pton(AF_INET, ip_address, &addr) == 1;
+}
+
+esp_err_t create_mutexes(void)
+{
+    const char *TAG = "Mutexes";
+
+    // Mutex for network settings
+    network_config_mutex = xSemaphoreCreateMutex();
+    if (network_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+    }
+
+    // Mutex for time settings
+    time_config_mutex = xSemaphoreCreateMutex();
+    if (time_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+    }
+    return ESP_OK;
 }

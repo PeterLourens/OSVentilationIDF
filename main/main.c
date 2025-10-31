@@ -19,11 +19,11 @@ void app_main(void)
 
     esp_log_level_set("*", PROJECT_LOG_LEVEL); // Set all logs to project level
 
-    // Create mutex for WiFi configuration, must be before loading config and wifi task start
-    network_config_mutex = xSemaphoreCreateMutex();
-    if (network_config_mutex == NULL)
+    // Create mutexes
+    err = create_mutexes();
+    if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+        ESP_LOGE(TAG, "Failed to create mutexes");
         return;
     }
 
@@ -80,24 +80,18 @@ void app_main(void)
         ESP_LOGE(TAG, "Failed to load network settings");
         return;
     }
-    vTaskDelay(pdMS_TO_TICKS(200)); // Small delay to ensure config is settled
+    // Load time configuration
+    err = load_time_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load time settings");
+        return;
+    }
 
     // Start tasks
     start_task_wifi();
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to start Wifi task: %s", esp_err_to_name(err));
-        return;
-    }
-
-    err = start_task_i2c_sensors();
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to start I2C sensors task: %s", esp_err_to_name(err));
-        return;
-    }
-
-    // start_task_ds3231();
+    start_task_i2c_ds3231();
+    start_task_i2c_sensors();
 
     // Print network settings
     ESP_LOGI(TAG, "\nNetwork Settings:\n"
@@ -112,9 +106,12 @@ void app_main(void)
                   "│ Gateway      │ %-30s │\n"
                   "│ Primary DNS  │ %-30s │\n"
                   "│ Secondary DNS│ %-30s │\n"
+                  "| Time Server  │ %-30s │\n"
+                  "| Timezone     │ %-30s │\n"
                   "└──────────────┴────────────────────────────────┘",
              network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
-             network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns);
+             network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
+             time_config.ntp_server, time_config.timezone);
 
     // Read from queue and log
     double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];

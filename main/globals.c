@@ -9,6 +9,7 @@ i2c_master_dev_handle_t aht20_bus0_handle = {0};
 i2c_master_dev_handle_t aht20_bus1_handle = {0};
 i2c_master_dev_handle_t scd41_bus0_handle = {0};
 i2c_master_dev_handle_t scd41_bus1_handle = {0};
+i2c_master_dev_handle_t ds3231_bus1_handle = {0};
 
 // Task handles
 TaskHandle_t task_i2c_sensors = NULL;
@@ -17,6 +18,7 @@ TaskHandle_t task_wifi = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
+SemaphoreHandle_t time_config_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;
@@ -33,3 +35,4 @@ struct tm timeinfo = {0};
 
 // Structs for settings
 Network_config network_config = {0};
+Time_settings time_config = {0};

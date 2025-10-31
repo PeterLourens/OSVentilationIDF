@@ -14,6 +14,8 @@
 #include <esp_wifi.h>
 #include <esp_netif.h>
 #include <esp_mac.h>
+#include <esp_sntp.h>
+#include <esp_netif_sntp.h>
 #include <driver/i2c_master.h>
 #include <time.h>
 #include <lwip/err.h>
@@ -80,6 +82,7 @@ extern QueueHandle_t sensor_queue;
 
 // Mutex handles
 extern SemaphoreHandle_t network_config_mutex;
+extern SemaphoreHandle_t time_config_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -110,7 +113,13 @@ typedef struct
     char primary_dns[MEDIUM_CONFIG_ITEM];
     char secondary_dns[MEDIUM_CONFIG_ITEM];
 } Network_config;
-
 extern Network_config network_config;
+
+typedef struct
+{
+    char ntp_server[LARGE_CONFIG_ITEM];
+    char timezone[LARGE_CONFIG_ITEM];
+} Time_settings;
+extern Time_settings time_config;
 
 #endif
