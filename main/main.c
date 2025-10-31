@@ -1,11 +1,12 @@
 #include "main.h"
 
-#define PROJECT_LOG_LEVEL ESP_LOG_ERROR
+#define PROJECT_LOG_LEVEL ESP_LOG_INFO
+
+static const char *TAG = "main";
 
 void app_main(void)
 {
     esp_err_t err = ESP_OK;
-    static const char *TAG = "main";
 
     // Set log levels
     /*esp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);       // Suppress info/debug from i2cdev
@@ -16,14 +17,14 @@ void app_main(void)
     esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs*/
     // esp_log_level_set("esp_netif_lwip", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
 
-    esp_log_level_set("*", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
+    esp_log_level_set("*", PROJECT_LOG_LEVEL); // Set all logs to project level
 
     // Create mutex for WiFi configuration, must be before loading config and wifi task start
     network_config_mutex = xSemaphoreCreateMutex();
     if (network_config_mutex == NULL)
     {
         ESP_LOGE(TAG, "Failed to create WiFi config mutex");
-        // return ESP_ERR_NO_MEM;
+        return;
     }
 
     // Initialize NVS
@@ -47,11 +48,13 @@ void app_main(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "I2C master bus0 initialization failed: %s", esp_err_to_name(err));
+        return;
     }
     err = i2c_init_master1();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "I2C master bus1 initialization failed: %s", esp_err_to_name(err));
+        return;
     }
 
     // Load sensor configuration for bus 0
@@ -84,13 +87,14 @@ void app_main(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to start Wifi task: %s", esp_err_to_name(err));
+        return;
     }
 
-    // Start tasks
     err = start_task_i2c_sensors();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to start I2C sensors task: %s", esp_err_to_name(err));
+        return;
     }
 
     // start_task_ds3231();
@@ -127,13 +131,8 @@ void app_main(void)
                     {
                         if (snapshot[bus][ch][IDX_VALID])
                         {
-                            ESP_LOGI("CONSUMER",
-                                     "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm",
-                                     bus, ch,
-                                     snapshot[bus][ch][IDX_TIMESTAMP],
-                                     snapshot[bus][ch][IDX_TEMP],
-                                     snapshot[bus][ch][IDX_HUMIDITY],
-                                     snapshot[bus][ch][IDX_CO2]);
+                            ESP_LOGI(TAG, "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch,
+                                     snapshot[bus][ch][IDX_TIMESTAMP], snapshot[bus][ch][IDX_TEMP], snapshot[bus][ch][IDX_HUMIDITY], snapshot[bus][ch][IDX_CO2]);
                         }
                     }
                 }
