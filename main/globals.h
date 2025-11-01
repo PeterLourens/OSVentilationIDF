@@ -23,6 +23,7 @@
 #include "lwip/err.h"
 #include "lwip/inet.h"
 #include "lwip/sys.h"
+#include "lwip/ip_addr.h"
 #include "ping/ping_sock.h"
 #include "arpa/inet.h"
 #include "sys/socket.h"

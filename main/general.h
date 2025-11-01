@@ -13,5 +13,7 @@ esp_err_t load_time_config(void);
 bool is_valid_ip_address(const char *);
 esp_err_t create_mutexes(void);
 void formatted_uptime(char *, size_t);
+void on_ping_end(esp_ping_handle_t, void *);
+void ping_gateway(void);
 
 #endif
