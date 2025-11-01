@@ -74,6 +74,33 @@ esp_err_t i2c_ds3231_read_time(i2c_master_dev_handle_t dev_handle, struct tm *ti
     return ESP_OK;
 }
 
+void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
+{
+    struct tm rtc_time;
+    if (i2c_ds3231_read_time(dev_handle, &rtc_time) == ESP_OK)
+    {
+        time_t rtc_epoch = mktime(&rtc_time);
+        struct timeval now = {
+            .tv_sec = rtc_epoch,
+            .tv_usec = 0,
+        };
+        settimeofday(&now, NULL);
+
+        // Print both RTC and system time
+        time_t sys_now;
+        struct tm sys_time;
+        time(&sys_now);
+        localtime_r(&sys_now, &sys_time);
+
+        ESP_LOGI(TAG, "RTC time read: %s", asctime(&rtc_time));
+        ESP_LOGI(TAG, "System time set: %s", asctime(&sys_time));
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Failed to read DS3231 at boot, system time starts at default (1970)");
+    }
+}
+
 uint8_t bin2bcd(uint8_t val)
 {
     return ((val / 10) << 4) | (val % 10);
@@ -146,31 +173,44 @@ bool wifi_has_ip(void)
     return ip_info.ip.addr != 0;
 }
 
-// Minimal sync function
-esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+// Event handler: called when Wi‑Fi station gets an IP
+void on_got_ip(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
-    if (!wifi_has_ip())
+    ESP_LOGI(TAG, "Wi‑Fi connected, got IP — starting NTP sync");
+    esp_err_t err = sync_system_and_ds3231_with_ntp(ds3231_bus0_handle);
+    if (err == ESP_OK)
     {
-        ESP_LOGE(TAG, "No Wi-Fi connection, cannot sync");
-        return ESP_ERR_INVALID_STATE;
+        ESP_LOGI(TAG, "Initial DS3231 sync triggered after Wi‑Fi connect");
     }
-
-    // Configure SNTP
-    esp_sntp_stop(); // reset if already running
-    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, "129.6.15.28"); // numeric IP (NIST)
-    esp_sntp_set_time_sync_notification_cb(time_sync_cb);
-    esp_sntp_init();
-
-    ESP_LOGI(TAG, "SNTP started, waiting for callback...");
-    return ESP_OK;
+    else
+    {
+        ESP_LOGW(TAG, "Sync attempt failed: %s", esp_err_to_name(err));
+    }
 }
 
-/*esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+// Background task for periodic re‑sync
+void ds3231_sync_task(void *pvParameters)
 {
-    esp_err_t err = ESP_OK;
+    while (1)
+    {
+        vTaskDelay(pdMS_TO_TICKS(3600 * 1000)); // wait 1 hour
+        if (wifi_has_ip())
+        {
+            ESP_LOGI(TAG, "Periodic sync triggered");
+            sync_system_and_ds3231_with_ntp(ds3231_bus0_handle);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Skipped periodic sync — no Wi‑Fi");
+        }
+    }
+}
 
-    // Take mutex to safely read config
+esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+{
+    const char *TAG = "NTP_SYNC";
+
+    // --- Take mutex to safely read config ---
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire time_config mutex");
@@ -181,57 +221,27 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     char timezone[LARGE_CONFIG_ITEM];
     strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
     strncpy(timezone, time_config.timezone, sizeof(timezone));
-
     xSemaphoreGive(time_config_mutex);
 
-    // Configure timezone
-    err = setenv("TZ", timezone, 1);
-    if (err != 0)
+    // --- Check Wi-Fi ---
+    if (!wifi_has_ip())
     {
-        ESP_LOGE(TAG, "Failed to set TZ environment variable");
-        return ESP_FAIL;
+        ESP_LOGE(TAG, "No Wi-Fi connection, cannot sync");
+        return ESP_ERR_INVALID_STATE;
     }
+
+    // --- Configure timezone ---
+    setenv("TZ", timezone, 1);
     tzset();
 
-    // Configure SNTP
+    // --- Configure SNTP ---
+    esp_sntp_stop(); // reset if already running
     esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, ntp_server);
+    esp_sntp_setservername(0, ntp_server); // use configured server
+    esp_sntp_set_time_sync_notification_cb(time_sync_cb);
     esp_sntp_init();
 
-    ESP_LOGI(TAG, "SNTP initialized with server: %s, waiting for sync...", ntp_server);
-
-    // Wait for sync
-    int retry = 0;
-    const int retry_count = 60;
-    while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED && ++retry < retry_count)
-    {
-        ESP_LOGI(TAG, "Waiting for NTP sync... (%d/%d)", retry, retry_count);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    if (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED)
-    {
-        ESP_LOGE(TAG, "Failed to sync with NTP server");
-        return ESP_ERR_TIMEOUT;
-    }
-
-    // Get current system time
-    time_t now;
-    struct tm timeinfo;
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    // Write to DS3231
-    err = i2c_ds3231_write_time(dev_handle, &timeinfo);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to write time to DS3231: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    ESP_LOGI(TAG, "System and DS3231 synchronized. Time: %s, TZ: %s",
-             asctime(&timeinfo), timezone);
+    ESP_LOGI(TAG, "SNTP started with server: %s, TZ: %s", ntp_server, timezone);
 
     return ESP_OK;
 }
-*/

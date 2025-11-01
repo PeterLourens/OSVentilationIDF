@@ -61,6 +61,20 @@ void app_main(void)
         return;
     }
 
+    // Init DS3231 and sync system time after that
+    err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
+        vTaskDelete(NULL);
+        return;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "DS3231 initialized on bus 0");
+    }
+    init_system_time_from_ds3231(ds3231_bus0_handle);
+
     // Load sensor configuration for bus 0
     err = load_sensor_config("bus0_sensor_config");
     if (err != ESP_OK)
