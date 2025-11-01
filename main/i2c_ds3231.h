@@ -14,5 +14,7 @@ esp_err_t update_ds3231_from_system_time(void);
 esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle);
 uint8_t bin2bcd(uint8_t val);
 esp_err_t i2c_ds3231_write_time(i2c_master_dev_handle_t dev_handle, const struct tm *timeinfo);
+bool wifi_has_ip(void);
+void time_sync_cb(struct timeval *tv);
 
 #endif

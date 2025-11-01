@@ -74,85 +74,6 @@ esp_err_t i2c_ds3231_read_time(i2c_master_dev_handle_t dev_handle, struct tm *ti
     return ESP_OK;
 }
 
-esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
-{
-    const char *TAG = "NTP_SYNC";
-    esp_err_t err = ESP_OK;
-    esp_netif_ip_info_t ip_info;
-
-    // --- Check Wi-Fi connection ---
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (netif == NULL)
-    {
-        ESP_LOGE(TAG, "Wi-Fi STA interface not found");
-        return ESP_FAIL;
-    }
-    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK || ip_info.ip.addr == 0)
-    {
-        ESP_LOGE(TAG, "No Wi-Fi connection (no IP address)");
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    // Take mutex to safely read config
-    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
-        return ESP_ERR_TIMEOUT;
-    }
-
-    char ntp_server[LARGE_CONFIG_ITEM];
-    char timezone[LARGE_CONFIG_ITEM];
-    strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
-    strncpy(timezone, time_config.timezone, sizeof(timezone));
-
-    xSemaphoreGive(time_config_mutex);
-
-    // Configure timezone
-    setenv("TZ", timezone, 1);
-    tzset();
-
-    // Configure SNTP
-    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
-    esp_sntp_setservername(0, ntp_server);
-    esp_sntp_init();
-
-    ESP_LOGI(TAG, "SNTP initialized with server: %s, waiting for sync...", ntp_server);
-
-    // Wait for sync
-    int retry = 0;
-    const int retry_count = 15;
-    while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED && ++retry < retry_count)
-    {
-        ESP_LOGI(TAG, "Waiting for NTP sync... (%d/%d)", retry, retry_count);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-
-    if (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED)
-    {
-        ESP_LOGE(TAG, "Failed to sync with NTP server");
-        return ESP_ERR_TIMEOUT;
-    }
-
-    // Get current system time
-    time_t now;
-    struct tm timeinfo;
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    // Write to DS3231
-    err = i2c_ds3231_write_time(dev_handle, &timeinfo);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to write time to DS3231: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    ESP_LOGI(TAG, "System and DS3231 synchronized. Time: %s, TZ: %s",
-             asctime(&timeinfo), timezone);
-
-    return ESP_OK;
-}
-
 uint8_t bin2bcd(uint8_t val)
 {
     return ((val / 10) << 4) | (val % 10);
@@ -191,3 +112,126 @@ esp_err_t i2c_ds3231_write_time(i2c_master_dev_handle_t dev_handle, const struct
 
     return ESP_OK;
 }
+
+void time_sync_cb(struct timeval *tv)
+{
+    ESP_LOGI(TAG, "System time synchronized");
+
+    // Get current system time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // Update DS3231 here (replace dev_handle with your actual handle)
+    extern i2c_master_dev_handle_t ds3231_bus0_handle;
+    i2c_ds3231_write_time(ds3231_bus0_handle, &timeinfo);
+}
+
+// Function to check if Wi-Fi has an IP
+bool wifi_has_ip(void)
+{
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (netif == NULL)
+    {
+        ESP_LOGW(TAG, "Wi-Fi STA interface not found");
+        return false;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
+    {
+        return false;
+    }
+    return ip_info.ip.addr != 0;
+}
+
+// Minimal sync function
+esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+{
+    if (!wifi_has_ip())
+    {
+        ESP_LOGE(TAG, "No Wi-Fi connection, cannot sync");
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    // Configure SNTP
+    esp_sntp_stop(); // reset if already running
+    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "129.6.15.28"); // numeric IP (NIST)
+    esp_sntp_set_time_sync_notification_cb(time_sync_cb);
+    esp_sntp_init();
+
+    ESP_LOGI(TAG, "SNTP started, waiting for callback...");
+    return ESP_OK;
+}
+
+/*esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
+{
+    esp_err_t err = ESP_OK;
+
+    // Take mutex to safely read config
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    char ntp_server[LARGE_CONFIG_ITEM];
+    char timezone[LARGE_CONFIG_ITEM];
+    strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
+    strncpy(timezone, time_config.timezone, sizeof(timezone));
+
+    xSemaphoreGive(time_config_mutex);
+
+    // Configure timezone
+    err = setenv("TZ", timezone, 1);
+    if (err != 0)
+    {
+        ESP_LOGE(TAG, "Failed to set TZ environment variable");
+        return ESP_FAIL;
+    }
+    tzset();
+
+    // Configure SNTP
+    esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, ntp_server);
+    esp_sntp_init();
+
+    ESP_LOGI(TAG, "SNTP initialized with server: %s, waiting for sync...", ntp_server);
+
+    // Wait for sync
+    int retry = 0;
+    const int retry_count = 60;
+    while (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED && ++retry < retry_count)
+    {
+        ESP_LOGI(TAG, "Waiting for NTP sync... (%d/%d)", retry, retry_count);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    if (sntp_get_sync_status() != SNTP_SYNC_STATUS_COMPLETED)
+    {
+        ESP_LOGE(TAG, "Failed to sync with NTP server");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    // Get current system time
+    time_t now;
+    struct tm timeinfo;
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // Write to DS3231
+    err = i2c_ds3231_write_time(dev_handle, &timeinfo);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to write time to DS3231: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    ESP_LOGI(TAG, "System and DS3231 synchronized. Time: %s, TZ: %s",
+             asctime(&timeinfo), timezone);
+
+    return ESP_OK;
+}
+*/

@@ -9,7 +9,7 @@ i2c_master_dev_handle_t aht20_bus0_handle = {0};
 i2c_master_dev_handle_t aht20_bus1_handle = {0};
 i2c_master_dev_handle_t scd41_bus0_handle = {0};
 i2c_master_dev_handle_t scd41_bus1_handle = {0};
-i2c_master_dev_handle_t ds3231_bus1_handle = {0};
+i2c_master_dev_handle_t ds3231_bus0_handle = {0};
 
 // Task handles
 TaskHandle_t task_i2c_sensors = NULL;

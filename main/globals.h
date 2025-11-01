@@ -70,7 +70,7 @@ extern i2c_master_dev_handle_t aht20_bus0_handle;
 extern i2c_master_dev_handle_t aht20_bus1_handle;
 extern i2c_master_dev_handle_t scd41_bus0_handle;
 extern i2c_master_dev_handle_t scd41_bus1_handle;
-extern i2c_master_dev_handle_t ds3231_bus1_handle;
+extern i2c_master_dev_handle_t ds3231_bus0_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
