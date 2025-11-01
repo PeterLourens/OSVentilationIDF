@@ -401,3 +401,140 @@ void formatted_uptime(char *buf, size_t bufsize)
 
     snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
 }
+
+void on_ping_end(esp_ping_handle_t hdl, void *args)
+{
+    const char *TAG = "Ping";
+    uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
+
+    // Profiles available in ESP‑IDF 5.5.1
+    esp_ping_get_profile(hdl, ESP_PING_PROF_REQUEST, &transmitted, sizeof(transmitted));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_REPLY, &received, sizeof(received));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_DURATION, &duration, sizeof(duration));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_TIMEGAP, &avg_time, sizeof(avg_time));
+
+    int loss_percent = 0;
+    if (transmitted > 0)
+    {
+        loss_percent = (int)((transmitted - received) * 100 / transmitted);
+    }
+
+    g_ping_summary.transmitted = (int)transmitted;
+    g_ping_summary.received = (int)received;
+    g_ping_summary.loss_percent = loss_percent;
+    g_ping_summary.avg_time_ms = (int)avg_time;
+    g_ping_summary.duration_ms = (int)duration;
+    g_ping_summary.success = (received > 0);
+
+    ESP_LOGI(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
+             g_ping_summary.transmitted, g_ping_summary.received,
+             g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
+             g_ping_summary.duration_ms);
+
+    // Clean up session
+    esp_ping_delete_session(hdl);
+
+    // Signal completion
+    if (g_ping_done_sem)
+    {
+        xSemaphoreGive(g_ping_done_sem);
+    }
+}
+
+bool ping_gateway(void)
+{
+    const char *TAG = "Ping";
+
+    // Ensure station netif exists
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (!netif)
+    {
+        ESP_LOGE(TAG, "No station netif found");
+        return false;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to get IP info");
+        return false;
+    }
+
+    // Log gateway using IPSTR/IP2STR to avoid incompatible-pointer warnings
+    // ESP_LOGI(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+
+    // Build ip_addr_t target_addr from ip_info.gw
+    ip_addr_t target_addr;
+    IP_ADDR4(&target_addr,
+             ip4_addr1(&ip_info.gw),
+             ip4_addr2(&ip_info.gw),
+             ip4_addr3(&ip_info.gw),
+             ip4_addr4(&ip_info.gw));
+
+    // ESP_LOGI(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+
+    // Reset summary
+    memset(&g_ping_summary, 0, sizeof(g_ping_summary));
+
+    // Create (or reuse) semaphore
+    if (g_ping_done_sem == NULL)
+    {
+        g_ping_done_sem = xSemaphoreCreateBinary();
+        if (g_ping_done_sem == NULL)
+        {
+            ESP_LOGE(TAG, "Failed to create semaphore");
+            return false;
+        }
+    }
+    else
+    {
+        // Drain any previous signal
+        xSemaphoreTake(g_ping_done_sem, 0);
+    }
+
+    // Configure ping session
+    esp_ping_config_t config = ESP_PING_DEFAULT_CONFIG();
+    config.count = 5;                 // number of probes
+    config.interval_ms = 1000;        // 1s between pings
+    config.timeout_ms = 1000;         // per‑ping timeout
+    config.target_addr = target_addr; // gateway
+
+    esp_ping_callbacks_t cbs = {
+        .on_ping_end = on_ping_end,
+        // You can add per‑reply logging if you want:
+        // .on_ping_success = your_success_cb,
+        // .on_ping_timeout = your_timeout_cb,
+    };
+
+    // Start session
+    esp_ping_handle_t ping = NULL;
+    esp_err_t err = esp_ping_new_session(&config, &cbs, &ping);
+    if (err != ESP_OK || ping == NULL)
+    {
+        ESP_LOGE(TAG, "esp_ping_new_session failed: %s", esp_err_to_name(err));
+        return false;
+    }
+
+    err = esp_ping_start(ping);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "esp_ping_start failed: %s", esp_err_to_name(err));
+        esp_ping_delete_session(ping);
+        return false;
+    }
+
+    // Wait for completion (5 pings + buffer)
+    // Duration profile will be ~count * interval + timeouts; use a safe upper bound
+    const TickType_t wait_ticks = pdMS_TO_TICKS(8000);
+    if (xSemaphoreTake(g_ping_done_sem, wait_ticks) != pdTRUE)
+    {
+        ESP_LOGW(TAG, "Ping session timeout waiting for completion");
+        // If still running, stop and cleanup
+        esp_ping_stop(ping);
+        esp_ping_delete_session(ping);
+        return false;
+    }
+
+    // Success = at least one reply
+    return g_ping_summary.success;
+}

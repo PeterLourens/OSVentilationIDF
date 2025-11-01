@@ -95,6 +95,7 @@ extern QueueHandle_t sensor_queue;
 // Mutex handles
 extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
+extern SemaphoreHandle_t g_ping_done_sem;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -140,8 +141,9 @@ typedef struct
     int received;
     int loss_percent;
     int avg_time_ms;
+    int duration_ms;
     bool success;
 } ping_summary_t;
-extern ping_summary_t ping_summary;
+extern ping_summary_t g_ping_summary;
 
 #endif

@@ -19,6 +19,7 @@ TaskHandle_t task_wifi = NULL;
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
 SemaphoreHandle_t time_config_mutex = NULL;
+SemaphoreHandle_t g_ping_done_sem = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;
@@ -36,4 +37,4 @@ struct tm timeinfo = {0};
 // Structs for settings
 Network_config network_config = {0};
 Time_settings time_config = {0};
-ping_summary_t ping_summary = {0};
+ping_summary_t g_ping_summary = {0};

@@ -182,6 +182,16 @@ void app_main(void)
         formatted_uptime(uptime_str, sizeof(uptime_str));
         ESP_LOGI(TAG, "System uptime: %s", uptime_str);
 
+        // Ensure connected and have IP before pinging (check esp_netif_get_ip_info)
+        if (ping_gateway())
+        {
+            ESP_LOGI("watchdog", "gateway OK");
+        }
+        else
+        {
+            ESP_LOGW("watchdog", "gateway unreachable — consider reconnecting Wi‑Fi");
+        }
+
         vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }
