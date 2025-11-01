@@ -389,3 +389,15 @@ esp_err_t create_mutexes(void)
     }
     return ESP_OK;
 }
+
+void formatted_uptime(char *buf, size_t bufsize)
+{
+    uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
+
+    int uptime_day = uptime / (60 * 60 * 24);
+    int uptime_hour = (uptime / (60 * 60)) % 24;
+    int uptime_minute = (uptime / 60) % 60;
+    int uptime_second = uptime % 60;
+
+    snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
+}

@@ -158,6 +158,28 @@ void app_main(void)
             ESP_LOGE(TAG, "Sensor queue is NULL");
         }
 
+        ds3231_health_monitor(ds3231_bus0_handle);
+
+        /*float temp_c;
+        if (ds3231_read_temperature(ds3231_bus0_handle, &temp_c) == ESP_OK)
+        {
+            // Compare RTC vs system time
+            struct tm rtc_time;
+            i2c_ds3231_read_time(ds3231_bus0_handle, &rtc_time);
+            time_t rtc_epoch = mktime(&rtc_time);
+
+            time_t sys_now;
+            time(&sys_now);
+            double drift = difftime(sys_now, rtc_epoch);
+
+            // Save results into NVS
+            save_ds3231_diagnostics(drift, temp_c);
+        }*/
+
+        char uptime_str[64] = {};
+        formatted_uptime(uptime_str, sizeof(uptime_str));
+        ESP_LOGI(TAG, "System uptime: %s", uptime_str);
+
         vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }

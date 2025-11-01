@@ -1,6 +1,7 @@
 #include "i2c_ds3231.h"
 
 static const char *TAG = "DS3231";
+static const char *NVS_NS = "ds3231_diag";
 
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
@@ -244,4 +245,160 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     ESP_LOGI(TAG, "SNTP started with server: %s, TZ: %s", ntp_server, timezone);
 
     return ESP_OK;
+}
+
+// --- Low-level helpers ---
+esp_err_t ds3231_read_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t *val)
+{
+    return i2c_master_transmit_receive(dev, &reg, 1, val, 1, pdMS_TO_TICKS(100));
+}
+
+esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val)
+{
+    uint8_t buf[2] = {reg, val};
+    return i2c_master_transmit(dev, buf, 2, pdMS_TO_TICKS(100));
+}
+
+// --- Temperature ---
+esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
+{
+    uint8_t reg = DS3231_REG_TEMP_MSB;
+    uint8_t buf[2];
+    esp_err_t err = i2c_master_transmit_receive(dev, &reg, 1, buf, 2, pdMS_TO_TICKS(100));
+    if (err != ESP_OK)
+        return err;
+
+    int8_t msb = buf[0];       // signed
+    uint8_t lsb = buf[1] >> 6; // upper 2 bits
+    *temp_c = msb + (lsb * 0.25f);
+    return ESP_OK;
+}
+
+// --- Status + health check ---
+esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev)
+{
+    uint8_t status;
+    esp_err_t err = ds3231_read_reg(dev, DS3231_REG_STATUS, &status);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read status: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    bool osf = status & 0x80;  // Oscillator Stop Flag
+    bool busy = status & 0x04; // Busy flag (temp conversion)
+    bool alarm1 = status & 0x01;
+    bool alarm2 = status & 0x02;
+
+    if (osf)
+    {
+        ESP_LOGW(TAG, "Oscillator Stop Flag set — RTC may have lost power!");
+        // Clear OSF
+        ds3231_write_reg(dev, DS3231_REG_STATUS, status & ~0x80);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Oscillator running normally");
+    }
+
+    ESP_LOGI(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d",
+             osf, busy, alarm1, alarm2);
+
+    return ESP_OK;
+}
+
+// --- Drift diagnostics ---
+esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
+{
+    struct tm rtc_time;
+    if (i2c_ds3231_read_time(dev, &rtc_time) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read RTC time");
+        return ESP_FAIL;
+    }
+
+    time_t rtc_epoch = mktime(&rtc_time);
+
+    time_t sys_now;
+    time(&sys_now);
+
+    double drift = difftime(sys_now, rtc_epoch);
+    ESP_LOGI(TAG, "RTC vs system time drift: %.0f seconds", drift);
+
+    return ESP_OK;
+}
+
+// --- Combined health check ---
+void ds3231_health_monitor(i2c_master_dev_handle_t dev)
+{
+    ds3231_check_status(dev);
+
+    float temp_c;
+    if (ds3231_read_temperature(dev, &temp_c) == ESP_OK)
+    {
+        ESP_LOGI(TAG, "DS3231 internal temperature: %.2f °C", temp_c);
+    }
+
+    ds3231_drift_check(dev);
+}
+
+void save_ds3231_diagnostics(double drift_sec, float temp_c)
+{
+    nvs_handle_t handle;
+
+    esp_err_t err = nvs_open(NVS_NS, NVS_READWRITE, &handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE("NVS", "Error opening NVS: %s", esp_err_to_name(err));
+        return;
+    }
+
+    // Store drift as integer seconds
+    nvs_set_i32(handle, "drift", (int32_t)drift_sec);
+
+    // Store temperature as integer *100 (to keep decimals)
+    nvs_set_i32(handle, "temp_c", (int32_t)(temp_c * 100));
+
+    // Store current epoch time
+    time_t now;
+    time(&now);
+    nvs_set_i64(handle, "last_check", (int64_t)now);
+
+    nvs_commit(handle);
+    nvs_close(handle);
+
+    ESP_LOGI("NVS", "Diagnostics saved: drift=%.0f sec, temp=%.2f °C", drift_sec, temp_c);
+}
+
+void read_ds3231_diagnostics(void)
+{
+    nvs_handle_t handle;
+    esp_err_t err = nvs_open(NVS_NS, NVS_READONLY, &handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGW("NVS", "No diagnostics stored yet");
+        return;
+    }
+
+    int32_t drift, temp100;
+    int64_t last_check;
+
+    if (nvs_get_i32(handle, "drift", &drift) == ESP_OK &&
+        nvs_get_i32(handle, "temp_c", &temp100) == ESP_OK &&
+        nvs_get_i64(handle, "last_check", &last_check) == ESP_OK)
+    {
+
+        struct tm tm;
+        localtime_r((time_t *)&last_check, &tm);
+
+        ESP_LOGI("NVS", "Last drift: %d sec", drift);
+        ESP_LOGI("NVS", "Last temp: %.2f °C", temp100 / 100.0f);
+        ESP_LOGI("NVS", "Last check: %s", asctime(&tm));
+    }
+    else
+    {
+        ESP_LOGW("NVS", "Diagnostics keys not found");
+    }
+
+    nvs_close(handle);
 }

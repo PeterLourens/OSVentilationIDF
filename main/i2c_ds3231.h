@@ -2,6 +2,9 @@
 #define I2C_DS3231_H
 
 #define DS3231_REG_TIME 0x00
+#define DS3231_REG_STATUS 0x0F
+#define DS3231_REG_TEMP_MSB 0x11
+#define DS3231_REG_TEMP_LSB 0x12
 
 #include <stdio.h>
 
@@ -19,5 +22,13 @@ bool wifi_has_ip(void);
 void time_sync_cb(struct timeval *tv);
 void on_got_ip(void *arg, esp_event_base_t base, int32_t id, void *data);
 void ds3231_sync_task(void *pvParameters);
+esp_err_t ds3231_read_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t *val);
+esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val);
+esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c);
+esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev);
+esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev);
+void ds3231_health_monitor(i2c_master_dev_handle_t dev);
+void save_ds3231_diagnostics(double drift_sec, float temp_c);
+void read_ds3231_diagnostics(void);
 
 #endif

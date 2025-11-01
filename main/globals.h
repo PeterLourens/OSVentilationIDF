@@ -16,12 +16,20 @@
 #include <esp_mac.h>
 #include <esp_sntp.h>
 #include <esp_netif_sntp.h>
+#include <esp_partition.h>
+#include <esp_littlefs.h> // Mounting littlefs
 #include <driver/i2c_master.h>
 #include <time.h>
 #include <lwip/err.h>
 #include <lwip/sys.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <wear_levelling.h> // Wear leveling support (for flash-based FATFS)
+#include <nvs_flash.h>      // NVS initialization
+#include <nvs.h>            // NVS read/write APIs
+#include <cJSON.h>          // JSON parsing
+#include <dirent.h>         // Directory operations
+#include <sys/stat.h>       // File status
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
