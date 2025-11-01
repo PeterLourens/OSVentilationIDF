@@ -312,6 +312,32 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev)
 static time_t last_check_epoch = 0;
 static double last_drift_sec = 0.0;
 
+time_t tm_to_epoch_utc(const struct tm *tm)
+{
+    int year = tm->tm_year + 1900;
+    int month = tm->tm_mon + 1; /* 1..12 */
+    int day = tm->tm_mday;
+    int hour = tm->tm_hour;
+    int min = tm->tm_min;
+    int sec = tm->tm_sec;
+
+    if (month <= 2)
+    {
+        year--;
+        month += 12;
+    }
+
+    /* Algorithm from civil to days (Howard Hinnant) */
+    int64_t era = year / 400;
+    int64_t yoe = year - era * 400;                      // year of era
+    int64_t doy = (153 * (month - 3) + 2) / 5 + day - 1; // day of year
+    int64_t doe = yoe * 365 + yoe / 4 - yoe / 100 + doy; // day of era
+    int64_t days = era * 146097 + doe - 719468;          // days since 1970-01-01
+
+    int64_t secs = days * 86400 + (int64_t)hour * 3600 + (int64_t)min * 60 + sec;
+    return (time_t)secs;
+}
+
 esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
 {
     struct tm rtc_tm;
@@ -321,32 +347,43 @@ esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
         return ESP_FAIL;
     }
 
-    // Ensure TZ=UTC once at boot: setenv("TZ","UTC",1); tzset();
-    time_t rtc_epoch = mktime(&rtc_tm);
+    /* Convert RTC (assumed UTC) to epoch without using mktime/timezone */
+    time_t rtc_epoch = tm_to_epoch_utc(&rtc_tm);
 
-    // System time (UTC epoch seconds)
+    /* System time (epoch seconds) */
     time_t sys_now;
     time(&sys_now);
 
-    // Drift in seconds
+    /* Drift in seconds (system - rtc). Use whole seconds because DS3231 has 1s resolution */
     double drift_sec = difftime(sys_now, rtc_epoch);
 
-    ESP_LOGI(TAG, "RTC vs System drift: %.0f sec | RTC=%04d-%02d-%02d %02d:%02d:%02d UTC",
-             drift_sec, rtc_tm.tm_year + 1900, rtc_tm.tm_mon + 1, rtc_tm.tm_mday, rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+    ESP_LOGI(TAG,
+             "RTC vs System drift: %.0f sec | RTC=%04d-%02d-%02d %02d:%02d:%02d UTC",
+             drift_sec,
+             rtc_tm.tm_year + 1900, rtc_tm.tm_mon + 1, rtc_tm.tm_mday,
+             rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
 
-    // If we have a previous measurement, compute average drift rate
+    /* If we have a previous measurement, compute average drift rate in ppm */
     if (last_check_epoch != 0)
     {
-        double elapsed_days = difftime(sys_now, last_check_epoch) / 86400.0;
-        double drift_change = drift_sec - last_drift_sec;
+        double elapsed_seconds = difftime(sys_now, last_check_epoch);
+        if (elapsed_seconds > 0.0)
+        {
+            double drift_change = drift_sec - last_drift_sec;
+            double ppm = (drift_change / elapsed_seconds) * 1e6;
 
-        // ppm = (drift_change / elapsed_seconds) * 1e6
-        double ppm = (drift_change / (elapsed_days * 86400.0)) * 1e6;
-
-        ESP_LOGI(TAG, "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm", elapsed_days, drift_change, ppm);
+            double elapsed_days = elapsed_seconds / 86400.0;
+            ESP_LOGI(TAG,
+                     "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm",
+                     elapsed_days, drift_change, ppm);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Elapsed time is zero or negative; cannot compute ppm");
+        }
     }
 
-    // Update stored values
+    /* Update stored values */
     last_check_epoch = sys_now;
     last_drift_sec = drift_sec;
 

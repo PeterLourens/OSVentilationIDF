@@ -465,11 +465,7 @@ bool ping_gateway(void)
 
     // Build ip_addr_t target_addr from ip_info.gw
     ip_addr_t target_addr;
-    IP_ADDR4(&target_addr,
-             ip4_addr1(&ip_info.gw),
-             ip4_addr2(&ip_info.gw),
-             ip4_addr3(&ip_info.gw),
-             ip4_addr4(&ip_info.gw));
+    IP_ADDR4(&target_addr, ip4_addr1(&ip_info.gw), ip4_addr2(&ip_info.gw), ip4_addr3(&ip_info.gw), ip4_addr4(&ip_info.gw));
 
     // ESP_LOGI(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
 

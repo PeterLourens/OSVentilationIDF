@@ -26,6 +26,7 @@ esp_err_t ds3231_read_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t *val
 esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val);
 esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c);
 esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev);
+time_t tm_to_epoch_utc(const struct tm *tm);
 esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev);
 void ds3231_health_monitor(i2c_master_dev_handle_t dev);
 void save_ds3231_diagnostics(double drift_sec, float temp_c);
