@@ -1,35 +1,37 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <stdio.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <freertos/event_groups.h>
-#include <freertos/queue.h>
+#include "stdio.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "freertos/event_groups.h"
-#include <esp_log.h>
-#include <esp_err.h>
-#include <esp_timer.h>
-#include <esp_system.h>
-#include <esp_wifi.h>
-#include <esp_netif.h>
-#include <esp_mac.h>
-#include <esp_sntp.h>
-#include <esp_netif_sntp.h>
-#include <esp_partition.h>
-#include <esp_littlefs.h> // Mounting littlefs
-#include <driver/i2c_master.h>
-#include <time.h>
-#include <lwip/err.h>
-#include <lwip/sys.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <wear_levelling.h> // Wear leveling support (for flash-based FATFS)
-#include <nvs_flash.h>      // NVS initialization
-#include <nvs.h>            // NVS read/write APIs
-#include <cJSON.h>          // JSON parsing
-#include <dirent.h>         // Directory operations
-#include <sys/stat.h>       // File status
+#include "freertos/queue.h"
+#include "freertos/event_groups.h"
+#include "esp_log.h"
+#include "esp_err.h"
+#include "esp_timer.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_netif.h"
+#include "esp_mac.h"
+#include "esp_sntp.h"
+#include "esp_ping.h"
+#include "esp_netif_sntp.h"
+#include "esp_partition.h"
+#include "driver/i2c_master.h"
+#include "time.h"
+#include "lwip/err.h"
+#include "lwip/inet.h"
+#include "lwip/sys.h"
+#include "arpa/inet.h"
+#include "sys/socket.h"
+#include "wear_levelling.h" // Wear leveling support (for flash-based FATFS)
+#include "nvs_flash.h"      // NVS initialization
+#include "nvs.h"            // NVS read/write APIs
+#include "cJSON.h"          // JSON parsing
+#include "dirent.h"         // Directory operations
+#include "sys/stat.h"       // File status
+#include "esp_littlefs.h"   // Mounting littlefs
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -129,5 +131,15 @@ typedef struct
     char timezone[LARGE_CONFIG_ITEM];
 } Time_settings;
 extern Time_settings time_config;
+
+typedef struct
+{
+    int transmitted;
+    int received;
+    int loss_percent;
+    int avg_time_ms;
+    bool success;
+} ping_summary_t;
+extern ping_summary_t ping_summary;
 
 #endif

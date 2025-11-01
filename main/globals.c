@@ -36,3 +36,4 @@ struct tm timeinfo = {0};
 // Structs for settings
 Network_config network_config = {0};
 Time_settings time_config = {0};
+ping_summary_t ping_summary = {0};

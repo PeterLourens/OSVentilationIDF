@@ -401,3 +401,64 @@ void formatted_uptime(char *buf, size_t bufsize)
 
     snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
 }
+
+void on_ping_end(esp_ping_handle_t hdl, void *args)
+{
+    uint32_t transmitted = 0, received = 0, loss = 0, avg_time = 0;
+
+    esp_ping_get_profile(hdl, ESP_PING_PROF_REQUEST, &transmitted, sizeof(transmitted));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_REPLY, &received, sizeof(received));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_LOSS, &loss, sizeof(loss));
+    esp_ping_get_profile(hdl, ESP_PING_PROF_TIMEGAP, &avg_time, sizeof(avg_time));
+
+    g_ping_summary.transmitted = transmitted;
+    g_ping_summary.received = received;
+    g_ping_summary.loss_percent = loss;
+    g_ping_summary.avg_time_ms = avg_time;
+    g_ping_summary.success = (received > 0);
+
+    ESP_LOGI("PING", "Ping finished: tx=%d rx=%d loss=%d%% avg_time=%d ms",
+             transmitted, received, loss, avg_time);
+
+    esp_ping_delete_session(hdl);
+}
+
+bool ping_gateway(void)
+{
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (!netif)
+    {
+        ESP_LOGE("PING", "No default netif found");
+        return false;
+    }
+
+    esp_netif_ip_info_t ip_info;
+    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
+    {
+        ESP_LOGE("PING", "Failed to get IP info");
+        return false;
+    }
+
+    ip4_addr_t gateway = ip_info.gw;
+    ESP_LOGI("PING", "Pinging gateway: %s", ip4addr_ntoa(&gateway));
+
+    // Reset summary
+    memset(&g_ping_summary, 0, sizeof(g_ping_summary));
+
+    esp_ping_config_t ping_config = ESP_PING_DEFAULT_CONFIG();
+    ping_config.count = 5; // send 5 pings
+    ping_config.target_addr = gateway;
+
+    esp_ping_callbacks_t cbs = {
+        .on_ping_end = on_ping_end,
+    };
+
+    esp_ping_handle_t ping;
+    esp_ping_new_session(&ping_config, &cbs, &ping);
+    esp_ping_start(ping);
+
+    // Wait until ping session finishes
+    vTaskDelay(pdMS_TO_TICKS(6000)); // allow enough time for 5 pings
+
+    return g_ping_summary.success;
+}

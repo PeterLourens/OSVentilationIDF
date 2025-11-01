@@ -18,9 +18,11 @@ void app_main(void)
     esp_log_level_set("nvs", ESP_LOG_ERROR);
     esp_log_level_set("wifi", ESP_LOG_ERROR);
     esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);
     esp_log_level_set("event", ESP_LOG_ERROR);
     esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
     esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
+    esp_log_level_set("DS3231", ESP_LOG_INFO);
     // esp_log_level_set("*", ESP_LOG_ERROR);
 
     // Create mutexes

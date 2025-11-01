@@ -308,22 +308,47 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev)
 }
 
 // --- Drift diagnostics ---
+// Keep last sync time in static storage
+static time_t last_check_epoch = 0;
+static double last_drift_sec = 0.0;
+
 esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
 {
-    struct tm rtc_time;
-    if (i2c_ds3231_read_time(dev, &rtc_time) != ESP_OK)
+    struct tm rtc_tm;
+    if (i2c_ds3231_read_time(dev, &rtc_tm) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read RTC time");
         return ESP_FAIL;
     }
 
-    time_t rtc_epoch = mktime(&rtc_time);
+    // Ensure TZ=UTC once at boot: setenv("TZ","UTC",1); tzset();
+    time_t rtc_epoch = mktime(&rtc_tm);
 
+    // System time (UTC epoch seconds)
     time_t sys_now;
     time(&sys_now);
 
-    double drift = difftime(sys_now, rtc_epoch);
-    ESP_LOGI(TAG, "RTC vs system time drift: %.0f seconds", drift);
+    // Drift in seconds
+    double drift_sec = difftime(sys_now, rtc_epoch);
+
+    ESP_LOGI(TAG, "RTC vs System drift: %.0f sec | RTC=%04d-%02d-%02d %02d:%02d:%02d UTC",
+             drift_sec, rtc_tm.tm_year + 1900, rtc_tm.tm_mon + 1, rtc_tm.tm_mday, rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+
+    // If we have a previous measurement, compute average drift rate
+    if (last_check_epoch != 0)
+    {
+        double elapsed_days = difftime(sys_now, last_check_epoch) / 86400.0;
+        double drift_change = drift_sec - last_drift_sec;
+
+        // ppm = (drift_change / elapsed_seconds) * 1e6
+        double ppm = (drift_change / (elapsed_days * 86400.0)) * 1e6;
+
+        ESP_LOGI(TAG, "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm", elapsed_days, drift_change, ppm);
+    }
+
+    // Update stored values
+    last_check_epoch = sys_now;
+    last_drift_sec = drift_sec;
 
     return ESP_OK;
 }
