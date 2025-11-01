@@ -9,15 +9,19 @@ void app_main(void)
     esp_err_t err = ESP_OK;
 
     // Set log levels
-    /*esp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);       // Suppress info/debug from i2cdev
-    esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);   // Suppress low-level I2C driver logs
-    esp_log_level_set("scd4x", PROJECT_LOG_LEVEL);        // Suppress SCD4X driver logs
-    esp_log_level_set("tca9548", PROJECT_LOG_LEVEL);      // Suppress TCA9548 driver logs
-    esp_log_level_set("aht", PROJECT_LOG_LEVEL);          // Suppress TCA9548 driver logs
-    esp_log_level_set("esp_littlefs", PROJECT_LOG_LEVEL); // Suppress LittleFS logs*/
-    // esp_log_level_set("esp_netif_lwip", PROJECT_LOG_LEVEL); // Suppress LittleFS logs
-
-    esp_log_level_set("*", PROJECT_LOG_LEVEL); // Set all logs to project level
+    // sp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);
+    // esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);
+    esp_log_level_set("scd4x", ESP_LOG_ERROR);
+    esp_log_level_set("tca9548", ESP_LOG_ERROR);
+    esp_log_level_set("aht", ESP_LOG_ERROR);
+    esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
+    esp_log_level_set("nvs", ESP_LOG_ERROR);
+    esp_log_level_set("wifi", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
+    esp_log_level_set("event", ESP_LOG_ERROR);
+    esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
+    esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
+    // esp_log_level_set("*", ESP_LOG_ERROR);
 
     // Create mutexes
     err = create_mutexes();

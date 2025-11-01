@@ -6,7 +6,7 @@ esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_han
 {
     i2c_device_config_t ds3231_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = DS3231_I2C_ADDR,
+        .device_address = DS3231_I2C_ADDR, // 0x68
         .scl_speed_hz = 100000,
     };
 
@@ -17,25 +17,18 @@ esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_han
         return err;
     }
 
-    // Check if device responds
-    uint8_t reg = 0x0F; // Control/Status register
-    uint8_t status;
+    // Check if device responds by reading status register (0x0F)
+    uint8_t reg = 0x0F;
+    uint8_t status = 0;
 
-    err = i2c_master_transmit(*dev_handle, &reg, 1, pdMS_TO_TICKS(100));
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to send register address: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    err = i2c_master_receive(*dev_handle, &status, 1, pdMS_TO_TICKS(100));
+    err = i2c_master_transmit_receive(*dev_handle, &reg, 1, &status, 1, pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to read status register: %s", esp_err_to_name(err));
         return err;
     }
 
-    ESP_LOGI(TAG, "DS3231 initialized successfully");
+    ESP_LOGI(TAG, "DS3231 initialized successfully, status=0x%02X", status);
     return ESP_OK;
 }
 
@@ -85,6 +78,20 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 {
     const char *TAG = "NTP_SYNC";
     esp_err_t err = ESP_OK;
+    esp_netif_ip_info_t ip_info;
+
+    // --- Check Wi-Fi connection ---
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (netif == NULL)
+    {
+        ESP_LOGE(TAG, "Wi-Fi STA interface not found");
+        return ESP_FAIL;
+    }
+    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK || ip_info.ip.addr == 0)
+    {
+        ESP_LOGE(TAG, "No Wi-Fi connection (no IP address)");
+        return ESP_ERR_INVALID_STATE;
+    }
 
     // Take mutex to safely read config
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
