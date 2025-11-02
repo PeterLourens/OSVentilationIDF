@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "wifi_functions.h"
 
 // Function definitions
 esp_err_t i2c_lcd_init(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);

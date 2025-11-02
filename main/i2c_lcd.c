@@ -16,9 +16,9 @@ static const int LCD_COLS = 20;
 static const int LCD_ROWS = 4;
 static const uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
 
-/* Keep track of current backlight state and last static output byte
-   last_output holds the last non-toggling control byte we sent to the expander.
-   We update it when sending commands/data so toggling backlight doesn't lose RS/E state. */
+// Keep track of current backlight state and last static output byte
+// last_output holds the last non-toggling control byte we sent to the expander.
+// We update it when sending commands/data so toggling backlight doesn't lose RS/E state.
 static bool s_backlight = true;
 static uint8_t s_last_output = LCD_BACKLIGHT; /* default include backlight */
 
@@ -78,26 +78,6 @@ esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
 
     return lcd_pulse_enable(out);
 }
-
-/* Modify existing lcd_pulse_enable / lcd_write_nibble / lcd_write_byte to maintain s_last_output.
-   Insert/update these lines where you prepare the 'out' byte before calling lcd_dev_write_byte
-   so s_last_output always reflects the last non-E toggled state. */
-
-/* Example: update lcd_write_nibble to set s_last_output before pulsing enable
-esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
-{
-    uint8_t out = (uint8_t)((nibble & 0x0F) << 4);
-    out |= control_flags;
-    //apply backlight bit from s_backlight
-    if (s_backlight)
-        out |= LCD_BACKLIGHT;
-
-    //remember last stable output used (without E set)
-    s_last_output = out;
-
-    //now pulse enable using the persisted out value
-    return lcd_pulse_enable(out);
-}*/
 
 /* Send full byte as two nibbles */
 static esp_err_t lcd_write_byte(uint8_t byte, uint8_t control_flags)

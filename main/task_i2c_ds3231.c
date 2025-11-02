@@ -5,7 +5,7 @@ const char *TAG = "DS3231 Sync task";
 void start_task_i2c_ds3231(void)
 {
     // Register Wi‑Fi event handler
-    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL));
+    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL);
 
     // Create DS3231 sync task
     xTaskCreate(task_i2c_ds3231_code, "i2c_ds3231", 4096, NULL, 6, &task_i2c_ds3231);

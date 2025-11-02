@@ -100,6 +100,7 @@ extern QueueHandle_t sensor_queue;
 extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
+extern SemaphoreHandle_t time_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
