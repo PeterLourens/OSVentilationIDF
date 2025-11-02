@@ -10,11 +10,13 @@ i2c_master_dev_handle_t aht20_bus1_handle = {0};
 i2c_master_dev_handle_t scd41_bus0_handle = {0};
 i2c_master_dev_handle_t scd41_bus1_handle = {0};
 i2c_master_dev_handle_t ds3231_bus0_handle = {0};
+i2c_master_dev_handle_t lcd_bus1_handle = {0};
 
 // Task handles
 TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
+TaskHandle_t task_i2c_lcd = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;

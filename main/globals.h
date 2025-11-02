@@ -83,11 +83,13 @@ extern i2c_master_dev_handle_t aht20_bus1_handle;
 extern i2c_master_dev_handle_t scd41_bus0_handle;
 extern i2c_master_dev_handle_t scd41_bus1_handle;
 extern i2c_master_dev_handle_t ds3231_bus0_handle;
+extern i2c_master_dev_handle_t lcd_bus1_handle;
 
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_ds3231;
 extern TaskHandle_t task_wifi;
+extern TaskHandle_t task_i2c_lcd;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
