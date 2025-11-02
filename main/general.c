@@ -542,7 +542,7 @@ void formatted_daydatetime(char *buf, size_t bufsize)
 
     static const char *day_names[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 
-    // Read current time from DS3231 and put data in struct temp_time
+    // Read current time and put data in struct temp_time
     time(&now);
     localtime_r(&now, &temp_time);
 
@@ -554,7 +554,7 @@ void formatted_datetime(char *buf, size_t bufsize)
     struct tm temp_time;
     time_t now = 0;
 
-    // Read local time from DS3231 and put data in struct temp_time
+    // Read local time and put data in struct temp_time
     time(&now);
     localtime_r(&now, &temp_time);
 
