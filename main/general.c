@@ -534,3 +534,29 @@ bool ping_gateway(void)
     // Success = at least one reply
     return g_ping_summary.success;
 }
+
+void formatted_daydatetime(char *buf, size_t bufsize)
+{
+    struct tm temp_time;
+    time_t now;
+
+    static const char *day_names[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
+    // Read current time from DS3231 and put data in struct temp_time
+    time(&now);
+    localtime_r(&now, &temp_time);
+
+    snprintf(buf, bufsize, "%s %04d/%02d/%02d-%02d:%02d:%02d", day_names[temp_time.tm_wday], temp_time.tm_year, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
+}
+
+void formatted_datetime(char *buf, size_t bufsize)
+{
+    struct tm temp_time;
+    time_t now = 0;
+
+    // Read local time from DS3231 and put data in struct temp_time
+    time(&now);
+    localtime_r(&now, &temp_time);
+
+    snprintf(buf, bufsize, "%04d/%02d/%02d-%02d:%02d:%02d", temp_time.tm_year, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
+}

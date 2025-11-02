@@ -13,6 +13,7 @@ void task_i2c_lcd_code(void *pvParameters)
     char uptime[20] = {};
     char ip_str[16] = {};
     char ping_result[20] = {};
+    char formatted_time[32] = {};
     char lcd_contents[100] = {}; // LCD has 20x4=80 chars, so 100 is safe
 
     ESP_LOGI(TAG, "LCD task started...");
@@ -28,6 +29,7 @@ void task_i2c_lcd_code(void *pvParameters)
         i2c_lcd_backlight_set(true);
 
         formatted_uptime(uptime, sizeof(uptime));
+        formatted_datetime(formatted_time, sizeof(formatted_time));
         wifi_manager_get_ip_info(ip_str, sizeof(ip_str));
 
         if (ping_gateway())
@@ -39,7 +41,7 @@ void task_i2c_lcd_code(void *pvParameters)
             strcpy(ping_result, "Gateway unreachable");
         }
 
-        snprintf(lcd_contents, sizeof(lcd_contents), "Up: %s\nIP: %s\n%s", uptime, ip_str, ping_result);
+        snprintf(lcd_contents, sizeof(lcd_contents), "%s\nUp: %s\nIP: %s\n%s", formatted_time, uptime, ip_str, ping_result);
 
         i2c_lcd_write_text(lcd_contents);
 

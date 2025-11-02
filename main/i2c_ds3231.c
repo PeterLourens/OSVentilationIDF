@@ -65,8 +65,8 @@ esp_err_t i2c_ds3231_read_time(i2c_master_dev_handle_t dev_handle, struct tm *ti
     timeinfo->tm_hour = ((data[2] >> 4) * 10) + (data[2] & 0x0F); // Assumes 24h mode
     timeinfo->tm_wday = (data[3] & 0x07) - 1;                     // Convert 1-7 to 0-6
     timeinfo->tm_mday = ((data[4] >> 4) * 10) + (data[4] & 0x0F);
-    timeinfo->tm_mon = (((data[5] >> 4) * 10) + (data[5] & 0x0F)) - 1;          // Convert 1-12 to 0-11
-    timeinfo->tm_year = ((data[6] >> 4) * 10) + (data[6] & 0x0F) + 2000 - 1900; // Convert to years since 1900
+    timeinfo->tm_mon = (((data[5] >> 4) * 10) + (data[5] & 0x0F)) - 1;   // Convert 1-12 to 0-11
+    timeinfo->tm_year = ((data[6] >> 4) * 10) + (data[6] & 0x0F) + 2000; // Convert to years since 1900
 
     ESP_LOGD(TAG, "Time read: %02d:%02d:%02d %02d/%02d/%04d",
              timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec,
