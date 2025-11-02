@@ -51,6 +51,7 @@
 #define AHT20_I2C_ADDR 0x38   // Default address
 #define SCD41_I2C_ADDR 0x62   // Default address
 #define DS3231_I2C_ADDR 0x68  // Default address
+#define LCD_I2C_ADDR 0x27     // Default address
 
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32

@@ -112,6 +112,7 @@ void app_main(void)
     start_task_wifi();
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
+    start_task_i2c_lcd();
 
     // Print network settings
     ESP_LOGI(TAG, "\nNetwork Settings:\n"
