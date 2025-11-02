@@ -77,6 +77,19 @@ void app_main(void)
     }
     init_system_time_from_ds3231(ds3231_bus0_handle);
 
+    // Init LCD on bus1
+    err = i2c_lcd_init(i2c_bus1_handle, &lcd_bus1_handle);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize LCD on bus 1: %s", esp_err_to_name(err));
+        vTaskDelete(NULL);
+        return;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "LCD initialized on bus 1");
+    }
+
     // Load sensor configuration for bus 0
     err = load_sensor_config("bus0_sensor_config");
     if (err != ESP_OK)

@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "i2c_lcd.h"
 
 // Function definitions
 void start_task_i2c_lcd(void);

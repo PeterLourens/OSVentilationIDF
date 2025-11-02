@@ -14,6 +14,7 @@
 #include "esp_wifi.h"
 #include "esp_netif.h"
 #include "esp_mac.h"
+#include "esp_rom_sys.h"
 #include "esp_sntp.h"
 #include "esp_ping.h"
 #include "esp_netif_sntp.h"
