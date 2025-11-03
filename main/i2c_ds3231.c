@@ -293,8 +293,7 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
     if (osf)
     {
         ESP_LOGW(TAG, "Oscillator Stop Flag set — RTC may have lost power!");
-        // Clear OSF
-        ds3231_write_reg(dev, DS3231_REG_STATUS, status & ~0x80);
+        ds3231_write_reg(dev, DS3231_REG_STATUS, status & ~0x80); // Clear OSF
     }
     // else
     //{
@@ -374,9 +373,7 @@ esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
             double ppm = (drift_change / elapsed_seconds) * 1e6;
 
             double elapsed_days = elapsed_seconds / 86400.0;
-            ESP_LOGI(TAG,
-                     "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm",
-                     elapsed_days, drift_change, ppm);
+            ESP_LOGI(TAG, "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm", elapsed_days, drift_change, ppm);
         }
         else
         {
