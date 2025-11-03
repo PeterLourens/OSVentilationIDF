@@ -88,19 +88,26 @@ static esp_err_t lcd_write_byte(uint8_t byte, uint8_t control_flags)
     return lcd_write_nibble(byte & 0x0F, control_flags);
 }
 
-static inline esp_err_t lcd_command(uint8_t cmd) { return lcd_write_byte(cmd, 0x00); }
-static inline esp_err_t lcd_data(uint8_t d) { return lcd_write_byte(d, LCD_REGISTER_SELECT); }
+static inline esp_err_t lcd_command(uint8_t cmd)
+{
+    return lcd_write_byte(cmd, 0x00);
+}
 
-/* Bind the device handle returned by your bus API */
+static inline esp_err_t lcd_data(uint8_t d)
+{
+    return lcd_write_byte(d, LCD_REGISTER_SELECT);
+}
+
+/* Bind the device handle returned by your bus API - Function not used and it works ok without
 esp_err_t i2c_lcd_bind_device(i2c_master_dev_handle_t dev_handle)
 {
     if (dev_handle == NULL)
         return ESP_ERR_INVALID_ARG;
     lcd_bus1_handle = dev_handle;
     return ESP_OK;
-}
+}*/
 
-/* Initialize the HD44780 via PCF8574 (4-bit init sequence) */
+/* Initialize the HD44780 via PCF8574 (4-bit init sequence), call once in task_i2c_lcd */
 esp_err_t i2c_lcd_init_device(void)
 {
     if (lcd_bus1_handle == NULL)
@@ -111,8 +118,7 @@ esp_err_t i2c_lcd_init_device(void)
 
     vTaskDelay(pdMS_TO_TICKS(50)); // power-up delay
 
-    /* optional quick backlight write (ignore error) */
-    (void)lcd_dev_write_byte(LCD_BACKLIGHT);
+    (void)lcd_dev_write_byte(LCD_BACKLIGHT); // optional quick backlight write (ignore error)
 
     /* Init sequence: 3x 0x03 then 0x02 to set 4-bit mode */
     lcd_write_nibble(0x03, 0);
@@ -124,15 +130,11 @@ esp_err_t i2c_lcd_init_device(void)
     lcd_write_nibble(0x02, 0);
     esp_rom_delay_us(150);
 
-    /* Function set: 4-bit, 2 lines, 5x8 dots */
-    lcd_command(0x28);
-    /* Display on, cursor off, blink off */
-    lcd_command(0x0C);
-    /* Clear display */
-    lcd_command(0x01);
+    lcd_command(0x28); // Function set: 4-bit, 2 lines, 5x8 dots
+    lcd_command(0x0C); // Display on, cursor off, blink off
+    lcd_command(0x01); // Clear display
     vTaskDelay(pdMS_TO_TICKS(2));
-    /* Entry mode set: increment, no shift */
-    lcd_command(0x06);
+    lcd_command(0x06); // Entry mode set: increment, no shift
 
     ESP_LOGI(TAG, "LCD initialized (device bound)");
     return ESP_OK;

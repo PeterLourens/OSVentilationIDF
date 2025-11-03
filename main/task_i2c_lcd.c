@@ -43,7 +43,7 @@ void task_i2c_lcd_code(void *pvParameters)
 
         snprintf(lcd_contents, sizeof(lcd_contents), "%s\nUp: %s\nIP: %s\n%s", formatted_time, uptime, ip_str, ping_result);
 
-        i2c_lcd_write_text(lcd_contents);
+        i2c_lcd_write_text(lcd_contents); // The complete display contents is written in one time, not line by line
 
         // vTaskDelay(pdMS_TO_TICKS(10000));
         // i2c_lcd_clear();
