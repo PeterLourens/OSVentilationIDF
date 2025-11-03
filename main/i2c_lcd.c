@@ -73,8 +73,7 @@ esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
     if (s_backlight)
         out |= LCD_BACKLIGHT;
 
-    /* remember last stable output used (without E set) */
-    s_last_output = out;
+    s_last_output = out; // Remember last stable output used (without E set)
 
     return lcd_pulse_enable(out);
 }
