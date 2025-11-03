@@ -275,7 +275,7 @@ esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
 }
 
 // --- Status + health check ---
-esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev)
+esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t bufsize)
 {
     uint8_t status;
     esp_err_t err = ds3231_read_reg(dev, DS3231_REG_STATUS, &status);
@@ -296,13 +296,14 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev)
         // Clear OSF
         ds3231_write_reg(dev, DS3231_REG_STATUS, status & ~0x80);
     }
-    else
-    {
-        ESP_LOGI(TAG, "Oscillator running normally");
-    }
+    // else
+    //{
+    //     ESP_LOGI(TAG, "Oscillator running normally");
+    // }
 
-    ESP_LOGI(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d",
-             osf, busy, alarm1, alarm2);
+    snprintf(buf, bufsize, "OSF=%d Busy=%d Al1=%d Al2=%d", osf, busy, alarm1, alarm2);
+
+    // ESP_LOGI(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d", osf, busy, alarm1, alarm2);
 
     return ESP_OK;
 }
@@ -393,9 +394,11 @@ esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
 // --- Combined health check ---
 void ds3231_health_monitor(i2c_master_dev_handle_t dev)
 {
-    ds3231_check_status(dev);
+    float temp_c = 0;
+    char ds3231_status[30];
 
-    float temp_c;
+    ds3231_check_status(dev, ds3231_status, sizeof(ds3231_status));
+
     if (ds3231_read_temperature(dev, &temp_c) == ESP_OK)
     {
         ESP_LOGI(TAG, "DS3231 internal temperature: %.2f °C", temp_c);
