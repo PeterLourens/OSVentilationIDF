@@ -301,7 +301,7 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
     //     ESP_LOGI(TAG, "Oscillator running normally");
     // }
 
-    snprintf(buf, bufsize, "OSF=%d Busy=%d Al1=%d Al2=%d", osf, busy, alarm1, alarm2);
+    snprintf(buf, bufsize, "OSF=%d Busy=%d\nAl1=%d Al2=%d", osf, busy, alarm1, alarm2);
 
     // ESP_LOGI(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d", osf, busy, alarm1, alarm2);
 
