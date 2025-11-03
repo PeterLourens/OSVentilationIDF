@@ -69,7 +69,7 @@ void task_i2c_lcd_code(void *pvParameters)
 
         ds3231_check_status(ds3231_bus0_handle, ds3231_status, sizeof(ds3231_status));
 
-        snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f C\nDrift: %.2f\n%s", temp_c, drift, ds3231_status);
+        snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f CDrift: %.2f\n%s", temp_c, drift, ds3231_status);
         i2c_lcd_write_text(lcd_contents);
 
         // vTaskDelay(pdMS_TO_TICKS(10000));
