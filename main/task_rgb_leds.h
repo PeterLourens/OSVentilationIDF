@@ -4,10 +4,10 @@
 #include <stdio.h>
 
 #include "globals.h"
-#include "wifi_functions.h"
+#include "rgb_leds.h"
 
 // Function declarations
-void start_task_np(void);
+void start_task_rgb_leds(void);
 void task_rgb_leds_code(void *);
 
 #endif

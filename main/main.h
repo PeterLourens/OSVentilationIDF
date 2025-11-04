@@ -11,5 +11,6 @@
 #include "i2c_ds3231.h"
 #include "task_i2c_lcd.h"
 #include "i2c_lcd.h"
+#include "task_rgb_leds.h"
 
 #endif

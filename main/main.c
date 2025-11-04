@@ -126,6 +126,7 @@ void app_main(void)
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();
+    start_task_rgb_leds();
 
     // Print network settings
     ESP_LOGI(TAG, "\nNetwork Settings:\n"

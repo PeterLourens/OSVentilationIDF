@@ -35,6 +35,7 @@
 #include "dirent.h"         // Directory operations
 #include "sys/stat.h"       // File status
 #include "esp_littlefs.h"   // Mounting littlefs
+#include "driver/rmt_tx.h"  //For RGB Leds
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
