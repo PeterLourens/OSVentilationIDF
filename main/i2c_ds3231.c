@@ -1,7 +1,6 @@
 #include "i2c_ds3231.h"
 
 static const char *TAG = "DS3231";
-static const char *NVS_NS = "ds3231_diag";
 
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
@@ -408,7 +407,7 @@ void save_ds3231_diagnostics(double drift_sec, float temp_c)
 {
     nvs_handle_t handle;
 
-    esp_err_t err = nvs_open(NVS_NS, NVS_READWRITE, &handle);
+    esp_err_t err = nvs_open(TAG, NVS_READWRITE, &handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("NVS", "Error opening NVS: %s", esp_err_to_name(err));
@@ -435,7 +434,7 @@ void save_ds3231_diagnostics(double drift_sec, float temp_c)
 void read_ds3231_diagnostics(void)
 {
     nvs_handle_t handle;
-    esp_err_t err = nvs_open(NVS_NS, NVS_READONLY, &handle);
+    esp_err_t err = nvs_open(TAG, NVS_READONLY, &handle);
     if (err != ESP_OK)
     {
         ESP_LOGW("NVS", "No diagnostics stored yet");
