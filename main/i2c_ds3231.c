@@ -77,6 +77,9 @@ esp_err_t i2c_ds3231_read_time(i2c_master_dev_handle_t dev_handle, struct tm *ti
 void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
 {
     struct tm rtc_time;
+    time_t sys_now;
+    struct tm sys_time;
+
     if (i2c_ds3231_read_time(dev_handle, &rtc_time) == ESP_OK)
     {
         time_t rtc_epoch = mktime(&rtc_time);
@@ -84,11 +87,10 @@ void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
             .tv_sec = rtc_epoch,
             .tv_usec = 0,
         };
+        
         settimeofday(&now, NULL);
 
         // Print both RTC and system time
-        time_t sys_now;
-        struct tm sys_time;
         time(&sys_now);
         localtime_r(&sys_now, &sys_time);
 
