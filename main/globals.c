@@ -17,6 +17,7 @@ TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
 TaskHandle_t task_i2c_lcd = NULL;
+TaskHandle_t task_rgb_leds = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
