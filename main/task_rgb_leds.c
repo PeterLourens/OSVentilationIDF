@@ -10,7 +10,7 @@ void start_task_rgb_leds(void)
 
 void task_rgb_leds_code(void *pvParameters)
 {
-    u_int8_t brightness = 64; // Half
+    u_int8_t brightness = 32;
 
     esp_err_t err = init_rgb_led();
     if (err != ESP_OK)
@@ -29,7 +29,40 @@ void task_rgb_leds_code(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         // Turn on LED 1 with blue color
+        set_single_led_color_with_brightness(1, 0, 255, 0, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_single_led_color_with_brightness(0, 0, 255, 0, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        // Turn on LED 1 with blue color
         set_single_led_color_with_brightness(1, 0, 0, 255, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_single_led_color_with_brightness(0, 0, 0, 255, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        // Turn on LED 1 with blue color
+        set_single_led_color_with_brightness(1, 255, 0, 0, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_single_led_color_with_brightness(0, 255, 0, 255, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        // Turn on LED 1 with blue color
+        set_single_led_color_with_brightness(1, 0, 255, 255, brightness);
         led_strip_refresh(rgb_leds);
 
         vTaskDelay(pdMS_TO_TICKS(1000));
