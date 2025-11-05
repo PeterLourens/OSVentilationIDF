@@ -10,18 +10,32 @@ void start_task_rgb_leds(void)
 
 void task_rgb_leds_code(void *pvParameters)
 {
-    ws2812_init();
+    u_int8_t brightness = 128; //Half
 
-    ws2812_color_t leds[LED_NUM] = {
-        {.red = 255, .green = 0, .blue = 0},
-        {.red = 0, .green = 255, .blue = 0}};
-
-    float brightness = 0.3f; // 30% brightness
-
-    while (true)
+    esp_err_t err = init_rgb_led();
+    if (err != ESP_OK)
     {
-        ws2812_send(leds, 1, brightness);
-        ws2812_send(leds, 2, brightness);
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        ESP_LOGE(TAG, "Failed to initialise RGB LEDs");
+    }
+
+    while (1)
+    {
+        // Turn on LED 0 with red color
+        set_single_led_color_with_brightness(0, 255, 0, 0, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+       
+        // Turn on LED 1 with blue color
+        set_single_led_color_with_brightness(1, 0, 0, 255, brightness);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        // Turn off the LEDs
+        led_strip_clear(rgb_leds);
+        led_strip_refresh(rgb_leds);
+
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }

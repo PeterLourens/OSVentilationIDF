@@ -35,7 +35,7 @@
 #include "dirent.h"         // Directory operations
 #include "sys/stat.h"       // File status
 #include "esp_littlefs.h"   // Mounting littlefs
-#include "driver/rmt_tx.h"  //For RGB Leds
+#include "led_strip.h"
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -106,6 +106,9 @@ extern SemaphoreHandle_t time_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
+
+// RGB LED handle
+extern led_strip_handle_t rgb_leds;
 
 // Sensor configuration structure
 typedef struct
