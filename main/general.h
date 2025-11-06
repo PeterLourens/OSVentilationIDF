@@ -17,5 +17,6 @@ void formatted_uptime(char *, size_t);
 void on_ping_end(esp_ping_handle_t, void *);
 void formatted_daydatetime(char *, size_t);
 void formatted_datetime(char *, size_t);
+void show_system_and_task_stats(void);
 
 #endif

@@ -315,3 +315,149 @@ void formatted_datetime(char *buf, size_t bufsize)
 
     snprintf(buf, bufsize, "%04d/%02d/%02d-%02d:%02d:%02d", temp_time.tm_year, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
 }
+
+void show_system_and_task_stats(void)
+{
+    const char *TAG = "sys_snapshot";
+
+    const size_t SNAPSHOT_BUF_SIZE = 32 * 1024; // adjust if you have many tasks or long output
+
+    const char *state_char_from_enum(eTaskState s)
+    {
+        switch (s)
+        {
+        case eRunning:
+            return "R ";
+        case eReady:
+            return "RD";
+        case eBlocked:
+            return "B ";
+        case eSuspended:
+            return "S ";
+        case eDeleted:
+            return "D ";
+        default:
+            return "? ";
+        }
+    }
+
+    char *out = malloc(SNAPSHOT_BUF_SIZE);
+    if (!out)
+    {
+        ESP_LOGE(TAG, "No memory for snapshot buffer");
+        return;
+    }
+    out[0] = '\0';
+    size_t used = 0;
+
+    // Header / metadata
+    TickType_t ticks = xTaskGetTickCount();
+    uint64_t ms = (uint64_t)ticks * portTICK_PERIOD_MS;
+    esp_reset_reason_t rr = esp_reset_reason();
+
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "==== System snapshot ====\n"
+                                                           "Uptime: %" PRIu64 " ms    Reset reason: %d\n\n",
+                     ms, (int)rr);
+
+    // --- Task table header ---
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %-4s %-10s %-12s %-6s\n", "Task Name", "St", "Prio", "Stack B", "RunTicks", "CPU%");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %-4s %-10s %-12s %-6s\n", "--------------------", "--", "----", "----------", "------------", "------");
+
+    // Get task count and allocate TaskStatus_t array
+    UBaseType_t task_count = uxTaskGetNumberOfTasks();
+    if (task_count == 0)
+    {
+        used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "No tasks\n\n");
+        printf("%s", out);
+        free(out);
+        return;
+    }
+
+    TaskStatus_t *tasks = pvPortMalloc(task_count * sizeof(TaskStatus_t));
+    if (!tasks)
+    {
+        used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "Out of memory getting tasks\n\n");
+        printf("%s", out);
+        free(out);
+        return;
+    }
+
+    // total run time counter (units depend on your run-time counter implementation)
+    uint32_t total_run_time = uxTaskGetSystemState(tasks, task_count, NULL);
+
+    // For deterministic ordering, you may sort by name or runtime; we'll sort by runtime descending
+    // Simple bubble sort (task_count is usually small)
+    for (UBaseType_t i = 0; i < task_count; ++i)
+    {
+        for (UBaseType_t j = i + 1; j < task_count; ++j)
+        {
+            if (tasks[j].ulRunTimeCounter > tasks[i].ulRunTimeCounter)
+            {
+                TaskStatus_t tmp = tasks[i];
+                tasks[i] = tasks[j];
+                tasks[j] = tmp;
+            }
+        }
+    }
+
+    for (UBaseType_t i = 0; i < task_count; ++i)
+    {
+        TaskStatus_t *ts = &tasks[i];
+
+        uint32_t highwater_bytes = (uint32_t)ts->usStackHighWaterMark * (uint32_t)sizeof(StackType_t);
+        float pct = 0.0f;
+        if (total_run_time > 0)
+        {
+            pct = (100.0f * ts->ulRunTimeCounter) / (float)total_run_time;
+        }
+
+        used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %4u %10u %12u %6.2f\n", ts->pcTaskName ? ts->pcTaskName : "<no-name>",
+                         state_char_from_enum(ts->eCurrentState), (unsigned)ts->uxCurrentPriority, (unsigned)highwater_bytes, (unsigned)ts->ulRunTimeCounter, pct);
+
+        if (used + 256 >= SNAPSHOT_BUF_SIZE)
+            break; // avoid overflow
+    }
+
+    vPortFree(tasks);
+
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "\n");
+
+    // --- Heap table ---
+    size_t free_heap = esp_get_free_heap_size();
+    size_t min_free = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
+    size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-12s %-12s\n", "Heap Metric", "Value (bytes)", "Notes");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-12s %-12s\n", "--------------------", "------------", "------------");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %12u %-12s\n", "free_heap", (unsigned)free_heap, "");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %12u %-12s\n", "min_ever_free", (unsigned)min_free, "");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %12u %-12s\n", "largest_free_block", (unsigned)largest, "");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "\n");
+
+    // --- PSRAM table (if present) ---
+#if CONFIG_SPIRAM_ALLOW_NESTED_RAM_ALLOC || CONFIG_SPIRAM
+    // use heap_caps for PSRAM metrics
+    size_t psram_free = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+    size_t psram_min = heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM);
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+                     "%-20s %-12s\n", "PSRAM Metric", "Value (bytes)");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+                     "%-20s %-12s\n", "--------------------", "------------");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+                     "%-20s %12u\n", "psram_free", (unsigned)psram_free);
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+                     "%-20s %12u\n\n", "psram_min_ever", (unsigned)psram_min);
+#endif
+
+    // --- Footer with quick fragmentation stats ---
+    float frag_pct = 0.0f;
+    if (free_heap > 0)
+        frag_pct = 100.0f * (1.0f - ((float)largest / (float)free_heap));
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+                     "Heap fragmentation estimate: %.1f%% (1 - largest/free)\n", frag_pct);
+
+    // Print once
+    printf("%s", out);
+
+    free(out);
+}

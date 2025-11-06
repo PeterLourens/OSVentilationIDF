@@ -175,6 +175,7 @@ void app_main(void)
             ESP_LOGE(TAG, "Sensor queue is NULL");
         }
 
+        show_system_and_task_stats();
         ds3231_health_monitor(ds3231_bus0_handle);
 
         /*float temp_c;
@@ -210,6 +211,6 @@ void app_main(void)
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(30000));
+        vTaskDelay(pdMS_TO_TICKS(60000));
     }
 }

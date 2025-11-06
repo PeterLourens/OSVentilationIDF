@@ -19,6 +19,8 @@
 #include "esp_ping.h"
 #include "esp_netif_sntp.h"
 #include "esp_partition.h"
+#include "esp_system.h"
+#include "esp_heap_caps.h"
 #include "driver/i2c_master.h"
 #include "time.h"
 #include "lwip/err.h"
@@ -36,6 +38,10 @@
 #include "sys/stat.h"       // File status
 #include "esp_littlefs.h"   // Mounting littlefs
 #include "led_strip.h"
+
+#ifdef CONFIG_SPIRAM_ALLOW_NESTED_RAM_ALLOC
+#include "esp_psram.h"
+#endif
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000

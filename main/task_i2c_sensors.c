@@ -10,7 +10,7 @@ static const char *TAG = "i2c sensors task";
 
 void start_task_i2c_sensors(void)
 {
-    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 10000, NULL, 6, &task_i2c_sensors);
+    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 10000, NULL, 10, &task_i2c_sensors);
 }
 
 void task_i2c_sensors_code(void *pvParameters)
@@ -23,9 +23,9 @@ void task_i2c_sensors_code(void *pvParameters)
         ESP_LOGE(TAG, "Failed to create sensor queue!");
         abort(); // or handle error
     }
-    //else
+    // else
     //{
-        //ESP_LOGI(TAG, "Sensor queue created successfully");
+    // ESP_LOGI(TAG, "Sensor queue created successfully");
     //}
 
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
@@ -33,30 +33,30 @@ void task_i2c_sensors_code(void *pvParameters)
     {
         ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
     }
-    //else
+    // else
     //{
-    //    ESP_LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
-    //}
+    //     ESP_LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
+    // }
 
     err = i2c_init_tca9548(i2c_bus1_handle, &tca9548_bus1_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
     }
-    //else
+    // else
     //{
-    //    ESP_LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
-    //}
+    //     ESP_LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
+    // }
 
     err = init_sensors_on_mux_channels();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
     }
-    //else
+    // else
     //{
-    //    ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
-    //}
+    //     ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
+    // }
 
     while (1)
     {
@@ -69,4 +69,3 @@ void task_i2c_sensors_code(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
 }
-

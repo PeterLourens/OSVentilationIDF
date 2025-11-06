@@ -4,7 +4,7 @@ static const char *TAG = "wifi task";
 
 void start_task_wifi(void)
 {
-    xTaskCreate(task_wifi_code, "task_wifi", 4096 * 2, NULL, 6, &task_wifi);
+    xTaskCreate(task_wifi_code, "task_wifi", 4096 * 2, NULL, 5, &task_wifi);
 }
 
 void task_wifi_code(void *pvParameters)

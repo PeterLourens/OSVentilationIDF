@@ -5,7 +5,7 @@ static const char *TAG = "RGB Leds";
 void start_task_rgb_leds(void)
 {
     // Create LCD task
-    xTaskCreate(task_rgb_leds_code, "rgb_leds", 4096, NULL, 6, &task_rgb_leds);
+    xTaskCreate(task_rgb_leds_code, "rgb_leds", 4096, NULL, 2, &task_rgb_leds);
 }
 
 void task_rgb_leds_code(void *pvParameters)
