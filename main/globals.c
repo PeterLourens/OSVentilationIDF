@@ -24,6 +24,7 @@ SemaphoreHandle_t network_config_mutex = NULL;
 SemaphoreHandle_t time_config_mutex = NULL;
 SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
+SemaphoreHandle_t lock_valve_move_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;
@@ -35,7 +36,7 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 // Queue handles
 QueueHandle_t sensor_queue;
 
-//RGB LED handle
+// RGB LED handle
 led_strip_handle_t rgb_leds = NULL;
 
 // time structure
@@ -45,3 +46,6 @@ struct tm timeinfo = {0};
 Network_config network_config = {0};
 Time_settings time_config = {0};
 ping_summary_t g_ping_summary = {0};
+
+// Valvecontrol variables
+int lock_valve_move = 0;

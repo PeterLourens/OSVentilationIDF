@@ -12,5 +12,6 @@
 #include "task_i2c_lcd.h"
 #include "i2c_lcd.h"
 #include "task_rgb_leds.h"
+#include "valvecontrol.h"
 
 #endif

@@ -178,6 +178,10 @@ void app_main(void)
         show_system_and_task_stats();
         ds3231_health_monitor(ds3231_bus0_handle);
 
+        ESP_LOGI(TAG, "Running valvecontrol");
+        valvecontrol(1, 12, 0, 13, 11, 12);
+        // valvecontrol(1, 4, 0, 14, 15, 16);
+
         /*float temp_c;
         if (ds3231_read_temperature(ds3231_bus0_handle, &temp_c) == ESP_OK)
         {

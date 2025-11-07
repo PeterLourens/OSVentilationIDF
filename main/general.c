@@ -143,6 +143,14 @@ esp_err_t create_mutexes(void)
         ESP_LOGE(TAG, "Failed to create WiFi config mutex");
     }
     return ESP_OK;
+
+    // Mutex for time settings
+    lock_valve_move_mutex = xSemaphoreCreateMutex();
+    if (lock_valve_move_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+    }
+    return ESP_OK;
 }
 
 void formatted_uptime(char *buf, size_t bufsize)

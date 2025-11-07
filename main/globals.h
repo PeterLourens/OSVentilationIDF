@@ -22,6 +22,7 @@
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 #include "driver/i2c_master.h"
+#include "driver/gpio.h"
 #include "time.h"
 #include "lwip/err.h"
 #include "lwip/inet.h"
@@ -109,6 +110,7 @@ extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
+extern SemaphoreHandle_t lock_valve_move_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -161,5 +163,8 @@ typedef struct
     bool success;
 } ping_summary_t;
 extern ping_summary_t g_ping_summary;
+
+// Valvecontrol variables
+extern int lock_valve_move;
 
 #endif
