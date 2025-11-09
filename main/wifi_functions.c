@@ -264,7 +264,7 @@ exit:
 
 esp_err_t wifi_manager_start_ap(void)
 {
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(1000)) != pdTRUE)
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;

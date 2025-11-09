@@ -147,7 +147,7 @@ esp_err_t load_network_config(void)
     cJSON *secondary_dns = cJSON_GetObjectItem(json, "secondary_dns");
 
     // Take mutex with timeout
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
@@ -223,7 +223,7 @@ esp_err_t load_time_config(void)
     cJSON *timezone = cJSON_GetObjectItem(json, "timezone");
 
     // Take mutex with timeout
-    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire time config mutex");
         return ESP_ERR_TIMEOUT;
@@ -244,4 +244,3 @@ esp_err_t load_time_config(void)
 
     return ESP_OK;
 }
-

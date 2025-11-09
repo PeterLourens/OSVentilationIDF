@@ -87,7 +87,7 @@ void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
             .tv_sec = rtc_epoch,
             .tv_usec = 0,
         };
-        
+
         settimeofday(&now, NULL);
 
         // Print both RTC and system time
@@ -213,7 +213,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     const char *TAG = "NTP_SYNC";
 
     // --- Take mutex to safely read config ---
-    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(10)) != pdTRUE)
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire time_config mutex");
         return ESP_ERR_TIMEOUT;
