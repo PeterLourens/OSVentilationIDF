@@ -358,25 +358,22 @@ esp_err_t ds3231_drift_check(i2c_master_dev_handle_t dev)
     /* Drift in seconds (system - rtc). Use whole seconds because DS3231 has 1s resolution */
     double drift_sec = difftime(sys_now, rtc_epoch);
 
-    ESP_LOGI(TAG,
-             "RTC vs System drift: %.0f sec | RTC=%04d-%02d-%02d %02d:%02d:%02d UTC",
-             drift_sec,
-             rtc_tm.tm_year + 1900, rtc_tm.tm_mon + 1, rtc_tm.tm_mday,
-             rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
+    // ESP_LOGI(TAG, "RTC vs System drift: %.0f sec | RTC=%04d-%02d-%02d %02d:%02d:%02d UTC", drift_sec, rtc_tm.tm_year, rtc_tm.tm_mon + 1, rtc_tm.tm_mday, rtc_tm.tm_hour, rtc_tm.tm_min, rtc_tm.tm_sec);
 
     /* If we have a previous measurement, compute average drift rate in ppm */
     if (last_check_epoch != 0)
     {
         double elapsed_seconds = difftime(sys_now, last_check_epoch);
-        if (elapsed_seconds > 0.0)
+        /*if (elapsed_seconds > 0.0)
         {
             double drift_change = drift_sec - last_drift_sec;
             double ppm = (drift_change / elapsed_seconds) * 1e6;
 
             double elapsed_days = elapsed_seconds / 86400.0;
-            ESP_LOGI(TAG, "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm", elapsed_days, drift_change, ppm);
-        }
-        else
+            // ESP_LOGI(TAG, "Elapsed: %.2f days | Drift change: %.0f sec | Avg drift rate: %.2f ppm", elapsed_days, drift_change, ppm);
+        }*/
+        // else
+        if (elapsed_seconds < 0.0)
         {
             ESP_LOGW(TAG, "Elapsed time is zero or negative; cannot compute ppm");
         }
@@ -397,9 +394,10 @@ void ds3231_health_monitor(i2c_master_dev_handle_t dev)
 
     ds3231_check_status(dev, ds3231_status, sizeof(ds3231_status));
 
-    if (ds3231_read_temperature(dev, &temp_c) == ESP_OK)
+    if (ds3231_read_temperature(dev, &temp_c) != ESP_OK)
     {
-        ESP_LOGI(TAG, "DS3231 internal temperature: %.2f °C", temp_c);
+        // ESP_LOGE(TAG, "DS3231 internal temperature: %.2f °C", temp_c);
+        ESP_LOGE(TAG, "Unable to read temperature from DS3231");
     }
 
     ds3231_drift_check(dev);

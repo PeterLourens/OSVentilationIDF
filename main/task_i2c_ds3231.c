@@ -36,6 +36,8 @@ void task_i2c_ds3231_code(void *pvParameters)
             continue;
         }
 
+        ds3231_health_monitor(ds3231_bus0_handle);
+
         esp_err_t err = sync_system_and_ds3231_with_ntp(ds3231_bus0_handle);
         if (err == ESP_OK)
         {
@@ -47,6 +49,6 @@ void task_i2c_ds3231_code(void *pvParameters)
         }
 
         // Sleep for one hour before next sync
-        vTaskDelay(pdMS_TO_TICKS(3600 * 1000));
+        vTaskDelay(3600 * 1000);
     }
 }

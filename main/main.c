@@ -8,22 +8,7 @@ void app_main(void)
 {
     esp_err_t err = ESP_OK;
 
-    // Set log levels
-    // sp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);
-    // esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);
-    esp_log_level_set("scd4x", ESP_LOG_ERROR);
-    esp_log_level_set("tca9548", ESP_LOG_ERROR);
-    esp_log_level_set("aht", ESP_LOG_ERROR);
-    esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
-    esp_log_level_set("nvs", ESP_LOG_ERROR);
-    esp_log_level_set("wifi", ESP_LOG_ERROR);
-    esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
-    esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);
-    esp_log_level_set("event", ESP_LOG_ERROR);
-    esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
-    esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
-    esp_log_level_set("DS3231", ESP_LOG_INFO);
-    // esp_log_level_set("*", ESP_LOG_ERROR);
+    set_log_levels();
 
     // Create mutexes
     err = create_mutexes();
@@ -176,7 +161,6 @@ void app_main(void)
         }
 
         show_system_and_task_stats();
-        ds3231_health_monitor(ds3231_bus0_handle);
 
         ESP_LOGI(TAG, "Running valvecontrol");
         valvecontrol(1, 12, 0, 13, 11, 12);
@@ -199,6 +183,6 @@ void app_main(void)
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(60000));
+        vTaskDelay(pdMS_TO_TICKS(120000));
     }
 }

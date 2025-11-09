@@ -153,18 +153,7 @@ esp_err_t create_mutexes(void)
     return ESP_OK;
 }
 
-void formatted_uptime(char *buf, size_t bufsize)
-{
-    uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
-
-    int uptime_day = uptime / (60 * 60 * 24);
-    int uptime_hour = (uptime / (60 * 60)) % 24;
-    int uptime_minute = (uptime / 60) % 60;
-    int uptime_second = uptime % 60;
-
-    snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
-}
-
+/* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
     const char *TAG = "Ping";
@@ -189,10 +178,10 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
     g_ping_summary.duration_ms = (int)duration;
     g_ping_summary.success = (received > 0);
 
-    ESP_LOGI(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
+    /*ESP_LOGI(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
              g_ping_summary.transmitted, g_ping_summary.received,
              g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
-             g_ping_summary.duration_ms);
+             g_ping_summary.duration_ms);*/
 
     // Clean up session
     esp_ping_delete_session(hdl);
@@ -206,7 +195,7 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
 
 bool ping_gateway(void)
 {
-    const char *TAG = "Ping";
+    // const char *TAG = "Ping";
 
     // Ensure station netif exists
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
@@ -284,7 +273,7 @@ bool ping_gateway(void)
 
     // Wait for completion (5 pings + buffer)
     // Duration profile will be ~count * interval + timeouts; use a safe upper bound
-    const TickType_t wait_ticks = pdMS_TO_TICKS(8000);
+    const TickType_t wait_ticks = pdMS_TO_TICKS(10000);
     if (xSemaphoreTake(g_ping_done_sem, wait_ticks) != pdTRUE)
     {
         ESP_LOGW(TAG, "Ping session timeout waiting for completion");
@@ -296,6 +285,18 @@ bool ping_gateway(void)
 
     // Success = at least one reply
     return g_ping_summary.success;
+}
+
+void formatted_uptime(char *buf, size_t bufsize)
+{
+    uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
+
+    int uptime_day = uptime / (60 * 60 * 24);
+    int uptime_hour = (uptime / (60 * 60)) % 24;
+    int uptime_minute = (uptime / 60) % 60;
+    int uptime_second = uptime % 60;
+
+    snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
 }
 
 void formatted_daydatetime(char *buf, size_t bufsize)
@@ -466,4 +467,26 @@ void show_system_and_task_stats(void)
     printf("%s", out);
 
     free(out);
+}
+
+void set_log_levels(void)
+{
+    // Set log levels, in general only error are required unless debugging
+
+    // sp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);
+    // esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);
+    esp_log_level_set("scd4x", ESP_LOG_ERROR);
+    esp_log_level_set("tca9548", ESP_LOG_ERROR);
+    esp_log_level_set("aht", ESP_LOG_ERROR);
+    esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
+    esp_log_level_set("nvs", ESP_LOG_ERROR);
+    esp_log_level_set("wifi", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);
+    esp_log_level_set("event", ESP_LOG_ERROR);
+    esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
+    esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
+    esp_log_level_set("DS3231", ESP_LOG_INFO);
+    esp_log_level_set("gpio", ESP_LOG_ERROR);
+    // esp_log_level_set("*", ESP_LOG_ERROR);
 }

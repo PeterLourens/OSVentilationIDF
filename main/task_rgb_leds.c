@@ -10,7 +10,7 @@ void start_task_rgb_leds(void)
 
 void task_rgb_leds_code(void *pvParameters)
 {
-    u_int8_t brightness = 32;
+    u_int8_t brightness = 16;
 
     esp_err_t err = init_rgb_led();
     if (err != ESP_OK)
