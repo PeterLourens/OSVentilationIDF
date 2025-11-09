@@ -363,9 +363,7 @@ void show_system_and_task_stats(void)
     uint64_t ms = (uint64_t)ticks * portTICK_PERIOD_MS;
     esp_reset_reason_t rr = esp_reset_reason();
 
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "==== System snapshot ====\n"
-                                                           "Uptime: %" PRIu64 " ms    Reset reason: %d\n\n",
-                     ms, (int)rr);
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "==== System snapshot ====\n Uptime: %" PRIu64 " ms. Reset reason: %d\n\n", ms, (int)rr);
 
     // --- Task table header ---
     used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %-4s %-10s %-12s %-6s\n", "Task Name", "St", "Prio", "Stack B", "RunTicks", "CPU%");
