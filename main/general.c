@@ -195,7 +195,7 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
 
 bool ping_gateway(void)
 {
-    // const char *TAG = "Ping";
+    const char *TAG = "Ping";
 
     // Ensure station netif exists
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
