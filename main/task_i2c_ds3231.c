@@ -1,6 +1,6 @@
 #include "task_i2c_ds3231.h"
 
-const char *TAG = "DS3231 Sync task";
+static const char *TAG = "DS3231 Sync task";
 
 void start_task_i2c_ds3231(void)
 {

@@ -39,6 +39,10 @@ QueueHandle_t sensor_queue;
 // RGB LED handle
 led_strip_handle_t rgb_leds = NULL;
 
+// HTTP server handle
+httpd_handle_t server = NULL;
+httpd_ws_frame_t frame;
+
 // time structure
 struct tm timeinfo = {0};
 

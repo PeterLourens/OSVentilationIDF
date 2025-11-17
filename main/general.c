@@ -156,7 +156,7 @@ esp_err_t create_mutexes(void)
 /* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
-    const char *TAG = "Ping";
+    //const char *TAG = "Ping";
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
 
     // Profiles available in ESP‑IDF 5.5.1
@@ -489,4 +489,27 @@ void set_log_levels(void)
     esp_log_level_set("DS3231", ESP_LOG_INFO);
     esp_log_level_set("gpio", ESP_LOG_ERROR);
     // esp_log_level_set("*", ESP_LOG_ERROR);
+}
+
+void print_html_file(const char *filepath)
+{
+    const char *TAG = "print";
+
+    FILE *f = fopen(filepath, "r");
+
+    if (!f)
+    {
+        ESP_LOGE(TAG, "Failed to open %s", filepath);
+        return;
+    }
+
+    char buf[256];
+    while (fgets(buf, sizeof(buf), f))
+    {
+        // Print each line to console
+        printf("%s", buf);
+    }
+
+    fclose(f);
+    ESP_LOGI(TAG, "Finished printing %s", filepath);
 }

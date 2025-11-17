@@ -22,6 +22,7 @@
 #include "esp_partition.h"
 #include "esp_system.h"
 #include "esp_heap_caps.h"
+#include "esp_cpu.h"
 #include "driver/i2c_master.h"
 #include "driver/gpio.h"
 #include "time.h"
@@ -40,6 +41,7 @@
 #include "sys/stat.h"       // File status
 #include "esp_littlefs.h"   // Mounting littlefs
 #include "led_strip.h"
+#include "esp_http_server.h"
 
 #ifdef CONFIG_SPIRAM_ALLOW_NESTED_RAM_ALLOC
 #include "esp_psram.h"
@@ -118,6 +120,10 @@ extern EventGroupHandle_t s_wifi_event_group;
 
 // RGB LED handle
 extern led_strip_handle_t rgb_leds;
+
+// HTTP server handle
+extern httpd_handle_t server;
+extern httpd_ws_frame_t frame;
 
 // Sensor configuration structure
 typedef struct

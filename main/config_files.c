@@ -12,7 +12,7 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
-    snprintf(path, sizeof(path), "/data/%s.json", config_name);
+    snprintf(path, sizeof(path), "/data/json/%s.json", config_name);
     ESP_LOGI(TAG, "Attempting to read config: %s", path);
 
     char *buffer = malloc(bufferSize);
@@ -108,7 +108,7 @@ esp_err_t load_sensor_config(const char *config_name)
 esp_err_t load_network_config(void)
 {
     const char *TAG = "Config";
-    char path[128] = "/data/network_config.json";
+    char path[128] = "/data/json/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
     ESP_LOGI(TAG, "Attempting to read network config: %s", path);
@@ -190,7 +190,7 @@ esp_err_t load_network_config(void)
 esp_err_t load_time_config(void)
 {
     const char *TAG = "Config";
-    char path[128] = "/data/time_config.json";
+    char path[128] = "/data/json/time_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
     ESP_LOGI(TAG, "Attempting to read time config: %s", path);

@@ -6,6 +6,9 @@ static const char *TAG = "main";
 
 void app_main(void)
 {
+    // Sensor data array to contain data from queue
+    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
     esp_err_t err = ESP_OK;
 
     set_log_levels();
@@ -60,6 +63,7 @@ void app_main(void)
     {
         ESP_LOGI(TAG, "DS3231 initialized on bus 0");
     }
+
     init_system_time_from_ds3231(ds3231_bus0_handle);
 
     // Init LCD on bus1
@@ -98,6 +102,7 @@ void app_main(void)
         ESP_LOGE(TAG, "Failed to load network settings");
         return;
     }
+
     // Load time configuration
     err = load_time_config();
     if (err != ESP_OK)
@@ -112,6 +117,14 @@ void app_main(void)
     start_task_i2c_sensors();
     start_task_i2c_lcd();
     start_task_rgb_leds();
+
+    /*httpd_handle_t server = start_server();
+    if (!server)
+    {
+        ESP_LOGE(TAG, "Failed to start server");
+    }*/
+
+    // print_html_file("/data/html/index.html");
 
     // Print network settings
     ESP_LOGI(TAG, "\nNetwork Settings:\n"
@@ -132,9 +145,6 @@ void app_main(void)
              network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
              network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
              time_config.ntp_server, time_config.timezone);
-
-    // Read from queue and log
-    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
     while (1)
     {
@@ -182,7 +192,6 @@ void app_main(void)
                 ESP_LOGW("watchdog", "gateway unreachable — consider reconnecting Wi‑Fi");
             }
         }
-
         vTaskDelay(pdMS_TO_TICKS(120000));
     }
 }

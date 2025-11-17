@@ -13,5 +13,6 @@
 #include "i2c_lcd.h"
 #include "task_rgb_leds.h"
 #include "valvecontrol.h"
+#include "http_functions.h"
 
 #endif
