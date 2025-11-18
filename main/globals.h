@@ -23,6 +23,7 @@
 #include "esp_system.h"
 #include "esp_heap_caps.h"
 #include "esp_cpu.h"
+#include "esp_event.h"
 #include "driver/i2c_master.h"
 #include "driver/gpio.h"
 #include "time.h"

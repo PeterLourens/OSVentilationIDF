@@ -156,7 +156,7 @@ esp_err_t create_mutexes(void)
 /* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
-    //const char *TAG = "Ping";
+    // const char *TAG = "Ping";
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
 
     // Profiles available in ESP‑IDF 5.5.1
@@ -479,7 +479,7 @@ void set_log_levels(void)
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);
     esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
-    esp_log_level_set("nvs", ESP_LOG_ERROR);
+    // esp_log_level_set("nvs", ESP_LOG_ERROR);
     esp_log_level_set("wifi", ESP_LOG_ERROR);
     esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
     esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);

@@ -118,14 +118,6 @@ void app_main(void)
     start_task_i2c_lcd();
     start_task_rgb_leds();
 
-    /*httpd_handle_t server = start_server();
-    if (!server)
-    {
-        ESP_LOGE(TAG, "Failed to start server");
-    }*/
-
-    // print_html_file("/data/html/index.html");
-
     // Print network settings
     ESP_LOGI(TAG, "\nNetwork Settings:\n"
                   "┌──────────────┬────────────────────────────────┐\n"
@@ -145,6 +137,16 @@ void app_main(void)
              network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
              network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
              time_config.ntp_server, time_config.timezone);
+
+    /* Bring up Wi‑Fi and wait for IP before sending any stored crash record */
+    if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
+    {
+        ESP_LOGE(TAG, "Network not available after retries");
+    }
+    else
+    {
+        syslog_send_line("Boot complete, system running");
+    }
 
     while (1)
     {

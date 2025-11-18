@@ -14,5 +14,6 @@
 #include "task_rgb_leds.h"
 #include "valvecontrol.h"
 #include "http_functions.h"
+#include "syslog.h"
 
 #endif
