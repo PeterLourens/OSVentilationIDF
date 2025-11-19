@@ -26,7 +26,6 @@
 #include "esp_event.h"
 #include "driver/i2c_master.h"
 #include "driver/gpio.h"
-#include "console.h"
 #include "time.h"
 #include "lwip/err.h"
 #include "lwip/inet.h"

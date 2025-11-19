@@ -118,12 +118,6 @@ httpd_uri_t index_get = {
     .handler = index_get_handler,
     .user_ctx = NULL};
 
-httpd_uri_t ccs_get = {
-    .uri = "/style.css",
-    .method = HTTP_GET,
-    .handler = css_get_handler,
-    .user_ctx = NULL};
-
 httpd_uri_t ws = {
     .uri = "/ws",
     .method = HTTP_GET,
@@ -141,7 +135,6 @@ esp_err_t http_server_init(void)
     if (httpd_start(&http_server, &config) == ESP_OK)
     {
         httpd_register_uri_handler(http_server, &index_get);
-        httpd_register_uri_handler(http_server, &ccs_get);
         httpd_register_uri_handler(http_server, &ws);
     }
 
