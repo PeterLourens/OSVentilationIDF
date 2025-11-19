@@ -26,6 +26,7 @@
 #include "esp_event.h"
 #include "driver/i2c_master.h"
 #include "driver/gpio.h"
+#include "console.h"
 #include "time.h"
 #include "lwip/err.h"
 #include "lwip/inet.h"
@@ -123,8 +124,8 @@ extern EventGroupHandle_t s_wifi_event_group;
 extern led_strip_handle_t rgb_leds;
 
 // HTTP server handle
-extern httpd_handle_t server;
-extern httpd_ws_frame_t frame;
+extern httpd_handle_t http_server;
+extern httpd_handle_t hd;
 
 // Sensor configuration structure
 typedef struct
