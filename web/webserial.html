@@ -29,19 +29,58 @@
                     <li class="pure-menu-item"><a href="/valvecontrol" class="pure-menu-link">Valve Control</a></li>
                     <li class="pure-menu-item"><a href="/sensorconfig" class="pure-menu-link">Sensors</a></li>
                     <li class="pure-menu-item"><a href="/statemachine" class="pure-menu-link">Statemachine</a></li>
-                    <li class="pure-menu-item"><a href="/web_serial" class="pure-menu-link">Webserial</a></li>
+                    <li class="pure-menu-item"><a href="/webserial" class="pure-menu-link">Webserial</a></li>
                 </ul>
             </div>
         </div>
 
         <div id="main">
-            <div class="header">
-                <h2>Webserial</h2>
+            <h2>ESP32 WebSocket Log Viewer</h2>
+            <div>
+                <button onclick="startLogs()">Start</button>
+                <button onclick="stopLogs()">Stop</button>
             </div>
-            <div class="content">
-                <iframe src="%WEBSERIAL_URL%" class="webserial_iframe"></iframe>
-            </div>
+            <div id="log"></div>
+
+            <script>
+                let ws;
+                const logDiv = document.getElementById("log");
+
+                function connect() {
+                    const proto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+                    const url = proto + location.host + '/ws';
+                    ws = new WebSocket(url);
+
+                    ws.onopen = () => {
+                        logDiv.innerHTML += "WebSocket connected\n";
+                    };
+
+                    ws.onmessage = (event) => {
+                        logDiv.innerHTML += event.data;
+                        logDiv.scrollTop = logDiv.scrollHeight;
+                    };
+
+                    ws.onclose = () => {
+                        logDiv.innerHTML += "WebSocket closed\n";
+                    };
+                }
+
+                function startLogs() {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send("Start");
+                    }
+                }
+
+                function stopLogs() {
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        ws.send("Stop");
+                    }
+                }
+
+                window.onload = connect;
+            </script>
         </div>
+    </div>
     </div>
     <script src="ui.js"></script>
 </body>

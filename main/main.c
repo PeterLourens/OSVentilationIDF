@@ -145,7 +145,9 @@ void app_main(void)
     }
     else
     {
+        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
         syslog_send_line("Boot complete, system running");
+        start_webserver();
     }
 
     while (1)
