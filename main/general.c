@@ -479,7 +479,7 @@ void set_log_levels(void)
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);
     esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
-    // esp_log_level_set("nvs", ESP_LOG_ERROR);
+    esp_log_level_set("nvs", ESP_LOG_ERROR);
     esp_log_level_set("wifi", ESP_LOG_ERROR);
     esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
     esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);

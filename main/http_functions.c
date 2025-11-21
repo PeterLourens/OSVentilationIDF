@@ -8,6 +8,15 @@ extern const char pure_min_css_end[] asm("_binary_pure_min_css_end");
 extern const char styles_css_start[] asm("_binary_styles_css_start");
 extern const char styles_css_end[] asm("_binary_styles_css_end");
 
+extern const char ui_js_start[] asm("_binary_ui_js_start");
+extern const char ui_js_end[] asm("_binary_ui_js_end");
+
+extern const char webserial_js_start[] asm("_binary_webserial_js_start");
+extern const char webserial_js_end[] asm("_binary_webserial_js_end");
+
+extern const uint8_t favicon_ico_start[] asm("_binary_favicon_ico_start");
+extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
+
 extern const char index_html_start[] asm("_binary_index_html_start");
 extern const char index_html_end[] asm("_binary_index_html_end");
 
@@ -68,6 +77,30 @@ esp_err_t styles_css_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "text/css");
     size_t len = styles_css_end - styles_css_start;
     return httpd_resp_send(req, styles_css_start, len);
+}
+
+// Serve ui.js
+esp_err_t ui_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = ui_js_end - ui_js_start - 1;
+    return httpd_resp_send(req, ui_js_start, len);
+}
+
+// Serve webserial.js
+esp_err_t webserial_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = webserial_js_end - webserial_js_start - 1;
+    return httpd_resp_send(req, webserial_js_start, len);
+}
+
+// Serve favicon.ico
+esp_err_t favicon_ico_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "image/x-icon");
+    size_t len = favicon_ico_end - favicon_ico_start;
+    return httpd_resp_send(req, (const char *)favicon_ico_start, len);
 }
 
 // Serve index.html
@@ -277,6 +310,27 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(hd, &styles_css_uri);
 
+    httpd_uri_t ui_js_uri = {
+        .uri = "/ui.js",
+        .method = HTTP_GET,
+        .handler = ui_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(hd, &ui_js_uri);
+
+    httpd_uri_t webserial_js_uri = {
+        .uri = "/webserial.js",
+        .method = HTTP_GET,
+        .handler = webserial_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(hd, &webserial_js_uri);
+
+    httpd_uri_t favicon_ico_uri = {
+        .uri = "/favicon.ico",
+        .method = HTTP_GET,
+        .handler = favicon_ico_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(hd, &favicon_ico_uri);
+
     httpd_uri_t index_uri = {
         .uri = "/",
         .method = HTTP_GET,
@@ -345,6 +399,7 @@ int websocket_log_output(const char *szFormat, va_list args)
     static char buffer[512];
 
     int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), szFormat, args);
+    // ESP_LOGI(TAG, "dual_log_output called");
     if (ret >= 0)
     {
         // Also copy console to UART

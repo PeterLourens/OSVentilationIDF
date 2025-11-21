@@ -1,6 +1,4 @@
-const char ui_js[] = R"rawliteral(
 
-//Original ui.js
 (function (window, document) {
 
     // we fetch the elements each time because docusaurus removes the previous
@@ -40,10 +38,10 @@ const char ui_js[] = R"rawliteral(
         toggleClass(elements.menu, active);
         toggleClass(elements.menuLink, active);
     }
-    
+
     function handleEvent(e) {
         var elements = getElements();
-        
+
         if (e.target.id === elements.menuLink.id) {
             toggleAll();
             e.preventDefault();
@@ -51,10 +49,8 @@ const char ui_js[] = R"rawliteral(
             toggleAll();
         }
     }
-    
+
     document.addEventListener('click', handleEvent);
 
 }(this, this.document));
-//End orignal ui.js
 
-)rawliteral";

@@ -150,6 +150,9 @@ void app_main(void)
         start_webserver();
     }
 
+    esp_log_set_vprintf(uart_log_output);
+    ESP_LOGI(TAG, "System startup, logs go to UART");
+
     while (1)
     {
         if (sensor_queue != NULL)
