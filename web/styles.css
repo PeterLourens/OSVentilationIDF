@@ -76,6 +76,17 @@ The content `<div>` is where all your content goes.
     color: #888;
 }
 
+.container {
+    background-color: rgb(238, 238, 238);
+    justify-content: center;
+    max-width: 940px;
+    margin: 10px auto 10px auto;
+    padding: 5px 20px 5px 20px;
+    border-style: hidden;
+    border-width: 1px;
+    border-radius: 5px;
+}
+
 
 /*
 The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that

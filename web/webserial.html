@@ -35,54 +35,21 @@
         </div>
 
         <div id="main">
-            <h2>ESP32 WebSocket Log Viewer</h2>
-            <div>
-                <button onclick="startLogs()">Start</button>
-                <button onclick="stopLogs()">Stop</button>
+            <div class="container">
+                <H1>Websocket / Log Example</H1>
             </div>
-            <div id="log"></div>
-
-            <script>
-                let ws;
-                const logDiv = document.getElementById("log");
-
-                function connect() {
-                    const proto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-                    const url = proto + location.host + '/ws';
-                    ws = new WebSocket(url);
-
-                    ws.onopen = () => {
-                        logDiv.innerHTML += "WebSocket connected\n";
-                    };
-
-                    ws.onmessage = (event) => {
-                        logDiv.innerHTML += event.data;
-                        logDiv.scrollTop = logDiv.scrollHeight;
-                    };
-
-                    ws.onclose = () => {
-                        logDiv.innerHTML += "WebSocket closed\n";
-                    };
-                }
-
-                function startLogs() {
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        ws.send("Start");
-                    }
-                }
-
-                function stopLogs() {
-                    if (ws && ws.readyState === WebSocket.OPEN) {
-                        ws.send("Stop");
-                    }
-                }
-
-                window.onload = connect;
-            </script>
+            <div class="container" style="height:700px;overflow:auto;" id="log">
+            </div>
+            <div class="container" id="footer" style="text-align: center;">
+                <button class="button_green" onclick="Start()">Start</button>
+                <button class="button_red" onclick="Stop()">Stop</button>
+                <button class="button_blue" onclick="SaveToFile()">Save</button>
+                <button class="button_orange" onclick="Clear()">Clear</button>
+            </div>
         </div>
     </div>
-    </div>
     <script src="ui.js"></script>
+    <script src="webserial.js"></script>
 </body>
 
 </html>
