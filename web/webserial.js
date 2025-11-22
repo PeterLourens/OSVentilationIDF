@@ -34,6 +34,14 @@ function onMessage(event) {
     objDiv.scrollTop = objDiv.scrollHeight;
 }
 
+// Close connection when leaving the page
+//window.addEventListener("beforeunload", () => {
+//    if (websocket && websocket.readyState === WebSocket.OPEN) {
+//        websocket.send('Stop');
+//        websocket.close();
+//    }
+//});
+
 function Start() {
     websocket.send('Start');
 }
