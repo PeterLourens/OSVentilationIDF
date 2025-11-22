@@ -176,7 +176,7 @@ void app_main(void)
             ESP_LOGE(TAG, "Sensor queue is NULL");
         }
 
-        show_system_and_task_stats();
+        // show_system_and_task_stats();
 
         ESP_LOGI(TAG, "Running valvecontrol");
         valvecontrol(1, 12, 0, 13, 11, 12);
