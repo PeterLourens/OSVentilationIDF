@@ -16,7 +16,7 @@ esp_err_t webserial_get_handler(httpd_req_t *);
 esp_err_t websocket_handler(httpd_req_t *);
 httpd_handle_t start_webserver(void);
 esp_err_t http_server_stop(void);
-size_t remove_ansi_escape_codes(char *, char *, size_t);
+size_t remove_ansi_escape_codes(const char *, char *, size_t);
 int websocket_log_output(const char *, va_list);
 int uart_log_output(const char *, va_list);
 

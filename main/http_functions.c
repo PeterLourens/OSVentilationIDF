@@ -2,6 +2,10 @@
 
 static const char *TAG = "http server";
 
+// Used to concact two log lines of the log output
+static char ws_prefix_buf[256]; // holds prefix until message arrives
+static bool ws_prefix_pending = false;
+
 extern const char pure_min_css_start[] asm("_binary_pure_min_css_start");
 extern const char pure_min_css_end[] asm("_binary_pure_min_css_end");
 
@@ -263,43 +267,90 @@ esp_err_t http_server_stop(void)
     return ret;
 }
 
-size_t remove_ansi_escape_codes(char *input, char *output, size_t len)
+size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
 {
+    const char *ptr_in = input;
     char *ptr_out = output;
-    char *ptr_in = input;
 
-    while (ptr_in <= (input + len - 1))
+    while (ptr_in < input + len)
     {
         if (*ptr_in == '\033')
         {
-            // Search for 'm';
-            ptr_in = strchr(ptr_in, 'm') + 1;
+            // Skip until 'm' or end
+            const char *esc_end = strchr(ptr_in, 'm');
+            if (esc_end)
+            {
+                ptr_in = esc_end + 1;
+            }
+            else
+            {
+                break; // malformed escape, stop
+            }
         }
         else
         {
             *ptr_out++ = *ptr_in++;
         }
     }
-    return ((ptr_out - 1) - output);
+
+    *ptr_out = '\0';           // null terminate
+    return (ptr_out - output); // number of chars written
 }
 
-int websocket_log_output(const char *szFormat, va_list args)
+int websocket_log_output(const char *fmt, va_list args)
+{
+    static char log_print_buffer[512];
+    int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), fmt, args);
+
+    if (ret > 0)
+    {
+        // Always print to UART as-is
+        fwrite(log_print_buffer, 1, ret, stdout);
+
+        // Strip ANSI codes for WebSocket
+        static char clean_buf[512];
+        size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
+
+        // Detect prefix vs message
+        if (!ws_prefix_pending && strstr(clean_buf, ":"))
+        {
+            // Likely the prefix line (ends with ":")
+            strncpy(ws_prefix_buf, clean_buf, sizeof(ws_prefix_buf));
+            ws_prefix_pending = true;
+        }
+        else if (ws_prefix_pending)
+        {
+            // Concatenate prefix + message
+            char final_buf[768];
+            int final_len = snprintf(final_buf, sizeof(final_buf), "%s %s", ws_prefix_buf, clean_buf);
+
+            ws_async_send(final_buf, final_len);
+            ws_prefix_pending = false; // reset
+        }
+    }
+    return ret;
+}
+
+/*int websocket_log_output(const char *szFormat, va_list args)
 {
     static char log_print_buffer[512];
     static char buffer[512];
 
     int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), szFormat, args);
 
-    if (ret >= 0)
+    if (ret > 0)
     {
-        // Also copy console to UART
-        printf("%.*s", ret, log_print_buffer);
-        // esp-idf use ANSI escape codes to colour text on the console
-        ret = remove_ansi_escape_codes(log_print_buffer, buffer, ret);
-        ws_async_send(buffer, ret);
+        // Print to UART exactly ret chars
+        fwrite(log_print_buffer, 1, ret, stdout);
+
+        // Strip ANSI codes
+        size_t clean_len = remove_ansi_escape_codes(log_print_buffer, buffer, ret);
+
+        // Send clean line to WebSocket
+        ws_async_send(buffer, clean_len);
     }
-    return (0);
-}
+    return ret;
+}*/
 
 int uart_log_output(const char *szFormat, va_list args)
 {

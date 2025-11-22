@@ -330,6 +330,7 @@ void show_system_and_task_stats(void)
     const char *TAG = "sys_snapshot";
 
     const size_t SNAPSHOT_BUF_SIZE = 32 * 1024; // adjust if you have many tasks or long output
+    char *out = malloc(SNAPSHOT_BUF_SIZE);
 
     const char *state_char_from_enum(eTaskState s)
     {
@@ -350,12 +351,12 @@ void show_system_and_task_stats(void)
         }
     }
 
-    char *out = malloc(SNAPSHOT_BUF_SIZE);
     if (!out)
     {
         ESP_LOGE(TAG, "No memory for snapshot buffer");
         return;
     }
+
     out[0] = '\0';
     size_t used = 0;
 
@@ -488,8 +489,12 @@ void set_log_levels(void)
     esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
     esp_log_level_set("DS3231", ESP_LOG_INFO);
     esp_log_level_set("gpio", ESP_LOG_ERROR);
-    esp_log_level_set("httpd*", ESP_LOG_ERROR);
-
+    esp_log_level_set("httpd", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_ws", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_sess", ESP_LOG_ERROR);
+    esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
     // esp_log_level_set("*", ESP_LOG_ERROR);
 }
 
