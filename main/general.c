@@ -461,11 +461,14 @@ void show_system_and_task_stats(void)
     float frag_pct = 0.0f;
     if (free_heap > 0)
         frag_pct = 100.0f * (1.0f - ((float)largest / (float)free_heap));
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "Heap fragmentation estimate: %.1f%% (1 - largest/free)\n", frag_pct);
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "Heap fragmentation estimate: %.1f%% (1 - largest/free)\n", frag_pct);
 
     // Print once
     printf("%s", out);
+
+    // Also send to WebSocket clients with a prefix
+    ws_async_send("STATS:\n", strlen("STATS:\n"));
+    ws_async_send(out, used);
 
     free(out);
 }
@@ -473,9 +476,6 @@ void show_system_and_task_stats(void)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
-
-    // sp_log_level_set("i2cdev", PROJECT_LOG_LEVEL);
-    // esp_log_level_set("i2c.master", PROJECT_LOG_LEVEL);
     esp_log_level_set("scd4x", ESP_LOG_ERROR);
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);

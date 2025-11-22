@@ -18,6 +18,9 @@ extern const char ui_js_end[] asm("_binary_ui_js_end");
 extern const char webserial_js_start[] asm("_binary_webserial_js_start");
 extern const char webserial_js_end[] asm("_binary_webserial_js_end");
 
+extern const char stats_js_start[] asm("_binary_stats_js_start");
+extern const char stats_js_end[] asm("_binary_stats_js_end");
+
 extern const uint8_t favicon_ico_start[] asm("_binary_favicon_ico_start");
 extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
 
@@ -26,6 +29,9 @@ extern const char index_html_end[] asm("_binary_index_html_end");
 
 extern const char webserial_html_start[] asm("_binary_webserial_html_start");
 extern const char webserial_html_end[] asm("_binary_webserial_html_end");
+
+extern const char stats_html_start[] asm("_binary_stats_html_start");
+extern const char stats_html_end[] asm("_binary_stats_html_end");
 
 // Serve pure_min.css
 esp_err_t pure_min_css_get_handler(httpd_req_t *req)
@@ -59,6 +65,14 @@ esp_err_t webserial_js_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, webserial_js_start, len);
 }
 
+// Serve stats.js
+esp_err_t stats_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = stats_js_end - stats_js_start - 1;
+    return httpd_resp_send(req, stats_js_start, len);
+}
+
 // Serve favicon.ico
 esp_err_t favicon_ico_get_handler(httpd_req_t *req)
 {
@@ -81,6 +95,14 @@ esp_err_t webserial_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "text/html");
     size_t len = webserial_html_end - webserial_html_start;
     return httpd_resp_send(req, webserial_html_start, len);
+}
+
+// Serve stats.html
+esp_err_t stats_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    size_t len = stats_html_end - stats_html_start;
+    return httpd_resp_send(req, stats_html_start, len);
 }
 
 // WebSocket handler
@@ -143,6 +165,11 @@ esp_err_t websocket_handler(httpd_req_t *req)
             esp_log_set_vprintf(uart_log_output);
         }
 
+        if (strncmp((char *)ws_pkt.payload, "GetStats", 8) == 0)
+        {
+            show_system_and_task_stats();
+        }
+
         free(buf);
     }
 
@@ -188,6 +215,7 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.max_uri_handlers = 16; // increase from default 8 to 16
     ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
@@ -218,6 +246,13 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &webserial_js_uri);
 
+    httpd_uri_t stats_js_uri = {
+        .uri = "/stats.js",
+        .method = HTTP_GET,
+        .handler = stats_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &stats_js_uri);
+
     httpd_uri_t favicon_ico_uri = {
         .uri = "/favicon.ico",
         .method = HTTP_GET,
@@ -238,6 +273,13 @@ httpd_handle_t start_webserver(void)
         .handler = webserial_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &webserial_uri);
+
+    httpd_uri_t stats_uri = {
+        .uri = "/stats",
+        .method = HTTP_GET,
+        .handler = stats_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &stats_uri);
 
     httpd_uri_t ws_uri = {
         .uri = "/ws",
@@ -330,27 +372,6 @@ int websocket_log_output(const char *fmt, va_list args)
     }
     return ret;
 }
-
-/*int websocket_log_output(const char *szFormat, va_list args)
-{
-    static char log_print_buffer[512];
-    static char buffer[512];
-
-    int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), szFormat, args);
-
-    if (ret > 0)
-    {
-        // Print to UART exactly ret chars
-        fwrite(log_print_buffer, 1, ret, stdout);
-
-        // Strip ANSI codes
-        size_t clean_len = remove_ansi_escape_codes(log_print_buffer, buffer, ret);
-
-        // Send clean line to WebSocket
-        ws_async_send(buffer, clean_len);
-    }
-    return ret;
-}*/
 
 int uart_log_output(const char *szFormat, va_list args)
 {
