@@ -488,6 +488,8 @@ void set_log_levels(void)
     esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
     esp_log_level_set("DS3231", ESP_LOG_INFO);
     esp_log_level_set("gpio", ESP_LOG_ERROR);
+    esp_log_level_set("httpd*", ESP_LOG_ERROR);
+
     // esp_log_level_set("*", ESP_LOG_ERROR);
 }
 

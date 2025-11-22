@@ -79,12 +79,13 @@ The content `<div>` is where all your content goes.
 .container {
     background-color: rgb(238, 238, 238);
     justify-content: center;
-    max-width: 940px;
+    max-width: 1200px;
     margin: 10px auto 10px auto;
     padding: 5px 20px 5px 20px;
     border-style: hidden;
     border-width: 1px;
     border-radius: 5px;
+    font-size: 8px;
 }
 
 

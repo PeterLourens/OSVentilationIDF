@@ -4,9 +4,11 @@
 #include "globals.h"
 #include "general.h"
 
+#define LOG_BUF_SIZE 256
+
 // Function declarations
-//int uart_log_output(const char *, va_list);
-//int dual_log_output(const char *, va_list);
+// int uart_log_output(const char *, va_list);
+// int dual_log_output(const char *, va_list);
 esp_err_t pure_min_css_get_handler(httpd_req_t *);
 esp_err_t styles_css_get_handler(httpd_req_t *);
 esp_err_t index_get_handler(httpd_req_t *);

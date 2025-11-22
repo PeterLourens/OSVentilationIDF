@@ -165,8 +165,7 @@ void app_main(void)
                     {
                         if (snapshot[bus][ch][IDX_VALID])
                         {
-                            ESP_LOGI(TAG, "Bus %d, CH%d @ %.0f µs: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch,
-                                     snapshot[bus][ch][IDX_TIMESTAMP], snapshot[bus][ch][IDX_TEMP], snapshot[bus][ch][IDX_HUMIDITY], snapshot[bus][ch][IDX_CO2]);
+                            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, snapshot[bus][ch][IDX_TEMP], snapshot[bus][ch][IDX_HUMIDITY], snapshot[bus][ch][IDX_CO2]);
                         }
                     }
                 }

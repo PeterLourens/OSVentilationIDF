@@ -23,46 +23,6 @@ extern const char index_html_end[] asm("_binary_index_html_end");
 extern const char webserial_html_start[] asm("_binary_webserial_html_start");
 extern const char webserial_html_end[] asm("_binary_webserial_html_end");
 
-// Functions
-// UART-only log output
-/*int uart_log_output(const char *fmt, va_list args)
-{
-    return vprintf(fmt, args);
-}
-
-// UART + WebSocket log output
-int dual_log_output(const char *fmt, va_list args)
-{
-    // --- UART output ---
-    int len = vprintf(fmt, args);
-
-    // --- WebSocket output ---
-    char buf[256];
-    va_list args_copy;
-    va_copy(args_copy, args);
-    int wslen = vsnprintf(buf, sizeof(buf), fmt, args_copy);
-    va_end(args_copy);
-
-    if (wslen > 0)
-    {
-        httpd_ws_frame_t ws_pkt = {
-            .type = HTTPD_WS_TYPE_TEXT,
-            .payload = (uint8_t *)buf,
-            .len = strlen(buf),
-        };
-
-        for (int fd = 0; fd < CONFIG_LWIP_MAX_SOCKETS; fd++)
-        {
-            if (httpd_ws_get_fd_info(hd, fd) == HTTPD_WS_CLIENT_WEBSOCKET)
-            {
-                httpd_ws_send_frame_async(hd, fd, &ws_pkt);
-            }
-        }
-    }
-
-    return len;
-}*/
-
 // Serve pure_min.css
 esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 {
@@ -130,7 +90,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
     if (req->method == HTTP_GET)
     {
         ESP_LOGI(TAG, "Handshake done, the new connection was opened");
-        hd = req->handle;
+        http_server = req->handle;
         return ESP_OK;
     }
 
@@ -185,79 +145,9 @@ esp_err_t websocket_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-/*esp_err_t websocket_handler(httpd_req_t *req)
-{
-    httpd_ws_frame_t ws_pkt = {0};
-    uint8_t *buf = NULL;
-
-    if (req->method == HTTP_GET)
-    {
-        ESP_LOGI(TAG, "Handshake done, new connection opened");
-        return ESP_OK;
-    }
-
-    ws_pkt.type = HTTPD_WS_TYPE_TEXT;
-    esp_err_t ret = httpd_ws_recv_frame(req, &ws_pkt, 0);
-    if (ret != ESP_OK)
-        return ret;
-
-    if (ws_pkt.len)
-    {
-        buf = calloc(1, ws_pkt.len + 1);
-        if (!buf)
-            return ESP_ERR_NO_MEM;
-
-        ws_pkt.payload = buf;
-        ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
-        if (ret != ESP_OK)
-        {
-            free(buf);
-            return ret;
-        }
-
-        buf[ws_pkt.len] = '\0';
-
-        if (strcmp((char *)buf, "Start") == 0)
-        {
-            // Switch logging first
-            esp_log_set_vprintf(dual_log_output);
-
-            // Confirmation log (goes to UART + WebSocket)
-            ESP_LOGI(TAG, "Logs now go to UART + WebSocket");
-
-            // Immediate acknowledgment frame
-            httpd_ws_frame_t ack = {
-                .type = HTTPD_WS_TYPE_TEXT,
-                .payload = (uint8_t *)"Logging enabled (UART + WebSocket)",
-                .len = strlen("Logging enabled (UART + WebSocket)"),
-            };
-            httpd_ws_send_frame(req, &ack);
-        }
-        else if (strcmp((char *)buf, "Stop") == 0)
-        {
-            // Switch logging back to UART only
-            esp_log_set_vprintf(uart_log_output);
-
-            // Confirmation log (UART only now)
-            ESP_LOGI(TAG, "Logs only to UART");
-
-            // Immediate acknowledgment frame
-            httpd_ws_frame_t ack = {
-                .type = HTTPD_WS_TYPE_TEXT,
-                .payload = (uint8_t *)"Logging disabled (UART only)",
-                .len = strlen("Logging disabled (UART only)"),
-            };
-            httpd_ws_send_frame(req, &ack);
-        }
-
-        free(buf);
-    }
-    return ESP_OK;
-}*/
-
 void ws_async_send(char *buf, size_t len)
 {
-    if (hd == NULL)
+    if (http_server == NULL)
         return;
 
     httpd_ws_frame_t ws_pkt;
@@ -285,7 +175,7 @@ void ws_async_send(char *buf, size_t len)
         int client_info = httpd_ws_get_fd_info(http_server, client_fds[i]);
         if (client_info == HTTPD_WS_CLIENT_WEBSOCKET)
         {
-            httpd_ws_send_frame_async(hd, client_fds[i], &ws_pkt);
+            httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
         }
     }
 }
@@ -294,56 +184,56 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    ESP_ERROR_CHECK(httpd_start(&hd, &config));
+    ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
         .uri = "/pure_min.css",
         .method = HTTP_GET,
         .handler = pure_min_css_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &pure_min_css_uri);
+    httpd_register_uri_handler(http_server, &pure_min_css_uri);
 
     httpd_uri_t styles_css_uri = {
         .uri = "/styles.css",
         .method = HTTP_GET,
         .handler = styles_css_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &styles_css_uri);
+    httpd_register_uri_handler(http_server, &styles_css_uri);
 
     httpd_uri_t ui_js_uri = {
         .uri = "/ui.js",
         .method = HTTP_GET,
         .handler = ui_js_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &ui_js_uri);
+    httpd_register_uri_handler(http_server, &ui_js_uri);
 
     httpd_uri_t webserial_js_uri = {
         .uri = "/webserial.js",
         .method = HTTP_GET,
         .handler = webserial_js_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &webserial_js_uri);
+    httpd_register_uri_handler(http_server, &webserial_js_uri);
 
     httpd_uri_t favicon_ico_uri = {
         .uri = "/favicon.ico",
         .method = HTTP_GET,
         .handler = favicon_ico_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &favicon_ico_uri);
+    httpd_register_uri_handler(http_server, &favicon_ico_uri);
 
     httpd_uri_t index_uri = {
         .uri = "/",
         .method = HTTP_GET,
         .handler = index_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &index_uri);
+    httpd_register_uri_handler(http_server, &index_uri);
 
     httpd_uri_t webserial_uri = {
         .uri = "/webserial",
         .method = HTTP_GET,
         .handler = webserial_get_handler,
         .user_ctx = NULL};
-    httpd_register_uri_handler(hd, &webserial_uri);
+    httpd_register_uri_handler(http_server, &webserial_uri);
 
     httpd_uri_t ws_uri = {
         .uri = "/ws",
@@ -351,9 +241,9 @@ httpd_handle_t start_webserver(void)
         .handler = websocket_handler,
         .user_ctx = NULL,
         .is_websocket = true};
-    httpd_register_uri_handler(hd, &ws_uri);
+    httpd_register_uri_handler(http_server, &ws_uri);
 
-    return hd;
+    return http_server;
 }
 
 esp_err_t http_server_stop(void)
@@ -399,7 +289,7 @@ int websocket_log_output(const char *szFormat, va_list args)
     static char buffer[512];
 
     int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), szFormat, args);
-    // ESP_LOGI(TAG, "dual_log_output called");
+
     if (ret >= 0)
     {
         // Also copy console to UART

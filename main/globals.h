@@ -124,7 +124,6 @@ extern led_strip_handle_t rgb_leds;
 
 // HTTP server handle
 extern httpd_handle_t http_server;
-extern httpd_handle_t hd;
 
 // Sensor configuration structure
 typedef struct
