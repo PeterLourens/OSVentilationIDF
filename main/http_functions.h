@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "sys_stats.h"
 
 #define LOG_BUF_SIZE 256
 
