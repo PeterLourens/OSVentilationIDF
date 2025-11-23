@@ -151,6 +151,14 @@ esp_err_t create_mutexes(void)
         ESP_LOGE(TAG, "Failed to create WiFi config mutex");
     }
     return ESP_OK;
+
+    // Mutex for sensor config settings
+    sensor_cfg_mutex = xSemaphoreCreateMutex();
+    if (sensor_cfg_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create sensor config mutex");
+    }
+    return ESP_OK;
 }
 
 /* ========== Ping to gateway functions ========== */

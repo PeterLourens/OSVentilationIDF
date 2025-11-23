@@ -25,6 +25,7 @@ SemaphoreHandle_t time_config_mutex = NULL;
 SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
 SemaphoreHandle_t lock_valve_move_mutex = NULL;
+SemaphoreHandle_t sensor_cfg_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;

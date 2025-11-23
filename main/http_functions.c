@@ -21,6 +21,9 @@ extern const char webserial_js_end[] asm("_binary_webserial_js_end");
 extern const char stats_js_start[] asm("_binary_stats_js_start");
 extern const char stats_js_end[] asm("_binary_stats_js_end");
 
+extern const char index_ws_js_start[] asm("_binary_index_ws_js_start");
+extern const char index_ws_js_end[] asm("_binary_index_ws_js_end");
+
 extern const uint8_t favicon_ico_start[] asm("_binary_favicon_ico_start");
 extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
 
@@ -83,6 +86,14 @@ esp_err_t stats_js_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/javascript");
     size_t len = stats_js_end - stats_js_start - 1;
     return httpd_resp_send(req, stats_js_start, len);
+}
+
+// Serve index_ws.js
+esp_err_t index_ws_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = index_ws_js_end - index_ws_js_start - 1;
+    return httpd_resp_send(req, index_ws_js_start, len);
 }
 
 // Serve favicon.ico
@@ -214,9 +225,40 @@ esp_err_t websocket_handler(httpd_req_t *req)
             show_system_and_task_stats();
         }
 
+        if (strncmp((char *)ws_pkt.payload, "get_index_data", 15) == 0)
+        {
+            send_index_html_ws();
+        }
+
         free(buf);
     }
 
+    return ESP_OK;
+}
+
+// Set valve positions in NVS to 0
+esp_err_t reset_valves_handler(httpd_req_t *req)
+{
+    nvs_handle_t nvs;
+
+    esp_err_t err = nvs_open("valves", NVS_READWRITE, &nvs);
+
+    if (err == ESP_OK)
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            char key[16];
+            snprintf(key, sizeof(key), "valve%d", i);
+            nvs_set_i32(nvs, key, 0); // creates or overwrites
+        }
+        nvs_commit(nvs);
+        nvs_close(nvs);
+        httpd_resp_sendstr(req, "All 12 valves reset to 0");
+    }
+    else
+    {
+        httpd_resp_sendstr(req, "NVS open failed");
+    }
     return ESP_OK;
 }
 
@@ -259,7 +301,7 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 16; // increase from default 8 to 16
+    config.max_uri_handlers = 30; // increase from default 8 to 16
     ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
@@ -296,6 +338,13 @@ httpd_handle_t start_webserver(void)
         .handler = stats_js_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &stats_js_uri);
+
+    httpd_uri_t index_ws_js_uri = {
+        .uri = "/index_ws.js",
+        .method = HTTP_GET,
+        .handler = index_ws_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &index_ws_js_uri);
 
     httpd_uri_t favicon_ico_uri = {
         .uri = "/favicon.ico",
@@ -360,6 +409,13 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL,
         .is_websocket = true};
     httpd_register_uri_handler(http_server, &ws_uri);
+
+    httpd_uri_t reset_valves_uri = {
+        .uri = "/reset_valve_pos",
+        .method = HTTP_POST,
+        .handler = reset_valves_handler,
+    };
+    httpd_register_uri_handler(http_server, &reset_valves_uri);
 
     return http_server;
 }

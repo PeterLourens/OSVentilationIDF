@@ -75,6 +75,7 @@
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
 
+// I2C Sensor config
 #define MAX_I2C_BUSES 2
 #define CHANNELS_PER_BUS 8
 #define DATA_FIELDS 5 // 0=temp, 1=humidity, 2=CO2, 3=timestamp, 4=valid
@@ -83,6 +84,9 @@
 #define IDX_CO2 2
 #define IDX_TIMESTAMP 3
 #define IDX_VALID 4
+
+// Valves config
+#define MAX_VALVE_COUNT 12
 
 // WiFi event bits
 #define WIFI_CONNECTED_BIT BIT0
@@ -117,6 +121,7 @@ extern SemaphoreHandle_t time_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
+extern SemaphoreHandle_t sensor_cfg_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;

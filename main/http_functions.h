@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "general.h"
 #include "sys_stats.h"
+#include "websocket_func.h"
 
 #define LOG_BUF_SIZE 256
 

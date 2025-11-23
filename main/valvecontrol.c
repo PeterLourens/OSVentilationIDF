@@ -54,8 +54,6 @@ void latch_pulse(int latchPin)
     short_delay_us(1);
 }
 
-/* ---------------------- all_outputs_off ---------------------- */
-
 /* Shift three zero bytes (nearest first) and latch — mirrors Arduino reference */
 void all_outputs_off(int dataPin, int clockPin, int latchPin)
 {
