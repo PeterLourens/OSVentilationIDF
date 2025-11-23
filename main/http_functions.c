@@ -27,6 +27,18 @@ extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
 extern const char index_html_start[] asm("_binary_index_html_start");
 extern const char index_html_end[] asm("_binary_index_html_end");
 
+extern const char sensor_config_html_start[] asm("_binary_sensor_config_html_start");
+extern const char sensor_config_html_end[] asm("_binary_sensor_config_html_end");
+
+extern const char settings_html_start[] asm("_binary_settings_html_start");
+extern const char settings_html_end[] asm("_binary_settings_html_end");
+
+extern const char statemachine_html_start[] asm("_binary_statemachine_html_start");
+extern const char statemachine_html_end[] asm("_binary_statemachine_html_end");
+
+extern const char valvecontrol_html_start[] asm("_binary_valvecontrol_html_start");
+extern const char valvecontrol_html_end[] asm("_binary_valvecontrol_html_end");
+
 extern const char webserial_html_start[] asm("_binary_webserial_html_start");
 extern const char webserial_html_end[] asm("_binary_webserial_html_end");
 
@@ -87,6 +99,38 @@ esp_err_t index_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "text/html");
     size_t len = index_html_end - index_html_start;
     return httpd_resp_send(req, index_html_start, len);
+}
+
+// Serve sensor_config.html
+esp_err_t sensor_config_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    size_t len = sensor_config_html_end - sensor_config_html_start;
+    return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
+// Serve settings.html
+esp_err_t settings_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    size_t len = settings_html_end - settings_html_start;
+    return httpd_resp_send(req, settings_html_start, len);
+}
+
+// Serve statemachine.html
+esp_err_t statemachine_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    size_t len = statemachine_html_end - statemachine_html_start;
+    return httpd_resp_send(req, statemachine_html_start, len);
+}
+
+// Serve valvecontrol.html
+esp_err_t valvecontrol_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    size_t len = valvecontrol_html_end - valvecontrol_html_start;
+    return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
 // Serve webserial.html
@@ -266,6 +310,34 @@ httpd_handle_t start_webserver(void)
         .handler = index_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &index_uri);
+
+    httpd_uri_t sensor_config_uri = {
+        .uri = "/sensorconfig",
+        .method = HTTP_GET,
+        .handler = sensor_config_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &sensor_config_uri);
+
+    httpd_uri_t settings_uri = {
+        .uri = "/settings",
+        .method = HTTP_GET,
+        .handler = settings_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &settings_uri);
+
+    httpd_uri_t statemachine_uri = {
+        .uri = "/statemachine",
+        .method = HTTP_GET,
+        .handler = statemachine_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &statemachine_uri);
+
+    httpd_uri_t valvecontrol_uri = {
+        .uri = "/valvecontrol",
+        .method = HTTP_GET,
+        .handler = valvecontrol_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &valvecontrol_uri);
 
     httpd_uri_t webserial_uri = {
         .uri = "/webserial",
