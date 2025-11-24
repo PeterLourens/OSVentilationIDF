@@ -128,36 +128,69 @@ bool is_valid_ip_address(const char *ip_address)
 esp_err_t create_mutexes(void)
 {
     const char *TAG = "Mutexes";
+    bool ok = true;
 
     // Mutex for network settings
     network_config_mutex = xSemaphoreCreateMutex();
     if (network_config_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+        ESP_LOGE(TAG, "Failed to create network_config_mutex");
+        ok = false;
     }
 
     // Mutex for time settings
     time_config_mutex = xSemaphoreCreateMutex();
     if (time_config_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+        ESP_LOGE(TAG, "Failed to create time_config_mutex");
+        ok = false;
     }
-    return ESP_OK;
 
-    // Mutex for time settings
+    // Mutex for valve movement locking
     lock_valve_move_mutex = xSemaphoreCreateMutex();
     if (lock_valve_move_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create WiFi config mutex");
+        ESP_LOGE(TAG, "Failed to create lock_valve_move_mutex");
+        ok = false;
     }
-    return ESP_OK;
 
     // Mutex for sensor config settings
     sensor_cfg_mutex = xSemaphoreCreateMutex();
     if (sensor_cfg_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create sensor config mutex");
+        ESP_LOGE(TAG, "Failed to create sensor_cfg_mutex");
+        ok = false;
     }
+
+    if (!ok)
+    {
+        // cleanup any created semaphores to avoid leaks and to keep state consistent
+        if (network_config_mutex)
+        {
+            vSemaphoreDelete(network_config_mutex);
+            network_config_mutex = NULL;
+        }
+        if (time_config_mutex)
+        {
+            vSemaphoreDelete(time_config_mutex);
+            time_config_mutex = NULL;
+        }
+        if (lock_valve_move_mutex)
+        {
+            vSemaphoreDelete(lock_valve_move_mutex);
+            lock_valve_move_mutex = NULL;
+        }
+        if (sensor_cfg_mutex)
+        {
+            vSemaphoreDelete(sensor_cfg_mutex);
+            sensor_cfg_mutex = NULL;
+        }
+
+        ESP_LOGE(TAG, "One or more mutexes failed to create");
+        return ESP_FAIL;
+    }
+
+    ESP_LOGI(TAG, "All mutexes created");
     return ESP_OK;
 }
 

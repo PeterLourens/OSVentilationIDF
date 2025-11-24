@@ -9,7 +9,7 @@ function initWebSocket() {
     websocket.onopen = function () {
         console.log("WebSocket connected");
         request_index_data(); // request immediately
-        setInterval(request_index_data, 10000); // refresh every 10s
+        setInterval(request_index_data, 30000); // refresh every 30s
     };
 
     websocket.onclose = function () {
@@ -51,11 +51,11 @@ function initWebSocket() {
         });
 
         // Optional: request updates periodically
-        setInterval(() => {
-            if (websocket.readyState === WebSocket.OPEN) {
-                websocket.send("get_index_data");
-            }
-        }, 10000); // every 10 seconds
+        //setInterval(() => {
+        //    if (websocket.readyState === WebSocket.OPEN) {
+        //        websocket.send("get_index_data");
+        //    }
+        //}, 30000); // every 30 seconds
     };
 }
 

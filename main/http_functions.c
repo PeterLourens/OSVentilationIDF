@@ -225,8 +225,9 @@ esp_err_t websocket_handler(httpd_req_t *req)
             show_system_and_task_stats();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_index_data", 15) == 0)
+        if (strncmp((char *)ws_pkt.payload, "get_index_data", 14) == 0)
         {
+            ESP_LOGI(TAG, "Index data requested via WebSocket");
             send_index_html_ws();
         }
 
@@ -301,7 +302,8 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 30; // increase from default 8 to 16
+    config.max_uri_handlers = 30; // increase from default 8 to 30
+    config.stack_size = 12288;    // increase stack size for websocket handling
     ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {

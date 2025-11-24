@@ -57,6 +57,24 @@ esp_err_t load_sensor_config(const char *config_name)
         return ESP_ERR_INVALID_ARG;
     }
 
+    // Acquire sensor config mutex before updating global settings
+    bool taken = false;
+    if (sensor_cfg_mutex)
+    {
+        if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire sensor config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "sensor_cfg_mutex not initialized; proceeding without mutex (unsafe)");
+    }
+
     for (int i = 0; i < CHANNELS_PER_BUS; i++)
     {
         char key_type[32], key_valve[32], key_location[32], key_rh[32], key_co2[32];
@@ -96,6 +114,16 @@ esp_err_t load_sensor_config(const char *config_name)
 
         settings->rh_enabled = cJSON_IsString(rh) && strcmp(rh->valuestring, "On") == 0;
         settings->co2_enabled = cJSON_IsString(co2) && strcmp(co2->valuestring, "On") == 0;
+    }
+
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(sensor_cfg_mutex);
+    }
+    else
+    {
+        // no-op, we didn't take it
     }
 
     cJSON_Delete(json);

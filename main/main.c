@@ -21,6 +21,8 @@ void app_main(void)
         return;
     }
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     // Initialize NVS
     err = init_nvs();
     if (err != ESP_OK)
@@ -112,6 +114,7 @@ void app_main(void)
     }
 
     // Start tasks
+    ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
