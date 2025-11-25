@@ -1,4 +1,5 @@
 #include "websocket_func.h"
+#include "globals.h" // try to use shared defs if present
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <stdlib.h>
@@ -6,28 +7,28 @@
 
 static const char *TAG = "ws func";
 
+/* If globals.h doesn't define sensor_value_t, provide a matching definition here.
+   Must match the layout produced by i2c_sensors (doubles for values, timestamp as uint32). */
 typedef struct
 {
-    float temp;
-    float rh;
-    float co2;
+    double temp;
+    double rh;
+    double co2;
     uint32_t timestamp;
 } sensor_value_t;
 
-/* removed unused file-scope statics:
-   snapshot_static, local_bus0_static, local_bus1_static
-   (we now allocate/copy these per-request into heap buffers) */
+/* valve positions storage (file-scope) */
+static int valve_positions_static[MAX_VALVE_COUNT] = {0};
 
-static int valve_positions_static[MAX_VALVE_COUNT];
-
-extern sensor_value_t sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS];
+// use sensor_value_t from globals.h (matches i2c_sensors snapshot layout)
 
 typedef struct
 {
-    sensor_value_t *snapshot; // linear array: MAX_I2C_BUSES * CHANNELS_PER_BUS
-    bus_sensor_t *bus0;       // array CHANNELS_PER_BUS
-    bus_sensor_t *bus1;       // array CHANNELS_PER_BUS
-    void *data_block;         // base pointer for single contiguous allocation
+    /* pointer to a contiguous 3D array: [MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] */
+    double (*snapshot)[CHANNELS_PER_BUS][DATA_FIELDS];
+    bus_sensor_t *bus0; /* array CHANNELS_PER_BUS */
+    bus_sensor_t *bus1; /* array CHANNELS_PER_BUS */
+    void *data_block;   /* base pointer for single contiguous allocation */
 } ws_send_work_t;
 
 static void ws_send_worker(void *arg)
@@ -78,7 +79,11 @@ static void ws_send_worker(void *arg)
     {
         for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
         {
-            sensor_value_t *val = &w->snapshot[bus * CHANNELS_PER_BUS + ch];
+            /* snapshot[bus][ch][0] = temp
+               snapshot[bus][ch][1] = rh
+               snapshot[bus][ch][2] = co2
+               snapshot[bus][ch][3] = timestamp (ms) */
+            double *vals = w->snapshot[bus][ch];
             bus_sensor_t *cfg = (bus == 0) ? &w->bus0[ch] : &w->bus1[ch];
 
             int n = snprintf(msg, sizeof(msg),
@@ -89,7 +94,7 @@ static void ws_send_worker(void *arg)
                              bus, ch,
                              cfg->type, cfg->valve, cfg->location,
                              cfg->rh_enabled, cfg->co2_enabled,
-                             val->temp, val->rh, val->co2, (unsigned long)val->timestamp);
+                             vals[0], vals[1], vals[2], (unsigned long)vals[3]);
 
             if (n <= 0)
                 continue;
@@ -121,8 +126,8 @@ void send_index_html_ws(void)
         return;
     }
 
-    size_t snap_count = (size_t)MAX_I2C_BUSES * (size_t)CHANNELS_PER_BUS;
-    size_t snapshot_bytes = sizeof(sensor_value_t) * snap_count;
+    size_t snap_count = (size_t)MAX_I2C_BUSES * (size_t)CHANNELS_PER_BUS * (size_t)DATA_FIELDS;
+    size_t snapshot_bytes = sizeof(double) * snap_count;
     size_t bus_bytes = sizeof(bus_sensor_t) * (size_t)CHANNELS_PER_BUS;
     size_t total_bytes = snapshot_bytes + bus_bytes * 2;
 
@@ -144,7 +149,7 @@ void send_index_html_ws(void)
     }
 
     work->data_block = block;
-    work->snapshot = (sensor_value_t *)block;
+    work->snapshot = (double (*)[CHANNELS_PER_BUS][DATA_FIELDS])block;
     work->bus0 = (bus_sensor_t *)((char *)block + snapshot_bytes);
     work->bus1 = (bus_sensor_t *)((char *)block + snapshot_bytes + bus_bytes);
 

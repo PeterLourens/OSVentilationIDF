@@ -1,4 +1,3 @@
-
 var gateway = 'ws://' + window.location.hostname + '/ws';
 var websocket;
 
@@ -18,45 +17,69 @@ function initWebSocket() {
     };
 
     websocket.onmessage = function (event) {
-        let data = JSON.parse(event.data);
+        let data;
+        try {
+            data = JSON.parse(event.data);
+        } catch (e) {
+            console.warn("ws: invalid json", e);
+            return;
+        }
 
-        // === Update valve table ===
-        data.valves.forEach((pos, idx) => {
-            let cell = document.getElementById("valve" + idx);
-            if (cell) cell.textContent = pos;
-        });
+        // Legacy: full payload { valves, bus0, bus1 }
+        if (data && data.valves && (data.bus0 || data.bus1)) {
+            data.valves.forEach((pos, idx) => {
+                let cell = document.getElementById("valve" + idx);
+                if (cell) cell.textContent = pos;
+            });
+            if (data.bus0) {
+                data.bus0.forEach((s, idx) => {
+                    const prefix = "bus0_sensor" + idx + "_";
+                    updateSensorDOM(prefix, s);
+                });
+            }
+            if (data.bus1) {
+                data.bus1.forEach((s, idx) => {
+                    const prefix = "bus1_sensor" + idx + "_";
+                    updateSensorDOM(prefix, s);
+                });
+            }
+            return;
+        }
 
-        // === Update bus0 sensors ===
-        data.bus0.forEach((s, idx) => {
-            document.getElementById("bus0_sensor" + idx + "_type").textContent = s.type;
-            document.getElementById("bus0_sensor" + idx + "_temp").textContent = s.temp;
-            document.getElementById("bus0_sensor" + idx + "_hum").textContent = s.rh;
-            document.getElementById("bus0_sensor" + idx + "_co2").textContent = s.co2;
-            document.getElementById("bus0_sensor" + idx + "_valve").textContent = s.valve;
-            document.getElementById("bus0_sensor" + idx + "_location").textContent = s.location;
-            document.getElementById("bus0_sensor" + idx + "_rhs").textContent = s.rhs;
-            document.getElementById("bus0_sensor" + idx + "_co2s").textContent = s.co2s;
-        });
+        // New: per-sensor object { bus, ch, ... }
+        if (typeof data.bus === 'number' && typeof data.ch === 'number') {
+            const prefix = "bus" + data.bus + "_sensor" + data.ch + "_";
+            updateSensorDOM(prefix, data);
+            return;
+        }
 
-        // === Update bus1 sensors ===
-        data.bus1.forEach((s, idx) => {
-            document.getElementById("bus1_sensor" + idx + "_type").textContent = s.type;
-            document.getElementById("bus1_sensor" + idx + "_temp").textContent = s.temp;
-            document.getElementById("bus1_sensor" + idx + "_hum").textContent = s.rh;
-            document.getElementById("bus1_sensor" + idx + "_co2").textContent = s.co2;
-            document.getElementById("bus1_sensor" + idx + "_valve").textContent = s.valve;
-            document.getElementById("bus1_sensor" + idx + "_location").textContent = s.location;
-            document.getElementById("bus1_sensor" + idx + "_rhs").textContent = s.rhs;
-            document.getElementById("bus1_sensor" + idx + "_co2s").textContent = s.co2s;
-        });
+        // New: valves-only message { valves: [...] }
+        if (data && data.valves) {
+            data.valves.forEach((pos, idx) => {
+                let cell = document.getElementById("valve" + idx);
+                if (cell) cell.textContent = pos;
+            });
+            return;
+        }
 
-        // Optional: request updates periodically
-        //setInterval(() => {
-        //    if (websocket.readyState === WebSocket.OPEN) {
-        //        websocket.send("get_index_data");
-        //    }
-        //}, 30000); // every 30 seconds
+        // Unknown message shape; ignore
     };
+
+    // Helper to update DOM fields for a single sensor (keeps code DRY)
+    function updateSensorDOM(prefix, s) {
+        const setText = (idSuffix, val) => {
+            const el = document.getElementById(prefix + idSuffix);
+            if (el) el.textContent = (val !== undefined && val !== null) ? val : '';
+        };
+        setText("type", s.type);
+        setText("temp", s.temp);
+        setText("hum", s.rh);
+        setText("co2", s.co2);
+        setText("valve", s.valve);
+        setText("location", s.location);
+        setText("rhs", s.rhs);
+        setText("co2s", s.co2s);
+    }
 }
 
 function request_index_data() {

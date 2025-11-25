@@ -17,16 +17,20 @@ void task_i2c_sensors_code(void *pvParameters)
 {
     esp_err_t err = ESP_OK;
 
-    sensor_queue = xQueueCreate(1, sizeof(double[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]));
-    if (sensor_queue == NULL)
+    // sensor_queue = xQueueCreate(1, sizeof(double[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]));
+    //  create sensor_queue at init time (place in startup where you currently create the queue)
+    size_t snap_count = (size_t)MAX_I2C_BUSES * (size_t)CHANNELS_PER_BUS * (size_t)DATA_FIELDS;
+    size_t snapshot_bytes = sizeof(double) * snap_count;
+
+    sensor_queue = xQueueCreate(1, snapshot_bytes);
+    if (!sensor_queue)
     {
-        ESP_LOGE(TAG, "Failed to create sensor queue!");
-        abort(); // or handle error
+        ESP_LOGE(TAG, "failed to create sensor_queue (%u bytes)", (unsigned)snapshot_bytes);
+        // task cannot continue without the queue — delete this task
+        vTaskDelete(NULL);
+        return;
     }
-    // else
-    //{
-    // ESP_LOGI(TAG, "Sensor queue created successfully");
-    //}
+    ESP_LOGI(TAG, "created sensor_queue, item size=%u", (unsigned)snapshot_bytes);
 
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
     if (err != ESP_OK)
