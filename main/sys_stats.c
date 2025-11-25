@@ -155,7 +155,7 @@ void show_system_and_task_stats(void)
 
 send_out:
     // Print to UART
-    printf("%s", out);
+    // printf("%s", out);
 
     // Send to WebSocket clients
     ws_async_send("STATS:\n", strlen("STATS:\n"));

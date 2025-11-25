@@ -7,20 +7,8 @@
 
 static const char *TAG = "ws func";
 
-/* If globals.h doesn't define sensor_value_t, provide a matching definition here.
-   Must match the layout produced by i2c_sensors (doubles for values, timestamp as uint32). */
-typedef struct
-{
-    double temp;
-    double rh;
-    double co2;
-    uint32_t timestamp;
-} sensor_value_t;
-
 /* valve positions storage (file-scope) */
 static int valve_positions_static[MAX_VALVE_COUNT] = {0};
-
-// use sensor_value_t from globals.h (matches i2c_sensors snapshot layout)
 
 typedef struct
 {
@@ -89,11 +77,12 @@ static void ws_send_worker(void *arg)
             int n = snprintf(msg, sizeof(msg),
                              "{\"bus\":%d,\"ch\":%d,"
                              "\"type\":\"%s\",\"valve\":\"%s\",\"location\":\"%s\","
-                             "\"rhs\":%d,\"co2s\":%d,"
+                             "\"rhs\":\"%s\",\"co2s\":\"%s\","
                              "\"temp\":%.1f,\"rh\":%.1f,\"co2\":%.1f,\"ts\":%lu}",
                              bus, ch,
                              cfg->type, cfg->valve, cfg->location,
-                             cfg->rh_enabled, cfg->co2_enabled,
+                             (cfg->rh_enabled ? "On" : "Off"),
+                             (cfg->co2_enabled ? "On" : "Off"),
                              vals[0], vals[1], vals[2], (unsigned long)vals[3]);
 
             if (n <= 0)
