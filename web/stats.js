@@ -4,7 +4,6 @@ var websocket;
 function initWebSocket() {
     console.log("Connecting to " + gateway);
     websocket = new WebSocket(gateway);
-    websocket.send('Stop');
 
     websocket.onopen = function () {
         console.log("WebSocket opened");
@@ -28,6 +27,7 @@ function initWebSocket() {
 
 function requestStats() {
     if (websocket && websocket.readyState === WebSocket.OPEN) {
+        websocket.send("Stop");
         websocket.send("GetStats");
     }
 }
