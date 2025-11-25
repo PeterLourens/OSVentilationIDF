@@ -4,6 +4,7 @@ var websocket;
 function initWebSocket() {
     console.log("Connecting to " + gateway);
     websocket = new WebSocket(gateway);
+    websocket.send('Stop');
 
     websocket.onopen = function () {
         console.log("WebSocket opened");
