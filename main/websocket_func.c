@@ -42,9 +42,7 @@ static void ws_send_worker(void *arg)
     used = snprintf(msg, sizeof(msg), "{ \"valves\":[");
     for (int i = 0; i < MAX_VALVE_COUNT && used < sizeof(msg) - 16; ++i)
     {
-        int n = snprintf(msg + used, sizeof(msg) - used, "%d%s",
-                         valve_positions_static[i],
-                         (i < MAX_VALVE_COUNT - 1) ? "," : "");
+        int n = snprintf(msg + used, sizeof(msg) - used, "%d%s", valve_positions_static[i], (i < MAX_VALVE_COUNT - 1) ? "," : "");
         if (n < 0)
             break;
         used += (size_t)n;
@@ -78,7 +76,7 @@ static void ws_send_worker(void *arg)
                              "{\"bus\":%d,\"ch\":%d,"
                              "\"type\":\"%s\",\"valve\":\"%s\",\"location\":\"%s\","
                              "\"rhs\":\"%s\",\"co2s\":\"%s\","
-                             "\"temp\":%.1f,\"rh\":%.1f,\"co2\":%.1f,\"ts\":%lu}",
+                             "\"temp\":%.2f,\"rh\":%.2f,\"co2\":%.2f,\"ts\":%lu}",
                              bus, ch,
                              cfg->type, cfg->valve, cfg->location,
                              (cfg->rh_enabled ? "On" : "Off"),
