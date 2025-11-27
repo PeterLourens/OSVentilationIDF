@@ -237,11 +237,120 @@ esp_err_t websocket_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+/* POST handler: save bus0 config to /data/json/bus0_sensor_config.json */
+esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "bus0_sensor");
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/bus0_sensor_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // return the page body (original sensor_config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = sensor_config_html_end - sensor_config_html_start;
+    return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
+/* POST handler: save bus1 config to /data/json/bus1_sensor_config.json */
+esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "bus1_sensor");
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/bus1_sensor_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // return the page body (original sensor_config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = sensor_config_html_end - sensor_config_html_start;
+    return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
+/* POST handler: delete bus0 config file */
+esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
+{
+    const char *path = "/data/json/bus0_sensor_config.json";
+    remove(path); // ignore errors
+
+    // return original page body
+    httpd_resp_set_type(req, "text/html");
+    size_t len = sensor_config_html_end - sensor_config_html_start;
+    return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
+/* POST handler: delete bus1 config file */
+esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
+{
+    const char *path = "/data/json/bus1_sensor_config.json";
+    remove(path); // ignore errors
+
+    // return original page body
+    httpd_resp_set_type(req, "text/html");
+    size_t len = sensor_config_html_end - sensor_config_html_start;
+    return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
 // Set valve positions in NVS to 0
 esp_err_t reset_valves_handler(httpd_req_t *req)
 {
     nvs_handle_t nvs;
-
     esp_err_t err = nvs_open("valves", NVS_READWRITE, &nvs);
 
     if (err == ESP_OK)
@@ -254,13 +363,18 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
         }
         nvs_commit(nvs);
         nvs_close(nvs);
-        httpd_resp_sendstr(req, "All 12 valves reset to 0");
+        // fall through to return page
     }
     else
     {
-        httpd_resp_sendstr(req, "NVS open failed");
+        ESP_LOGW(TAG, "NVS open failed for reset_valves_handler: %d", err);
+        // still return the page so UI stays consistent
     }
-    return ESP_OK;
+
+    // Return the original valvecontrol.html page
+    httpd_resp_set_type(req, "text/html");
+    size_t len = valvecontrol_html_end - valvecontrol_html_start;
+    return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
 void ws_async_send(char *buf, size_t len)
@@ -302,8 +416,9 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 30; // increase from default 8 to 30
-    config.stack_size = 12288;    // increase stack size for websocket handling
+    config.max_uri_handlers = 30;                 // increase from default 8 to 30
+    config.stack_size = 12288;                    // increase stack size for websocket handling
+    config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
     ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
@@ -419,6 +534,38 @@ httpd_handle_t start_webserver(void)
     };
     httpd_register_uri_handler(http_server, &reset_valves_uri);
 
+    httpd_uri_t sensorconfig1_post_uri = {
+        .uri = "/sensorconfig1",
+        .method = HTTP_POST,
+        .handler = sensorconfig_bus0_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &sensorconfig1_post_uri);
+
+    httpd_uri_t sensorconfig2_post_uri = {
+        .uri = "/sensorconfig2",
+        .method = HTTP_POST,
+        .handler = sensorconfig_bus1_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &sensorconfig2_post_uri);
+
+    httpd_uri_t sensorconfig1_delete_post_uri = {
+        .uri = "delete_sensor_config_file1",
+        .method = HTTP_POST,
+        .handler = sensorconfig_bus0_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &sensorconfig1_delete_post_uri);
+
+    httpd_uri_t sensorconfig2_delete_post_uri = {
+        .uri = "/delete_sensor_config_file2",
+        .method = HTTP_POST,
+        .handler = sensorconfig_bus1_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &sensorconfig2_delete_post_uri);
+
     return http_server;
 }
 
@@ -481,7 +628,7 @@ int websocket_log_output(const char *fmt, va_list args)
 
         // Strip ANSI codes for WebSocket
         static char clean_buf[512];
-        size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
+        // size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
 
         // Detect prefix vs message
         if (!ws_prefix_pending && strstr(clean_buf, ":"))
@@ -513,4 +660,107 @@ int uart_log_output(const char *szFormat, va_list args)
         printf("%.*s", ret, log_print_buffer);
     }
     return (0);
+}
+
+/* atomic write helper — writes tmp -> rename */
+bool write_json_atomic_fs(const char *path, cJSON *root)
+{
+    if (!path || !root)
+        return false;
+
+    char tmp_path[128];
+    snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", path);
+
+    if (sensor_cfg_mutex)
+        xSemaphoreTake(sensor_cfg_mutex, portMAX_DELAY);
+
+    FILE *f = fopen(tmp_path, "w");
+    if (!f)
+    {
+        if (sensor_cfg_mutex)
+            xSemaphoreGive(sensor_cfg_mutex);
+        return false;
+    }
+
+    char *out = cJSON_PrintUnformatted(root);
+    if (!out)
+    {
+        fclose(f);
+        if (sensor_cfg_mutex)
+            xSemaphoreGive(sensor_cfg_mutex);
+        return false;
+    }
+
+    fwrite(out, 1, strlen(out), f);
+    fclose(f);
+    free(out);
+
+    int r = rename(tmp_path, path);
+
+    if (sensor_cfg_mutex)
+        xSemaphoreGive(sensor_cfg_mutex);
+
+    return (r == 0);
+}
+
+/* Build a JSON array for one bus from urlencoded POST body.
+   field naming in the HTML: busN_sensorX_<type|valve|location|rh|co2> */
+cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const char *bus_prefix)
+{
+    if (!body || !bus_prefix)
+        return NULL;
+    cJSON *arr = cJSON_CreateArray();
+    if (!arr)
+        return NULL;
+
+    char key[64], val[256];
+
+    for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
+    {
+        cJSON *obj = cJSON_CreateObject();
+        if (!obj)
+        {
+            cJSON_Delete(arr);
+            return NULL;
+        }
+
+        /* type */
+        snprintf(key, sizeof(key), "%s%d_type", bus_prefix, ch);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddStringToObject(obj, "type", val);
+        else
+            cJSON_AddStringToObject(obj, "type", "None");
+
+        /* valve */
+        snprintf(key, sizeof(key), "%s%d_valve", bus_prefix, ch);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddStringToObject(obj, "valve", val);
+        else
+            cJSON_AddStringToObject(obj, "valve", "None");
+
+        /* location */
+        snprintf(key, sizeof(key), "%s%d_location", bus_prefix, ch);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddStringToObject(obj, "location", val);
+        else
+            cJSON_AddStringToObject(obj, "location", "");
+
+        /* RH control (On/Off) -> boolean */
+        snprintf(key, sizeof(key), "%s%d_rh", bus_prefix, ch);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddBoolToObject(obj, "rh_enabled", (strcmp(val, "On") == 0));
+        else
+            cJSON_AddBoolToObject(obj, "rh_enabled", false);
+
+        /* CO2 control (On/Off) -> boolean */
+        snprintf(key, sizeof(key), "%s%d_co2", bus_prefix, ch);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddBoolToObject(obj, "co2_enabled", (strcmp(val, "On") == 0));
+        else
+            cJSON_AddBoolToObject(obj, "co2_enabled", false);
+
+        cJSON_AddItemToArray(arr, obj);
+    }
+
+    return arr;
 }

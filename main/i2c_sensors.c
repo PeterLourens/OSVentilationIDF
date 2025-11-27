@@ -60,7 +60,7 @@ esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
     uint8_t cmd[] = {0xAC, 0x33, 0x00};
     err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1);
 
-    vTaskDelay(pdMS_TO_TICKS(80)); // Wait for measurement
+    vTaskDelay(pdMS_TO_TICKS(120)); // Wait for measurement
 
     uint8_t data[7];
     err = i2c_master_receive(aht20_bus0_handle, data, sizeof(data), -1);
