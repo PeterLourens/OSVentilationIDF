@@ -274,6 +274,12 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(arr);
 
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("bus0_sensor_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload bus0 config after write");
+    }
+
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
     len = sensor_config_html_end - sensor_config_html_start;
@@ -316,6 +322,12 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
     }
     cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("bus1_sensor_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload bus1 config after write");
+    }
 
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
