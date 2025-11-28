@@ -222,6 +222,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strncmp((char *)ws_pkt.payload, "GetStats", 8) == 0)
         {
+            ESP_LOGI(TAG, "GetStats requested via WebSocket");
             show_system_and_task_stats();
         }
 
