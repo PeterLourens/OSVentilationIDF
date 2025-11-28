@@ -5,6 +5,7 @@
 #include "general.h"
 #include "sys_stats.h"
 #include "websocket_func.h"
+#include "config_files.h"
 
 #define LOG_BUF_SIZE 256
 

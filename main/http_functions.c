@@ -642,6 +642,7 @@ int websocket_log_output(const char *fmt, va_list args)
         // Strip ANSI codes for WebSocket
         static char clean_buf[512];
         // size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
+        remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
 
         // Detect prefix vs message
         if (!ws_prefix_pending && strstr(clean_buf, ":"))
