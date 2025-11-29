@@ -30,5 +30,6 @@ int websocket_log_output(const char *, va_list);
 int uart_log_output(const char *, va_list);
 bool write_json_atomic_fs(const char *, cJSON *);
 cJSON *build_bus_config_from_body_urlencoded(const char *, size_t, const char *);
+void send_sensor_config_json_ws(void);
 
 #endif

@@ -232,6 +232,12 @@ esp_err_t websocket_handler(httpd_req_t *req)
             send_index_html_ws();
         }
 
+        if (strncmp((char *)ws_pkt.payload, "get_sensor_config", 17) == 0)
+        {
+            ESP_LOGI(TAG, "Sensor data requested via WebSocket");
+            send_sensor_config_json_ws();
+        }
+
         free(buf);
     }
 
@@ -777,4 +783,50 @@ cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const
     }
 
     return arr;
+}
+
+void send_sensor_config_json_ws(void)
+{
+    cJSON *root = cJSON_CreateObject();
+    if (!root)
+        return;
+
+    char key[64];
+    for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
+    {
+        bus_sensor_t *cfg = (bus == 0) ? bus0_sensor_settings : bus1_sensor_settings;
+
+        for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
+        {
+            const char *type = (cfg[ch].type[0] != '\0') ? cfg[ch].type : "None";
+            const char *valve = (cfg[ch].valve[0] != '\0') ? cfg[ch].valve : "None";
+            const char *loc = (cfg[ch].location[0] != '\0') ? cfg[ch].location : "";
+            const char *rh = cfg[ch].rh_enabled ? "On" : "Off";
+            const char *co2 = cfg[ch].co2_enabled ? "On" : "Off";
+
+            snprintf(key, sizeof(key), "b%d_s%d_type", bus, ch);
+            cJSON_AddStringToObject(root, key, type);
+
+            snprintf(key, sizeof(key), "b%d_s%d_valve", bus, ch);
+            cJSON_AddStringToObject(root, key, valve);
+
+            snprintf(key, sizeof(key), "b%d_s%d_location", bus, ch);
+            cJSON_AddStringToObject(root, key, loc);
+
+            snprintf(key, sizeof(key), "b%d_s%d_rh", bus, ch);
+            cJSON_AddStringToObject(root, key, rh);
+
+            snprintf(key, sizeof(key), "b%d_s%d_co2", bus, ch);
+            cJSON_AddStringToObject(root, key, co2);
+        }
+    }
+
+    char *out = cJSON_PrintUnformatted(root);
+    if (out)
+    {
+        ws_async_send(out, strlen(out));
+        free(out);
+    }
+
+    cJSON_Delete(root);
 }
