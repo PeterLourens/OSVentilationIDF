@@ -33,6 +33,9 @@ extern const char index_html_end[] asm("_binary_index_html_end");
 extern const char sensor_config_html_start[] asm("_binary_sensor_config_html_start");
 extern const char sensor_config_html_end[] asm("_binary_sensor_config_html_end");
 
+extern const char sensor_config_ws_js_start[] asm("_binary_sensor_config_ws_js_start");
+extern const char sensor_config_ws_js_end[] asm("_binary_sensor_config_ws_js_end");
+
 extern const char settings_html_start[] asm("_binary_settings_html_start");
 extern const char settings_html_end[] asm("_binary_settings_html_end");
 
@@ -94,6 +97,14 @@ esp_err_t index_ws_js_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/javascript");
     size_t len = index_ws_js_end - index_ws_js_start - 1;
     return httpd_resp_send(req, index_ws_js_start, len);
+}
+
+// Serve sensor_config_ws.js
+esp_err_t sensor_config_ws_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = sensor_config_ws_js_end - sensor_config_ws_js_start - 1;
+    return httpd_resp_send(req, sensor_config_ws_js_start, len);
 }
 
 // Serve favicon.ico
@@ -502,6 +513,13 @@ httpd_handle_t start_webserver(void)
         .handler = sensor_config_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &sensor_config_uri);
+
+    httpd_uri_t sensor_config_ws_uri = {
+        .uri = "/sensor_config_ws.js",
+        .method = HTTP_GET,
+        .handler = sensor_config_ws_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &sensor_config_ws_uri);
 
     httpd_uri_t settings_uri = {
         .uri = "/settings",

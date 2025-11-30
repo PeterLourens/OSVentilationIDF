@@ -1,5 +1,5 @@
 {
-    "b1_s0_type": "AHT20",
+    "b1_s0_type": "DHT20",
     "b1_s0_valve": "valve3",
     "b1_s0_location": "Bedroom1",
     "b1_s0_rh": "On",
