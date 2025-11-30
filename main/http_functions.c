@@ -245,7 +245,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strncmp((char *)ws_pkt.payload, "get_sensor_config", 17) == 0)
         {
-            ESP_LOGI(TAG, "Sensor data requested via WebSocket");
+            ESP_LOGI(TAG, "Sensor config requested via WebSocket");
             send_sensor_config_json_ws();
         }
 
@@ -279,7 +279,7 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     }
     buf[len] = '\0';
 
-    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "bus0_sensor");
+    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "b0_s");
     free(buf);
     if (!arr)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
@@ -328,8 +328,17 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     }
     buf[len] = '\0';
 
-    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "bus1_sensor");
+    cJSON *arr = build_bus_config_from_body_urlencoded(buf, len, "b1_s");
     free(buf);
+
+    char *out = cJSON_PrintUnformatted(arr);
+    if (out)
+    {
+        // Print to UART using ESP-IDF logging
+        ESP_LOGI(TAG, "JSON: %s", out);
+        free(out);
+    }
+
     if (!arr)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
 
@@ -741,66 +750,58 @@ bool write_json_atomic_fs(const char *path, cJSON *root)
     return (r == 0);
 }
 
-/* Build a JSON array for one bus from urlencoded POST body.
-   field naming in the HTML: busN_sensorX_<type|valve|location|rh|co2> */
+// Build a JSON array for one bus from urlencoded POST body.
+// field naming in the HTML: bN_sX_<type|valve|location|rh|co2>
 cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const char *bus_prefix)
 {
     if (!body || !bus_prefix)
         return NULL;
-    cJSON *arr = cJSON_CreateArray();
-    if (!arr)
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
         return NULL;
 
     char key[64], val[256];
 
     for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
     {
-        cJSON *obj = cJSON_CreateObject();
-        if (!obj)
-        {
-            cJSON_Delete(arr);
-            return NULL;
-        }
-
         /* type */
         snprintf(key, sizeof(key), "%s%d_type", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddStringToObject(obj, "type", val);
+            cJSON_AddStringToObject(obj, key, val);
         else
-            cJSON_AddStringToObject(obj, "type", "None");
+            cJSON_AddStringToObject(obj, key, "None");
 
         /* valve */
         snprintf(key, sizeof(key), "%s%d_valve", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddStringToObject(obj, "valve", val);
+            cJSON_AddStringToObject(obj, key, val);
         else
-            cJSON_AddStringToObject(obj, "valve", "None");
+            cJSON_AddStringToObject(obj, key, "None");
 
         /* location */
         snprintf(key, sizeof(key), "%s%d_location", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddStringToObject(obj, "location", val);
+            cJSON_AddStringToObject(obj, key, val);
         else
-            cJSON_AddStringToObject(obj, "location", "");
+            cJSON_AddStringToObject(obj, key, "");
 
-        /* RH control (On/Off) -> boolean */
+        /* RH control (On/Off) */
         snprintf(key, sizeof(key), "%s%d_rh", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddBoolToObject(obj, "rh_enabled", (strcmp(val, "On") == 0));
+            cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
         else
-            cJSON_AddBoolToObject(obj, "rh_enabled", false);
+            cJSON_AddStringToObject(obj, key, "Off");
 
-        /* CO2 control (On/Off) -> boolean */
+        /* CO2 control (On/Off) */
         snprintf(key, sizeof(key), "%s%d_co2", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddBoolToObject(obj, "co2_enabled", (strcmp(val, "On") == 0));
+            cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
         else
-            cJSON_AddBoolToObject(obj, "co2_enabled", false);
-
-        cJSON_AddItemToArray(arr, obj);
+            cJSON_AddStringToObject(obj, key, "Off");
     }
 
-    return arr;
+    return obj;
 }
 
 void send_sensor_config_json_ws(void)

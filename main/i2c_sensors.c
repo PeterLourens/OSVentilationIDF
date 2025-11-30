@@ -445,7 +445,7 @@ esp_err_t read_sensors_into_queue(void)
         err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
         if (err != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
+            ESP_LOGE(TAG, "Failed to set channel %d on bus 1: %s", ch, esp_err_to_name(err));
             continue;
         }
         // else
