@@ -64,6 +64,7 @@
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address
 #define AHT20_I2C_ADDR 0x38   // Default address
+#define DHT20_I2C_ADDR 0x38   // Default address
 #define SCD41_I2C_ADDR 0x62   // Default address
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
@@ -100,6 +101,8 @@ extern i2c_master_dev_handle_t tca9548_bus0_handle;
 extern i2c_master_dev_handle_t tca9548_bus1_handle;
 extern i2c_master_dev_handle_t aht20_bus0_handle;
 extern i2c_master_dev_handle_t aht20_bus1_handle;
+extern i2c_master_dev_handle_t dht20_bus0_handle;
+extern i2c_master_dev_handle_t dht20_bus1_handle;
 extern i2c_master_dev_handle_t scd41_bus0_handle;
 extern i2c_master_dev_handle_t scd41_bus1_handle;
 extern i2c_master_dev_handle_t ds3231_bus0_handle;
