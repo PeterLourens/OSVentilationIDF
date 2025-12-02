@@ -24,6 +24,7 @@ TaskHandle_t task_rgb_leds = NULL;
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
 SemaphoreHandle_t time_config_mutex = NULL;
+SemaphoreHandle_t mqtt_config_mutex = NULL;
 SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
 SemaphoreHandle_t lock_valve_move_mutex = NULL;
@@ -51,6 +52,7 @@ struct tm timeinfo = {0};
 // Structs for settings
 Network_config network_config = {0};
 Time_settings time_config = {0};
+MQTT_settings mqtt_config = {0};
 ping_summary_t g_ping_summary = {0};
 
 // Valvecontrol variables

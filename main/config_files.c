@@ -272,3 +272,69 @@ esp_err_t load_time_config(void)
 
     return ESP_OK;
 }
+
+esp_err_t load_mqtt_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/mqtt_config.json";
+    size_t bufferSize = XXLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read MQTT config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *enable_mqtt = cJSON_GetObjectItem(json, "enable_mqtt");
+    cJSON *mqtt_server = cJSON_GetObjectItem(json, "mqtt_server");
+    cJSON *mqtt_port = cJSON_GetObjectItem(json, "mqtt_port");
+    cJSON *mqtt_base_topic = cJSON_GetObjectItem(json, "mqtt_base_topic");
+
+    // Take mutex with timeout
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire time config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    strncpy(mqtt_config.enable_mqtt, cJSON_IsString(enable_mqtt) ? enable_mqtt->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    mqtt_config.enable_mqtt[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(mqtt_config.mqtt_server, cJSON_IsString(mqtt_server) ? mqtt_server->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    mqtt_config.mqtt_server[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(mqtt_config.mqtt_port, cJSON_IsString(mqtt_port) ? mqtt_port->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    mqtt_config.mqtt_port[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(mqtt_config.mqtt_base_topic, cJSON_IsString(mqtt_base_topic) ? mqtt_base_topic->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    mqtt_config.mqtt_base_topic[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(mqtt_config_mutex);
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "Network config loaded from %s", path);
+
+    return ESP_OK;
+}

@@ -7,7 +7,7 @@ static const char *TAG = "main";
 void app_main(void)
 {
     // Sensor data array to contain data from queue
-    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+    // double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
     esp_err_t err = ESP_OK;
 
@@ -113,6 +113,14 @@ void app_main(void)
         return;
     }
 
+    // Load time configuration
+    err = load_mqtt_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load MQTT settings");
+        return;
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();
@@ -158,7 +166,7 @@ void app_main(void)
 
     while (1)
     {
-        if (sensor_queue != NULL)
+        /*if (sensor_queue != NULL)
         {
             if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
             {
@@ -177,7 +185,7 @@ void app_main(void)
         else
         {
             ESP_LOGE(TAG, "Sensor queue is NULL");
-        }
+        }*/
 
         // show_system_and_task_stats();
 

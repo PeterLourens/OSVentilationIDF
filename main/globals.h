@@ -121,6 +121,7 @@ extern QueueHandle_t sensor_queue;
 // Mutex handles
 extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
+extern SemaphoreHandle_t mqtt_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
@@ -169,6 +170,15 @@ typedef struct
     char timezone[LARGE_CONFIG_ITEM];
 } Time_settings;
 extern Time_settings time_config;
+
+typedef struct
+{
+    char enable_mqtt[LARGE_CONFIG_ITEM];
+    char mqtt_server[LARGE_CONFIG_ITEM];
+    char mqtt_port[SMALL_CONFIG_ITEM];
+    char mqtt_base_topic[XLARGE_CONFIG_ITEM];
+} MQTT_settings;
+extern MQTT_settings mqtt_config;
 
 typedef struct
 {
