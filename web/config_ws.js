@@ -20,7 +20,6 @@ function initWebSocket() {
 // When websocket is established, call the get_json() function
 function onOpen(event) {
     console.log('Connection opened');
-    //get_json();
     websocket.send("get_config");
 }
 

@@ -260,7 +260,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
             send_sensor_config_json_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_config", 17) == 0)
+        if (strncmp((char *)ws_pkt.payload, "get_config", 10) == 0)
         {
             ESP_LOGI(TAG, "Config requested via WebSocket");
             send_config_json_ws();
