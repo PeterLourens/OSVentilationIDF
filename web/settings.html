@@ -253,6 +253,36 @@
                     </fieldset>
                 </form>
 
+                <h4 class="content-subhead">Syslog server configuration</h4>
+
+                <form class="pure-form pure-form-stacked" method="POST" action="/settings_syslog">
+                    <fieldset>
+                        <div class="pure-g">
+                            <div class="pure-u-1 pure-u-md-1-1">
+                                <label for="enable_syslog">Enable Syslog:</label>
+                                <select id="enable_syslog" name="enable_syslog" class="pure-input-1-1">
+                                    <option>On</option>
+                                    <option>Off</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="syslog_ip">Syslog server IP:</label>
+                                <input type="text" placeholder="Syslog server ip" name="syslog_ip" id="syslog_ip"
+                                    class="pure-input-3-4">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="syslog_port">Syslog server port:</label>
+                                <input type="text" placeholder="Syslog server port" name="syslog_port" id="syslog_port"
+                                    class="pure-input-3-4">
+                            </div>
+                        </div>
+                        <br>
+                        <input type="submit" value="Save Syslog settings"
+                            class="pure-button-primary button-xsmall pure-button">
+                        <br>
+                    </fieldset>
+                </form>
+
                 <h4 class="content-subhead">Time configuration (requires ESP32 restart)</h4>
 
                 <form class="pure-form pure-form-stacked" method="POST" action="/settings_rtc">
