@@ -86,7 +86,7 @@ esp_err_t init_littlefs(void)
 
 esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
 {
-    static const char *TAG = "settings";
+    static const char *TAG = "config";
 
     if (!path || !buffer || bufferSize == 0)
     {
@@ -127,24 +127,8 @@ bool is_valid_ip_address(const char *ip_address)
 
 esp_err_t create_mutexes(void)
 {
-    const char *TAG = "Mutexes";
+    const char *TAG = "mutexes";
     bool ok = true;
-
-    // Mutex for network settings
-    network_config_mutex = xSemaphoreCreateMutex();
-    if (network_config_mutex == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to create network_config_mutex");
-        ok = false;
-    }
-
-    // Mutex for time settings
-    time_config_mutex = xSemaphoreCreateMutex();
-    if (time_config_mutex == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to create time_config_mutex");
-        ok = false;
-    }
 
     // Mutex for valve movement locking
     lock_valve_move_mutex = xSemaphoreCreateMutex();
@@ -162,9 +146,63 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
+    // Mutex for network settings
+    network_config_mutex = xSemaphoreCreateMutex();
+    if (network_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create network_config_mutex");
+        ok = false;
+    }
+
+    // Mutex for time settings
+    time_config_mutex = xSemaphoreCreateMutex();
+    if (time_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create time_config_mutex");
+        ok = false;
+    }
+
+    mqtt_config_mutex = xSemaphoreCreateMutex();
+    if (mqtt_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create mqtt_config_mutex");
+        ok = false;
+    }
+
+    influxdb_config_mutex = xSemaphoreCreateMutex();
+    if (influxdb_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create influxdb_config_mutex");
+        ok = false;
+    }
+
+    fan_config_mutex = xSemaphoreCreateMutex();
+    if (fan_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create fan_config_mutex");
+        ok = false;
+    }
+
+    i2c_config_mutex = xSemaphoreCreateMutex();
+    if (i2c_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create i2c_config_mutex");
+        ok = false;
+    }
+
     if (!ok)
     {
         // cleanup any created semaphores to avoid leaks and to keep state consistent
+        if (lock_valve_move_mutex)
+        {
+            vSemaphoreDelete(lock_valve_move_mutex);
+            lock_valve_move_mutex = NULL;
+        }
+        if (sensor_cfg_mutex)
+        {
+            vSemaphoreDelete(sensor_cfg_mutex);
+            sensor_cfg_mutex = NULL;
+        }
         if (network_config_mutex)
         {
             vSemaphoreDelete(network_config_mutex);
@@ -175,15 +213,25 @@ esp_err_t create_mutexes(void)
             vSemaphoreDelete(time_config_mutex);
             time_config_mutex = NULL;
         }
-        if (lock_valve_move_mutex)
+        if (mqtt_config_mutex)
         {
-            vSemaphoreDelete(lock_valve_move_mutex);
-            lock_valve_move_mutex = NULL;
+            vSemaphoreDelete(mqtt_config_mutex);
+            mqtt_config_mutex = NULL;
         }
-        if (sensor_cfg_mutex)
+        if (influxdb_config_mutex)
         {
-            vSemaphoreDelete(sensor_cfg_mutex);
-            sensor_cfg_mutex = NULL;
+            vSemaphoreDelete(influxdb_config_mutex);
+            influxdb_config_mutex = NULL;
+        }
+        if (fan_config_mutex)
+        {
+            vSemaphoreDelete(fan_config_mutex);
+            fan_config_mutex = NULL;
+        }
+        if (i2c_config_mutex)
+        {
+            vSemaphoreDelete(i2c_config_mutex);
+            i2c_config_mutex = NULL;
         }
 
         ESP_LOGE(TAG, "One or more mutexes failed to create");
@@ -197,7 +245,7 @@ esp_err_t create_mutexes(void)
 /* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
-    // const char *TAG = "Ping";
+    // const char *TAG = "network";
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
 
     // Profiles available in ESP‑IDF 5.5.1
@@ -236,7 +284,7 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
 
 bool ping_gateway(void)
 {
-    const char *TAG = "Ping";
+    const char *TAG = "network";
 
     // Ensure station netif exists
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");

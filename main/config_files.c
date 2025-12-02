@@ -1,8 +1,9 @@
 #include "config_files.h"
 
+static const char *TAG = "Config";
+
 esp_err_t load_sensor_config(const char *config_name)
 {
-    const char *TAG = "Config";
     char path[128];
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
@@ -121,10 +122,6 @@ esp_err_t load_sensor_config(const char *config_name)
     {
         xSemaphoreGive(sensor_cfg_mutex);
     }
-    else
-    {
-        // no-op, we didn't take it
-    }
 
     cJSON_Delete(json);
     free(buffer);
@@ -135,7 +132,6 @@ esp_err_t load_sensor_config(const char *config_name)
 
 esp_err_t load_network_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
@@ -174,11 +170,22 @@ esp_err_t load_network_config(void)
     cJSON *primary_dns = cJSON_GetObjectItem(json, "primary_dns");
     cJSON *secondary_dns = cJSON_GetObjectItem(json, "secondary_dns");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire network config mutex before updating global settings
+    bool taken = false;
+    if (network_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire sensor config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "network_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -205,7 +212,11 @@ esp_err_t load_network_config(void)
     strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.secondary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(network_config_mutex);
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(network_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
@@ -250,11 +261,22 @@ esp_err_t load_time_config(void)
     cJSON *ntp_server = cJSON_GetObjectItem(json, "ntp_server");
     cJSON *timezone = cJSON_GetObjectItem(json, "timezone");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire time config mutex before updating global settings
+    bool taken = false;
+    if (time_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire time config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire time config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "time_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(time_config.ntp_server, cJSON_IsString(ntp_server) ? ntp_server->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
@@ -263,7 +285,11 @@ esp_err_t load_time_config(void)
     strncpy(time_config.timezone, cJSON_IsString(timezone) ? timezone->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     time_config.timezone[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(time_config_mutex);
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(time_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
@@ -310,11 +336,22 @@ esp_err_t load_mqtt_config(void)
     cJSON *mqtt_port = cJSON_GetObjectItem(json, "mqtt_port");
     cJSON *mqtt_base_topic = cJSON_GetObjectItem(json, "mqtt_base_topic");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire mqtt config mutex before updating global settings
+    bool taken = false;
+    if (mqtt_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire time config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "mqtt_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(mqtt_config.enable_mqtt, cJSON_IsString(enable_mqtt) ? enable_mqtt->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -329,7 +366,11 @@ esp_err_t load_mqtt_config(void)
     strncpy(mqtt_config.mqtt_base_topic, cJSON_IsString(mqtt_base_topic) ? mqtt_base_topic->valuestring : "", XLARGE_CONFIG_ITEM - 1);
     mqtt_config.mqtt_base_topic[XLARGE_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(mqtt_config_mutex);
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(mqtt_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
@@ -491,7 +532,7 @@ esp_err_t load_i2c_config(void)
 {
     const char *TAG = "Config";
     char path[128] = "/data/json/i2c_config.json";
-    size_t bufferSize = XLARGE_CONFIG_ITEM;
+    size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
     ESP_LOGI(TAG, "Attempting to read i2c config: %s", path);
 
