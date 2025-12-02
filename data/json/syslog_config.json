@@ -1,0 +1,5 @@
+{
+    "enable_syslog": "Off",
+    "syslog_ip": "",
+    "syslog_port": ""
+}

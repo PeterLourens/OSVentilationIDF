@@ -145,6 +145,14 @@ void app_main(void)
         return;
     }
 
+    // Load syslog control configuration
+    err = load_syslog_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load syslog configuration");
+        return;
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();

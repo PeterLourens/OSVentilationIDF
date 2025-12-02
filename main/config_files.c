@@ -418,11 +418,22 @@ esp_err_t load_influxdb_config(void)
     cJSON *influxdb_bucket = cJSON_GetObjectItem(json, "influxdb_bucket");
     cJSON *influxdb_token = cJSON_GetObjectItem(json, "influxdb_token");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire mqtt config mutex before updating global settings
+    bool taken = false;
+    if (influxdb_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire InfluxDB config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "influxdb_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(influxdb_config.enable_influxdb, cJSON_IsString(enable_influxdb) ? enable_influxdb->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -440,7 +451,10 @@ esp_err_t load_influxdb_config(void)
     strncpy(influxdb_config.influxdb_token, cJSON_IsString(influxdb_token) ? influxdb_token->valuestring : "", XLARGE_CONFIG_ITEM - 1);
     influxdb_config.influxdb_token[XLARGE_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(influxdb_config_mutex);
+    if (taken)
+    {
+        xSemaphoreGive(influxdb_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
@@ -490,11 +504,22 @@ esp_err_t load_fan_config(void)
     cJSON *fan_control_url_ms = cJSON_GetObjectItem(json, "fan_control_url_ms");
     cJSON *fan_control_url_ls = cJSON_GetObjectItem(json, "fan_control_url_ls");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(fan_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire fan control config mutex before updating global settings
+    bool taken = false;
+    if (fan_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire fan config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(fan_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "fan_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(fan_config.fan_control_mode, cJSON_IsString(fan_control_mode) ? fan_control_mode->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -518,12 +543,15 @@ esp_err_t load_fan_config(void)
     strncpy(fan_config.fan_control_url_ls, cJSON_IsString(fan_control_url_ls) ? fan_control_url_ls->valuestring : "", XLARGE_CONFIG_ITEM - 1);
     fan_config.fan_control_url_ls[XLARGE_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(fan_config_mutex);
+    if (taken)
+    {
+        xSemaphoreGive(fan_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
+    ESP_LOGI(TAG, "Fan config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -565,11 +593,22 @@ esp_err_t load_i2c_config(void)
     cJSON *enable_lcd = cJSON_GetObjectItem(json, "enable_lcd");
     cJSON *lcd_i2c_address = cJSON_GetObjectItem(json, "lcd_i2c_address");
 
-    // Take mutex with timeout
-    if (xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    // Acquire mqtt config mutex before updating global settings
+    bool taken = false;
+    if (i2c_config_mutex)
     {
-        ESP_LOGE(TAG, "Failed to acquire fan config mutex");
-        return ESP_ERR_TIMEOUT;
+        if (xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire I2C config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "i2c_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(i2c_config.bus0_multiplexer_address, cJSON_IsString(bus0_multiplexer_address) ? bus0_multiplexer_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -584,12 +623,91 @@ esp_err_t load_i2c_config(void)
     strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
     i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
 
-    xSemaphoreGive(i2c_config_mutex);
+    if (taken)
+    {
+        xSemaphoreGive(i2c_config_mutex);
+    }
 
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
+    ESP_LOGI(TAG, "I2C config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+esp_err_t load_syslog_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/syslog_config.json";
+    size_t bufferSize = XLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read syslog config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read syslog config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *enable_syslog = cJSON_GetObjectItem(json, "enable_syslog");
+    cJSON *syslog_ip = cJSON_GetObjectItem(json, "syslog_ip");
+    cJSON *syslog_port = cJSON_GetObjectItem(json, "syslog_port");
+
+    // Acquire mqtt config mutex before updating global settings
+    bool taken = false;
+    if (syslog_config_mutex)
+    {
+        if (xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire syslog config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "syslog_config_mutex not initialized; proceeding without mutex (unsafe)");
+    }
+
+    strncpy(syslog_config.enable_syslog, cJSON_IsString(enable_syslog) ? enable_syslog->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    syslog_config.enable_syslog[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.syslog_ip, cJSON_IsString(syslog_ip) ? syslog_ip->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    syslog_config.syslog_ip[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.syslog_port, cJSON_IsString(syslog_port) ? syslog_port->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    syslog_config.syslog_port[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    if (taken)
+    {
+        xSemaphoreGive(syslog_config_mutex);
+    }
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "Syslog config loaded from %s", path);
 
     return ESP_OK;
 }

@@ -6,6 +6,7 @@
 #include "sys_stats.h"
 #include "websocket_func.h"
 #include "config_files.h"
+#include "http_send_ws_data.h"
 
 #define LOG_BUF_SIZE 256
 
@@ -30,6 +31,7 @@ int websocket_log_output(const char *, va_list);
 int uart_log_output(const char *, va_list);
 bool write_json_atomic_fs(const char *, cJSON *);
 cJSON *build_bus_config_from_body_urlencoded(const char *, size_t, const char *);
-void send_sensor_config_json_ws(void);
+
+// Functions to send JSON via WebSocket
 
 #endif

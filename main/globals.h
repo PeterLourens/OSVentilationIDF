@@ -125,6 +125,7 @@ extern SemaphoreHandle_t mqtt_config_mutex;
 extern SemaphoreHandle_t influxdb_config_mutex;
 extern SemaphoreHandle_t fan_config_mutex;
 extern SemaphoreHandle_t i2c_config_mutex;
+extern SemaphoreHandle_t syslog_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
@@ -213,6 +214,14 @@ typedef struct
     char lcd_i2c_address[SMALL_CONFIG_ITEM];
 } I2C_config;
 extern I2C_config i2c_config;
+
+typedef struct
+{
+    char enable_syslog[SMALL_CONFIG_ITEM];
+    char syslog_ip[MEDIUM_CONFIG_ITEM];
+    char syslog_port[SMALL_CONFIG_ITEM];
+} Syslog_config;
+extern Syslog_config syslog_config;
 
 typedef struct
 {

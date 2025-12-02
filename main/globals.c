@@ -28,6 +28,7 @@ SemaphoreHandle_t mqtt_config_mutex = NULL;
 SemaphoreHandle_t influxdb_config_mutex = NULL;
 SemaphoreHandle_t fan_config_mutex = NULL;
 SemaphoreHandle_t i2c_config_mutex = NULL;
+SemaphoreHandle_t syslog_config_mutex = NULL;
 SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
 SemaphoreHandle_t lock_valve_move_mutex = NULL;
@@ -59,6 +60,7 @@ MQTT_config mqtt_config = {0};
 Influxdb_config influxdb_config = {0};
 Fan_config fan_config = {0};
 I2C_config i2c_config = {0};
+Syslog_config syslog_config = {0};
 ping_summary_t g_ping_summary = {0};
 
 // Valvecontrol variables

@@ -12,5 +12,6 @@ esp_err_t load_mqtt_config(void);
 esp_err_t load_influxdb_config(void);
 esp_err_t load_fan_config(void);
 esp_err_t load_i2c_config(void);
+esp_err_t load_syslog_config(void);
 
 #endif

@@ -29,15 +29,6 @@ function onClose(event) {
     setTimeout(initWebSocket, 2000);
 }
 
-// Request to server for readings
-//function get_json() {
-//const page_name = window.location.pathname.split("/").pop() || "index";
-//const page_name = window.location.pathname;
-//const page = document.getElementById("page_name");
-//console.log(page.innerHTML);
-//websocket.send("get_sensor_config");
-//}
-
 // Function that receives the message from the ESP32 with the readings and matches ids of the json with ids in the html
 function onMessage(event) {
     console.log(event.data);
@@ -49,10 +40,6 @@ function onMessage(event) {
         const element = document.getElementById(key);
         //console.log(element);
         if (element) {
-
-            // Works for tables and text boxes
-            // element.textContent = myObj[key];
-            // element.value = myObj[key];
 
             // For text boxes
             if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA")) {

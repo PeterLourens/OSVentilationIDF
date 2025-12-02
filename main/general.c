@@ -190,6 +190,13 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
+    syslog_config_mutex = xSemaphoreCreateMutex();
+    if (syslog_config_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create syslog_config_mutex");
+        ok = false;
+    }
+
     if (!ok)
     {
         // cleanup any created semaphores to avoid leaks and to keep state consistent
@@ -232,6 +239,11 @@ esp_err_t create_mutexes(void)
         {
             vSemaphoreDelete(i2c_config_mutex);
             i2c_config_mutex = NULL;
+        }
+        if (syslog_config_mutex)
+        {
+            vSemaphoreDelete(syslog_config_mutex);
+            syslog_config_mutex = NULL;
         }
 
         ESP_LOGE(TAG, "One or more mutexes failed to create");
