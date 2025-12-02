@@ -311,14 +311,14 @@ esp_err_t load_mqtt_config(void)
     cJSON *mqtt_base_topic = cJSON_GetObjectItem(json, "mqtt_base_topic");
 
     // Take mutex with timeout
-    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire time config mutex");
         return ESP_ERR_TIMEOUT;
     }
 
-    strncpy(mqtt_config.enable_mqtt, cJSON_IsString(enable_mqtt) ? enable_mqtt->valuestring : "", LARGE_CONFIG_ITEM - 1);
-    mqtt_config.enable_mqtt[LARGE_CONFIG_ITEM - 1] = '\0';
+    strncpy(mqtt_config.enable_mqtt, cJSON_IsString(enable_mqtt) ? enable_mqtt->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    mqtt_config.enable_mqtt[SMALL_CONFIG_ITEM - 1] = '\0';
 
     strncpy(mqtt_config.mqtt_server, cJSON_IsString(mqtt_server) ? mqtt_server->valuestring : "", LARGE_CONFIG_ITEM - 1);
     mqtt_config.mqtt_server[LARGE_CONFIG_ITEM - 1] = '\0';
@@ -334,7 +334,221 @@ esp_err_t load_mqtt_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Network config loaded from %s", path);
+    ESP_LOGI(TAG, "MQTT config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+esp_err_t load_influxdb_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/influxdb_config.json";
+    size_t bufferSize = XXLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read InfluxDB config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read InfluxDB config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *enable_influxdb = cJSON_GetObjectItem(json, "enable_influxdb");
+    cJSON *influxdb_url = cJSON_GetObjectItem(json, "influxdb_url");
+    cJSON *influxdb_org = cJSON_GetObjectItem(json, "influxdb_org");
+    cJSON *influxdb_bucket = cJSON_GetObjectItem(json, "influxdb_bucket");
+    cJSON *influxdb_token = cJSON_GetObjectItem(json, "influxdb_token");
+
+    // Take mutex with timeout
+    if (xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire InfluxDB config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    strncpy(influxdb_config.enable_influxdb, cJSON_IsString(enable_influxdb) ? enable_influxdb->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    influxdb_config.enable_influxdb[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(influxdb_config.influxdb_url, cJSON_IsString(influxdb_url) ? influxdb_url->valuestring : "", XXLARGE_CONFIG_ITEM - 1);
+    influxdb_config.influxdb_url[XXLARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(influxdb_config.influxdb_org, cJSON_IsString(influxdb_org) ? influxdb_org->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    influxdb_config.influxdb_org[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(influxdb_config.influxdb_bucket, cJSON_IsString(influxdb_bucket) ? influxdb_bucket->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    influxdb_config.influxdb_bucket[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(influxdb_config.influxdb_token, cJSON_IsString(influxdb_token) ? influxdb_token->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    influxdb_config.influxdb_token[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(influxdb_config_mutex);
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+esp_err_t load_fan_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/fan_config.json";
+    size_t bufferSize = XXLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read fan config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read fan config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *fan_control_mode = cJSON_GetObjectItem(json, "fan_control_mode");
+    cJSON *fan_control_mqtt_server = cJSON_GetObjectItem(json, "fan_control_mqtt_server");
+    cJSON *fan_control_mqtt_port = cJSON_GetObjectItem(json, "fan_control_mqtt_port");
+    cJSON *fan_control_mqtt_topic = cJSON_GetObjectItem(json, "fan_control_mqtt_topic");
+    cJSON *fan_control_url_hs = cJSON_GetObjectItem(json, "fan_control_url_hs");
+    cJSON *fan_control_url_ms = cJSON_GetObjectItem(json, "fan_control_url_ms");
+    cJSON *fan_control_url_ls = cJSON_GetObjectItem(json, "fan_control_url_ls");
+
+    // Take mutex with timeout
+    if (xSemaphoreTake(fan_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire fan config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    strncpy(fan_config.fan_control_mode, cJSON_IsString(fan_control_mode) ? fan_control_mode->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    fan_config.fan_control_mode[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_mqtt_server, cJSON_IsString(fan_control_mqtt_server) ? fan_control_mqtt_server->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    fan_config.fan_control_mqtt_server[LARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_mqtt_port, cJSON_IsString(fan_control_mqtt_port) ? fan_control_mqtt_port->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    fan_config.fan_control_mqtt_port[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_mqtt_topic, cJSON_IsString(fan_control_mqtt_topic) ? fan_control_mqtt_topic->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    fan_config.fan_control_mqtt_topic[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_url_hs, cJSON_IsString(fan_control_url_hs) ? fan_control_url_hs->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    fan_config.fan_control_url_hs[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_url_ms, cJSON_IsString(fan_control_url_ms) ? fan_control_url_ms->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    fan_config.fan_control_url_ms[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(fan_config.fan_control_url_ls, cJSON_IsString(fan_control_url_ls) ? fan_control_url_ls->valuestring : "", XLARGE_CONFIG_ITEM - 1);
+    fan_config.fan_control_url_ls[XLARGE_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(fan_config_mutex);
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+esp_err_t load_i2c_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/i2c_config.json";
+    size_t bufferSize = XLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read i2c config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read i2c config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *bus0_multiplexer_address = cJSON_GetObjectItem(json, "bus0_multiplexer_address");
+    cJSON *bus1_multiplexer_address = cJSON_GetObjectItem(json, "bus1_multiplexer_address");
+    cJSON *enable_lcd = cJSON_GetObjectItem(json, "enable_lcd");
+    cJSON *lcd_i2c_address = cJSON_GetObjectItem(json, "lcd_i2c_address");
+
+    // Take mutex with timeout
+    if (xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire fan config mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    strncpy(i2c_config.bus0_multiplexer_address, cJSON_IsString(bus0_multiplexer_address) ? bus0_multiplexer_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    i2c_config.bus0_multiplexer_address[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(i2c_config.bus1_multiplexer_address, cJSON_IsString(bus1_multiplexer_address) ? bus1_multiplexer_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    i2c_config.bus1_multiplexer_address[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(i2c_config.enable_lcd, cJSON_IsString(enable_lcd) ? enable_lcd->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    i2c_config.enable_lcd[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    xSemaphoreGive(i2c_config_mutex);
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
 
     return ESP_OK;
 }

@@ -1,0 +1,9 @@
+{
+    "fan_control_mode": "MQTT subscribe",
+    "fan_control_mqtt_server": "",
+    "fan_control_mqtt_port": "",
+    "fan_control_mqtt_topic": "",
+    "fan_control_url_hs": "",
+    "fan_control_url_ms": "",
+    "fan_control_url_ls": ""
+}

@@ -101,7 +101,7 @@ void app_main(void)
     err = load_network_config();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to load network settings");
+        ESP_LOGE(TAG, "Failed to load network configuration");
         return;
     }
 
@@ -109,15 +109,39 @@ void app_main(void)
     err = load_time_config();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to load time settings");
+        ESP_LOGE(TAG, "Failed to load time configuration");
         return;
     }
 
-    // Load time configuration
+    // Load MQTT configuration
     err = load_mqtt_config();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to load MQTT settings");
+        ESP_LOGE(TAG, "Failed to load MQTT configuration");
+        return;
+    }
+
+    // Load InfluxDB configuration
+    err = load_influxdb_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load InfluxDB configuration");
+        return;
+    }
+
+    // Load fan control configuration
+    err = load_fan_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load fan control configuration");
+        return;
+    }
+
+    // Load I2C control configuration
+    err = load_i2c_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load I2C configuration");
         return;
     }
 
@@ -130,7 +154,7 @@ void app_main(void)
     start_task_rgb_leds();
 
     // Print network settings
-    ESP_LOGI(TAG, "\nNetwork Settings:\n"
+    /*ESP_LOGI(TAG, "\nNetwork Settings:\n"
                   "┌──────────────┬────────────────────────────────┐\n"
                   "│ Setting      │ Value                          │\n"
                   "├──────────────┼────────────────────────────────┤\n"
@@ -147,9 +171,9 @@ void app_main(void)
                   "└──────────────┴────────────────────────────────┘",
              network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
              network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
-             time_config.ntp_server, time_config.timezone);
+             time_config.ntp_server, time_config.timezone);*/
 
-    /* Bring up Wi‑Fi and wait for IP before sending any stored crash record */
+    /* Bring up Wi‑Fi and wait for IP */
     if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
     {
         ESP_LOGE(TAG, "Network not available after retries");
@@ -157,8 +181,8 @@ void app_main(void)
     else
     {
         ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
-        syslog_send_line("Boot complete, system running");
         start_webserver();
+        syslog_send_line("Boot complete, system running");
     }
 
     esp_log_set_vprintf(uart_log_output);

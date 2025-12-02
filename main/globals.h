@@ -122,6 +122,9 @@ extern QueueHandle_t sensor_queue;
 extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
 extern SemaphoreHandle_t mqtt_config_mutex;
+extern SemaphoreHandle_t influxdb_config_mutex;
+extern SemaphoreHandle_t fan_config_mutex;
+extern SemaphoreHandle_t i2c_config_mutex;
 extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
@@ -168,17 +171,48 @@ typedef struct
 {
     char ntp_server[LARGE_CONFIG_ITEM];
     char timezone[LARGE_CONFIG_ITEM];
-} Time_settings;
-extern Time_settings time_config;
+} Time_config;
+extern Time_config time_config;
 
 typedef struct
 {
-    char enable_mqtt[LARGE_CONFIG_ITEM];
+    char enable_mqtt[SMALL_CONFIG_ITEM];
     char mqtt_server[LARGE_CONFIG_ITEM];
     char mqtt_port[SMALL_CONFIG_ITEM];
     char mqtt_base_topic[XLARGE_CONFIG_ITEM];
-} MQTT_settings;
-extern MQTT_settings mqtt_config;
+} MQTT_config;
+extern MQTT_config mqtt_config;
+
+typedef struct
+{
+    char enable_influxdb[SMALL_CONFIG_ITEM];
+    char influxdb_url[XXLARGE_CONFIG_ITEM];
+    char influxdb_org[LARGE_CONFIG_ITEM];
+    char influxdb_bucket[LARGE_CONFIG_ITEM];
+    char influxdb_token[XLARGE_CONFIG_ITEM];
+} Influxdb_config;
+extern Influxdb_config influxdb_config;
+
+typedef struct
+{
+    char fan_control_mode[SMALL_CONFIG_ITEM];
+    char fan_control_mqtt_server[LARGE_CONFIG_ITEM];
+    char fan_control_mqtt_port[SMALL_CONFIG_ITEM];
+    char fan_control_mqtt_topic[XLARGE_CONFIG_ITEM];
+    char fan_control_url_hs[XLARGE_CONFIG_ITEM];
+    char fan_control_url_ms[XLARGE_CONFIG_ITEM];
+    char fan_control_url_ls[XLARGE_CONFIG_ITEM];
+} Fan_config;
+extern Fan_config fan_config;
+
+typedef struct
+{
+    char bus0_multiplexer_address[SMALL_CONFIG_ITEM];
+    char bus1_multiplexer_address[SMALL_CONFIG_ITEM];
+    char enable_lcd[SMALL_CONFIG_ITEM];
+    char lcd_i2c_address[SMALL_CONFIG_ITEM];
+} I2C_config;
+extern I2C_config i2c_config;
 
 typedef struct
 {

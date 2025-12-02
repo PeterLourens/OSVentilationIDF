@@ -25,6 +25,9 @@ TaskHandle_t task_rgb_leds = NULL;
 SemaphoreHandle_t network_config_mutex = NULL;
 SemaphoreHandle_t time_config_mutex = NULL;
 SemaphoreHandle_t mqtt_config_mutex = NULL;
+SemaphoreHandle_t influxdb_config_mutex = NULL;
+SemaphoreHandle_t fan_config_mutex = NULL;
+SemaphoreHandle_t i2c_config_mutex = NULL;
 SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
 SemaphoreHandle_t lock_valve_move_mutex = NULL;
@@ -51,8 +54,11 @@ struct tm timeinfo = {0};
 
 // Structs for settings
 Network_config network_config = {0};
-Time_settings time_config = {0};
-MQTT_settings mqtt_config = {0};
+Time_config time_config = {0};
+MQTT_config mqtt_config = {0};
+Influxdb_config influxdb_config = {0};
+Fan_config fan_config = {0};
+I2C_config i2c_config = {0};
 ping_summary_t g_ping_summary = {0};
 
 // Valvecontrol variables
