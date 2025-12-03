@@ -36,8 +36,8 @@ extern const char sensor_config_html_end[] asm("_binary_sensor_config_html_end")
 extern const char sensor_config_ws_js_start[] asm("_binary_sensor_config_ws_js_start");
 extern const char sensor_config_ws_js_end[] asm("_binary_sensor_config_ws_js_end");
 
-extern const char config_ws_js_start[] asm("_binary_sensor_config_ws_js_start");
-extern const char config_ws_js_end[] asm("_binary_sensor_config_ws_js_end");
+extern const char config_ws_js_start[] asm("_binary_config_ws_js_start");
+extern const char config_ws_js_end[] asm("_binary_config_ws_js_end");
 
 extern const char config_html_start[] asm("_binary_config_html_start");
 extern const char config_html_end[] asm("_binary_config_html_end");

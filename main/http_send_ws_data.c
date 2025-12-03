@@ -156,3 +156,43 @@ void send_config_json_ws(void)
         free(out);
     }
 }
+
+/*void send_index_html_ws(void)
+{
+    // Sensor data array to contain data from queue
+    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+    char key[64];
+
+    cJSON *root = cJSON_CreateObject();
+    if (!root)
+        return;
+
+    // --- Bus0 sensors ---
+    if (sensor_queue != NULL)
+    {
+        if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
+        {
+            cJSON *sensors = cJSON_CreateObject();
+            for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+            {
+                for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+                {
+                    if (snapshot[bus][ch][IDX_VALID])
+                    {
+                        key = snprintf(key, sizeof(key), "b%d_s%d_type", bus, ch);
+                        cJSON_AddStringToObject(sensors, "enable_dhcp", network_config.enable_dhcp);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Sensor queue is NULL");
+    }
+    
+
+        -
+
+        cJSON *net = cJSON_CreateObject();
+}*/
