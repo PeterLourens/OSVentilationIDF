@@ -4,7 +4,6 @@
 #include "globals.h"
 #include "general.h"
 #include "sys_stats.h"
-#include "websocket_func.h"
 #include "config_files.h"
 #include "http_send_ws_data.h"
 
