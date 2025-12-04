@@ -1,91 +1,73 @@
-var gateway = 'ws://' + window.location.hostname + '/ws';
+var gateway = 'ws://' + window.location.hostname + ':/ws';
 var websocket;
+var page;
+
+// Init web socket when the page loads
+window.addEventListener('load', onload);
+
+function onload(event) {
+    initWebSocket();
+}
 
 function initWebSocket() {
-    console.log("Connecting to " + gateway);
+    console.log('Trying to open a WebSocket connection…');
     websocket = new WebSocket(gateway);
-
-    websocket.onopen = function () {
-        console.log("WebSocket connected");
-        request_index_data(); // request immediately
-        setInterval(request_index_data, 30000); // refresh every 30s
-    };
-
-    websocket.onclose = function () {
-        console.log("WebSocket closed, retrying...");
-        setTimeout(initWebSocket, 2000);
-    };
-
-    websocket.onmessage = function (event) {
-        let data;
-        try {
-            data = JSON.parse(event.data);
-        } catch (e) {
-            console.warn("ws: invalid json", e);
-            return;
-        }
-
-        // Legacy: full payload { valves, bus0, bus1 }
-        if (data && data.valves && (data.bus0 || data.bus1)) {
-            data.valves.forEach((pos, idx) => {
-                let cell = document.getElementById("valve" + idx);
-                if (cell) cell.textContent = pos;
-            });
-            if (data.bus0) {
-                data.bus0.forEach((s, idx) => {
-                    const prefix = "bus0_sensor" + idx + "_";
-                    updateSensorDOM(prefix, s);
-                });
-            }
-            if (data.bus1) {
-                data.bus1.forEach((s, idx) => {
-                    const prefix = "bus1_sensor" + idx + "_";
-                    updateSensorDOM(prefix, s);
-                });
-            }
-            return;
-        }
-
-        // New: per-sensor object { bus, ch, ... }
-        if (typeof data.bus === 'number' && typeof data.ch === 'number') {
-            const prefix = "bus" + data.bus + "_sensor" + data.ch + "_";
-            updateSensorDOM(prefix, data);
-            return;
-        }
-
-        // New: valves-only message { valves: [...] }
-        if (data && data.valves) {
-            data.valves.forEach((pos, idx) => {
-                let cell = document.getElementById("valve" + idx);
-                if (cell) cell.textContent = pos;
-            });
-            return;
-        }
-
-        // Unknown message shape; ignore
-    };
-
-    // Helper to update DOM fields for a single sensor (keeps code DRY)
-    function updateSensorDOM(prefix, s) {
-        const setText = (idSuffix, val) => {
-            const el = document.getElementById(prefix + idSuffix);
-            if (el) el.textContent = (val !== undefined && val !== null) ? val : '';
-        };
-        setText("type", s.type);
-        setText("temp", s.temp);
-        setText("hum", s.rh);
-        setText("co2", s.co2);
-        setText("valve", s.valve);
-        setText("location", s.location);
-        setText("rhs", s.rhs);
-        setText("co2s", s.co2s);
-    }
+    websocket.onopen = onOpen;
+    websocket.onclose = onClose;
+    websocket.onmessage = onMessage;
 }
 
-function request_index_data() {
-    if (websocket && websocket.readyState === WebSocket.OPEN) {
-        websocket.send("get_index_data");
-    }
+// When websocket is established, call the get_json() function
+function onOpen(event) {
+    console.log('Connection opened');
+    websocket.send("get_index");
 }
 
-window.addEventListener('load', initWebSocket);
+function onClose(event) {
+    console.log('Connection closed');
+    setTimeout(initWebSocket, 2000);
+}
+
+// Function that receives the message from the ESP32 with the readings and matches ids of the json with ids in the html
+function onMessage(event) {
+    console.log(event.data);
+    var myObj = JSON.stringify(event.data);
+    var myObj = JSON.parse(event.data);
+    var keys = Object.keys(myObj);
+
+    for (const key in myObj) {
+        const element = document.getElementById(key);
+        //console.log(element);
+        if (element) {
+
+            // For text boxes
+            if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA")) {
+                element.value = myObj[key];
+            }
+
+            // For span element
+            if (element && element.tagName === "SPAN") {
+                element.textContent = myObj[key];
+            }
+
+            //For tables where each cell has unique id
+            if (element && (element.tagName === "TD" || element.tagName === "TH")) {
+                element.textContent = myObj[key];
+            }
+
+            //For dropdown menus
+            if (element && element.tagName === "SELECT") {
+                const targetValue = myObj[key];
+                for (let option of element.options) {
+                    option.selected = option.value === targetValue;
+                }
+            }
+
+            // For checkboxes
+            if (element && element.type === "checkbox") {
+                element.checked = Boolean(myObj[key]); // Sets checkbox to checked
+            }
+        }
+    }
+};
+

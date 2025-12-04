@@ -248,7 +248,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
             show_system_and_task_stats();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_index_data", 14) == 0)
+        if (strncmp((char *)ws_pkt.payload, "get_index", 9) == 0)
         {
             ESP_LOGI(TAG, "Index data requested via WebSocket");
             send_index_html_ws();

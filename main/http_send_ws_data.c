@@ -9,6 +9,7 @@ void send_index_html_ws(void)
     // Sensor data array to contain data from queue
     double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
     char key[64];
+    char buf[16];
 
     cJSON *root = cJSON_CreateObject();
 
@@ -24,14 +25,15 @@ void send_index_html_ws(void)
             {
                 for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
                 {
-                    snprintf(key, sizeof(key), "b%d_s%d_temp", bus, ch);
-                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][0]);
-                    snprintf(key, sizeof(key), "b%d_s%d_hum", bus, ch);
-                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][1]);
-                    snprintf(key, sizeof(key), "b%d_s%d_co2", bus, ch);
-                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][2]);
-                    snprintf(key, sizeof(key), "b%d_s%d_time", bus, ch);
-                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][3]);
+                    snprintf(key, sizeof(key), "b%ds%d_temp", bus, ch);
+                    snprintf(buf, sizeof(buf), "%.2f", snapshot[bus][ch][0]);
+                    cJSON_AddStringToObject(root, key, buf);
+                    snprintf(key, sizeof(key), "b%ds%d_hum", bus, ch);
+                    snprintf(buf, sizeof(buf), "%.2f", snapshot[bus][ch][1]);
+                    cJSON_AddStringToObject(root, key, buf);
+                    snprintf(key, sizeof(key), "b%ds%d_co2", bus, ch);
+                    snprintf(buf, sizeof(buf), "%.2f", snapshot[bus][ch][2]);
+                    cJSON_AddStringToObject(root, key, buf);
                 }
             }
         }
@@ -43,17 +45,38 @@ void send_index_html_ws(void)
 
     if (sensor_cfg_mutex)
     {
-        if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
             // code to read sensor config from struct into json
-            int bus = 0;
             for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
             {
-                snprintf(key, sizeof(key), "b%d_s%d_type", bus, ch);
+                snprintf(key, sizeof(key), "b0s%d_type", ch);
                 cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].type);
+                snprintf(key, sizeof(key), "b0s%d_valve", ch);
+                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].valve);
+                snprintf(key, sizeof(key), "b0s%d_location", ch);
+                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].location);
+                snprintf(key, sizeof(key), "b0s%d_rhs", ch);
+                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].rh_enabled);
+                snprintf(key, sizeof(key), "b0s%d_co2s", ch);
+                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].co2_enabled);
 
+                snprintf(key, sizeof(key), "b1s%d_type", ch);
+                cJSON_AddStringToObject(root, key, bus1_sensor_settings[ch].type);
+                snprintf(key, sizeof(key), "b1s%d_valve", ch);
+                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].valve);
+                snprintf(key, sizeof(key), "b1s%d_location", ch);
+                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].location);
+                snprintf(key, sizeof(key), "b1s%d_rhs", ch);
+                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].rh_enabled);
+                snprintf(key, sizeof(key), "b1s%d_co2s", ch);
+                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].co2_enabled);
             }
             xSemaphoreGive(sensor_cfg_mutex);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
         }
 
         char *out = cJSON_PrintUnformatted(root);
