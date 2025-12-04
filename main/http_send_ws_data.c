@@ -16,6 +16,37 @@ void send_index_html_ws(void)
     if (!root)
         return;
 
+    // --- Valves ---
+    nvs_handle_t nvs;
+    int32_t valve_pos = 0;
+
+    esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+
+    if (err == ESP_OK)
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            char key[16];
+            snprintf(key, sizeof(key), "valve%d", i);
+
+            err = nvs_get_i32(nvs, key, &valve_pos);
+            if (err == ESP_OK)
+            {
+                snprintf(buf, sizeof(buf), "%li", valve_pos);
+                cJSON_AddStringToObject(root, key, buf);
+            }
+            else
+            {
+                cJSON_AddStringToObject(root, key, "N/A");
+            }
+        }
+        nvs_close(nvs);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "NVS open failed for send_index_html_ws: %d", err);
+    }
+
     // --- Sensors ---
     if (sensor_queue != NULL)
     {
