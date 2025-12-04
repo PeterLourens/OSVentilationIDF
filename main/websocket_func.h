@@ -5,6 +5,6 @@
 #include "general.h"
 
 // Function definitions
-void send_index_html_ws(void);
+//void send_index_html_ws(void);
 
 #endif

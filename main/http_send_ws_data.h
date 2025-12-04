@@ -8,5 +8,6 @@
 // Function definitions
 void send_sensor_config_json_ws(void);
 void send_config_json_ws(void);
+void send_index_html_ws(void);
 
 #endif

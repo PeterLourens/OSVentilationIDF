@@ -4,6 +4,69 @@
 
 static const char *TAG = "http json ws";
 
+void send_index_html_ws(void)
+{
+    // Sensor data array to contain data from queue
+    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+    char key[64];
+
+    cJSON *root = cJSON_CreateObject();
+
+    if (!root)
+        return;
+
+    // --- Sensors ---
+    if (sensor_queue != NULL)
+    {
+        if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
+        {
+            for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+            {
+                for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+                {
+                    snprintf(key, sizeof(key), "b%d_s%d_temp", bus, ch);
+                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][0]);
+                    snprintf(key, sizeof(key), "b%d_s%d_hum", bus, ch);
+                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][1]);
+                    snprintf(key, sizeof(key), "b%d_s%d_co2", bus, ch);
+                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][2]);
+                    snprintf(key, sizeof(key), "b%d_s%d_time", bus, ch);
+                    cJSON_AddNumberToObject(root, key, snapshot[bus][ch][3]);
+                }
+            }
+        }
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Sensor queue is NULL");
+    }
+
+    if (sensor_cfg_mutex)
+    {
+        if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            // code to read sensor config from struct into json
+            int bus = 0;
+            for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+            {
+                snprintf(key, sizeof(key), "b%d_s%d_type", bus, ch);
+                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].type);
+
+            }
+            xSemaphoreGive(sensor_cfg_mutex);
+        }
+
+        char *out = cJSON_PrintUnformatted(root);
+        cJSON_Delete(root);
+
+        if (out)
+        {
+            ws_async_send(out, strlen(out));
+            free(out);
+        }
+    }
+}
+
 void send_sensor_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
@@ -59,89 +122,75 @@ void send_config_json_ws(void)
     // --- Network ---
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *net = cJSON_CreateObject();
-        cJSON_AddStringToObject(net, "enable_dhcp", network_config.enable_dhcp);
-        cJSON_AddStringToObject(net, "ssid", network_config.ssid);
-        cJSON_AddStringToObject(net, "wifi_password", network_config.wifi_password);
-        cJSON_AddStringToObject(net, "ip_address", network_config.ip_address);
-        cJSON_AddStringToObject(net, "subnet_mask", network_config.subnet_mask);
-        cJSON_AddStringToObject(net, "gateway", network_config.gateway);
-        cJSON_AddStringToObject(net, "primary_dns", network_config.primary_dns);
-        cJSON_AddStringToObject(net, "secondary_dns", network_config.secondary_dns);
-        cJSON_AddItemToObject(root, "network", net);
+        cJSON_AddStringToObject(root, "enable_dhcp", network_config.enable_dhcp);
+        cJSON_AddStringToObject(root, "ssid", network_config.ssid);
+        cJSON_AddStringToObject(root, "wifi_password", network_config.wifi_password);
+        cJSON_AddStringToObject(root, "ip_address", network_config.ip_address);
+        cJSON_AddStringToObject(root, "subnet_mask", network_config.subnet_mask);
+        cJSON_AddStringToObject(root, "gateway", network_config.gateway);
+        cJSON_AddStringToObject(root, "primary_dns", network_config.primary_dns);
+        cJSON_AddStringToObject(root, "secondary_dns", network_config.secondary_dns);
         xSemaphoreGive(network_config_mutex);
     }
 
     // --- Time ---
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *time = cJSON_CreateObject();
-        cJSON_AddStringToObject(time, "ntp_server", time_config.ntp_server);
-        cJSON_AddStringToObject(time, "timezone", time_config.timezone);
-        cJSON_AddItemToObject(root, "time", time);
+        cJSON_AddStringToObject(root, "ntp_server", time_config.ntp_server);
+        cJSON_AddStringToObject(root, "timezone", time_config.timezone);
         xSemaphoreGive(time_config_mutex);
     }
 
     // --- MQTT ---
     if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *mqtt = cJSON_CreateObject();
-        cJSON_AddStringToObject(mqtt, "enable_mqtt", mqtt_config.enable_mqtt);
-        cJSON_AddStringToObject(mqtt, "mqtt_server", mqtt_config.mqtt_server);
-        cJSON_AddStringToObject(mqtt, "mqtt_port", mqtt_config.mqtt_port);
-        cJSON_AddStringToObject(mqtt, "mqtt_base_topic", mqtt_config.mqtt_base_topic);
-        cJSON_AddItemToObject(root, "mqtt", mqtt);
+        cJSON_AddStringToObject(root, "enable_mqtt", mqtt_config.enable_mqtt);
+        cJSON_AddStringToObject(root, "mqtt_server", mqtt_config.mqtt_server);
+        cJSON_AddStringToObject(root, "mqtt_port", mqtt_config.mqtt_port);
+        cJSON_AddStringToObject(root, "mqtt_base_topic", mqtt_config.mqtt_base_topic);
         xSemaphoreGive(mqtt_config_mutex);
     }
 
     // --- InfluxDB ---
     if (xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *influx = cJSON_CreateObject();
-        cJSON_AddStringToObject(influx, "enable_influxdb", influxdb_config.enable_influxdb);
-        cJSON_AddStringToObject(influx, "influxdb_url", influxdb_config.influxdb_url);
-        cJSON_AddStringToObject(influx, "influxdb_org", influxdb_config.influxdb_org);
-        cJSON_AddStringToObject(influx, "influxdb_bucket", influxdb_config.influxdb_bucket);
-        cJSON_AddStringToObject(influx, "influxdb_token", influxdb_config.influxdb_token);
-        cJSON_AddItemToObject(root, "influxdb", influx);
+        cJSON_AddStringToObject(root, "enable_influxdb", influxdb_config.enable_influxdb);
+        cJSON_AddStringToObject(root, "influxdb_url", influxdb_config.influxdb_url);
+        cJSON_AddStringToObject(root, "influxdb_org", influxdb_config.influxdb_org);
+        cJSON_AddStringToObject(root, "influxdb_bucket", influxdb_config.influxdb_bucket);
+        cJSON_AddStringToObject(root, "influxdb_token", influxdb_config.influxdb_token);
         xSemaphoreGive(influxdb_config_mutex);
     }
 
     // --- Fan ---
     if (xSemaphoreTake(fan_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *fan = cJSON_CreateObject();
-        cJSON_AddStringToObject(fan, "fan_control_mode", fan_config.fan_control_mode);
-        cJSON_AddStringToObject(fan, "fan_control_mqtt_server", fan_config.fan_control_mqtt_server);
-        cJSON_AddStringToObject(fan, "fan_control_mqtt_port", fan_config.fan_control_mqtt_port);
-        cJSON_AddStringToObject(fan, "fan_control_mqtt_topic", fan_config.fan_control_mqtt_topic);
-        cJSON_AddStringToObject(fan, "fan_control_url_hs", fan_config.fan_control_url_hs);
-        cJSON_AddStringToObject(fan, "fan_control_url_ms", fan_config.fan_control_url_ms);
-        cJSON_AddStringToObject(fan, "fan_control_url_ls", fan_config.fan_control_url_ls);
-        cJSON_AddItemToObject(root, "fan", fan);
+        cJSON_AddStringToObject(root, "fan_control_mode", fan_config.fan_control_mode);
+        cJSON_AddStringToObject(root, "fan_control_mqtt_server", fan_config.fan_control_mqtt_server);
+        cJSON_AddStringToObject(root, "fan_control_mqtt_port", fan_config.fan_control_mqtt_port);
+        cJSON_AddStringToObject(root, "fan_control_mqtt_topic", fan_config.fan_control_mqtt_topic);
+        cJSON_AddStringToObject(root, "fan_control_url_hs", fan_config.fan_control_url_hs);
+        cJSON_AddStringToObject(root, "fan_control_url_ms", fan_config.fan_control_url_ms);
+        cJSON_AddStringToObject(root, "fan_control_url_ls", fan_config.fan_control_url_ls);
         xSemaphoreGive(fan_config_mutex);
     }
 
     // --- I2C ---
     if (xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *i2c = cJSON_CreateObject();
-        cJSON_AddStringToObject(i2c, "bus0_multiplexer_address", i2c_config.bus0_multiplexer_address);
-        cJSON_AddStringToObject(i2c, "bus1_multiplexer_address", i2c_config.bus1_multiplexer_address);
-        cJSON_AddStringToObject(i2c, "enable_lcd", i2c_config.enable_lcd);
-        cJSON_AddStringToObject(i2c, "lcd_i2c_address", i2c_config.lcd_i2c_address);
-        cJSON_AddItemToObject(root, "i2c", i2c);
+        cJSON_AddStringToObject(root, "bus0_multiplexer_address", i2c_config.bus0_multiplexer_address);
+        cJSON_AddStringToObject(root, "bus1_multiplexer_address", i2c_config.bus1_multiplexer_address);
+        cJSON_AddStringToObject(root, "enable_lcd", i2c_config.enable_lcd);
+        cJSON_AddStringToObject(root, "lcd_i2c_address", i2c_config.lcd_i2c_address);
         xSemaphoreGive(i2c_config_mutex);
     }
 
     // --- Syslog ---
     if (xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON *syslog = cJSON_CreateObject();
-        cJSON_AddStringToObject(syslog, "enable_syslog", syslog_config.enable_syslog);
-        cJSON_AddStringToObject(syslog, "syslog_ip", syslog_config.syslog_ip);
-        cJSON_AddStringToObject(syslog, "syslog_port", syslog_config.syslog_port);
-        cJSON_AddItemToObject(root, "syslog", syslog);
+        cJSON_AddStringToObject(root, "enable_syslog", syslog_config.enable_syslog);
+        cJSON_AddStringToObject(root, "syslog_ip", syslog_config.syslog_ip);
+        cJSON_AddStringToObject(root, "syslog_port", syslog_config.syslog_port);
         xSemaphoreGive(syslog_config_mutex);
     }
 
@@ -156,43 +205,3 @@ void send_config_json_ws(void)
         free(out);
     }
 }
-
-/*void send_index_html_ws(void)
-{
-    // Sensor data array to contain data from queue
-    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
-    char key[64];
-
-    cJSON *root = cJSON_CreateObject();
-    if (!root)
-        return;
-
-    // --- Bus0 sensors ---
-    if (sensor_queue != NULL)
-    {
-        if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
-        {
-            cJSON *sensors = cJSON_CreateObject();
-            for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-            {
-                for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-                {
-                    if (snapshot[bus][ch][IDX_VALID])
-                    {
-                        key = snprintf(key, sizeof(key), "b%d_s%d_type", bus, ch);
-                        cJSON_AddStringToObject(sensors, "enable_dhcp", network_config.enable_dhcp);
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        ESP_LOGE(TAG, "Sensor queue is NULL");
-    }
-    
-
-        -
-
-        cJSON *net = cJSON_CreateObject();
-}*/

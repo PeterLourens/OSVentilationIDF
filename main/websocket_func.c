@@ -5,21 +5,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char *TAG = "ws func";
+//static const char *TAG = "ws func";
 
 /* valve positions storage (file-scope) */
-static int valve_positions_static[MAX_VALVE_COUNT] = {0};
+//static int valve_positions_static[MAX_VALVE_COUNT] = {0};
 
-typedef struct
+/*typedef struct
 {
-    /* pointer to a contiguous 3D array: [MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] */
+    // pointer to a contiguous 3D array: [MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] 
     double (*snapshot)[CHANNELS_PER_BUS][DATA_FIELDS];
-    bus_sensor_t *bus0; /* array CHANNELS_PER_BUS */
-    bus_sensor_t *bus1; /* array CHANNELS_PER_BUS */
-    void *data_block;   /* base pointer for single contiguous allocation */
-} ws_send_work_t;
+    bus_sensor_t *bus0; // array CHANNELS_PER_BUS 
+    bus_sensor_t *bus1; // array CHANNELS_PER_BUS
+    void *data_block;   // base pointer for single contiguous allocation
+} ws_send_work_t;*/
 
-static void ws_send_worker(void *arg)
+/*static void ws_send_worker(void *arg)
 {
     ws_send_work_t *w = (ws_send_work_t *)arg;
     if (!w)
@@ -65,10 +65,10 @@ static void ws_send_worker(void *arg)
     {
         for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
         {
-            /* snapshot[bus][ch][0] = temp
-               snapshot[bus][ch][1] = rh
-               snapshot[bus][ch][2] = co2
-               snapshot[bus][ch][3] = timestamp (ms) */
+            // snapshot[bus][ch][0] = temp
+            //   snapshot[bus][ch][1] = rh
+            //   snapshot[bus][ch][2] = co2
+            //   snapshot[bus][ch][3] = timestamp (ms)
             double *vals = w->snapshot[bus][ch];
             bus_sensor_t *cfg = (bus == 0) ? &w->bus0[ch] : &w->bus1[ch];
 
@@ -101,9 +101,9 @@ cleanup_and_exit:
         free(w->data_block);
     free(w);
     vTaskDelete(NULL);
-}
+}*/
 
-void send_index_html_ws(void)
+/*void send_index_html_ws(void)
 {
     // allocate work container
     ws_send_work_t *work = calloc(1, sizeof(ws_send_work_t));
@@ -176,4 +176,4 @@ void send_index_html_ws(void)
 
     // return immediately so httpd thread isn't blocked
     return;
-}
+}*/
