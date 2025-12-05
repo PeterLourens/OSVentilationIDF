@@ -10,7 +10,8 @@ function onload(event) {
 }
 
 function initWebSocket() {
-    console.log('Trying to open a WebSocket connection…');
+
+    //console.log('Trying to open a WebSocket connection…');
     websocket = new WebSocket(gateway);
     websocket.onopen = onOpen;
     websocket.onclose = onClose;
@@ -19,33 +20,37 @@ function initWebSocket() {
 
 // When websocket is established, call the get_json() function
 function onOpen(event) {
-    console.log('Connection opened');
+
+    //console.log('Connection opened');
     get_json();
     const page = document.getElementById("page_name");
+
     if (page && page.innerHTML === "index") {
-        //setInterval(websocket.send("index"), 30000); // refresh every 30s, should not be used for setting pages, only for stats and index page
-        console.log('Page is index so refresh every 30sec')
+        //console.log('Page is index so refresh every 30sec')
         setInterval(get_json, 30000);
     }
     if (page && page.innerHTML === "stats") {
-        //setInterval(websocket.send("stats"), 30000); // refresh every 30s, should not be used for setting pages, only for stats and index page
-        console.log('Page is stats so refresh every 30sec');
+        //console.log('Page is stats so refresh every 30sec');
         setInterval(get_json, 30000);
     }
 }
 
 // Request to server for readings
 function get_json() {
+
     const page = document.getElementById("page_name");
+
     if (page && page.innerHTML !== "webserial") {
-        console.log('Page name is not webserial so send stop first');
+        //console.log('Page name is not webserial so send stop first');
         websocket.send("Stop"); // If webserial is sending data, stop it first
     }
+
     websocket.send(page.innerHTML);
 }
 
 function onClose(event) {
-    console.log('Connection closed');
+
+    //console.log('Connection closed');
     setTimeout(initWebSocket, 2000);
 }
 
@@ -55,12 +60,14 @@ function onMessage(event) {
     const page = document.getElementById("page_name");
 
     if (page && page.innerHTML === "stats") {
+
+        //console.log(event.data);
         let msg = event.data;
-        console.log(event.data);
         document.getElementById("stats").textContent = msg;
     }
 
     else if (page && page.innerHTML === "webserial") {
+
         //console.log(event.data);
         var data = event.data.split("<").join("&lt;").split(">").join("&gt;").split("\"").join("&quot;");
         document.getElementById('log').innerHTML += '<div><pre>' + data + '</pre></div>';
@@ -69,15 +76,14 @@ function onMessage(event) {
     }
 
     else {
-        console.log(event.data);
 
+        //console.log(event.data);
         var myObj = JSON.stringify(event.data);
         var myObj = JSON.parse(event.data);
         var keys = Object.keys(myObj);
 
         for (const key in myObj) {
             const element = document.getElementById(key);
-            //console.log(element);
             if (element) {
 
                 // For text boxes
@@ -125,16 +131,20 @@ function Clear() {
 }
 
 function SaveToFile() {
+
     var log_contents = "";
     var lines = document.getElementsByTagName('pre');
+
     for (var i = 0; i < lines.length; i++) {
         var processed = lines[i].innerHTML.split("&lt;").join("<").split("&gt;").join(">").split("&quot;").join("\"");
         log_contents += processed + "\n";
     }
+
     SaveFile(log_contents);
 }
 
 function SaveFile(log_contents) {
+
     var a = document.createElement("a");
     file = new Blob([log_contents], { type: "text/plain" });
     a.href = URL.createObjectURL(file);
