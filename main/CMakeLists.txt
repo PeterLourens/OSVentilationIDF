@@ -4,7 +4,7 @@ idf_component_register(SRCS "http_functions.c" "rgb_leds.c" "task_rgb_leds.c" "c
                     INCLUDE_DIRS "."
                     EMBED_TXTFILES "../web/index.html" "../web/webserial.html" "../web/pure_min.css" "../web/styles.css" "../web/styles.css" "../web/ui.js" "../web/webserial.js" 
                                     "../web/stats.html" "../web/stats.js" "../web/sensor_config.html" "../web/config.html" "../web/statemachine.html" "../web/valvecontrol.html"
-                                    "../web/index_ws.js" "../web/sensor_config_ws.js" "../web/config_ws.js"
+                                    "../web/index_ws.js" "../web/sensor_config_ws.js" "../web/config_ws.js" "../web/send_json_ws.js"
                     EMBED_FILES "../web/favicon.ico"
 )
 littlefs_create_partition_image(storage ../data FLASH_IN_PROJECT)

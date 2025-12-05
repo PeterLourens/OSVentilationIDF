@@ -24,6 +24,9 @@ extern const char stats_js_end[] asm("_binary_stats_js_end");
 extern const char index_ws_js_start[] asm("_binary_index_ws_js_start");
 extern const char index_ws_js_end[] asm("_binary_index_ws_js_end");
 
+extern const char send_json_ws_js_start[] asm("_binary_send_json_ws_js_start");
+extern const char send_json_ws_js_end[] asm("_binary_send_json_ws_js_end");
+
 extern const uint8_t favicon_ico_start[] asm("_binary_favicon_ico_start");
 extern const uint8_t favicon_ico_end[] asm("_binary_favicon_ico_end");
 
@@ -100,6 +103,14 @@ esp_err_t index_ws_js_get_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "application/javascript");
     size_t len = index_ws_js_end - index_ws_js_start - 1;
     return httpd_resp_send(req, index_ws_js_start, len);
+}
+
+// Serve send_json_ws.js
+esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "application/javascript");
+    size_t len = send_json_ws_js_end - send_json_ws_js_start - 1;
+    return httpd_resp_send(req, send_json_ws_js_start, len);
 }
 
 // Serve sensor_config_ws.js
@@ -242,28 +253,33 @@ esp_err_t websocket_handler(httpd_req_t *req)
             esp_log_set_vprintf(uart_log_output);
         }
 
-        if (strncmp((char *)ws_pkt.payload, "GetStats", 8) == 0)
+        if (strncmp((char *)ws_pkt.payload, "stats", 8) == 0)
         {
-            ESP_LOGI(TAG, "GetStats requested via WebSocket");
+            ESP_LOGI(TAG, "Stats requested via WebSocket");
             show_system_and_task_stats();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_index", 9) == 0)
+        if (strncmp((char *)ws_pkt.payload, "index", 9) == 0)
         {
             ESP_LOGI(TAG, "Index data requested via WebSocket");
             send_index_html_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_sensor_config", 17) == 0)
+        if (strncmp((char *)ws_pkt.payload, "sensor_config", 17) == 0)
         {
             ESP_LOGI(TAG, "Sensor config requested via WebSocket");
             send_sensor_config_json_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "get_config", 10) == 0)
+        if (strncmp((char *)ws_pkt.payload, "config", 10) == 0)
         {
             ESP_LOGI(TAG, "Config requested via WebSocket");
             send_config_json_ws();
+        }
+        if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
+        {
+            ESP_LOGI(TAG, "Statemachine config requested via WebSocket");
+            //send_config_json_ws();
         }
 
         free(buf);
@@ -553,6 +569,13 @@ httpd_handle_t start_webserver(void)
         .handler = config_ws_js_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &config_ws_uri);
+
+    httpd_uri_t send_json_ws_uri = {
+        .uri = "/send_json_ws.js",
+        .method = HTTP_GET,
+        .handler = send_json_ws_js_get_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &send_json_ws_uri);
 
     httpd_uri_t config_uri = {
         .uri = "/configuration",
