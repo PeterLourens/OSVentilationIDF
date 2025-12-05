@@ -38,8 +38,8 @@ SemaphoreHandle_t sensor_cfg_mutex = NULL;
 EventGroupHandle_t s_wifi_event_group = NULL;
 
 // Sensor configuration structure
-bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
-bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
+bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS] = {0};
+bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS] = {0};
 
 // Queue handles
 QueueHandle_t sensor_queue;
@@ -62,6 +62,10 @@ Fan_config fan_config = {0};
 I2C_config i2c_config = {0};
 Syslog_config syslog_config = {0};
 ping_summary_t g_ping_summary = {0};
+
+// Statemachine struct
+statemachine_config_gen_t statemachine_config_gen = {0};
+statemachine_config_t statemachine_config[MAX_NR_STATES] = {0};
 
 // Valvecontrol variables
 int lock_valve_move = 0;

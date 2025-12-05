@@ -94,6 +94,9 @@
 #define WIFI_FAIL_BIT BIT1
 #define AP_STARTED_BIT BIT2
 
+// statemachine settings
+#define MAX_NR_STATES 12
+
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
@@ -233,6 +236,36 @@ typedef struct
     bool success;
 } ping_summary_t;
 extern ping_summary_t g_ping_summary;
+
+typedef struct
+{
+    int weekday_day_hour_start;         // Bitmask for weekday/day/hour start
+    int weekday_day_minute_start;       // Bitmask for weekday/day/hour end
+    int weekday_night_hour_start;       // Bitmask for weekday/day/hour start
+    int weekday_night_minute_start;     // Bitmask for weekday/day/hour end
+    int weekend_day_hour_start;         // Bitmask for weekday/day/hour start
+    int weekdend_day_minute_start;      // Bitmask for weekday/day/hour end
+    int weekdend_night_hour_start;      // Bitmask for weekday/day/hour start
+    int weekend_night_minute_start;     // Bitmask for weekday/day/hour end
+    int weekend_day1;                   // Weekend day 1 (0=Sunday, 6=Saturday)
+    int weekend_day2;                   // Weekend day 2 (0=Sunday, 6=Saturday)
+
+} statemachine_config_gen_t;
+extern statemachine_config_gen_t statemachine_config_gen;
+
+typedef struct
+{
+    bool enable_state;
+    int fanspeed;                           // 0 is low, 1 is medium, 2 is high
+    char state_name[MEDIUM_CONFIG_ITEM];    // Max 32 characters
+    int rh_low_level;                       // Lower RH threshold for this state
+    int rh_high_level;                      // Upper RH threshold for this state
+    int co2_low_level;                      // Lower CO2 threshold for this state
+    int co2_high_level;                     // Upper CO2 threshold for this state
+    int duration_minutes;                   // Minimum duration to stay in this state
+    int valve_position[MAX_VALVE_COUNT];    // Valve position array for this state
+} statemachine_config_t;
+extern statemachine_config_t statemachine_config[];
 
 // Valvecontrol variables
 extern int lock_valve_move;
