@@ -22,17 +22,25 @@ function onOpen(event) {
     console.log('Connection opened');
     get_json();
     const page = document.getElementById("page_name");
-    if (page && page.innerHTML === "index" || page.innerHTML === "stats") {
-        setInterval(requestStats, 30000); // refresh every 30s, should not be used for setting pages, only for stats and index page
-        //websocket.send("get_config");
+    if (page && page.innerHTML === "index") {
+        //setInterval(websocket.send("index"), 30000); // refresh every 30s, should not be used for setting pages, only for stats and index page
+        console.log('Page is index so refresh every 30sec')
+        setInterval(get_json, 30000);
     }
-    
+    if (page && page.innerHTML === "stats") {
+        //setInterval(websocket.send("stats"), 30000); // refresh every 30s, should not be used for setting pages, only for stats and index page
+        console.log('Page is stats so refresh every 30sec');
+        setInterval(get_json, 30000);
+    }
 }
 
 // Request to server for readings
 function get_json() {
     const page = document.getElementById("page_name");
-    websocket.send("Stop"); // If webserial is sending data, stop it first
+    if (page && page.innerHTML !== "webserial") {
+        console.log('Page name is not webserial so send stop first');
+        websocket.send("Stop"); // If webserial is sending data, stop it first
+    }
     websocket.send(page.innerHTML);
 }
 
@@ -43,42 +51,62 @@ function onClose(event) {
 
 // Function that receives the message from the ESP32 with the readings and matches ids of the json with ids in the html
 function onMessage(event) {
-    console.log(event.data);
-    var myObj = JSON.stringify(event.data);
-    var myObj = JSON.parse(event.data);
-    var keys = Object.keys(myObj);
 
-    for (const key in myObj) {
-        const element = document.getElementById(key);
-        //console.log(element);
-        if (element) {
+    const page = document.getElementById("page_name");
 
-            // For text boxes
-            if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA")) {
-                element.value = myObj[key];
-            }
+    if (page && page.innerHTML === "stats") {
+        let msg = event.data;
+        console.log(event.data);
+        document.getElementById("stats").textContent = msg;
+    }
 
-            // For span element
-            if (element && element.tagName === "SPAN") {
-                element.textContent = myObj[key];
-            }
+    else if (page && page.innerHTML === "webserial") {
+        //console.log(event.data);
+        var data = event.data.split("<").join("&lt;").split(">").join("&gt;").split("\"").join("&quot;");
+        document.getElementById('log').innerHTML += '<div><pre>' + data + '</pre></div>';
+        var objDiv = document.getElementById("log");
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
 
-            //For tables where each cell has unique id
-            if (element && (element.tagName === "TD" || element.tagName === "TH")) {
-                element.textContent = myObj[key];
-            }
+    else {
+        console.log(event.data);
 
-            //For dropdown menus
-            if (element && element.tagName === "SELECT") {
-                const targetValue = myObj[key];
-                for (let option of element.options) {
-                    option.selected = option.value === targetValue;
+        var myObj = JSON.stringify(event.data);
+        var myObj = JSON.parse(event.data);
+        var keys = Object.keys(myObj);
+
+        for (const key in myObj) {
+            const element = document.getElementById(key);
+            //console.log(element);
+            if (element) {
+
+                // For text boxes
+                if (element && (element.tagName === "INPUT" || element.tagName === "TEXTAREA")) {
+                    element.value = myObj[key];
                 }
-            }
 
-            // For checkboxes
-            if (element && element.type === "checkbox") {
-                element.checked = Boolean(myObj[key]); // Sets checkbox to checked
+                // For span element
+                if (element && element.tagName === "SPAN") {
+                    element.textContent = myObj[key];
+                }
+
+                //For tables where each cell has unique id
+                if (element && (element.tagName === "TD" || element.tagName === "TH")) {
+                    element.textContent = myObj[key];
+                }
+
+                //For dropdown menus
+                if (element && element.tagName === "SELECT") {
+                    const targetValue = myObj[key];
+                    for (let option of element.options) {
+                        option.selected = option.value === targetValue;
+                    }
+                }
+
+                // For checkboxes
+                if (element && element.type === "checkbox") {
+                    element.checked = Boolean(myObj[key]); // Sets checkbox to checked
+                }
             }
         }
     }
