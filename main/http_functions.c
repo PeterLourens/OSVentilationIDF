@@ -15,15 +15,6 @@ extern const char styles_css_end[] asm("_binary_styles_css_end");
 extern const char ui_js_start[] asm("_binary_ui_js_start");
 extern const char ui_js_end[] asm("_binary_ui_js_end");
 
-extern const char webserial_js_start[] asm("_binary_webserial_js_start");
-extern const char webserial_js_end[] asm("_binary_webserial_js_end");
-
-extern const char stats_js_start[] asm("_binary_stats_js_start");
-extern const char stats_js_end[] asm("_binary_stats_js_end");
-
-extern const char index_ws_js_start[] asm("_binary_index_ws_js_start");
-extern const char index_ws_js_end[] asm("_binary_index_ws_js_end");
-
 extern const char send_json_ws_js_start[] asm("_binary_send_json_ws_js_start");
 extern const char send_json_ws_js_end[] asm("_binary_send_json_ws_js_end");
 
@@ -35,12 +26,6 @@ extern const char index_html_end[] asm("_binary_index_html_end");
 
 extern const char sensor_config_html_start[] asm("_binary_sensor_config_html_start");
 extern const char sensor_config_html_end[] asm("_binary_sensor_config_html_end");
-
-extern const char sensor_config_ws_js_start[] asm("_binary_sensor_config_ws_js_start");
-extern const char sensor_config_ws_js_end[] asm("_binary_sensor_config_ws_js_end");
-
-extern const char config_ws_js_start[] asm("_binary_config_ws_js_start");
-extern const char config_ws_js_end[] asm("_binary_config_ws_js_end");
 
 extern const char config_html_start[] asm("_binary_config_html_start");
 extern const char config_html_end[] asm("_binary_config_html_end");
@@ -81,52 +66,12 @@ esp_err_t ui_js_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, ui_js_start, len);
 }
 
-// Serve webserial.js
-esp_err_t webserial_js_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "application/javascript");
-    size_t len = webserial_js_end - webserial_js_start - 1;
-    return httpd_resp_send(req, webserial_js_start, len);
-}
-
-// Serve stats.js
-esp_err_t stats_js_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "application/javascript");
-    size_t len = stats_js_end - stats_js_start - 1;
-    return httpd_resp_send(req, stats_js_start, len);
-}
-
-// Serve index_ws.js
-esp_err_t index_ws_js_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "application/javascript");
-    size_t len = index_ws_js_end - index_ws_js_start - 1;
-    return httpd_resp_send(req, index_ws_js_start, len);
-}
-
 // Serve send_json_ws.js
 esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
     size_t len = send_json_ws_js_end - send_json_ws_js_start - 1;
     return httpd_resp_send(req, send_json_ws_js_start, len);
-}
-
-// Serve sensor_config_ws.js
-esp_err_t sensor_config_ws_js_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "application/javascript");
-    size_t len = sensor_config_ws_js_end - sensor_config_ws_js_start - 1;
-    return httpd_resp_send(req, sensor_config_ws_js_start, len);
-}
-
-// Serve config_ws.js
-esp_err_t config_ws_js_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_type(req, "application/javascript");
-    size_t len = config_ws_js_end - config_ws_js_start - 1;
-    return httpd_resp_send(req, config_ws_js_start, len);
 }
 
 // Serve favicon.ico
@@ -279,7 +224,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
         if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
         {
             ESP_LOGI(TAG, "Statemachine config requested via WebSocket");
-            //send_config_json_ws();
+            // send_config_json_ws();
         }
 
         free(buf);
@@ -514,27 +459,6 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &ui_js_uri);
 
-    httpd_uri_t webserial_js_uri = {
-        .uri = "/webserial.js",
-        .method = HTTP_GET,
-        .handler = webserial_js_get_handler,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(http_server, &webserial_js_uri);
-
-    httpd_uri_t stats_js_uri = {
-        .uri = "/stats.js",
-        .method = HTTP_GET,
-        .handler = stats_js_get_handler,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(http_server, &stats_js_uri);
-
-    httpd_uri_t index_ws_js_uri = {
-        .uri = "/index_ws.js",
-        .method = HTTP_GET,
-        .handler = index_ws_js_get_handler,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(http_server, &index_ws_js_uri);
-
     httpd_uri_t favicon_ico_uri = {
         .uri = "/favicon.ico",
         .method = HTTP_GET,
@@ -555,20 +479,6 @@ httpd_handle_t start_webserver(void)
         .handler = sensor_config_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &sensor_config_uri);
-
-    httpd_uri_t sensor_config_ws_uri = {
-        .uri = "/sensor_config_ws.js",
-        .method = HTTP_GET,
-        .handler = sensor_config_ws_js_get_handler,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(http_server, &sensor_config_ws_uri);
-
-    httpd_uri_t config_ws_uri = {
-        .uri = "/config_ws.js",
-        .method = HTTP_GET,
-        .handler = config_ws_js_get_handler,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(http_server, &config_ws_uri);
 
     httpd_uri_t send_json_ws_uri = {
         .uri = "/send_json_ws.js",
