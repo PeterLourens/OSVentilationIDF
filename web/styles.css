@@ -88,6 +88,12 @@ The content `<div>` is where all your content goes.
     font-size: 11px;
 }
 
+/* CSS to hide page_name at the bottom of the page used to identify which data to send over the websocket */
+.page_name {
+    color: white;
+    font-size: 8px;
+}
+
 
 /*
 The `#menu` `<div>` is the parent `<div>` that contains the `.pure-menu` that
