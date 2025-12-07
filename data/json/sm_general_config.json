@@ -1,0 +1,12 @@
+{
+    "wday_d_h_start": "8",
+    "wday_d_m_start": "0",
+    "wday_n_h_start": "21",
+    "wday_n_m_start": "0",
+    "wkend_d_h_start": "9",
+    "wkend_d_m_start": "0",
+    "wkend_n_h_start": "21",
+    "wkend_n_m_start": "30",
+    "wkend_d1": "Saturday",
+    "wkend_d2": "Sunday"
+}

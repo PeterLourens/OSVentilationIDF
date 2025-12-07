@@ -259,3 +259,24 @@ void send_config_json_ws(void)
         free(out);
     }
 }
+
+/*void send_statemachine_general_config_json_ws(void)
+{
+    cJSON *root = cJSON_CreateObject();
+    if (!root)
+        return;
+
+    // --- General settings ---
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        cJSON_AddStringToObject(root, "enable_dhcp", network_config.enable_dhcp);
+        cJSON_AddStringToObject(root, "ssid", network_config.ssid);
+        cJSON_AddStringToObject(root, "wifi_password", network_config.wifi_password);
+        cJSON_AddStringToObject(root, "ip_address", network_config.ip_address);
+        cJSON_AddStringToObject(root, "subnet_mask", network_config.subnet_mask);
+        cJSON_AddStringToObject(root, "gateway", network_config.gateway);
+        cJSON_AddStringToObject(root, "primary_dns", network_config.primary_dns);
+        cJSON_AddStringToObject(root, "secondary_dns", network_config.secondary_dns);
+        xSemaphoreGive(network_config_mutex);
+    }
+}*/

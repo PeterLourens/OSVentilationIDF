@@ -2,10 +2,6 @@
 
 static const char *TAG = "http server";
 
-// Used to concact two log lines of the log output
-static char ws_prefix_buf[256]; // holds prefix until message arrives
-static bool ws_prefix_pending = false;
-
 extern const char pure_min_css_start[] asm("_binary_pure_min_css_start");
 extern const char pure_min_css_end[] asm("_binary_pure_min_css_end");
 
@@ -364,6 +360,349 @@ esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
+// POST handler: save network configuration to flash
+esp_err_t network_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_network_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/network_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("network_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload network config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save I2C configuration to flash
+esp_err_t i2c_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_i2c_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/i2c_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("i2c_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload i2c config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save fan configuration to flash
+esp_err_t fan_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_fan_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/fan_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("fan_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload fan config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save influxdb configuration to flash
+esp_err_t influxdb_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_influxdb_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/influxdb_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("influxdb_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload influxdb config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save MQTT configuration to flash
+esp_err_t mqtt_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_mqtt_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/mqtt_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("mqtt_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload MQTT config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save syslog configuration to flash
+esp_err_t syslog_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_syslog_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/syslog_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("syslog_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload syslog config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save time configuration to flash
+esp_err_t time_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_time_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/time_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_sensor_config("time_config") != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload time config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
 // Set valve positions in NVS to 0
 esp_err_t reset_valves_handler(httpd_req_t *req)
 {
@@ -569,6 +908,62 @@ httpd_handle_t start_webserver(void)
     };
     httpd_register_uri_handler(http_server, &sensorconfig2_delete_post_uri);
 
+    httpd_uri_t network_config_post_uri = {
+        .uri = "/network_config",
+        .method = HTTP_POST,
+        .handler = network_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &network_config_post_uri);
+
+    httpd_uri_t i2c_config_post_uri = {
+        .uri = "/i2c_config",
+        .method = HTTP_POST,
+        .handler = i2c_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &i2c_config_post_uri);
+
+    httpd_uri_t fan_config_post_uri = {
+        .uri = "/fan_config",
+        .method = HTTP_POST,
+        .handler = fan_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &fan_config_post_uri);
+
+    httpd_uri_t influxdb_config_post_uri = {
+        .uri = "/influxdb_config",
+        .method = HTTP_POST,
+        .handler = influxdb_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &influxdb_config_post_uri);
+
+    httpd_uri_t mqtt_config_post_uri = {
+        .uri = "/mqtt_config",
+        .method = HTTP_POST,
+        .handler = mqtt_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &mqtt_config_post_uri);
+
+    httpd_uri_t syslog_config_post_uri = {
+        .uri = "/syslog_config",
+        .method = HTTP_POST,
+        .handler = syslog_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &syslog_config_post_uri);
+
+    httpd_uri_t time_config_post_uri = {
+        .uri = "/time_config",
+        .method = HTTP_POST,
+        .handler = time_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &time_config_post_uri);
+
     return http_server;
 }
 
@@ -587,122 +982,4 @@ esp_err_t http_server_stop(void)
         ret = ESP_ERR_INVALID_ARG;
     }
     return ret;
-}
-
-size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
-{
-    const char *ptr_in = input;
-    char *ptr_out = output;
-
-    while (ptr_in < input + len)
-    {
-        if (*ptr_in == '\033')
-        {
-            // Skip until 'm' or end
-            const char *esc_end = strchr(ptr_in, 'm');
-            if (esc_end)
-            {
-                ptr_in = esc_end + 1;
-            }
-            else
-            {
-                break; // malformed escape, stop
-            }
-        }
-        else
-        {
-            *ptr_out++ = *ptr_in++;
-        }
-    }
-
-    *ptr_out = '\0';           // null terminate
-    return (ptr_out - output); // number of chars written
-}
-
-int websocket_log_output(const char *fmt, va_list args)
-{
-    static char log_print_buffer[512];
-    int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), fmt, args);
-
-    if (ret > 0)
-    {
-        // Always print to UART as-is
-        fwrite(log_print_buffer, 1, ret, stdout);
-
-        // Strip ANSI codes for WebSocket
-        static char clean_buf[512];
-        // size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
-        remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
-
-        // Detect prefix vs message
-        if (!ws_prefix_pending && strstr(clean_buf, ":"))
-        {
-            // Likely the prefix line (ends with ":")
-            strncpy(ws_prefix_buf, clean_buf, sizeof(ws_prefix_buf));
-            ws_prefix_pending = true;
-        }
-        else if (ws_prefix_pending)
-        {
-            // Concatenate prefix + message
-            char final_buf[768];
-            int final_len = snprintf(final_buf, sizeof(final_buf), "%s %s", ws_prefix_buf, clean_buf);
-
-            ws_async_send(final_buf, final_len);
-            ws_prefix_pending = false; // reset
-        }
-    }
-    return ret;
-}
-
-int uart_log_output(const char *szFormat, va_list args)
-{
-    static char log_print_buffer[512];
-    int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), szFormat, args);
-    if (ret >= 0)
-    {
-        // Also copy console to UART
-        printf("%.*s", ret, log_print_buffer);
-    }
-    return (0);
-}
-
-/* atomic write helper — writes tmp -> rename */
-bool write_json_atomic_fs(const char *path, cJSON *root)
-{
-    if (!path || !root)
-        return false;
-
-    char tmp_path[128];
-    snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", path);
-
-    if (sensor_cfg_mutex)
-        xSemaphoreTake(sensor_cfg_mutex, portMAX_DELAY);
-
-    FILE *f = fopen(tmp_path, "w");
-    if (!f)
-    {
-        if (sensor_cfg_mutex)
-            xSemaphoreGive(sensor_cfg_mutex);
-        return false;
-    }
-
-    char *out = cJSON_PrintUnformatted(root);
-    if (!out)
-    {
-        fclose(f);
-        if (sensor_cfg_mutex)
-            xSemaphoreGive(sensor_cfg_mutex);
-        return false;
-    }
-
-    fwrite(out, 1, strlen(out), f);
-    fclose(f);
-    free(out);
-
-    int r = rename(tmp_path, path);
-
-    if (sensor_cfg_mutex)
-        xSemaphoreGive(sensor_cfg_mutex);
-
-    return (r == 0);
 }

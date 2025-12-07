@@ -115,3 +115,237 @@ cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
 
     return obj;
 }
+
+cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "bus0_multiplpexer_address");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "bus1_multiplpexer_address");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "enable_lcd");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "lcd_i2c_address");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_mqtt_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "enable_mqtt");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "mqtt_server");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "mqtt_port");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "mqtt_base_topic");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_influxdb_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "enable_influxdb");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "influxdb_url");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "influxdb_org");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "influxdb_bucket");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "influxdb_token");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_fan_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "fan_control_mode");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_mqtt_server");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_mqtt_port");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_mqtt_topic");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_url_hs");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_url_ms");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "fan_control_url_ls");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "enable_syslog");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "syslog_ip");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "syslog_port");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "ntp_server");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "timezone");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
