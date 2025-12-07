@@ -398,7 +398,7 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("network_config") != ESP_OK)
+    if (load_network_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload network config after write");
     }
@@ -446,8 +446,8 @@ esp_err_t i2c_config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(arr);
 
-    // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("i2c_config") != ESP_OK)
+    // reload into runtime globals (uses mutex inside load_i2c_config)
+    if (load_i2c_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload i2c config after write");
     }
@@ -496,7 +496,7 @@ esp_err_t fan_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("fan_config") != ESP_OK)
+    if (load_fan_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload fan config after write");
     }
@@ -545,7 +545,7 @@ esp_err_t influxdb_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("influxdb_config") != ESP_OK)
+    if (load_influxdb_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload influxdb config after write");
     }
@@ -594,7 +594,7 @@ esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("mqtt_config") != ESP_OK)
+    if (load_mqtt_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload MQTT config after write");
     }
@@ -643,7 +643,7 @@ esp_err_t syslog_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("syslog_config") != ESP_OK)
+    if (load_syslog_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload syslog config after write");
     }
@@ -692,7 +692,7 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     cJSON_Delete(arr);
 
     // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_sensor_config("time_config") != ESP_OK)
+    if (load_time_config() != ESP_OK)
     {
         ESP_LOGW(TAG, "Failed to reload time config after write");
     }
