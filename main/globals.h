@@ -239,16 +239,16 @@ extern ping_summary_t g_ping_summary;
 
 typedef struct
 {
-    int weekday_day_hour_start;         // Bitmask for weekday/day/hour start
-    int weekday_day_minute_start;       // Bitmask for weekday/day/hour end
-    int weekday_night_hour_start;       // Bitmask for weekday/day/hour start
-    int weekday_night_minute_start;     // Bitmask for weekday/day/hour end
-    int weekend_day_hour_start;         // Bitmask for weekday/day/hour start
-    int weekdend_day_minute_start;      // Bitmask for weekday/day/hour end
-    int weekdend_night_hour_start;      // Bitmask for weekday/day/hour start
-    int weekend_night_minute_start;     // Bitmask for weekday/day/hour end
-    int weekend_day1;                   // Weekend day 1 (0=Sunday, 6=Saturday)
-    int weekend_day2;                   // Weekend day 2 (0=Sunday, 6=Saturday)
+    int weekday_day_hour_start;     // Bitmask for weekday/day/hour start
+    int weekday_day_minute_start;   // Bitmask for weekday/day/hour end
+    int weekday_night_hour_start;   // Bitmask for weekday/day/hour start
+    int weekday_night_minute_start; // Bitmask for weekday/day/hour end
+    int weekend_day_hour_start;     // Bitmask for weekday/day/hour start
+    int weekdend_day_minute_start;  // Bitmask for weekday/day/hour end
+    int weekdend_night_hour_start;  // Bitmask for weekday/day/hour start
+    int weekend_night_minute_start; // Bitmask for weekday/day/hour end
+    int weekend_day1;               // Weekend day 1 (0=Sunday, 6=Saturday)
+    int weekend_day2;               // Weekend day 2 (0=Sunday, 6=Saturday)
 
 } statemachine_config_gen_t;
 extern statemachine_config_gen_t statemachine_config_gen;
@@ -256,14 +256,18 @@ extern statemachine_config_gen_t statemachine_config_gen;
 typedef struct
 {
     bool enable_state;
-    int fanspeed;                           // 0 is low, 1 is medium, 2 is high
-    char state_name[MEDIUM_CONFIG_ITEM];    // Max 32 characters
-    int rh_low_level;                       // Lower RH threshold for this state
-    int rh_high_level;                      // Upper RH threshold for this state
-    int co2_low_level;                      // Lower CO2 threshold for this state
-    int co2_high_level;                     // Upper CO2 threshold for this state
-    int duration_minutes;                   // Minimum duration to stay in this state
-    int valve_position[MAX_VALVE_COUNT];    // Valve position array for this state
+    int fanspeed;                        // 0 is low, 1 is medium, 2 is high
+    char state_name[MEDIUM_CONFIG_ITEM]; // Max 32 characters
+    int rh_low_level;                    // Lower RH threshold for this state
+    int rh_high_level;                   // Upper RH threshold for this state
+    int co2_low_level;                   // Lower CO2 threshold for this state
+    int co2_high_level;                  // Upper CO2 threshold for this state
+    int state_start_hour;                // Hour to start this state
+    int state_start_minute;              // Minute to start this state
+    int state_end_hour;                  // Hour to end this state
+    int state_end_minute;                // Minute to end this state
+    int duration_minutes;                // Minimum duration to stay in this state
+    int valve_position[MAX_VALVE_COUNT]; // Valve position array for this state
 } statemachine_config_t;
 extern statemachine_config_t statemachine_config[];
 
