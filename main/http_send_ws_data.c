@@ -235,7 +235,7 @@ void send_config_json_ws(void)
         cJSON_AddStringToObject(root, "bus0_multiplexer_address", i2c_config.bus0_multiplexer_address);
         cJSON_AddStringToObject(root, "bus1_multiplexer_address", i2c_config.bus1_multiplexer_address);
         cJSON_AddStringToObject(root, "enable_lcd", i2c_config.enable_lcd);
-        cJSON_AddStringToObject(root, "lcd_i2c_address", i2c_config.lcd_i2c_address);
+        // cJSON_AddStringToObject(root, "lcd_i2c_address", i2c_config.lcd_i2c_address);
         xSemaphoreGive(i2c_config_mutex);
     }
 

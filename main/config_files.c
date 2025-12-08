@@ -591,7 +591,7 @@ esp_err_t load_i2c_config(void)
     cJSON *bus0_multiplexer_address = cJSON_GetObjectItem(json, "bus0_multiplexer_address");
     cJSON *bus1_multiplexer_address = cJSON_GetObjectItem(json, "bus1_multiplexer_address");
     cJSON *enable_lcd = cJSON_GetObjectItem(json, "enable_lcd");
-    cJSON *lcd_i2c_address = cJSON_GetObjectItem(json, "lcd_i2c_address");
+    // cJSON *lcd_i2c_address = cJSON_GetObjectItem(json, "lcd_i2c_address");
 
     // Acquire mqtt config mutex before updating global settings
     bool taken = false;
@@ -620,8 +620,8 @@ esp_err_t load_i2c_config(void)
     strncpy(i2c_config.enable_lcd, cJSON_IsString(enable_lcd) ? enable_lcd->valuestring : "", SMALL_CONFIG_ITEM - 1);
     i2c_config.enable_lcd[SMALL_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
-    i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
+    //strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    //i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
 
     if (taken)
     {

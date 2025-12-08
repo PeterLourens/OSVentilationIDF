@@ -145,11 +145,11 @@ cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
     else
         cJSON_AddStringToObject(obj, key, "");
 
-    snprintf(key, sizeof(key), "lcd_i2c_address");
+    /*snprintf(key, sizeof(key), "lcd_i2c_address");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, key, "");*/
 
     return obj;
 }
