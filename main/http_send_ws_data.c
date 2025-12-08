@@ -95,13 +95,13 @@ void send_index_html_ws(void)
                 snprintf(key, sizeof(key), "b1s%d_type", ch);
                 cJSON_AddStringToObject(root, key, bus1_sensor_settings[ch].type);
                 snprintf(key, sizeof(key), "b1s%d_valve", ch);
-                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].valve);
+                cJSON_AddStringToObject(root, key, bus1_sensor_settings[ch].valve);
                 snprintf(key, sizeof(key), "b1s%d_location", ch);
-                cJSON_AddStringToObject(root, key, bus0_sensor_settings[ch].location);
+                cJSON_AddStringToObject(root, key, bus1_sensor_settings[ch].location);
                 snprintf(key, sizeof(key), "b1s%d_rhs", ch);
-                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].rh_enabled);
+                cJSON_AddBoolToObject(root, key, bus1_sensor_settings[ch].rh_enabled);
                 snprintf(key, sizeof(key), "b1s%d_co2s", ch);
-                cJSON_AddBoolToObject(root, key, bus0_sensor_settings[ch].co2_enabled);
+                cJSON_AddBoolToObject(root, key, bus1_sensor_settings[ch].co2_enabled);
             }
             xSemaphoreGive(sensor_cfg_mutex);
         }
@@ -250,7 +250,7 @@ void send_config_json_ws(void)
 
     // Serialize to string
     char *out = cJSON_PrintUnformatted(root);
-    ESP_LOGI(TAG, "Config JSON: %s", out ? out : "null");
+    // ESP_LOGI(TAG, "Config JSON: %s", out ? out : "null");
     cJSON_Delete(root);
 
     if (out)
@@ -260,7 +260,7 @@ void send_config_json_ws(void)
     }
 }
 
-/*void send_statemachine_general_config_json_ws(void)
+void send_statemachine_general_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
     if (!root)
@@ -279,4 +279,14 @@ void send_config_json_ws(void)
         cJSON_AddStringToObject(root, "secondary_dns", network_config.secondary_dns);
         xSemaphoreGive(network_config_mutex);
     }
-}*/
+
+    // Serialize to string
+    char *out = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+
+    if (out)
+    {
+        ws_async_send(out, strlen(out));
+        free(out);
+    }
+}
