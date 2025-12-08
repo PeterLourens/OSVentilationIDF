@@ -153,6 +153,14 @@ void app_main(void)
         return;
     }
 
+    // Load statemachine general configuration
+    err = load_statemachine_general_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load statemachine general configuration");
+        return;
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();

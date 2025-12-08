@@ -9,5 +9,6 @@
 void send_sensor_config_json_ws(void);
 void send_config_json_ws(void);
 void send_index_html_ws(void);
+void send_statemachine_config_json_ws(void);
 
 #endif

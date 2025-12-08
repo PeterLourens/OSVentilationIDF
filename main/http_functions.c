@@ -220,7 +220,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
         if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
         {
             ESP_LOGI(TAG, "Statemachine config requested via WebSocket");
-            // send_config_json_ws();
+            send_statemachine_config_json_ws();
         }
 
         free(buf);

@@ -33,6 +33,7 @@ SemaphoreHandle_t g_ping_done_sem = NULL;
 SemaphoreHandle_t time_mutex = NULL;
 SemaphoreHandle_t lock_valve_move_mutex = NULL;
 SemaphoreHandle_t sensor_cfg_mutex = NULL;
+SemaphoreHandle_t statemachine_config_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;
@@ -64,7 +65,7 @@ Syslog_config syslog_config = {0};
 ping_summary_t g_ping_summary = {0};
 
 // Statemachine struct
-statemachine_config_gen_t statemachine_config_gen = {0};
+statemachine_gen_config_t statemachine_gen_config = {0};
 statemachine_config_t statemachine_config[MAX_NR_STATES] = {0};
 
 // Valvecontrol variables

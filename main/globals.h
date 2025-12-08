@@ -72,7 +72,7 @@
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
 #define LARGE_CONFIG_ITEM 64
-#define XLARGE_CONFIG_ITEM 128
+#define XLARGE_CONFIG_ITEM 512
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
 
@@ -133,6 +133,7 @@ extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
 extern SemaphoreHandle_t sensor_cfg_mutex;
+extern SemaphoreHandle_t statemachine_config_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -239,19 +240,19 @@ extern ping_summary_t g_ping_summary;
 
 typedef struct
 {
-    int weekday_day_hour_start;     // Bitmask for weekday/day/hour start
-    int weekday_day_minute_start;   // Bitmask for weekday/day/hour end
-    int weekday_night_hour_start;   // Bitmask for weekday/day/hour start
-    int weekday_night_minute_start; // Bitmask for weekday/day/hour end
-    int weekend_day_hour_start;     // Bitmask for weekday/day/hour start
-    int weekdend_day_minute_start;  // Bitmask for weekday/day/hour end
-    int weekdend_night_hour_start;  // Bitmask for weekday/day/hour start
-    int weekend_night_minute_start; // Bitmask for weekday/day/hour end
-    int weekend_day1;               // Weekend day 1 (0=Sunday, 6=Saturday)
-    int weekend_day2;               // Weekend day 2 (0=Sunday, 6=Saturday)
+    int wday_d_h_start;               // Bitmask for weekday/day/hour start
+    int wday_d_m_start;               // Bitmask for weekday/day/hour end
+    int wday_n_h_start;               // Bitmask for weekday/day/hour start
+    int wday_n_m_start;               // Bitmask for weekday/day/hour end
+    int wkend_d_h_start;              // Bitmask for weekday/day/hour start
+    int wkend_d_m_start;              // Bitmask for weekday/day/hour end
+    int wkend_n_h_start;              // Bitmask for weekday/day/hour start
+    int wkend_n_m_start;              // Bitmask for weekday/day/hour end
+    char wkend_d1[SMALL_CONFIG_ITEM]; // Weekend day 1 (0=Sunday, 6=Saturday)
+    char wkend_d2[SMALL_CONFIG_ITEM]; // Weekend day 2 (0=Sunday, 6=Saturday)
 
-} statemachine_config_gen_t;
-extern statemachine_config_gen_t statemachine_config_gen;
+} statemachine_gen_config_t;
+extern statemachine_gen_config_t statemachine_gen_config;
 
 typedef struct
 {

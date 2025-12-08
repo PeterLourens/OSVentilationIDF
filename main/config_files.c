@@ -620,8 +620,8 @@ esp_err_t load_i2c_config(void)
     strncpy(i2c_config.enable_lcd, cJSON_IsString(enable_lcd) ? enable_lcd->valuestring : "", SMALL_CONFIG_ITEM - 1);
     i2c_config.enable_lcd[SMALL_CONFIG_ITEM - 1] = '\0';
 
-    //strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
-    //i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
+    // strncpy(i2c_config.lcd_i2c_address, cJSON_IsString(lcd_i2c_address) ? lcd_i2c_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    // i2c_config.lcd_i2c_address[SMALL_CONFIG_ITEM - 1] = '\0';
 
     if (taken)
     {
@@ -708,6 +708,104 @@ esp_err_t load_syslog_config(void)
     free(buffer);
 
     ESP_LOGI(TAG, "Syslog config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+// Load statemachine settings
+esp_err_t load_statemachine_general_config(void)
+{
+    const char *TAG = "Config";
+    char path[128] = "/data/json/sm_general_config.json";
+    size_t bufferSize = XLARGE_CONFIG_ITEM;
+
+    ESP_LOGI(TAG, "Attempting to read general statemachine config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        ESP_LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read statemachine general config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
+        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *wday_d_h_start = cJSON_GetObjectItem(json, "wday_d_h_start");
+    cJSON *wday_d_m_start = cJSON_GetObjectItem(json, "wday_d_m_start");
+    cJSON *wday_n_h_start = cJSON_GetObjectItem(json, "wday_n_d_h_start");
+    cJSON *wday_n_m_start = cJSON_GetObjectItem(json, "wday_n_d_m_start");
+    cJSON *wkend_d_h_start = cJSON_GetObjectItem(json, "wkend_d_h_start");
+    cJSON *wkend_d_m_start = cJSON_GetObjectItem(json, "wkend_d_m_start");
+    cJSON *wkend_n_h_start = cJSON_GetObjectItem(json, "wkend_n_h_start");
+    cJSON *wkend_n_m_start = cJSON_GetObjectItem(json, "wkend_n_m_start");
+    cJSON *wkend_d1 = cJSON_GetObjectItem(json, "wkend_d1");
+    cJSON *wkend_d2 = cJSON_GetObjectItem(json, "wkend_d2");
+
+    // Acquire time config mutex before updating global settings
+    bool taken = false;
+    if (statemachine_config_mutex)
+    {
+        if (xSemaphoreTake(statemachine_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to acquire statemachine config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        ESP_LOGW(TAG, "statemachine_config_mutex not initialized; proceeding without mutex (unsafe)");
+    }
+
+    if (cJSON_IsNumber(wday_d_h_start))
+        statemachine_gen_config.wday_d_h_start = wday_d_h_start->valueint;
+    if (cJSON_IsNumber(wday_d_m_start))
+        statemachine_gen_config.wday_d_m_start = wday_d_m_start->valueint;
+    if (cJSON_IsNumber(wday_n_h_start))
+        statemachine_gen_config.wday_n_h_start = wday_n_h_start->valueint;
+    if (cJSON_IsNumber(wday_n_m_start))
+        statemachine_gen_config.wday_n_m_start = wday_n_m_start->valueint;
+    if (cJSON_IsNumber(wkend_d_h_start))
+        statemachine_gen_config.wkend_d_h_start = wkend_d_h_start->valueint;
+    if (cJSON_IsNumber(wkend_d_m_start))
+        statemachine_gen_config.wkend_d_m_start = wkend_d_m_start->valueint;
+    if (cJSON_IsNumber(wkend_n_h_start))
+        statemachine_gen_config.wkend_n_h_start = wkend_n_h_start->valueint;
+    if (cJSON_IsNumber(wkend_n_m_start))
+        statemachine_gen_config.wkend_n_m_start = wkend_n_m_start->valueint;
+
+    strncpy(statemachine_gen_config.wkend_d1, cJSON_IsString(wkend_d1) ? wkend_d1->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    statemachine_gen_config.wkend_d1[SMALL_CONFIG_ITEM - 1] = '\0';
+    strncpy(statemachine_gen_config.wkend_d2, cJSON_IsString(wkend_d2) ? wkend_d2->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    statemachine_gen_config.wkend_d2[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(statemachine_config_mutex);
+    }
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    ESP_LOGI(TAG, "Statemachine general config loaded from %s", path);
 
     return ESP_OK;
 }

@@ -290,3 +290,38 @@ void send_statemachine_general_config_json_ws(void)
         free(out);
     }
 }
+
+void send_statemachine_config_json_ws(void)
+{
+    cJSON *root = cJSON_CreateObject();
+    if (!root)
+        return;
+
+    // --- General settings ---
+    if (xSemaphoreTake(statemachine_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        cJSON_AddNumberToObject(root, "wday_d_h_start", statemachine_gen_config.wday_d_h_start);
+        cJSON_AddNumberToObject(root, "wday_d_m_start", statemachine_gen_config.wday_d_m_start);
+        cJSON_AddNumberToObject(root, "wday_n_h_start", statemachine_gen_config.wday_n_h_start);
+        cJSON_AddNumberToObject(root, "wday_n_m_start", statemachine_gen_config.wday_n_m_start);
+        cJSON_AddNumberToObject(root, "wkend_d_h_start", statemachine_gen_config.wkend_d_h_start);
+        cJSON_AddNumberToObject(root, "wkend_d_m_start", statemachine_gen_config.wkend_d_m_start);
+        cJSON_AddNumberToObject(root, "wkend_n_h_start", statemachine_gen_config.wkend_n_h_start);
+        cJSON_AddNumberToObject(root, "wkend_n_m_start", statemachine_gen_config.wkend_n_m_start);
+        cJSON_AddStringToObject(root, "wkend_d1", statemachine_gen_config.wkend_d1);
+        cJSON_AddStringToObject(root, "wkend_d2", statemachine_gen_config.wkend_d2);
+        xSemaphoreGive(statemachine_config_mutex);
+    }
+
+    // - Other state settings
+
+    // Serialize to string
+    char *out = cJSON_PrintUnformatted(root);
+    cJSON_Delete(root);
+
+    if (out)
+    {
+        ws_async_send(out, strlen(out));
+        free(out);
+    }
+}
