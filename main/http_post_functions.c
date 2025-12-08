@@ -127,13 +127,13 @@ cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
 
     char key[64], val[256];
 
-    snprintf(key, sizeof(key), "bus0_multiplpexer_address");
+    snprintf(key, sizeof(key), "bus0_multiplexer_address");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
     else
         cJSON_AddStringToObject(obj, key, "");
 
-    snprintf(key, sizeof(key), "bus1_multiplpexer_address");
+    snprintf(key, sizeof(key), "bus1_multiplexer_address");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
     else
@@ -150,6 +150,8 @@ cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
         cJSON_AddStringToObject(obj, key, val);
     else
         cJSON_AddStringToObject(obj, key, "");*/
+
+    // ESP_LOGI("JSON builder", "I2C config: %s", obj);
 
     return obj;
 }

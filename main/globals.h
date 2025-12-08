@@ -214,7 +214,7 @@ typedef struct
     char bus0_multiplexer_address[SMALL_CONFIG_ITEM];
     char bus1_multiplexer_address[SMALL_CONFIG_ITEM];
     char enable_lcd[SMALL_CONFIG_ITEM];
-    char lcd_i2c_address[SMALL_CONFIG_ITEM];
+    // char lcd_i2c_address[SMALL_CONFIG_ITEM];
 } I2C_config;
 extern I2C_config i2c_config;
 
