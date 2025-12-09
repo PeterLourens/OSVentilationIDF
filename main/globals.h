@@ -154,11 +154,6 @@ typedef struct
     bool co2_enabled;
 } bus_sensor_t;
 
-extern bus_sensor_t bus0_sensor_settings[];
-extern bus_sensor_t bus1_sensor_settings[];
-
-extern struct tm timeinfo;
-
 typedef struct
 {
     char enable_dhcp[SMALL_CONFIG_ITEM];
@@ -169,15 +164,15 @@ typedef struct
     char gateway[MEDIUM_CONFIG_ITEM];
     char primary_dns[MEDIUM_CONFIG_ITEM];
     char secondary_dns[MEDIUM_CONFIG_ITEM];
-} Network_config;
-extern Network_config network_config;
+} Network_config_t;
+
 
 typedef struct
 {
     char ntp_server[LARGE_CONFIG_ITEM];
     char timezone[LARGE_CONFIG_ITEM];
-} Time_config;
-extern Time_config time_config;
+} Time_config_t;
+
 
 typedef struct
 {
@@ -185,8 +180,8 @@ typedef struct
     char mqtt_server[LARGE_CONFIG_ITEM];
     char mqtt_port[SMALL_CONFIG_ITEM];
     char mqtt_base_topic[XLARGE_CONFIG_ITEM];
-} MQTT_config;
-extern MQTT_config mqtt_config;
+} MQTT_config_t;
+
 
 typedef struct
 {
@@ -195,8 +190,8 @@ typedef struct
     char influxdb_org[LARGE_CONFIG_ITEM];
     char influxdb_bucket[LARGE_CONFIG_ITEM];
     char influxdb_token[XLARGE_CONFIG_ITEM];
-} Influxdb_config;
-extern Influxdb_config influxdb_config;
+} Influxdb_config_t;
+
 
 typedef struct
 {
@@ -207,8 +202,7 @@ typedef struct
     char fan_control_url_hs[XLARGE_CONFIG_ITEM];
     char fan_control_url_ms[XLARGE_CONFIG_ITEM];
     char fan_control_url_ls[XLARGE_CONFIG_ITEM];
-} Fan_config;
-extern Fan_config fan_config;
+} Fan_config_t;
 
 typedef struct
 {
@@ -216,16 +210,14 @@ typedef struct
     char bus1_multiplexer_address[SMALL_CONFIG_ITEM];
     char enable_lcd[SMALL_CONFIG_ITEM];
     // char lcd_i2c_address[SMALL_CONFIG_ITEM];
-} I2C_config;
-extern I2C_config i2c_config;
+} I2C_config_t;
 
 typedef struct
 {
     char enable_syslog[SMALL_CONFIG_ITEM];
     char syslog_ip[MEDIUM_CONFIG_ITEM];
     char syslog_port[SMALL_CONFIG_ITEM];
-} Syslog_config;
-extern Syslog_config syslog_config;
+} Syslog_config_t;
 
 typedef struct
 {
@@ -236,7 +228,6 @@ typedef struct
     int duration_ms;
     bool success;
 } ping_summary_t;
-extern ping_summary_t g_ping_summary;
 
 typedef struct
 {
@@ -252,7 +243,6 @@ typedef struct
     char wkend_d2[SMALL_CONFIG_ITEM]; // Weekend day 2 (0=Sunday, 6=Saturday)
 
 } statemachine_gen_config_t;
-extern statemachine_gen_config_t statemachine_gen_config;
 
 typedef struct
 {
@@ -270,7 +260,24 @@ typedef struct
     int duration_minutes;                // Minimum duration to stay in this state
     int valve_position[MAX_VALVE_COUNT]; // Valve position array for this state
 } statemachine_config_t;
-extern statemachine_config_t statemachine_config[];
+
+extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
+extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
+extern Network_config_t network_config;
+extern Time_config_t time_config;
+extern MQTT_config_t mqtt_config;
+extern Influxdb_config_t influxdb_config;
+extern Fan_config_t fan_config;
+extern I2C_config_t i2c_config;
+extern Syslog_config_t syslog_config;
+extern ping_summary_t g_ping_summary;
+extern statemachine_gen_config_t statemachine_gen_config;
+extern statemachine_config_t statemachine_config[MAX_NR_STATES];
+
+extern struct tm timeinfo;
+
+
+
 
 // Valvecontrol variables
 extern int lock_valve_move;

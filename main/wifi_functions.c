@@ -167,7 +167,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
     }
 }
 
-esp_err_t wifi_manager_connect(Network_config *settings)
+esp_err_t wifi_manager_connect(Network_config_t *settings)
 {
     if (!settings)
     {

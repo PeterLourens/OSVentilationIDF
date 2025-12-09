@@ -55,13 +55,13 @@ httpd_handle_t http_server = NULL;
 struct tm timeinfo = {0};
 
 // Structs for settings
-Network_config network_config = {0};
-Time_config time_config = {0};
-MQTT_config mqtt_config = {0};
-Influxdb_config influxdb_config = {0};
-Fan_config fan_config = {0};
-I2C_config i2c_config = {0};
-Syslog_config syslog_config = {0};
+Network_config_t network_config = {0};
+Time_config_t time_config = {0};
+MQTT_config_t mqtt_config = {0};
+Influxdb_config_t influxdb_config = {0};
+Fan_config_t fan_config = {0};
+I2C_config_t i2c_config = {0};
+Syslog_config_t syslog_config = {0};
 ping_summary_t g_ping_summary = {0};
 
 // Statemachine struct
