@@ -968,8 +968,6 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
     return true;
 }
 
-
-
 /**
  * @brief Read JSON state files under mount_point that match pattern,
  *        parse into statemachine_config[] (global) up to MAX_NR_STATES / max_files.
@@ -1138,16 +1136,22 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
     return ESP_OK;
 }
 
-
-void app_main(void)
+esp_err_t load_state_config(void)
 {
     size_t states_loaded = 0;
-    
+    esp_err_t err = ESP_OK;
+
     // Example patterns: "state_*.json", "*.json", "config_??.json"
-    ESP_ERROR_CHECK(read_state_configs_from_json("/data", "state_*.json",10, &states_loaded));
+    err = read_state_configs_from_json("/data/json", "state_*.json", 10, &states_loaded);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load state configs: %s", esp_err_to_name(err));
+        return err;
+    }
 
     ESP_LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
-    
+
     for (size_t i = 0; i < states_loaded; ++i)
     {
         const statemachine_config_t *s = &statemachine_config[i];
@@ -1169,4 +1173,5 @@ void app_main(void)
             ESP_LOGI(TAG, "  valve[%d]=%d", v, s->valve_position[v]);
         }
     }
+    return err;
 }

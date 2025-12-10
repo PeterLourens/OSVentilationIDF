@@ -161,6 +161,14 @@ void app_main(void)
         return;
     }
 
+    // Load state configuration
+    err = load_state_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load states configuration");
+        return;
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();
