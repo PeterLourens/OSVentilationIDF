@@ -809,3 +809,364 @@ esp_err_t load_statemachine_general_config(void)
 
     return ESP_OK;
 }
+
+// Load statemachine settings
+bool match_pattern(const char *name, const char *pattern)
+{
+    // wildcard '*' and single-char '?'
+    const char *p = pattern;
+    const char *n = name;
+    const char *star = NULL;
+    const char *star_match = NULL;
+
+    while (*n)
+    {
+        if (*p == '?' || *p == *n)
+        {
+            p++;
+            n++;
+        }
+        else if (*p == '*')
+        {
+            star = p++;
+            star_match = n;
+        }
+        else if (star)
+        {
+            p = star + 1;
+            n = ++star_match;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    while (*p == '*')
+        p++;
+    return *p == '\0';
+}
+
+bool parse_bool_flexible(const cJSON *item, bool *out)
+{
+    if (!item || !out)
+        return false;
+
+    if (cJSON_IsBool(item))
+    {
+        *out = cJSON_IsTrue(item);
+        return true;
+    }
+    if (cJSON_IsNumber(item))
+    {
+        *out = (item->valuedouble != 0.0);
+        return true;
+    }
+    if (cJSON_IsString(item) && item->valuestring)
+    {
+        const char *s = item->valuestring;
+        // trim spaces, case-insensitive
+        while (isspace((unsigned char)*s))
+            s++;
+        char buf[16];
+        size_t L = strnlen(s, sizeof(buf) - 1);
+        for (size_t i = 0; i < L; ++i)
+            buf[i] = (char)tolower((unsigned char)s[i]);
+        buf[L] = '\0';
+
+        if (!strcmp(buf, "on") || !strcmp(buf, "true") || !strcmp(buf, "enabled") || !strcmp(buf, "1"))
+        {
+            *out = true;
+            return true;
+        }
+        if (!strcmp(buf, "off") || !strcmp(buf, "false") || !strcmp(buf, "disabled") || !strcmp(buf, "0"))
+        {
+            *out = false;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool parse_int_flexible(const cJSON *item, int *out)
+{
+    if (!item || !out)
+        return false;
+    if (cJSON_IsNumber(item))
+    {
+        *out = item->valueint;
+        return true;
+    }
+    if (cJSON_IsString(item) && item->valuestring)
+    {
+        char *end = NULL;
+        long v = strtol(item->valuestring, &end, 10);
+        if (end && *end == '\0')
+        {
+            *out = (int)v;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
+{
+    if (!cJSON_IsObject(obj) || !out)
+        return false;
+
+    // Zero-init to safe defaults
+    memset(out, 0, sizeof(*out));
+
+    // enable_state
+    (void)parse_bool_flexible(cJSON_GetObjectItemCaseSensitive(obj, "enable_state"), &out->enable_state);
+
+    // fanspeed
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "fanspeed"), &out->fanspeed);
+
+    // state_name
+    cJSON *nm = cJSON_GetObjectItemCaseSensitive(obj, "state_name");
+    if (cJSON_IsString(nm) && nm->valuestring)
+    {
+        strncpy(out->state_name, nm->valuestring, MEDIUM_CONFIG_ITEM - 1);
+        out->state_name[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    }
+
+    // thresholds & timing
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "rh_low_level"), &out->rh_low_level);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "rh_high_level"), &out->rh_high_level);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "co2_low_level"), &out->co2_low_level);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "co2_high_level"), &out->co2_high_level);
+
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_start_hour"), &out->state_start_hour);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_start_minute"), &out->state_start_minute);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_hour"), &out->state_end_hour);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_minute"), &out->state_end_minute);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "duration_minutes"), &out->duration_minutes);
+
+    // valve positions: accept "valve0_pos".."valve11_pos" (or up to MAX_VALVE_COUNT)
+    for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+    {
+        char key[24];
+        // key format: valve{index}_pos
+        int n = snprintf(key, sizeof(key), "valve%d_pos", i);
+        if (n <= 0 || n >= (int)sizeof(key))
+            continue;
+
+        cJSON *vp = cJSON_GetObjectItemCaseSensitive(obj, key);
+        int val = 0;
+        if (parse_int_flexible(vp, &val))
+        {
+            out->valve_position[i] = val;
+        }
+        else
+        {
+            // Missing => keep default 0
+            out->valve_position[i] = 0;
+        }
+    }
+
+    return true;
+}
+
+
+
+/**
+ * @brief Read JSON state files under mount_point that match pattern,
+ *        parse into statemachine_config[] (global) up to MAX_NR_STATES / max_files.
+ *
+ * Supports JSON root being a single object or an array of objects.
+ *
+ * @param mount_point    e.g., "/data"
+ * @param pattern        e.g., "state_*.json"
+ * @param max_files      limit on number of files to process (>0). If <=0 -> process all matched.
+ * @param out_states     output: number of states parsed into statemachine_config[]
+ * @return ESP_OK on success, error otherwise.
+ */
+esp_err_t read_state_configs_from_json(const char *mount_point, const char *pattern, int max_files, size_t *out_states)
+{
+    if (!mount_point || !pattern || !out_states)
+        return ESP_ERR_INVALID_ARG;
+    *out_states = 0;
+
+    // Zero array to known state
+    memset(statemachine_config, 0, sizeof(statemachine_config));
+
+    DIR *dir = opendir(mount_point);
+    if (!dir)
+    {
+        ESP_LOGE(TAG, "Failed to open directory: %s", mount_point);
+        return ESP_FAIL;
+    }
+
+    struct dirent *entry;
+    int files_processed = 0;
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        // skip "." and ".."
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        // filename pattern match
+        if (!match_pattern(entry->d_name, pattern))
+            continue;
+
+        // full path
+        char full_path[256];
+        int n = snprintf(full_path, sizeof(full_path), "%s/%s", mount_point, entry->d_name);
+        if (n <= 0 || n >= (int)sizeof(full_path))
+        {
+            ESP_LOGW(TAG, "Path too long, skipping: %s/%s", mount_point, entry->d_name);
+            continue;
+        }
+
+        // ensure it's a regular file
+        struct stat st;
+        if (stat(full_path, &st) != 0 || !S_ISREG(st.st_mode))
+            continue;
+
+        // read entire file
+        FILE *f = fopen(full_path, "rb");
+        if (!f)
+        {
+            ESP_LOGW(TAG, "Failed to open: %s", full_path);
+            continue;
+        }
+        if (fseek(f, 0, SEEK_END) != 0)
+        {
+            ESP_LOGW(TAG, "fseek end failed: %s", full_path);
+            fclose(f);
+            continue;
+        }
+        long sz = ftell(f);
+        if (sz < 0)
+        {
+            ESP_LOGW(TAG, "ftell failed: %s", full_path);
+            fclose(f);
+            continue;
+        }
+        rewind(f);
+
+        // cJSON needs null-terminated buffer
+        char *buf = (char *)malloc((size_t)sz + 1);
+        if (!buf)
+        {
+            ESP_LOGE(TAG, "Out of memory reading: %s", full_path);
+            fclose(f);
+            closedir(dir);
+            return ESP_ERR_NO_MEM;
+        }
+        size_t got = fread(buf, 1, (size_t)sz, f);
+        fclose(f);
+        if (got != (size_t)sz)
+        {
+            ESP_LOGW(TAG, "Short read %s (got %u, expected %ld)", full_path, (unsigned)got, sz);
+            free(buf);
+            continue;
+        }
+        buf[sz] = '\0';
+
+        cJSON *root = cJSON_Parse(buf);
+        free(buf);
+        if (!root)
+        {
+            ESP_LOGW(TAG, "JSON parse failed: %s", full_path);
+            continue;
+        }
+
+        // handle object or array
+        if (cJSON_IsObject(root))
+        {
+            if (*out_states < MAX_NR_STATES)
+            {
+                if (!parse_state_object(root, &statemachine_config[*out_states]))
+                {
+                    ESP_LOGW(TAG, "Invalid state object in %s", full_path);
+                }
+                else
+                {
+                    (*out_states)++;
+                }
+            }
+            else
+            {
+                ESP_LOGW(TAG, "Reached MAX_NR_STATES, skipping %s", full_path);
+            }
+        }
+        else if (cJSON_IsArray(root))
+        {
+            const cJSON *item = NULL;
+            cJSON_ArrayForEach(item, root)
+            {
+                if (*out_states >= MAX_NR_STATES)
+                {
+                    ESP_LOGW(TAG, "Reached MAX_NR_STATES while parsing %s", full_path);
+                    break;
+                }
+                if (!cJSON_IsObject(item))
+                {
+                    ESP_LOGW(TAG, "Skipping non-object in array: %s", full_path);
+                    continue;
+                }
+                if (!parse_state_object(item, &statemachine_config[*out_states]))
+                {
+                    ESP_LOGW(TAG, "Invalid state in array in %s", full_path);
+                    continue;
+                }
+                (*out_states)++;
+            }
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Unsupported JSON root in %s (not object/array)", full_path);
+        }
+
+        cJSON_Delete(root);
+        files_processed++;
+
+        if (max_files > 0 && files_processed >= max_files)
+            break;
+        if (*out_states >= MAX_NR_STATES)
+            break;
+    }
+
+    closedir(dir);
+
+    ESP_LOGI(TAG, "Processed %d file(s), loaded %u state(s).",
+             files_processed, (unsigned)(*out_states));
+
+    return ESP_OK;
+}
+
+
+void app_main(void)
+{
+    size_t states_loaded = 0;
+    
+    // Example patterns: "state_*.json", "*.json", "config_??.json"
+    ESP_ERROR_CHECK(read_state_configs_from_json("/data", "state_*.json",10, &states_loaded));
+
+    ESP_LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
+    
+    for (size_t i = 0; i < states_loaded; ++i)
+    {
+        const statemachine_config_t *s = &statemachine_config[i];
+        ESP_LOGI(TAG, "[%u] en=%d speed=%d name=%s RH(%d..%d) CO2(%d..%d) "
+                      "start=%02d:%02d end=%02d:%02d dur=%d",
+                 (unsigned)i,
+                 s->enable_state,
+                 s->fanspeed,
+                 s->state_name,
+                 s->rh_low_level, s->rh_high_level,
+                 s->co2_low_level, s->co2_high_level,
+                 s->state_start_hour, s->state_start_minute,
+                 s->state_end_hour, s->state_end_minute,
+                 s->duration_minutes);
+
+        // Print first 12 valve positions (or MAX_VALVE_COUNT)
+        for (int v = 0; v < MAX_VALVE_COUNT; ++v)
+        {
+            ESP_LOGI(TAG, "  valve[%d]=%d", v, s->valve_position[v]);
+        }
+    }
+}
