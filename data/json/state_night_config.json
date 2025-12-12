@@ -11,6 +11,7 @@
     "state_end_hour": 0,
     "state_end_minute": 0,
     "duration_minutes": 0,
+    "cycling_interval_min": 120,
     "valve0_pos": "4",
     "valve1_pos": "4",
     "valve2_pos": "0",

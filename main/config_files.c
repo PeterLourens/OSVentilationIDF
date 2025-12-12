@@ -942,6 +942,7 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_hour"), &out->state_end_hour);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_minute"), &out->state_end_minute);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "duration_minutes"), &out->duration_minutes);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "cycling_internval_min"), &out->cycling_interval_min);
 
     // valve positions: accept "valve0_pos".."valve11_pos" (or up to MAX_VALVE_COUNT)
     for (int i = 0; i < MAX_VALVE_COUNT; ++i)
@@ -1156,7 +1157,7 @@ esp_err_t load_state_config(void)
     {
         const statemachine_config_t *s = &statemachine_config[i];
         ESP_LOGI(TAG, "[%u] en=%d speed=%d name=%s RH(%d..%d) CO2(%d..%d) "
-                      "start=%02d:%02d end=%02d:%02d dur=%d",
+                      "start=%02d:%02d end=%02d:%02d dur=%d cycle interval=%d min",
                  (unsigned)i,
                  s->enable_state,
                  s->fanspeed,
@@ -1165,7 +1166,8 @@ esp_err_t load_state_config(void)
                  s->co2_low_level, s->co2_high_level,
                  s->state_start_hour, s->state_start_minute,
                  s->state_end_hour, s->state_end_minute,
-                 s->duration_minutes);
+                 s->duration_minutes,
+                 s->cycling_interval_min);
 
         // Print first 12 valve positions (or MAX_VALVE_COUNT)
         for (int v = 0; v < MAX_VALVE_COUNT; ++v)

@@ -166,13 +166,11 @@ typedef struct
     char secondary_dns[MEDIUM_CONFIG_ITEM];
 } Network_config_t;
 
-
 typedef struct
 {
     char ntp_server[LARGE_CONFIG_ITEM];
     char timezone[LARGE_CONFIG_ITEM];
 } Time_config_t;
-
 
 typedef struct
 {
@@ -182,7 +180,6 @@ typedef struct
     char mqtt_base_topic[XLARGE_CONFIG_ITEM];
 } MQTT_config_t;
 
-
 typedef struct
 {
     char enable_influxdb[SMALL_CONFIG_ITEM];
@@ -191,7 +188,6 @@ typedef struct
     char influxdb_bucket[LARGE_CONFIG_ITEM];
     char influxdb_token[XLARGE_CONFIG_ITEM];
 } Influxdb_config_t;
-
 
 typedef struct
 {
@@ -258,6 +254,7 @@ typedef struct
     int state_end_hour;                  // Hour to end this state
     int state_end_minute;                // Minute to end this state
     int duration_minutes;                // Minimum duration to stay in this state
+    int cycling_interval_min;            // Interval for cycling valves in minutes
     int valve_position[MAX_VALVE_COUNT]; // Valve position array for this state
 } statemachine_config_t;
 
@@ -275,9 +272,6 @@ extern statemachine_gen_config_t statemachine_gen_config;
 extern statemachine_config_t statemachine_config[MAX_NR_STATES];
 
 extern struct tm timeinfo;
-
-
-
 
 // Valvecontrol variables
 extern int lock_valve_move;
