@@ -703,6 +703,59 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
+// POST handler: save time configuration to flash
+esp_err_t states_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    int state_number = 0;
+    char path[64];
+
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_state_config_from_body_urlencoded(buf, len, state_number);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    snprintf(path, sizeof(path), "/data/json/state%d_config.json", state_number);
+    // const char *path = "/data/json/time_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_time_config() != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload time config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
 // Set valve positions in NVS to 0
 esp_err_t reset_valves_handler(httpd_req_t *req)
 {

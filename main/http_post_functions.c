@@ -351,3 +351,105 @@ cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
 
     return obj;
 }
+
+cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int state_number)
+{
+    // How do I know which state button is pressed?
+
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[32], val[64];
+
+    snprintf(key, sizeof(key), "s%d_en", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_fanspeed", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_name", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_rh_h", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_rh_l", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_co2_h", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_co2_l", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_st_h", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_st_m", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_end_h", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_end_m", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_dur_m", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "s%d_cycl_int_m", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    for (int j = 0; j < MAX_VALVE_COUNT; ++j)
+    {
+        snprintf(key, sizeof(key), "s%d_v%d_pos", state_number, j);
+        if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+            cJSON_AddStringToObject(obj, key, val);
+        else
+            cJSON_AddStringToObject(obj, key, "");
+    }
+    return obj;
+}

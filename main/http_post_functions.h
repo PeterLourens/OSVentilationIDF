@@ -15,5 +15,6 @@ cJSON *build_influxdb_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_syslog_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_time_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_fan_config_from_body_urlencoded(const char *, size_t);
+cJSON *build_state_config_from_body_urlencoded(const char *, size_t, int);
 
 #endif
