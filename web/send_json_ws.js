@@ -42,7 +42,7 @@ function get_json() {
 
     if (page && page.innerHTML !== "webserial") {
         //console.log('Page name is not webserial so send stop first');
-        websocket.send("Stop"); // If webserial is sending data, stop it first
+        //websocket.send("Stop"); // If webserial is sending data, stop it first
     }
 
     websocket.send(page.innerHTML);

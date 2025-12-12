@@ -294,6 +294,8 @@ void send_statemachine_general_config_json_ws(void)
 void send_statemachine_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
+    char key[32];
+
     if (!root)
         return;
 
@@ -310,10 +312,45 @@ void send_statemachine_config_json_ws(void)
         cJSON_AddNumberToObject(root, "wkend_n_m_start", statemachine_gen_config.wkend_n_m_start);
         cJSON_AddStringToObject(root, "wkend_d1", statemachine_gen_config.wkend_d1);
         cJSON_AddStringToObject(root, "wkend_d2", statemachine_gen_config.wkend_d2);
+
+        // other state settings go here
+        for (int i = 0; i < MAX_NR_STATES; i++)
+        {
+            snprintf(key, sizeof(key), "s%d_en", i);
+            cJSON_AddBoolToObject(root, key, statemachine_config[i].enable_state);
+            snprintf(key, sizeof(key), "s%d_fanspeed", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].fanspeed);
+            snprintf(key, sizeof(key), "s%d_name", i);
+            cJSON_AddStringToObject(root, key, statemachine_config[i].state_name);
+            snprintf(key, sizeof(key), "s%d_rh_l", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].rh_low_level);
+            snprintf(key, sizeof(key), "s%d_rh_h", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].rh_high_level);
+            snprintf(key, sizeof(key), "s%d_co2_h", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].co2_high_level);
+            snprintf(key, sizeof(key), "s%d_co2_l", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].co2_low_level);
+            snprintf(key, sizeof(key), "s%d_st_h", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_start_hour);
+            snprintf(key, sizeof(key), "s%d_st_m", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_start_minute);
+            snprintf(key, sizeof(key), "s%d_end_h", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_end_hour);
+            snprintf(key, sizeof(key), "s%d_end_m", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_end_minute);
+            snprintf(key, sizeof(key), "s%d_dur_m", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].duration_minutes);
+            snprintf(key, sizeof(key), "s%d_cycl_int_m", i);
+            cJSON_AddNumberToObject(root, key, statemachine_config[i].cycling_interval_min);
+
+            for (int j = 0; j < MAX_VALVE_COUNT; j++)
+            {
+                snprintf(key, sizeof(key), "s%d_v%d_pos", i, j);
+                cJSON_AddNumberToObject(root, key, statemachine_config[i].valve_position[j]);
+            }
+        }
         xSemaphoreGive(statemachine_config_mutex);
     }
-
-    // - Other state settings
 
     // Serialize to string
     char *out = cJSON_PrintUnformatted(root);

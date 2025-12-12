@@ -1143,7 +1143,7 @@ esp_err_t load_state_config(void)
     esp_err_t err = ESP_OK;
 
     // Example patterns: "state_*.json", "*.json", "config_??.json"
-    err = read_state_configs_from_json("/data/json", "state_*.json", 10, &states_loaded);
+    err = read_state_configs_from_json("/data/json", "state*_config.json", 10, &states_loaded);
 
     if (err != ESP_OK)
     {
