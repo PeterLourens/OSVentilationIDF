@@ -295,6 +295,7 @@ void send_statemachine_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
     char key[32];
+    char fanspeed_val[16];
 
     if (!root)
         return;
@@ -318,8 +319,19 @@ void send_statemachine_config_json_ws(void)
         {
             snprintf(key, sizeof(key), "s%d_en", i);
             cJSON_AddBoolToObject(root, key, statemachine_config[i].enable_state);
+
+            // Fanspeed is stored as int so requires conversion to string
             snprintf(key, sizeof(key), "s%d_fanspeed", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].fanspeed);
+            if (statemachine_config[i].fanspeed == 1)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "Low");
+            else if (statemachine_config[i].fanspeed == 2)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "Medium");
+            else if (statemachine_config[i].fanspeed == 3)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "High");
+            else
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "0");
+            cJSON_AddStringToObject(root, key, fanspeed_val);
+
             snprintf(key, sizeof(key), "s%d_name", i);
             cJSON_AddStringToObject(root, key, statemachine_config[i].state_name);
             snprintf(key, sizeof(key), "s%d_rh_l", i);

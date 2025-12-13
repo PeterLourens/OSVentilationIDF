@@ -363,93 +363,112 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
     if (!obj)
         return NULL;
 
-    char key[32], val[64];
+    char key[16];
+    char key_new[32];
+    char val[64];
+    int fanspeed_code = 0;
 
     snprintf(key, sizeof(key), "s%d_en", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+        cJSON_AddStringToObject(obj, "enable_state", (strcmp(val, "On") == 0) ? "On" : "Off");
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "enable_state", "Off");
 
+    /*snprintf(key, sizeof(key), "s%d_fanspeed", state_number);
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, "fanspeed", val);
+    else
+        cJSON_AddStringToObject(obj, "fanspeed", "0");*/
+
+    // Map fanspeed string to code, Low=1, Medium=2, High=3, Error=0
     snprintf(key, sizeof(key), "s%d_fanspeed", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
-    else
-        cJSON_AddStringToObject(obj, key, "");
+    {
+        if (strcmp(val, "Low") == 0)
+            fanspeed_code = 1;
+        else if (strcmp(val, "Medium") == 0)
+            fanspeed_code = 2;
+        else if (strcmp(val, "High") == 0)
+            fanspeed_code = 3;
+        else
+            fanspeed_code = 0; // unexpected value
+    }
+    cJSON_AddNumberToObject(obj, "fanspeed", fanspeed_code);
 
     snprintf(key, sizeof(key), "s%d_name", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "state_name", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "state_name", "");
 
     snprintf(key, sizeof(key), "s%d_rh_h", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "rh_high_level", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "rh_high_level", "");
 
     snprintf(key, sizeof(key), "s%d_rh_l", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "rh_low_level", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "rh_low_level", "");
 
     snprintf(key, sizeof(key), "s%d_co2_h", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "co2_high_level", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "co2_high_level", "");
 
     snprintf(key, sizeof(key), "s%d_co2_l", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "co2_low_level", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "co2_low_level", "");
 
     snprintf(key, sizeof(key), "s%d_st_h", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "state_start_hour", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "state_start_hour", "");
 
     snprintf(key, sizeof(key), "s%d_st_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "state_start_minute", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "state_start_minute", "");
 
     snprintf(key, sizeof(key), "s%d_end_h", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    if (httpd_query_key_value(body, "state_end_hour", val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "state_end_hour", "");
 
     snprintf(key, sizeof(key), "s%d_end_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "state_end_minute", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "state_end_minute", "");
 
     snprintf(key, sizeof(key), "s%d_dur_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "duration_minutes", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "duration_minutes", "");
 
     snprintf(key, sizeof(key), "s%d_cycl_int_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "cycling_interval_min", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "cycling_interval_min", "");
 
     for (int j = 0; j < MAX_VALVE_COUNT; ++j)
     {
         snprintf(key, sizeof(key), "s%d_v%d_pos", state_number, j);
+        snprintf(key_new, sizeof(key_new), "valve%d_pos", j);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddStringToObject(obj, key, val);
+            cJSON_AddStringToObject(obj, key_new, val);
         else
-            cJSON_AddStringToObject(obj, key, "");
+            cJSON_AddStringToObject(obj, key_new, "");
     }
 
     char *out = cJSON_PrintUnformatted(obj);
