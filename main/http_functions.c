@@ -703,12 +703,15 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save time configuration to flash
-esp_err_t states_config_post_handler(httpd_req_t *req)
+// POST handler: save state configuration to flash
+esp_err_t state_config_post_handler(httpd_req_t *req)
 {
-    size_t len = req->content_len;
-    int state_number = 0;
+    int state_number = (int)req->user_ctx;
     char path[64];
+
+    size_t len = req->content_len;
+
+    ESP_LOGI(TAG, "Handling POST for state %d", state_number);
 
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
@@ -744,16 +747,16 @@ esp_err_t states_config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(arr);
 
-    // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_time_config() != ESP_OK)
+    // Reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_state_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload time config after write");
+        ESP_LOGW(TAG, "Failed to reload state config after write");
     }
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
-    len = config_html_end - config_html_start;
-    return httpd_resp_send(req, config_html_start, len);
+    len = statemachine_html_end - statemachine_html_start;
+    return httpd_resp_send(req, statemachine_html_start, len);
 }
 
 // Set valve positions in NVS to 0
@@ -1016,6 +1019,86 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL,
     };
     httpd_register_uri_handler(http_server, &time_config_post_uri);
+
+    httpd_uri_t state0_config_post_uri = {
+        .uri = "/state0_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)0, // pass state number 0
+    };
+    httpd_register_uri_handler(http_server, &state0_config_post_uri);
+
+    httpd_uri_t state1_config_post_uri = {
+        .uri = "/state1_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)1, // pass state number 0
+    };
+    httpd_register_uri_handler(http_server, &state1_config_post_uri);
+
+    httpd_uri_t state2_config_post_uri = {
+        .uri = "/state2_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)2,
+    };
+    httpd_register_uri_handler(http_server, &state2_config_post_uri);
+
+    httpd_uri_t state3_config_post_uri = {
+        .uri = "/state3_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)0,
+    };
+    httpd_register_uri_handler(http_server, &state3_config_post_uri);
+
+    httpd_uri_t state4_config_post_uri = {
+        .uri = "/state4_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)4,
+    };
+    httpd_register_uri_handler(http_server, &state4_config_post_uri);
+
+    httpd_uri_t state5_config_post_uri = {
+        .uri = "/state5_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)5,
+    };
+    httpd_register_uri_handler(http_server, &state5_config_post_uri);
+
+    httpd_uri_t state6_config_post_uri = {
+        .uri = "/state6_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)6,
+    };
+    httpd_register_uri_handler(http_server, &state6_config_post_uri);
+
+    httpd_uri_t state7_config_post_uri = {
+        .uri = "/state7_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)7,
+    };
+    httpd_register_uri_handler(http_server, &state7_config_post_uri);
+
+    httpd_uri_t state8_config_post_uri = {
+        .uri = "/state8_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)8,
+    };
+    httpd_register_uri_handler(http_server, &state8_config_post_uri);
+
+    httpd_uri_t state9_config_post_uri = {
+        .uri = "/state9_config",
+        .method = HTTP_POST,
+        .handler = state_config_post_handler,
+        .user_ctx = (void *)9,
+    };
+    httpd_register_uri_handler(http_server, &state9_config_post_uri);
 
     return http_server;
 }
