@@ -758,9 +758,9 @@ esp_err_t load_statemachine_general_config(void)
 
     // Acquire time config mutex before updating global settings
     bool taken = false;
-    if (statemachine_config_mutex)
+    if (state_config_mutex)
     {
-        if (xSemaphoreTake(statemachine_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        if (xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
             ESP_LOGE(TAG, "Failed to acquire statemachine config mutex");
             cJSON_Delete(json);
@@ -799,7 +799,7 @@ esp_err_t load_statemachine_general_config(void)
     // Release sensor config mutex after updates
     if (taken)
     {
-        xSemaphoreGive(statemachine_config_mutex);
+        xSemaphoreGive(state_config_mutex);
     }
 
     cJSON_Delete(json);
@@ -810,7 +810,11 @@ esp_err_t load_statemachine_general_config(void)
     return ESP_OK;
 }
 
-// Load statemachine settings
+// ========= Load statemachine settings ===========
+//
+// Load all statemachine states from JSON file matching the pattern and store in the provided struct array
+
+// Simple wildcard pattern matching function for the state names
 bool match_pattern(const char *name, const char *pattern)
 {
     // wildcard '*' and single-char '?'
@@ -846,6 +850,7 @@ bool match_pattern(const char *name, const char *pattern)
     return *p == '\0';
 }
 
+// Flexible boolean parser: accept bool, number, or string representations
 bool parse_bool_flexible(const cJSON *item, bool *out)
 {
     if (!item || !out)
@@ -887,6 +892,7 @@ bool parse_bool_flexible(const cJSON *item, bool *out)
     return false;
 }
 
+// Flexible integer parser: accept number or string representations
 bool parse_int_flexible(const cJSON *item, int *out)
 {
     if (!item || !out)
@@ -909,6 +915,7 @@ bool parse_int_flexible(const cJSON *item, int *out)
     return false;
 }
 
+// Parse a single state object from cJSON into statemachine_config_t
 bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
 {
     if (!cJSON_IsObject(obj) || !out)
@@ -1153,7 +1160,7 @@ esp_err_t load_state_config(void)
 
     ESP_LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
 
-    for (size_t i = 0; i < states_loaded; ++i)
+    /*for (size_t i = 0; i < states_loaded; ++i)
     {
         const statemachine_config_t *s = &statemachine_config[i];
         ESP_LOGI(TAG, "[%u] en=%d speed=%d name=%s RH(%d..%d) CO2(%d..%d) "
@@ -1174,6 +1181,7 @@ esp_err_t load_state_config(void)
         {
             ESP_LOGI(TAG, "  valve[%d]=%d", v, s->valve_position[v]);
         }
-    }
+    }*/
+
     return err;
 }

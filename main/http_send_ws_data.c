@@ -301,7 +301,7 @@ void send_statemachine_config_json_ws(void)
         return;
 
     // --- General settings ---
-    if (xSemaphoreTake(statemachine_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    if (xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         cJSON_AddNumberToObject(root, "wday_d_h_start", statemachine_gen_config.wday_d_h_start);
         cJSON_AddNumberToObject(root, "wday_d_m_start", statemachine_gen_config.wday_d_m_start);
@@ -361,7 +361,7 @@ void send_statemachine_config_json_ws(void)
                 cJSON_AddNumberToObject(root, key, statemachine_config[i].valve_position[j]);
             }
         }
-        xSemaphoreGive(statemachine_config_mutex);
+        xSemaphoreGive(state_config_mutex);
     }
 
     // Serialize to string

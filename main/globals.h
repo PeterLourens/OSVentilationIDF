@@ -133,7 +133,7 @@ extern SemaphoreHandle_t g_ping_done_sem;
 extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
 extern SemaphoreHandle_t sensor_cfg_mutex;
-extern SemaphoreHandle_t statemachine_config_mutex;
+extern SemaphoreHandle_t state_config_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
