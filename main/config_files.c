@@ -14,7 +14,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
 
     snprintf(path, sizeof(path), "/data/json/%s.json", config_name);
-    ESP_LOGI(TAG, "Attempting to read config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -135,7 +135,7 @@ esp_err_t load_network_config(void)
     char path[128] = "/data/json/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read network config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read network config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -232,7 +232,7 @@ esp_err_t load_time_config(void)
     char path[128] = "/data/json/time_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read time config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read time config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -305,7 +305,7 @@ esp_err_t load_mqtt_config(void)
     char path[128] = "/data/json/mqtt_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read MQTT config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read MQTT config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -386,7 +386,7 @@ esp_err_t load_influxdb_config(void)
     char path[128] = "/data/json/influxdb_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read InfluxDB config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read InfluxDB config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -470,7 +470,7 @@ esp_err_t load_fan_config(void)
     char path[128] = "/data/json/fan_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read fan config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read fan config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -562,7 +562,7 @@ esp_err_t load_i2c_config(void)
     char path[128] = "/data/json/i2c_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read i2c config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read i2c config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -642,7 +642,7 @@ esp_err_t load_syslog_config(void)
     char path[128] = "/data/json/syslog_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read syslog config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read syslog config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -719,7 +719,7 @@ esp_err_t load_statemachine_general_config(void)
     char path[128] = "/data/json/sm_general_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    ESP_LOGI(TAG, "Attempting to read general statemachine config: %s", path);
+    // ESP_LOGI(TAG, "Attempting to read general statemachine config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -755,6 +755,10 @@ esp_err_t load_statemachine_general_config(void)
     cJSON *wkend_n_m_start = cJSON_GetObjectItem(json, "wkend_n_m_start");
     cJSON *wkend_d1 = cJSON_GetObjectItem(json, "wkend_d1");
     cJSON *wkend_d2 = cJSON_GetObjectItem(json, "wkend_d2");
+    cJSON *rh_l = cJSON_GetObjectItem(json, "rh_low_level");
+    cJSON *rh_h = cJSON_GetObjectItem(json, "rh_high_level");
+    cJSON *co2_l = cJSON_GetObjectItem(json, "co2_low_level");
+    cJSON *co2_h = cJSON_GetObjectItem(json, "co2_high_level");
 
     // Acquire time config mutex before updating global settings
     bool taken = false;
@@ -790,6 +794,14 @@ esp_err_t load_statemachine_general_config(void)
         statemachine_gen_config.wkend_n_h_start = wkend_n_h_start->valueint;
     if (cJSON_IsNumber(wkend_n_m_start))
         statemachine_gen_config.wkend_n_m_start = wkend_n_m_start->valueint;
+    if (cJSON_IsNumber(rh_l))
+        statemachine_gen_config.rh_low_level = rh_l->valueint;
+    if (cJSON_IsNumber(rh_h))
+        statemachine_gen_config.rh_high_level = rh_h->valueint;
+    if (cJSON_IsNumber(co2_l))
+        statemachine_gen_config.co2_low_level = co2_l->valueint;
+    if (cJSON_IsNumber(co2_h))
+        statemachine_gen_config.co2_high_level = co2_h->valueint;
 
     strncpy(statemachine_gen_config.wkend_d1, cJSON_IsString(wkend_d1) ? wkend_d1->valuestring : "", SMALL_CONFIG_ITEM - 1);
     statemachine_gen_config.wkend_d1[SMALL_CONFIG_ITEM - 1] = '\0';
@@ -921,16 +933,11 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
     if (!cJSON_IsObject(obj) || !out)
         return false;
 
-    // Zero-init to safe defaults
     memset(out, 0, sizeof(*out));
 
-    // enable_state
     (void)parse_bool_flexible(cJSON_GetObjectItemCaseSensitive(obj, "enable_state"), &out->enable_state);
-
-    // fanspeed
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "fanspeed"), &out->fanspeed);
 
-    // state_name
     cJSON *nm = cJSON_GetObjectItemCaseSensitive(obj, "state_name");
     if (cJSON_IsString(nm) && nm->valuestring)
     {
@@ -938,28 +945,17 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
         out->state_name[MEDIUM_CONFIG_ITEM - 1] = '\0';
     }
 
-    // thresholds & timing
-    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "rh_low_level"), &out->rh_low_level);
-    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "rh_high_level"), &out->rh_high_level);
-    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "co2_low_level"), &out->co2_low_level);
-    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "co2_high_level"), &out->co2_high_level);
-
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_start_hour"), &out->state_start_hour);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_start_minute"), &out->state_start_minute);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_hour"), &out->state_end_hour);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "state_end_minute"), &out->state_end_minute);
     (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "duration_minutes"), &out->duration_minutes);
-    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "cycling_internval_min"), &out->cycling_interval_min);
+    (void)parse_int_flexible(cJSON_GetObjectItemCaseSensitive(obj, "cycling_interval_min"), &out->cycling_interval_min);
 
-    // valve positions: accept "valve0_pos".."valve11_pos" (or up to MAX_VALVE_COUNT)
     for (int i = 0; i < MAX_VALVE_COUNT; ++i)
     {
-        char key[24];
-        // key format: valve{index}_pos
-        int n = snprintf(key, sizeof(key), "valve%d_pos", i);
-        if (n <= 0 || n >= (int)sizeof(key))
-            continue;
-
+        char key[32];
+        snprintf(key, sizeof(key), "valve%d_pos", i);
         cJSON *vp = cJSON_GetObjectItemCaseSensitive(obj, key);
         int val = 0;
         if (parse_int_flexible(vp, &val))
@@ -968,12 +964,21 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
         }
         else
         {
-            // Missing => keep default 0
             out->valve_position[i] = 0;
         }
     }
 
     return true;
+}
+
+// --- Reader helper ---
+void get_state_config(size_t index, statemachine_config_t *out)
+{
+    if (!out || index >= MAX_NR_STATES)
+        return;
+    xSemaphoreTake(state_config_mutex, portMAX_DELAY);
+    *out = statemachine_config[index]; // copy snapshot
+    xSemaphoreGive(state_config_mutex);
 }
 
 /**
@@ -994,8 +999,10 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         return ESP_ERR_INVALID_ARG;
     *out_states = 0;
 
-    // Zero array to known state
+    // Zero array under mutex
+    xSemaphoreTake(state_config_mutex, portMAX_DELAY);
     memset(statemachine_config, 0, sizeof(statemachine_config));
+    xSemaphoreGive(state_config_mutex);
 
     DIR *dir = opendir(mount_point);
     if (!dir)
@@ -1009,55 +1016,39 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
 
     while ((entry = readdir(dir)) != NULL)
     {
-        // skip "." and ".."
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
-
-        // filename pattern match
         if (!match_pattern(entry->d_name, pattern))
             continue;
 
-        // full path
         char full_path[256];
         int n = snprintf(full_path, sizeof(full_path), "%s/%s", mount_point, entry->d_name);
         if (n <= 0 || n >= (int)sizeof(full_path))
-        {
-            ESP_LOGW(TAG, "Path too long, skipping: %s/%s", mount_point, entry->d_name);
             continue;
-        }
 
-        // ensure it's a regular file
         struct stat st;
         if (stat(full_path, &st) != 0 || !S_ISREG(st.st_mode))
             continue;
 
-        // read entire file
         FILE *f = fopen(full_path, "rb");
         if (!f)
-        {
-            ESP_LOGW(TAG, "Failed to open: %s", full_path);
             continue;
-        }
         if (fseek(f, 0, SEEK_END) != 0)
         {
-            ESP_LOGW(TAG, "fseek end failed: %s", full_path);
             fclose(f);
             continue;
         }
         long sz = ftell(f);
         if (sz < 0)
         {
-            ESP_LOGW(TAG, "ftell failed: %s", full_path);
             fclose(f);
             continue;
         }
         rewind(f);
 
-        // cJSON needs null-terminated buffer
         char *buf = (char *)malloc((size_t)sz + 1);
         if (!buf)
         {
-            ESP_LOGE(TAG, "Out of memory reading: %s", full_path);
             fclose(f);
             closedir(dir);
             return ESP_ERR_NO_MEM;
@@ -1066,7 +1057,6 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         fclose(f);
         if (got != (size_t)sz)
         {
-            ESP_LOGW(TAG, "Short read %s (got %u, expected %ld)", full_path, (unsigned)got, sz);
             free(buf);
             continue;
         }
@@ -1075,28 +1065,20 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         cJSON *root = cJSON_Parse(buf);
         free(buf);
         if (!root)
-        {
-            ESP_LOGW(TAG, "JSON parse failed: %s", full_path);
             continue;
-        }
 
-        // handle object or array
         if (cJSON_IsObject(root))
         {
             if (*out_states < MAX_NR_STATES)
             {
-                if (!parse_state_object(root, &statemachine_config[*out_states]))
+                statemachine_config_t tmp;
+                if (parse_state_object(root, &tmp))
                 {
-                    ESP_LOGW(TAG, "Invalid state object in %s", full_path);
-                }
-                else
-                {
+                    xSemaphoreTake(state_config_mutex, portMAX_DELAY);
+                    statemachine_config[*out_states] = tmp;
+                    xSemaphoreGive(state_config_mutex);
                     (*out_states)++;
                 }
-            }
-            else
-            {
-                ESP_LOGW(TAG, "Reached MAX_NR_STATES, skipping %s", full_path);
             }
         }
         else if (cJSON_IsArray(root))
@@ -1105,26 +1087,19 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
             cJSON_ArrayForEach(item, root)
             {
                 if (*out_states >= MAX_NR_STATES)
-                {
-                    ESP_LOGW(TAG, "Reached MAX_NR_STATES while parsing %s", full_path);
                     break;
-                }
-                if (!cJSON_IsObject(item))
+                if (cJSON_IsObject(item))
                 {
-                    ESP_LOGW(TAG, "Skipping non-object in array: %s", full_path);
-                    continue;
+                    statemachine_config_t tmp;
+                    if (parse_state_object(item, &tmp))
+                    {
+                        xSemaphoreTake(state_config_mutex, portMAX_DELAY);
+                        statemachine_config[*out_states] = tmp;
+                        xSemaphoreGive(state_config_mutex);
+                        (*out_states)++;
+                    }
                 }
-                if (!parse_state_object(item, &statemachine_config[*out_states]))
-                {
-                    ESP_LOGW(TAG, "Invalid state in array in %s", full_path);
-                    continue;
-                }
-                (*out_states)++;
             }
-        }
-        else
-        {
-            ESP_LOGW(TAG, "Unsupported JSON root in %s (not object/array)", full_path);
         }
 
         cJSON_Delete(root);

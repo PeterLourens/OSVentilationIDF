@@ -35,6 +35,8 @@ esp_err_t influxdb_config_post_handler(httpd_req_t *);
 esp_err_t syslog_config_post_handler(httpd_req_t *);
 esp_err_t time_config_post_handler(httpd_req_t *);
 esp_err_t fan_config_post_handler(httpd_req_t *);
+esp_err_t state_gen_config_post_handler(httpd_req_t *);
+esp_err_t state_config_post_handler(httpd_req_t *);
 
 void ws_async_send(char *, size_t);
 httpd_handle_t start_webserver(void);

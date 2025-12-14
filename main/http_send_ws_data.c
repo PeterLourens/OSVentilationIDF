@@ -260,37 +260,6 @@ void send_config_json_ws(void)
     }
 }
 
-void send_statemachine_general_config_json_ws(void)
-{
-    cJSON *root = cJSON_CreateObject();
-    if (!root)
-        return;
-
-    // --- General settings ---
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
-    {
-        cJSON_AddStringToObject(root, "enable_dhcp", network_config.enable_dhcp);
-        cJSON_AddStringToObject(root, "ssid", network_config.ssid);
-        cJSON_AddStringToObject(root, "wifi_password", network_config.wifi_password);
-        cJSON_AddStringToObject(root, "ip_address", network_config.ip_address);
-        cJSON_AddStringToObject(root, "subnet_mask", network_config.subnet_mask);
-        cJSON_AddStringToObject(root, "gateway", network_config.gateway);
-        cJSON_AddStringToObject(root, "primary_dns", network_config.primary_dns);
-        cJSON_AddStringToObject(root, "secondary_dns", network_config.secondary_dns);
-        xSemaphoreGive(network_config_mutex);
-    }
-
-    // Serialize to string
-    char *out = cJSON_PrintUnformatted(root);
-    cJSON_Delete(root);
-
-    if (out)
-    {
-        ws_async_send(out, strlen(out));
-        free(out);
-    }
-}
-
 void send_statemachine_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
@@ -313,6 +282,10 @@ void send_statemachine_config_json_ws(void)
         cJSON_AddNumberToObject(root, "wkend_n_m_start", statemachine_gen_config.wkend_n_m_start);
         cJSON_AddStringToObject(root, "wkend_d1", statemachine_gen_config.wkend_d1);
         cJSON_AddStringToObject(root, "wkend_d2", statemachine_gen_config.wkend_d2);
+        cJSON_AddNumberToObject(root, "rh_l", statemachine_gen_config.rh_low_level);
+        cJSON_AddNumberToObject(root, "rh_h", statemachine_gen_config.rh_high_level);
+        cJSON_AddNumberToObject(root, "co2_l", statemachine_gen_config.co2_low_level);
+        cJSON_AddNumberToObject(root, "co2_h", statemachine_gen_config.co2_high_level);
 
         // other state settings go here
         for (int i = 0; i < MAX_NR_STATES; i++)
@@ -334,14 +307,6 @@ void send_statemachine_config_json_ws(void)
 
             snprintf(key, sizeof(key), "s%d_name", i);
             cJSON_AddStringToObject(root, key, statemachine_config[i].state_name);
-            snprintf(key, sizeof(key), "s%d_rh_l", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].rh_low_level);
-            snprintf(key, sizeof(key), "s%d_rh_h", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].rh_high_level);
-            snprintf(key, sizeof(key), "s%d_co2_h", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].co2_high_level);
-            snprintf(key, sizeof(key), "s%d_co2_l", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].co2_low_level);
             snprintf(key, sizeof(key), "s%d_st_h", i);
             cJSON_AddNumberToObject(root, key, statemachine_config[i].state_start_hour);
             snprintf(key, sizeof(key), "s%d_st_m", i);

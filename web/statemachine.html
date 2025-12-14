@@ -42,7 +42,7 @@
 
             <div class="content">
                 <h4 class="content-subhead">General statemachine configuration.</h4>
-                <form class="pure-form pure-form-stacked" method="POST" action="/settings_statemachine">
+                <form class="pure-form pure-form-stacked" method="POST" action="/state_gen_config">
                     <fieldset>
                         <div class="pure-g">
                             <div class="pure-u-1 pure-u-md-1-4">
@@ -101,6 +101,22 @@
                                     <option>Saturday</option>
                                 </select>
                             </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="co2_h">CO2 High level:</label>
+                                <input type="number" min="500" name="co2_h" id="co2_h" class="pure-input-1-3">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="co2_l">CO2 Low level:</label>
+                                <input type="number" min="0" name="co2_l" id="co2_l" class="pure-input-1-3">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="rh_h">RH High level:</label>
+                                <input type="number" min="0" max="100" name="rh_h" id="rh_h" class="pure-input-1-3">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="rh_l">RH Low level:</label>
+                                <input type="number" min="0" max="100" name="rh_l" id="rh_l" class="pure-input-1-3">
+                            </div>
                         </div>
                         <br>
                         <input type="submit" value="Store statemachine settings" class="pure-button-primary button-xsmall pure-button">
@@ -130,22 +146,6 @@
                             <div class="pure-u-1 pure-u-md-1-3">
                                 <label for="s0_name">Name:</label>
                                 <input type="text" name="s0_name" id="s0_name" maxlength="32" class="pure-input-1-1">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s0_co2_h">CO2 High level:</label>
-                                <input type="number" min="500" name="s0_co2_h" id="s0_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s0_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s0_co2_l" id="s0_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s0_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s0_rh_h" id="s0_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s0_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s0_rh_l" id="s0_rh_l" class="pure-input-1-3">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s0_st_h">State start hour:</label>
@@ -250,22 +250,6 @@
                                 <input type="text" name="s1_name" id="s1_name" maxlength="32" class="pure-input-1-1">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s1_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s1_co2_h" id="s1_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s1_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s1_co2_l" id="s1_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s1_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s1_rh_h" id="s1_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s1_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s1_rh_l" id="s1_rh_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s1_st_h">State start hour:</label>
                                 <input type="number" min="0" max="23" name="s1_st_h" id="s1_st_h" class="pure-input-1-3">
                             </div>
@@ -366,22 +350,6 @@
                             <div class="pure-u-1 pure-u-md-1-3">
                                 <label for="s2_name">Name:</label>
                                 <input type="text" name="s2_name" id="s2_name" maxlength="32" class="pure-input-1-1">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s2_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s2_co2_h" id="s2_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s2_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s2_co2_l" id="s2_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s2_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s2_rh_h" id="s2_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s2_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s2_rh_l" id="s2_rh_l" class="pure-input-1-3">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s2_st_h">State start hour:</label>
@@ -486,22 +454,6 @@
                                 <input type="text" name="s3_name" id="s3_name" maxlength="32" class="pure-input-1-1">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s3_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s3_co2_h" id="s3_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s3_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s3_co2_l" id="s3_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s3_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s3_rh_h" id="s3_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s3_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s3_rh_l" id="s3_rh_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s3_st_h">State start hour:</label>
                                 <input type="number" min="0" max="23" name="s3_st_h" id="s3_st_h" class="pure-input-1-3">
                             </div>
@@ -602,22 +554,6 @@
                             <div class="pure-u-1 pure-u-md-1-3">
                                 <label for="s4_name">Name:</label>
                                 <input type="text" name="s4_name" id="s4_name" maxlength="32" class="pure-input-1-1">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s4_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s4_co2_h" id="s4_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s4_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s4_co2_l" id="s4_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s4_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s4_rh_h" id="s4_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s4_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s4_rh_l" id="s4_rh_l" class="pure-input-1-3">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s4_st_h">State start hour:</label>
@@ -722,22 +658,6 @@
                                 <input type="text" name="s5_name" id="s5_name" maxlength="32" class="pure-input-1-1">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s5_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s5_co2_h" id="s5_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s5_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s5_co2_l" id="s5_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s5_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s5_rh_h" id="s5_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s5_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s5_rh_l" id="s5_rh_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s5_st_h">State start hour:</label>
                                 <input type="number" min="0" max="23" name="s5_st_h" id="s5_st_h" class="pure-input-1-3">
                             </div>
@@ -838,22 +758,6 @@
                             <div class="pure-u-1 pure-u-md-1-3">
                                 <label for="s6_name">Name:</label>
                                 <input type="text" name="s6_name" id="s6_name" maxlength="32" class="pure-input-1-1">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s6_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s6_co2_h" id="s6_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s6_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s6_co2_l" id="s6_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s6_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s6_rh_h" id="s6_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s6_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s6_rh_l" id="s6_rh_l" class="pure-input-1-3">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s6_st_h">State start hour:</label>
@@ -958,22 +862,6 @@
                                 <input type="text" name="s7_name" id="s7_name" maxlength="32" class="pure-input-1-1">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s7_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s7_co2_h" id="s7_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s7_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s7_co2_l" id="s7_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s7_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s7_rh_h" id="s7_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s7_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s7_rh_l" id="s7_rh_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s7_st_h">State start hour:</label>
                                 <input type="number" min="0" max="23" name="s7_st_h" id="s7_st_h" class="pure-input-1-3">
                             </div>
@@ -1076,22 +964,6 @@
                                 <input type="text" name="s8_name" id="s8_name" maxlength="32" class="pure-input-1-1">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s8_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s8_co2_h" id="s8_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s8_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s8_co2_l" id="s8_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s8_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s8_rh_h" id="s8_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s8_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s8_rh_l" id="s8_rh_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s8_st_h">State start hour:</label>
                                 <input type="number" min="0" max="23" name="s8_st_h" id="s8_st_h" class="pure-input-1-3">
                             </div>
@@ -1192,22 +1064,6 @@
                             <div class="pure-u-1 pure-u-md-1-3">
                                 <label for="s9_name">Name:</label>
                                 <input type="text" name="s9_name" id="s9_name" maxlength="32" class="pure-input-1-1">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s9_co2_h">CO2 High level:</label>
-                                <input type="number" min="0" name="s9_co2_h" id="s9_co2_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s9_co2_h">CO2 Low level:</label>
-                                <input type="number" min="0" name="s9_co2_l" id="s9_co2_l" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s9_rh_h">RH High level:</label>
-                                <input type="number" min="0" max="100" name="s9_rh_h" id="s9_rh_h" class="pure-input-1-3">
-                            </div>
-                            <div class="pure-u-1 pure-u-md-1-2">
-                                <label for="s9_rh_l">RH Low level:</label>
-                                <input type="number" min="0" max="100" name="s9_rh_l" id="s9_rh_l" class="pure-input-1-3">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="s9_st_h">State start hour:</label>

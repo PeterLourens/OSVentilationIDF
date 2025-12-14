@@ -237,6 +237,10 @@ typedef struct
     int wkend_n_m_start;              // Bitmask for weekday/day/hour end
     char wkend_d1[SMALL_CONFIG_ITEM]; // Weekend day 1 (0=Sunday, 6=Saturday)
     char wkend_d2[SMALL_CONFIG_ITEM]; // Weekend day 2 (0=Sunday, 6=Saturday)
+    int rh_low_level;                 // General lower RH threshold
+    int rh_high_level;                // General upper RH threshold
+    int co2_low_level;                // General lower CO2 threshold
+    int co2_high_level;               // General upper CO2 threshold
 
 } statemachine_gen_config_t;
 

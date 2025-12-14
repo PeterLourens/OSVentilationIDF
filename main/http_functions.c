@@ -703,6 +703,54 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
+esp_err_t state_gen_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_state_gen_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/sm_general_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_sensor_config)
+    if (load_statemachine_general_config() != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to reload statemachine general config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = statemachine_html_end - statemachine_html_start;
+    return httpd_resp_send(req, statemachine_html_start, len);
+}
+
 // POST handler: save state configuration to flash
 esp_err_t state_config_post_handler(httpd_req_t *req)
 {
@@ -1019,6 +1067,14 @@ httpd_handle_t start_webserver(void)
         .user_ctx = NULL,
     };
     httpd_register_uri_handler(http_server, &time_config_post_uri);
+
+    httpd_uri_t state_gen_config_post_uri = {
+        .uri = "/state_gen_config",
+        .method = HTTP_POST,
+        .handler = state_gen_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &state_gen_config_post_uri);
 
     httpd_uri_t state0_config_post_uri = {
         .uri = "/state0_config",

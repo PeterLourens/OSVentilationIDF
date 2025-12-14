@@ -111,7 +111,7 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
         return ESP_ERR_INVALID_SIZE;
     }
 
-    ESP_LOGI(TAG, "Read %zu bytes from %s", len, path);
+    // ESP_LOGI(TAG, "Read %zu bytes from %s", len, path);
     return ESP_OK;
 }
 

@@ -8,5 +8,9 @@
     "wkend_n_h_start": 21,
     "wkend_n_m_start": 30,
     "wkend_d1": "Monday",
-    "wkend_d2": "Sunday"
+    "wkend_d2": "Sunday",
+    "rh_low_level": 0,
+    "rh_high_level": 85,
+    "co2_low_level": 0,
+    "co2_high_level": 1000
 }

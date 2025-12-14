@@ -18,6 +18,7 @@ esp_err_t load_statemachine_general_config(void);
 bool match_pattern(const char *, const char *);
 bool parse_bool_flexible(const cJSON *, bool *);
 bool parse_int_flexible(const cJSON *, int *);
+void get_state_config(size_t, statemachine_config_t *);
 bool parse_state_object(const cJSON *, statemachine_config_t *);
 esp_err_t read_state_configs_from_json(const char *, const char *, int, size_t *);
 esp_err_t load_state_config(void);

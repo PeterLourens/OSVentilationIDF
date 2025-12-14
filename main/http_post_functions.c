@@ -354,6 +354,113 @@ cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+cJSON *build_state_gen_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "wday_d_h_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wday_d_m_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wday_n_h_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wday_n_m_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wkend_d_h_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wkend_d_m_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+    snprintf(key, sizeof(key), "wkend_n_h_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+    snprintf(key, sizeof(key), "wkend_n_m_start");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wkend_d1");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "wkend_d2");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "rh_l");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        int rh_low = atoi(val);
+        cJSON_AddNumberToObject(obj, "rh_low_level", rh_low);
+    }
+    else
+        cJSON_AddNumberToObject(obj, "rh_low_level", 0);
+
+    snprintf(key, sizeof(key), "rh_h");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        int rh_high = atoi(val);
+        cJSON_AddNumberToObject(obj, "rh_high_level", rh_high);
+    }
+    else
+        cJSON_AddNumberToObject(obj, "rh_high_level", 0);
+
+    snprintf(key, sizeof(key), "co2_h");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        int co2_high = atoi(val);
+        cJSON_AddNumberToObject(obj, "co2_high_level", co2_high);
+    }
+    else
+        cJSON_AddNumberToObject(obj, "co2_high_level", 0);
+
+    snprintf(key, sizeof(key), "co2_l");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        int co2_low = atoi(val);
+        cJSON_AddNumberToObject(obj, "co2_low_level", co2_low);
+    }
+    else
+        cJSON_AddNumberToObject(obj, "co2_low_level", 0);
+    return obj;
+}
+
 cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int state_number)
 {
     if (!body)
@@ -400,30 +507,6 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
         cJSON_AddStringToObject(obj, "state_name", val);
     else
         cJSON_AddStringToObject(obj, "state_name", "");
-
-    snprintf(key, sizeof(key), "s%d_rh_h", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "rh_high_level", val);
-    else
-        cJSON_AddStringToObject(obj, "rh_high_level", "");
-
-    snprintf(key, sizeof(key), "s%d_rh_l", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "rh_low_level", val);
-    else
-        cJSON_AddStringToObject(obj, "rh_low_level", "");
-
-    snprintf(key, sizeof(key), "s%d_co2_h", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "co2_high_level", val);
-    else
-        cJSON_AddStringToObject(obj, "co2_high_level", "");
-
-    snprintf(key, sizeof(key), "s%d_co2_l", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "co2_low_level", val);
-    else
-        cJSON_AddStringToObject(obj, "co2_low_level", "");
 
     snprintf(key, sizeof(key), "s%d_st_h", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
