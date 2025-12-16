@@ -328,7 +328,7 @@ cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
-cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
+/*cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
         return NULL;
@@ -350,6 +350,57 @@ cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
         cJSON_AddStringToObject(obj, key, val);
     else
         cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}*/
+
+// Inline URL decode helper static
+void url_decode_inplace(char *str)
+{
+    char *src = str, *dst = str;
+    while (*src)
+    {
+        if (*src == '%' && src[1] && src[2])
+        {
+            char hex[3] = {src[1], src[2], 0};
+            *dst++ = (char)strtol(hex, NULL, 16);
+            src += 3;
+        }
+        else if (*src == '+')
+        {
+            *dst++ = ' ';
+            src++;
+        }
+        else
+        {
+            *dst++ = *src++;
+        }
+    }
+    *dst = '\0';
+}
+
+cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char val[256];
+
+    if (httpd_query_key_value(body, "ntp_server", val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
+        cJSON_AddStringToObject(obj, "ntp_server", val);
+    }
+
+    if (httpd_query_key_value(body, "timezone", val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
+        cJSON_AddStringToObject(obj, "timezone", val);
+    }
 
     return obj;
 }
