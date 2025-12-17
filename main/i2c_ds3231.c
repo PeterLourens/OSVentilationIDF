@@ -191,7 +191,7 @@ void on_got_ip(void *arg, esp_event_base_t base, int32_t id, void *data)
 }
 
 // Background task for periodic re‑sync
-void ds3231_sync_task(void *pvParameters)
+/*void ds3231_sync_task(void *pvParameters)
 {
     while (1)
     {
@@ -206,7 +206,7 @@ void ds3231_sync_task(void *pvParameters)
             ESP_LOGW(TAG, "Skipped periodic sync — no Wi‑Fi");
         }
     }
-}
+}*/
 
 esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 {
