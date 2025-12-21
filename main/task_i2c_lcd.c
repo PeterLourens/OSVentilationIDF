@@ -53,26 +53,9 @@ void task_i2c_lcd_code(void *pvParameters)
 
         ds3231_health_monitor(ds3231_bus0_handle);
         ds3231_read_temperature(ds3231_bus0_handle, &temp_c);
-
-        // double drift = 0;
-
-        // if (ds3231_read_temperature(ds3231_bus0_handle, &temp_c) == ESP_OK)
-        //{
-        //  Compare RTC vs system time
-        // struct tm rtc_time;
-        //  i2c_ds3231_read_time(ds3231_bus0_handle, &rtc_time);
-        // ds3231_get_time(ds3231_bus0_handle, &rtc_time);
-        // time_t rtc_epoch = tm_to_epoch_utc(&rtc_time);
-
-        // time_t sys_now;
-        // time(&sys_now);
-
-        // drift = difftime(sys_now, rtc_epoch);
-        //}
-
         ds3231_check_status(ds3231_bus0_handle, ds3231_status, sizeof(ds3231_status));
 
-        snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f C\n%s", temp_c, ds3231_status);
+        snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f C%s", temp_c, ds3231_status);
         i2c_lcd_write_text(lcd_contents);
 
         // vTaskDelay(pdMS_TO_TICKS(10000));

@@ -100,7 +100,7 @@ esp_err_t ds3231_get_time(i2c_master_dev_handle_t dev, struct tm *timeinfo)
     timeinfo->tm_wday = bcd_to_dec(buf[3]);
     timeinfo->tm_mday = bcd_to_dec(buf[4]);
     timeinfo->tm_mon = bcd_to_dec(buf[5]) - 1;
-    timeinfo->tm_year = bcd_to_dec(buf[6]) + 100; // years since 1900
+    timeinfo->tm_year = bcd_to_dec(buf[6]) + 1900; // years since 1900
     return ESP_OK;
 }
 
