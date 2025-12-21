@@ -12,6 +12,7 @@ esp_err_t read_file(const char *, char *, size_t);
 esp_err_t create_mutexes(void);
 
 bool is_valid_ip_address(const char *);
+bool wifi_has_ip(void);
 bool ping_gateway(void);
 void formatted_uptime(char *, size_t);
 void on_ping_end(esp_ping_handle_t, void *);

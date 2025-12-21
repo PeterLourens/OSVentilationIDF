@@ -54,7 +54,7 @@ void app_main(void)
     }
 
     // Init DS3231 and sync system time after that
-    err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
+    /*err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
@@ -64,9 +64,9 @@ void app_main(void)
     else
     {
         ESP_LOGI(TAG, "DS3231 initialized on bus 0");
-    }
+    }*/
 
-    init_system_time_from_ds3231(ds3231_bus0_handle);
+    // init_system_time_from_ds3231(ds3231_bus0_handle);
 
     // Init LCD on bus1
     err = i2c_lcd_init(i2c_bus1_handle, &lcd_bus1_handle);

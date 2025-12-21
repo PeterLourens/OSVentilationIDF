@@ -5,7 +5,7 @@ static const char *TAG = "DS3231 Sync task";
 void start_task_i2c_ds3231(void)
 {
     // Register Wi‑Fi event handler
-    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL);
+    // esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL);
 
     // Create DS3231 sync task
     xTaskCreate(task_i2c_ds3231_code, "i2c_ds3231", 4096, NULL, 8, &task_i2c_ds3231);
@@ -13,9 +13,9 @@ void start_task_i2c_ds3231(void)
 
 void task_i2c_ds3231_code(void *pvParameters)
 {
-    // esp_err_t err = ESP_OK;
+    esp_err_t err = ESP_OK;
 
-    /*err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
+    err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
@@ -25,7 +25,7 @@ void task_i2c_ds3231_code(void *pvParameters)
     else
     {
         ESP_LOGI(TAG, "DS3231 initialized on bus 0");
-    }*/
+    }
 
     while (1)
     {
