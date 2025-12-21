@@ -285,6 +285,12 @@ esp_err_t create_mutexes(void)
     return ESP_OK;
 }
 
+void init_timezone(void)
+{
+    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
+    tzset();
+}
+
 /* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {

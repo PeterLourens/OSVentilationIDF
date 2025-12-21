@@ -136,6 +136,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     }
 
     // --- Configure timezone ---
+    // Set at start, not here
     setenv("TZ", timezone, 1);
     tzset();
 

@@ -112,6 +112,8 @@ void app_main(void)
         ESP_LOGE(TAG, "Failed to load time configuration");
         return;
     }
+    // set timezone after reading config
+    init_timezone();
 
     // Load MQTT configuration
     err = load_mqtt_config();
