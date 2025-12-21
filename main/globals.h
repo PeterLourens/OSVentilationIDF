@@ -117,6 +117,7 @@ extern TaskHandle_t task_i2c_ds3231;
 extern TaskHandle_t task_wifi;
 extern TaskHandle_t task_i2c_lcd;
 extern TaskHandle_t task_rgb_leds;
+extern TaskHandle_t task_statemachine;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
