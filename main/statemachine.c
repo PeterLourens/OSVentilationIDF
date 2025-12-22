@@ -1,5 +1,7 @@
 #include "statemachine.h"
 
+static const char *TAG = "Statemachine";
+
 float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
@@ -23,9 +25,9 @@ const char *STATE_CYCLINGDAY = "cyclingday";
 const char *STATE_CYCLINGNIGHT = "cyclingnight";
 const char *STATE_MANUAL_HIGH_SPEED = "manual_high_speed";
 
-//bool valve_open[MAX_VALVES] = {false};
+// bool valve_open[MAX_VALVES] = {false};
 
-typedef struct 
+typedef struct
 {
     char *valve;
     float co2_reading;
@@ -43,103 +45,110 @@ RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
 // Functions for the state machine would go here
 void init_statemachine(void)
 {
-    //In init state set fanspeed to low (1) and state to init in struct sm_actuals with Mutex
+    // In init state set fanspeed to low (1) and state to init in struct sm_actuals with Mutex
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        sm_actuals.sm_state = 1;    //Init
-        sm_actuals.sm_fanspeed = 1; //Low
+        sm_actuals.sm_state = 1;    // Init
+        sm_actuals.sm_fanspeed = 1; // Low
         xSemaphoreGive(statemachine_mutex);
     }
 
-    //set_fanspeed(sm_actuals.sm_fanspeed);
+    // Code to set fanspeed
+    // set_fanspeed(sm_actuals.sm_fanspeed);
 }
 
-/*void run_statemachine(void)
+void run_statemachine(void)
 {
-    //char msg[MSG_SIZE] = {};
-
-    char *temp_state = NULL;
+    // char *temp_state = NULL;
+    char *temp_state = "test";
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        //temp_state = state;
+        // temp_state = state;
         xSemaphoreGive(statemachine_mutex);
     }
 
-    //snprintf(msg, sizeof(msg), "Read sensor data from queue for statemachine.");
-    //printmessage(LOG_INFO, msg);
+    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
 
     if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
     {
-        //snprintf(msg, sizeof(msg), "Failed to read from sensor_queue.");
-        //printmessage(LOG_ERROR, msg);
+        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
         return;
     }
 
-    //snprintf(msg, sizeof(msg), "Read avg sensor data from queue for statemachine.");
-    //printmessage(LOG_INFO, msg);
+    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
-    //if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
-    //{
-        //snprintf(msg, sizeof(msg), "Failed to read from sensor_avg_queue.");
-        //printmessage(LOG_ERROR, msg);
-        //return;
-    //}
+    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
+        return;
+    }
 
     if (strcmp(temp_state, STATE_INIT) == 0)
     {
-        //init_transitions();
+        init_transitions();
     }
     else if (strcmp(temp_state, STATE_STOPPED) == 0)
     {
-        //stopped_transitions();
+        stopped_transitions();
     }
     else if (strcmp(temp_state, STATE_DAY) == 0)
     {
-        //day_transitions();
+        day_transitions();
     }
     else if (strcmp(temp_state, STATE_NIGHT) == 0)
     {
-        //night_transitions();
+        night_transitions();
     }
     else if (strcmp(temp_state, STATE_HIGHCO2DAY) == 0)
     {
-        //high_co2_day_transitions();
+        high_co2_day_transitions();
     }
     else if (strcmp(temp_state, STATE_HIGHCO2NIGHT) == 0)
     {
-        //high_co2_night_transitions();
+        high_co2_night_transitions();
     }
     else if (strcmp(temp_state, STATE_HIGHRHDAY) == 0)
     {
-        //high_rh_day_transitions();
+        high_rh_day_transitions();
     }
     else if (strcmp(temp_state, STATE_HIGHRHNIGHT) == 0)
     {
-        //high_rh_night_transitions();
+        high_rh_night_transitions();
     }
     else if (strcmp(temp_state, STATE_COOKING) == 0)
     {
-        //cooking_transitions();
+        cooking_transitions();
     }
     else if (strcmp(temp_state, STATE_CYCLINGDAY) == 0)
     {
-        //valve_cycle_day_transitions();
+        valve_cycle_day_transitions();
     }
     else if (strcmp(temp_state, STATE_CYCLINGNIGHT) == 0)
     {
-        //valve_cycle_night_transitions();
+        valve_cycle_night_transitions();
     }
     else if (strcmp(temp_state, STATE_MANUAL_HIGH_SPEED) == 0)
     {
-        //manual_high_speed_transitions();
+        manual_high_speed_transitions();
     }
     else
     {
         // This state should normally never be entered. Back to init of statemachine to keep it running
-        //snprintf(msg, sizeof(msg), "Error in state number, back to init state.");
-        //printmessage(LOG_ERROR, msg);
-        //init_transitions();
+        ESP_LOGE(TAG, "Error in state number, back to init state.");
+        init_transitions();
     }
-}*/
+}
 
+void init_transitions(void) {}
+void stopped_transitions(void) {}
+void day_transitions(void) {}
+void night_transitions(void) {}
+void high_co2_day_transitions(void) {}
+void high_co2_night_transitions(void) {}
+void high_rh_day_transitions(void) {}
+void high_rh_night_transitions() {}
+void cooking_transitions(void) {}
+void valve_cycle_day_transitions(void) {}
+void valve_cycle_night_transitions(void) {}
+void manual_high_speed_transitions(void) {}
