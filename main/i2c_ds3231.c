@@ -106,14 +106,16 @@ esp_err_t ds3231_get_time(i2c_master_dev_handle_t dev, struct tm *timeinfo)
 
 esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 {
+    char ntp_server[64];
+    char timezone[64];
+
     // --- Read config under mutex ---
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to acquire time_config mutex");
         return ESP_ERR_TIMEOUT;
     }
-    char ntp_server[64];
-    char timezone[64];
+
     strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
     ntp_server[sizeof(ntp_server) - 1] = '\0';
     strncpy(timezone, time_config.timezone, sizeof(timezone));
@@ -137,8 +139,8 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 
     // --- Configure timezone ---
     // Set at start, not here
-    setenv("TZ", timezone, 1);
-    tzset();
+    // setenv("TZ", timezone, 1);
+    // tzset();
 
     // --- Configure SNTP ---
     esp_sntp_stop();

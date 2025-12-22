@@ -287,6 +287,23 @@ esp_err_t create_mutexes(void)
 
 void init_timezone(void)
 {
+    const char *TAG = "Set timezone";
+    char ntp_server[64];
+    char timezone[64];
+
+    // --- Read config under mutex ---
+    if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
+        return;
+    }
+
+    strncpy(ntp_server, time_config.ntp_server, sizeof(ntp_server));
+    ntp_server[sizeof(ntp_server) - 1] = '\0';
+    strncpy(timezone, time_config.timezone, sizeof(timezone));
+    timezone[sizeof(timezone) - 1] = '\0';
+    xSemaphoreGive(time_config_mutex);
+
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
     tzset();
 }
