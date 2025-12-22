@@ -928,7 +928,7 @@ bool parse_int_flexible(const cJSON *item, int *out)
 }
 
 // Parse a single state object from cJSON into statemachine_config_t
-bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
+bool parse_state_object(const cJSON *obj, Statemachine_config_t *out)
 {
     if (!cJSON_IsObject(obj) || !out)
         return false;
@@ -972,7 +972,7 @@ bool parse_state_object(const cJSON *obj, statemachine_config_t *out)
 }
 
 // --- Reader helper ---
-void get_state_config(size_t index, statemachine_config_t *out)
+void get_state_config(size_t index, Statemachine_config_t *out)
 {
     if (!out || index >= MAX_NR_STATES)
         return;
@@ -1071,7 +1071,7 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         {
             if (*out_states < MAX_NR_STATES)
             {
-                statemachine_config_t tmp;
+                Statemachine_config_t tmp;
                 if (parse_state_object(root, &tmp))
                 {
                     xSemaphoreTake(state_config_mutex, portMAX_DELAY);
@@ -1090,7 +1090,7 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
                     break;
                 if (cJSON_IsObject(item))
                 {
-                    statemachine_config_t tmp;
+                    Statemachine_config_t tmp;
                     if (parse_state_object(item, &tmp))
                     {
                         xSemaphoreTake(state_config_mutex, portMAX_DELAY);

@@ -87,7 +87,8 @@
 #define IDX_VALID 4
 
 // Valves config
-#define MAX_VALVE_COUNT 12
+#define MAX_VALVE_COUNT 12 // Maximum number of valves supported by the hardware
+#define MAX_SENSORS 16 // Maximum number of sensors supported by the hardware
 
 // WiFi event bits
 #define WIFI_CONNECTED_BIT BIT0
@@ -135,6 +136,7 @@ extern SemaphoreHandle_t time_mutex;
 extern SemaphoreHandle_t lock_valve_move_mutex;
 extern SemaphoreHandle_t sensor_cfg_mutex;
 extern SemaphoreHandle_t state_config_mutex;
+extern SemaphoreHandle_t statemachine_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -236,24 +238,20 @@ typedef struct
     int wkend_d_m_start;              // Bitmask for weekday/day/hour end
     int wkend_n_h_start;              // Bitmask for weekday/day/hour start
     int wkend_n_m_start;              // Bitmask for weekday/day/hour end
-    char wkend_d1[SMALL_CONFIG_ITEM]; // Weekend day 1 (0=Sunday, 6=Saturday)
-    char wkend_d2[SMALL_CONFIG_ITEM]; // Weekend day 2 (0=Sunday, 6=Saturday)
+    char wkend_d1[SMALL_CONFIG_ITEM]; // Weekend day 1
+    char wkend_d2[SMALL_CONFIG_ITEM]; // Weekend day 2
     int rh_low_level;                 // General lower RH threshold
     int rh_high_level;                // General upper RH threshold
     int co2_low_level;                // General lower CO2 threshold
     int co2_high_level;               // General upper CO2 threshold
 
-} statemachine_gen_config_t;
+} Statemachine_gen_config_t;
 
 typedef struct
 {
     bool enable_state;
     int fanspeed;                        // 0 is low, 1 is medium, 2 is high
     char state_name[MEDIUM_CONFIG_ITEM]; // Max 32 characters
-    int rh_low_level;                    // Lower RH threshold for this state
-    int rh_high_level;                   // Upper RH threshold for this state
-    int co2_low_level;                   // Lower CO2 threshold for this state
-    int co2_high_level;                  // Upper CO2 threshold for this state
     int state_start_hour;                // Hour to start this state
     int state_start_minute;              // Minute to start this state
     int state_end_hour;                  // Hour to end this state
@@ -261,7 +259,13 @@ typedef struct
     int duration_minutes;                // Minimum duration to stay in this state
     int cycling_interval_min;            // Interval for cycling valves in minutes
     int valve_position[MAX_VALVE_COUNT]; // Valve position array for this state
-} statemachine_config_t;
+} Statemachine_config_t;
+
+typedef struct 
+{
+    int sm_fanspeed;
+    int sm_state;
+} Statemachine_actuals_t;
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
@@ -273,8 +277,9 @@ extern Fan_config_t fan_config;
 extern I2C_config_t i2c_config;
 extern Syslog_config_t syslog_config;
 extern ping_summary_t g_ping_summary;
-extern statemachine_gen_config_t statemachine_gen_config;
-extern statemachine_config_t statemachine_config[MAX_NR_STATES];
+extern Statemachine_gen_config_t statemachine_gen_config;
+extern Statemachine_config_t statemachine_config[MAX_NR_STATES];
+extern Statemachine_actuals_t sm_actuals;
 
 extern struct tm timeinfo;
 
