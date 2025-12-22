@@ -46,6 +46,7 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS] = {0};
 
 // Queue handles
 QueueHandle_t sensor_queue;
+QueueHandle_t sensor_avg_queue;
 
 // RGB LED handle
 led_strip_handle_t rgb_leds = NULL;

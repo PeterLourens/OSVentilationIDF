@@ -88,7 +88,7 @@
 
 // Valves config
 #define MAX_VALVE_COUNT 12 // Maximum number of valves supported by the hardware
-#define MAX_SENSORS 16 // Maximum number of sensors supported by the hardware
+#define MAX_SENSORS 16     // Maximum number of sensors supported by the hardware
 
 // WiFi event bits
 #define WIFI_CONNECTED_BIT BIT0
@@ -97,6 +97,7 @@
 
 // statemachine settings
 #define MAX_NR_STATES 12
+#define MAX_FIFO_SIZE 25
 
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
@@ -122,6 +123,7 @@ extern TaskHandle_t task_statemachine;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
+extern QueueHandle_t sensor_avg_queue;
 
 // Mutex handles
 extern SemaphoreHandle_t network_config_mutex;
@@ -261,7 +263,7 @@ typedef struct
     int valve_position[MAX_VALVE_COUNT]; // Valve position array for this state
 } Statemachine_config_t;
 
-typedef struct 
+typedef struct
 {
     int sm_fanspeed;
     int sm_state;

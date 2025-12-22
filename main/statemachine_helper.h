@@ -4,7 +4,8 @@
 #include "globals.h"
 #include "general.h"
 
-int fanspeed_char_to_int(char);
-
+void sensor_data_average(void);
+static void fifoPush(int bus, int slot, int measurement, float value, int pos);
+// int fanspeed_char_to_int(char);
 
 #endif
