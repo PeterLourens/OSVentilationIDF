@@ -15,9 +15,13 @@ void task_statemachine_code(void *pvParameters)
 
     for (;;)
     {
+        // Update average sensor data queue
+        sensor_data_average();
+        run_statemachine();
+
         vTaskDelay(60000);
         // if (ap_active == 0) {
-        // run_statemachine();
+        //
         //}
     }
 }

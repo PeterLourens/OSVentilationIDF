@@ -40,7 +40,7 @@ void sensor_data_average(void)
     }
 }
 
-static void fifoPush(int bus, int slot, int measurement, float value, int pos)
+void fifoPush(int bus, int slot, int measurement, float value, int pos)
 {
     if (fifoSize[pos] < MAX_FIFO_SIZE)
     {

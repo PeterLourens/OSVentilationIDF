@@ -3,6 +3,8 @@
 
 #include "globals.h"
 #include "general.h"
+#include "statemachine.h"
+#include "statemachine_helper.h"
 
 void start_task_statemachine(void);
 void task_statemachine_code(void *);
