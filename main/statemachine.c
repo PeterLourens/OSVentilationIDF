@@ -65,7 +65,6 @@ void init_statemachine(void)
 
 void run_statemachine(void)
 {
-    // char *temp_state = NULL;
     int temp_state = 0;
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -146,7 +145,7 @@ void run_statemachine(void)
     }
 }
 
-void stopped_transitions(void) 
+void stopped_transitions(void)
 {
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
@@ -173,7 +172,7 @@ void init_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    //set_fanspeed(state_fanspeed);
+    // set_fanspeed(state_fanspeed);
 
     if (is_day() == true)
     {
@@ -193,17 +192,17 @@ void init_transitions(void)
     }
 }
 
-void day_transitions(void) 
+void day_transitions(void)
 {
-    int state = STATE_NR_DAY;       // Local state variable
-    //int state_config_index = 0;     // Index number for state configuration
-    int new_state = 0;              // State after logic in this function
-    int state_fanspeed = 0;         // Fanspeed from global config struct
-    int minimum_state_time = 0;     // Minimum state time from global state settings struct
+    int state = STATE_NR_DAY;   // Local state variable
+    int state_config_index = 0; // Index number for state configuration
+    int new_state = 0;          // State after logic in this function
+    int state_fanspeed = 0;     // Fanspeed from global config struct
+    int minimum_state_time = 0; // Minimum state time from global state settings struct
     int rhhighlevel = 0;
     int co2highlevel = 0;
     int new_time = 0;
-    
+
     bool valve_move_locked = 0;
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
@@ -211,37 +210,37 @@ void day_transitions(void)
     co2_sensors_high = 0;
     rh_sensors_high = 0;
 
-    // Copy state_name and call function to find index
+    // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_DAY, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
-    //state_index = find_state_index(char *state_name, size_t state_name);
+    state_config_index = find_state_index_by_name_ci(state_name);
 
     // Actions for this state
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
     {
         // State specific config
-        state_fanspeed = statemachine_config[2].fanspeed;                   // ***** TODO: Find correct index number based on state name *****
-        minimum_state_time = statemachine_config[2].duration_minutes;       // Minimum time statemachine remain in this state
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
 
-        //General statemachine config
+        // General statemachine config
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
-        
+
         xSemaphoreGive(state_config_mutex);
     }
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
         sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;                               // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock;                          // Check if valve moving is still locked
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
+        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         xSemaphoreGive(statemachine_mutex);
     }
 
     ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    //set_fanspeed(state_fanspeed);                                 // **** TODO: Function to be implemented *****
-    //select_sensors();                                             // **** TODO: Function to be implemented *****
+    // set_fanspeed(state_fanspeed);                                 // **** TODO: Function to be implemented *****
+    // select_sensors();                                             // **** TODO: Function to be implemented *****
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)
@@ -255,7 +254,7 @@ void day_transitions(void)
 
     if (valve_move_locked == 0)
     {
-        //valve_position_statemachine(statemachine_state);
+        // valve_position_statemachine(statemachine_state);
     }
     else
     {
@@ -303,10 +302,10 @@ void day_transitions(void)
         ESP_LOGI(TAG, "Transit to cooking.");
         new_state = STATE_NR_COOKING;
     }
-    //else if (valve_cycle_times_day() == true)                   // **** TODO: Function to be implemented. This requires a bit more work because config has changed *****
+    // else if (valve_cycle_times_day() == true)                   // **** TODO: Function to be implemented. This requires a bit more work because config has changed *****
     //{
-        //ESP_LOGI(TAG, "Transit to valve cycling day state.");
-        //new_state = STATE_NR_CYCLINGDAY;
+    // ESP_LOGI(TAG, "Transit to valve cycling day state.");
+    // new_state = STATE_NR_CYCLINGDAY;
     //}
     // Manual high speed mode is ignored for now
     else

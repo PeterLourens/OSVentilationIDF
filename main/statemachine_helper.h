@@ -6,6 +6,7 @@
 
 void sensor_data_average(void);
 void fifoPush(int, int, int, float, int);
+int find_state_index_by_name_ci(const char *);
 bool is_day(void);
 bool is_weekend(void);
 bool cooking_times(void);

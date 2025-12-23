@@ -60,6 +60,19 @@ void fifoPush(int bus, int slot, int measurement, float value, int pos)
     avg[pos] = sum[pos] / fifoSize[pos];
 }
 
+int find_state_index_by_name_ci(const char *name)
+{
+    if (!name)
+        return -1;
+
+    for (int i = 0; i < MAX_NR_STATES; i++)
+    {
+        if (strcasecmp(statemachine_config[i].state_name, name) == 0)
+            return i;
+    }
+    return -1;
+}
+
 bool is_day(void)
 {
     int weekday_day_hour_start = 0;
@@ -162,7 +175,7 @@ bool valve_cycle_times_day(void)
     int start_min = 0;
     int stop_hour = 0;
     int stop_min = 0;
-    //int state_index = 0;
+    // int state_index = 0;
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
@@ -172,7 +185,7 @@ bool valve_cycle_times_day(void)
     time(&now);
     localtime_r(&now, &temp_time);
 
-    // TODO: 
+    // TODO:
     // This function is based on fixed times but state config define and and start hour and interval
     // Calculate based on config settings what times cyclng should start and how many times
     // Array is probably easiest to temp store this, e.g. cycling_times[index, hour, min] and iterate through it by index
@@ -187,10 +200,10 @@ bool valve_cycle_times_day(void)
     {
         if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
         {
-            start_hour = statemachine_config[2].state_start_hour; // **** TODO: Find config struct index *****
-            start_min = statemachine_config[2].state_start_minute;// **** TODO: Find config struct index *****
-            stop_hour = statemachine_config[2].state_end_hour;    // **** TODO: Find config struct index *****
-            stop_min = statemachine_config[2].state_end_minute;   // **** TODO: Find config struct index *****
+            start_hour = statemachine_config[2].state_start_hour;  // **** TODO: Find config struct index *****
+            start_min = statemachine_config[2].state_start_minute; // **** TODO: Find config struct index *****
+            stop_hour = statemachine_config[2].state_end_hour;     // **** TODO: Find config struct index *****
+            stop_min = statemachine_config[2].state_end_minute;    // **** TODO: Find config struct index *****
             xSemaphoreGive(state_config_mutex);
         }
     }
