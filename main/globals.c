@@ -70,6 +70,7 @@ ping_summary_t g_ping_summary = {0};
 // Statemachine struct
 Statemachine_gen_config_t statemachine_gen_config = {0};
 Statemachine_config_t statemachine_config[MAX_NR_STATES] = {0};
+Statemachine_actuals_t sm_actuals = {0};
 
 // Valvecontrol variables
 int lock_valve_move = 0;

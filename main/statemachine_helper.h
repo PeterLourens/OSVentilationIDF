@@ -6,6 +6,8 @@
 
 void sensor_data_average(void);
 void fifoPush(int bus, int slot, int measurement, float value, int pos);
+bool is_day(void);
+bool is_weekend(void);
 // int fanspeed_char_to_int(char);
 
 #endif

@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "statemachine_helper.h"
 
 void run_statemachine(void);
 void init_transitions(void);

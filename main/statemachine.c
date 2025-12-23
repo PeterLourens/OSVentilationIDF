@@ -12,18 +12,38 @@ int rh_sensors_high = 0;
 int old_time = 0;
 int elapsed_time = 0;
 
-const char *STATE_INIT = "init";
-const char *STATE_STOPPED = "stopped";
-const char *STATE_DAY = "day";
-const char *STATE_NIGHT = "night";
-const char *STATE_HIGHCO2DAY = "highco2day";
-const char *STATE_HIGHCO2NIGHT = "highco2night";
-const char *STATE_HIGHRHDAY = "highrhday";
-const char *STATE_HIGHRHNIGHT = "highrhnight";
-const char *STATE_COOKING = "cooking";
-const char *STATE_CYCLINGDAY = "cyclingday";
-const char *STATE_CYCLINGNIGHT = "cyclingnight";
-const char *STATE_MANUAL_HIGH_SPEED = "manual_high_speed";
+const char *STATE_ERROR = "error";                          // state_nr = 0
+const char *STATE_INIT = "init";                            // state_nr = 1
+const char *STATE_DAY = "day";                              // state_nr = 2
+const char *STATE_NIGHT = "night";                          // state_nr = 3
+const char *STATE_HIGHCO2DAY = "highco2day";                // state_nr = 4
+const char *STATE_HIGHCO2NIGHT = "highco2night";            // state_nr = 5
+const char *STATE_HIGHRHDAY = "highrhday";                  // state_nr = 6
+const char *STATE_HIGHRHNIGHT = "highrhnight";              // state_nr = 7
+const char *STATE_COOKING = "cooking";                      // state_nr = 8
+const char *STATE_CYCLINGDAY = "cyclingday";                // state_nr = 9
+const char *STATE_CYCLINGNIGHT = "cyclingnight";            // state_nr = 10
+const char *STATE_MANUALHS = "manual_high_speed";           // state_nr = 11
+const char *STATE_STOPPED = "stopped";                      // state_nr = 12
+
+const int STATE_NR_ERROR = 0;
+const int STATE_NR_INIT = 1;
+const int STATE_NR_DAY = 2;
+const int STATE_NR_NIGHT = 3;
+const int STATE_NR_HIGHCO2DAY = 4;
+const int STATE_NR_HIGHCO2NIGHT = 5;
+const int STATE_NR_HIGHRHDAY = 6;
+const int STATE_NR_HIGHRHNIGHT = 7;
+const int STATE_NR_COOKING = 8;
+const int STATE_NR_CYCLINGDAY = 9;
+const int STATE_NR_CYCLINGNIGHT = 10;
+const int STATE_NR_MANUALHS = 11;
+const int STATE_NR_STOPPED = 12;
+
+const int FANSPEED_ERROR = 0;
+const int FANSPEED_LOW = 1;
+const int FANSPEED_MEDIUM = 2;
+const int FANSPEED_HIGH = 3;
 
 // bool valve_open[MAX_VALVES] = {false};
 
@@ -48,8 +68,8 @@ void init_statemachine(void)
     // In init state set fanspeed to low (1) and state to init in struct sm_actuals with Mutex
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        sm_actuals.sm_state = 1;    // Init
-        sm_actuals.sm_fanspeed = 1; // Low
+        sm_actuals.state = 1;    // Init
+        sm_actuals.fanspeed = 1; // Low
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -60,11 +80,11 @@ void init_statemachine(void)
 void run_statemachine(void)
 {
     // char *temp_state = NULL;
-    char *temp_state = "test";
+    int temp_state = 0;
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        // temp_state = state;
+        temp_state = sm_actuals.state;
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -84,51 +104,51 @@ void run_statemachine(void)
         return;
     }
 
-    if (strcmp(temp_state, STATE_INIT) == 0)
+    if (temp_state == STATE_NR_INIT)
     {
         init_transitions();
     }
-    else if (strcmp(temp_state, STATE_STOPPED) == 0)
+    else if (temp_state == STATE_NR_STOPPED)
     {
         stopped_transitions();
     }
-    else if (strcmp(temp_state, STATE_DAY) == 0)
+    else if (temp_state == STATE_NR_DAY)
     {
         day_transitions();
     }
-    else if (strcmp(temp_state, STATE_NIGHT) == 0)
+    else if (temp_state == STATE_NR_NIGHT)
     {
         night_transitions();
     }
-    else if (strcmp(temp_state, STATE_HIGHCO2DAY) == 0)
+    else if (temp_state == STATE_NR_HIGHCO2DAY)
     {
         high_co2_day_transitions();
     }
-    else if (strcmp(temp_state, STATE_HIGHCO2NIGHT) == 0)
+    else if (temp_state == STATE_NR_HIGHCO2NIGHT)
     {
         high_co2_night_transitions();
     }
-    else if (strcmp(temp_state, STATE_HIGHRHDAY) == 0)
+    else if (temp_state == STATE_NR_HIGHRHDAY)
     {
         high_rh_day_transitions();
     }
-    else if (strcmp(temp_state, STATE_HIGHRHNIGHT) == 0)
+    else if (temp_state == STATE_NR_HIGHRHNIGHT)
     {
         high_rh_night_transitions();
     }
-    else if (strcmp(temp_state, STATE_COOKING) == 0)
+    else if (temp_state == STATE_NR_COOKING)
     {
         cooking_transitions();
     }
-    else if (strcmp(temp_state, STATE_CYCLINGDAY) == 0)
+    else if (temp_state == STATE_NR_CYCLINGDAY)
     {
         valve_cycle_day_transitions();
     }
-    else if (strcmp(temp_state, STATE_CYCLINGNIGHT) == 0)
+    else if (temp_state == STATE_NR_CYCLINGNIGHT)
     {
         valve_cycle_night_transitions();
     }
-    else if (strcmp(temp_state, STATE_MANUAL_HIGH_SPEED) == 0)
+    else if (temp_state == STATE_NR_MANUALHS)
     {
         manual_high_speed_transitions();
     }
@@ -140,8 +160,53 @@ void run_statemachine(void)
     }
 }
 
-void init_transitions(void) {}
-void stopped_transitions(void) {}
+void stopped_transitions(void) 
+{
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = STATE_NR_STOPPED;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    // No further logic required because when start statemachine button is pushed the statemachine will go back to init state
+    ESP_LOGI(TAG, "State is stopped. Push start statemachine button on the Valve Control web page to continue.");
+}
+
+void init_transitions(void)
+{
+    int state_fanspeed = FANSPEED_LOW;
+    int state = STATE_NR_INIT;
+    int new_state = 0;
+
+    // Actions for this state
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = state_fanspeed;
+        sm_actuals.fanspeed = state;
+        ESP_LOGI(TAG, "State: init, fanspeed: %s.", sm_actuals.fanspeed);
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    //set_fanspeed(state_fanspeed);
+
+    if (is_day() == true)
+    {
+        ESP_LOGI(TAG, "Transit to day.");
+        new_state = STATE_NR_DAY;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Transit to night.");
+        new_state = STATE_NR_NIGHT;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = new_state;
+        xSemaphoreGive(statemachine_mutex);
+    }
+}
+
 void day_transitions(void) {}
 void night_transitions(void) {}
 void high_co2_day_transitions(void) {}

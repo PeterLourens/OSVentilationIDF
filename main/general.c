@@ -480,6 +480,28 @@ void formatted_datetime(char *buf, size_t bufsize)
     snprintf(buf, bufsize, "%04d/%02d/%02d-%02d:%02d:%02d", temp_time.tm_year + 1900, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
 }
 
+void formatted_day(char *buf, size_t bufsize)
+{
+    int dayofweek = 0;
+    static const char *day_names[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+    struct tm temp_time;
+    time_t now = 0;
+
+    time(&now);
+    localtime_r(&now, &temp_time);
+
+    // Get day of week from local time struct
+    dayofweek = temp_time.tm_wday;
+
+    // Clamp dayofweek to valid range just in case
+    if (dayofweek < 0 || dayofweek > 6)
+    {
+        dayofweek = 0;
+    }
+
+    snprintf(buf, bufsize, "%s", day_names[dayofweek]);
+}
+
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging

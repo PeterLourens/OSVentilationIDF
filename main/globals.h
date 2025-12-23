@@ -265,8 +265,8 @@ typedef struct
 
 typedef struct
 {
-    int sm_fanspeed;
-    int sm_state;
+    int fanspeed;
+    int state;
 } Statemachine_actuals_t;
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
