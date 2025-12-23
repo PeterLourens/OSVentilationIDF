@@ -1,5 +1,19 @@
 #include "globals.h"
 
+const char *STATE_ERROR = "error";                // state_nr = 0
+const char *STATE_INIT = "init";                  // state_nr = 1
+const char *STATE_DAY = "day";                    // state_nr = 2
+const char *STATE_NIGHT = "night";                // state_nr = 3
+const char *STATE_HIGHCO2DAY = "highco2day";      // state_nr = 4
+const char *STATE_HIGHCO2NIGHT = "highco2night";  // state_nr = 5
+const char *STATE_HIGHRHDAY = "highrhday";        // state_nr = 6
+const char *STATE_HIGHRHNIGHT = "highrhnight";    // state_nr = 7
+const char *STATE_COOKING = "cooking";            // state_nr = 8
+const char *STATE_CYCLINGDAY = "cyclingday";      // state_nr = 9
+const char *STATE_CYCLINGNIGHT = "cyclingnight";  // state_nr = 10
+const char *STATE_MANUALHS = "manual_high_speed"; // state_nr = 11
+const char *STATE_STOPPED = "stopped";            // state_nr = 12
+
 // I2C Devices new driver style
 i2c_master_bus_handle_t i2c_bus0_handle = {0};
 i2c_master_bus_handle_t i2c_bus1_handle = {0};

@@ -99,6 +99,20 @@
 #define MAX_NR_STATES 12
 #define MAX_FIFO_SIZE 25
 
+extern const char *STATE_ERROR;
+extern const char *STATE_INIT;
+extern const char *STATE_DAY;
+extern const char *STATE_NIGHT;
+extern const char *STATE_HIGHCO2DAY;
+extern const char *STATE_HIGHCO2NIGHT;
+extern const char *STATE_HIGHRHDAY;
+extern const char *STATE_HIGHRHNIGHT;
+extern const char *STATE_COOKING;
+extern const char *STATE_CYCLINGDAY;
+extern const char *STATE_CYCLINGNIGHT;
+extern const char *STATE_MANUALHS;
+extern const char *STATE_STOPPED;
+
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
@@ -267,6 +281,7 @@ typedef struct
 {
     int fanspeed;
     int state;
+    bool valve_lock;
 } Statemachine_actuals_t;
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
