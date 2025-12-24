@@ -67,6 +67,30 @@ void task_rgb_leds_code(void *pvParameters)
 
         vTaskDelay(pdMS_TO_TICKS(1000));
 
+        set_led_color(0, COLOR_YELLOW, 16); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(1, COLOR_YELLOW, 16); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_WHITE, 32); // LED 1 → cyan @ full brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(1, COLOR_WHITE, 32); // LED 1 → cyan @ full brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_ORANGE, 8); // LED 2 → orange @ 50%
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(1, COLOR_ORANGE, 8); // LED 2 → orange @ 50%
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
         // Turn off the LEDs
         led_strip_clear(rgb_leds);
         led_strip_refresh(rgb_leds);
