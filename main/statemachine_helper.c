@@ -40,6 +40,7 @@ void sensor_data_average(void)
     }
 }
 
+// FIFO push function to add a new value and update sum and average required for sensor moving average calculation
 void fifoPush(int bus, int slot, int measurement, float value, int pos)
 {
     if (fifoSize[pos] < MAX_FIFO_SIZE)
@@ -175,7 +176,7 @@ bool valve_cycle_times_day(void)
     int start_min = 0;
     int stop_hour = 0;
     int stop_min = 0;
-    // int state_index = 0;
+    int state_config_index = 0;
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
@@ -193,17 +194,17 @@ bool valve_cycle_times_day(void)
     // Get state config setting when cycling is required
     strncpy(state_name, STATE_CYCLINGDAY, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
-    // state_index = find_state_index(char *state_name, size_t state_name);
+    state_config_index = find_state_index_by_name_ci(state_name);
 
     // Get state config setting when cycling is required
     if (state_config_mutex != NULL)
     {
         if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
         {
-            start_hour = statemachine_config[2].state_start_hour;  // **** TODO: Find config struct index *****
-            start_min = statemachine_config[2].state_start_minute; // **** TODO: Find config struct index *****
-            stop_hour = statemachine_config[2].state_end_hour;     // **** TODO: Find config struct index *****
-            stop_min = statemachine_config[2].state_end_minute;    // **** TODO: Find config struct index *****
+            start_hour = statemachine_config[state_config_index].state_start_hour;
+            start_min = statemachine_config[state_config_index].state_start_minute;
+            stop_hour = statemachine_config[state_config_index].state_end_hour;
+            stop_min = statemachine_config[state_config_index].state_end_minute;
             xSemaphoreGive(state_config_mutex);
         }
     }
@@ -243,7 +244,7 @@ bool valve_cycle_times_night(void)
     int start_min = 0;
     int stop_hour = 0;
     int stop_min = 0;
-    // int state_index = 0;
+    int state_config_index = 0;
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
@@ -256,6 +257,7 @@ bool valve_cycle_times_night(void)
     // Get state config setting when cycling is required
     strncpy(state_name, STATE_CYCLINGNIGHT, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
+    state_config_index = find_state_index_by_name_ci(state_name);
     // state_index = find_state_index(char *state_name, size_t state_name);
 
     // Get state config setting when cycling is required
@@ -263,10 +265,10 @@ bool valve_cycle_times_night(void)
     {
         if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
         {
-            start_hour = statemachine_config[2].state_start_hour;  // **** TODO: Find config struct index *****
-            start_min = statemachine_config[2].state_start_minute; // **** TODO: Find config struct index *****
-            stop_hour = statemachine_config[2].state_end_hour;     // **** TODO: Find config struct index *****
-            stop_min = statemachine_config[2].state_end_minute;    // **** TODO: Find config struct index *****
+            start_hour = statemachine_config[state_config_index].state_start_hour;  // **** TODO: Find config struct index *****
+            start_min = statemachine_config[state_config_index].state_start_minute; // **** TODO: Find config struct index *****
+            stop_hour = statemachine_config[state_config_index].state_end_hour;     // **** TODO: Find config struct index *****
+            stop_min = statemachine_config[state_config_index].state_end_minute;    // **** TODO: Find config struct index *****
             xSemaphoreGive(state_config_mutex);
         }
     }
