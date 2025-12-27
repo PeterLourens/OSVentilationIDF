@@ -223,6 +223,13 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
+    statemachine_mutex = xSemaphoreCreateMutex();
+    if (statemachine_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create statemachine_mutex");
+        ok = false;
+    }
+
     if (!ok)
     {
         // cleanup any created semaphores to avoid leaks and to keep state consistent
@@ -275,6 +282,11 @@ esp_err_t create_mutexes(void)
         {
             vSemaphoreDelete(state_config_mutex);
             state_config_mutex = NULL;
+        }
+        if (statemachine_mutex)
+        {
+            vSemaphoreDelete(statemachine_mutex);
+            statemachine_mutex = NULL;
         }
 
         ESP_LOGE(TAG, "One or more mutexes failed to create");

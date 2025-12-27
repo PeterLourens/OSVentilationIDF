@@ -99,6 +99,12 @@
 #define MAX_NR_STATES 12
 #define MAX_FIFO_SIZE 25
 
+// Fanspeed values
+#define FANSPEED_ERROR 0
+#define FANSPEED_LOW 1
+#define FANSPEED_MEDIUM 2
+#define FANSPEED_HIGH 3
+
 extern const char *STATE_ERROR;
 extern const char *STATE_INIT;
 extern const char *STATE_DAY;
@@ -210,7 +216,7 @@ typedef struct
 
 typedef struct
 {
-    char fan_control_mode[SMALL_CONFIG_ITEM];
+    char fan_control_mode[MEDIUM_CONFIG_ITEM];
     char fan_control_mqtt_server[LARGE_CONFIG_ITEM];
     char fan_control_mqtt_port[SMALL_CONFIG_ITEM];
     char fan_control_mqtt_topic[XLARGE_CONFIG_ITEM];

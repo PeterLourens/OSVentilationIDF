@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "general.h"
 #include "statemachine_helper.h"
+#include "fancontrol.h"
 
 void run_statemachine(void);
 void init_transitions(void);

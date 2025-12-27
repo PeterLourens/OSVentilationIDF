@@ -26,11 +26,6 @@ const int STATE_NR_CYCLINGNIGHT = 10;
 const int STATE_NR_MANUALHS = 11;
 const int STATE_NR_STOPPED = 12;
 
-const int FANSPEED_ERROR = 0;
-const int FANSPEED_LOW = 1;
-const int FANSPEED_MEDIUM = 2;
-const int FANSPEED_HIGH = 3;
-
 // bool valve_open[MAX_VALVES] = {false};
 
 typedef struct
@@ -54,13 +49,13 @@ void init_statemachine(void)
     // In init state set fanspeed to low (1) and state to init in struct sm_actuals with Mutex
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        sm_actuals.state = 1;    // Init
-        sm_actuals.fanspeed = 1; // Low
+        sm_actuals.state = 1;               // Init
+        sm_actuals.fanspeed = FANSPEED_LOW; // Low
         xSemaphoreGive(statemachine_mutex);
     }
 
     // Code to set fanspeed
-    // set_fanspeed(sm_actuals.sm_fanspeed);
+    set_fanspeed(FANSPEED_LOW);
 }
 
 void run_statemachine(void)
@@ -172,7 +167,7 @@ void init_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    // set_fanspeed(state_fanspeed);
+    set_fanspeed(state_fanspeed);
 
     if (is_day() == true)
     {
@@ -239,7 +234,7 @@ void day_transitions(void)
 
     ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    // set_fanspeed(state_fanspeed);                                 // **** TODO: Function to be implemented *****
+    set_fanspeed(state_fanspeed);
     // select_sensors();                                             // **** TODO: Function to be implemented *****
 
     new_time = (esp_timer_get_time()) / 1000000;
@@ -302,11 +297,11 @@ void day_transitions(void)
         ESP_LOGI(TAG, "Transit to cooking.");
         new_state = STATE_NR_COOKING;
     }
-    // else if (valve_cycle_times_day() == true)                   // **** TODO: Function to be implemented. This requires a bit more work because config has changed *****
-    //{
-    // ESP_LOGI(TAG, "Transit to valve cycling day state.");
-    // new_state = STATE_NR_CYCLINGDAY;
-    //}
+    else if (valve_cycle_times_day() == true)
+    {
+        ESP_LOGI(TAG, "Transit to valve cycling day state.");
+        new_state = STATE_NR_CYCLINGDAY;
+    }
     // Manual high speed mode is ignored for now
     else
     {
