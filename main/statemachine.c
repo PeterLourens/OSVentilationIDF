@@ -28,21 +28,6 @@ const int STATE_NR_STOPPED = 12;
 
 // bool valve_open[MAX_VALVES] = {false};
 
-typedef struct
-{
-    char *valve;
-    float co2_reading;
-} CO2_Sensors_t;
-
-typedef struct
-{
-    char *valve;
-    float rh_reading;
-} RH_Sensors_t;
-
-CO2_Sensors_t co2_sensors[MAX_SENSORS] = {};
-RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
-
 // Functions for the state machine would go here
 void init_statemachine(void)
 {
@@ -235,7 +220,7 @@ void day_transitions(void)
     ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
 
     set_fanspeed(state_fanspeed);
-    // select_sensors();                                             // **** TODO: Function to be implemented *****
+    select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)

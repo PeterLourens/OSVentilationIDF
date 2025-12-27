@@ -27,6 +27,9 @@ extern "C"
     bool valve_cycle_times_day(void);
     bool valve_cycle_times_night(void);
 
+    /* Select sensors which have high readings */
+    void select_sensors(void);
+
     /* Deprecated / unused helpers
     // int fanspeed_char_to_int(char);
     */

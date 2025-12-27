@@ -1,4 +1,5 @@
 #include "statemachine_helper.h"
+#include "statemachine.h"
 
 static float sensor_fifo[2][8][3][MAX_FIFO_SIZE];
 static float sum[48] = {0.0};
@@ -521,24 +522,81 @@ bool valve_cycle_times_night(void)
     return false;
 }
 
-/*int fanspeed_char_to_int(char fanspeed_char)
+void select_sensors(void)
 {
-    switch (fanspeed_char)
-    {
-    case 'Low': // Low
-    case 'low':
-        return 1;
-    case 'Medium': // Medium
-    case 'medium':
-        return 2;
-    case 'High': // High
-    case 'high':
-        return 3;
-    default: // Error or unknown
-        return 0;
-    }
-}*/
+    int j = 0; // counter for struct
+    int k = 0; // counter for struct
 
-// The configuration from each statemachine state is stored in struct statemachine_config[MAX_NR_STATES];
-// The name of the state is stored in the char statemachine_config[i].state_name
-// The index i should then be used to indicate the actual state of the statemachine so that a direct link can be made with state_number and state_name
+    static const char *TAG = "select_sensors";
+
+    co2_sensor_counter = 0;
+    rh_sensor_counter = 0;
+
+    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
+    // Copy sensor readings from global
+    if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read from sensor_avg_queue");
+        return;
+    }
+
+    for (int i = 0; i < CHANNELS_PER_BUS; i++)
+    {
+        const bus_sensor_t *s0 = NULL;
+        const bus_sensor_t *s1 = NULL;
+
+        if (sensor_cfg_mutex && xSemaphoreTake(sensor_cfg_mutex, (TickType_t)10) == pdTRUE)
+        {
+            s0 = &bus0_sensor_settings[i];
+            s1 = &bus1_sensor_settings[i];
+            xSemaphoreGive(sensor_cfg_mutex);
+        }
+
+        if (s0 && s0->co2_enabled)
+        {
+            co2_sensors[j].valve = (char *)s0->valve;
+            co2_sensors[j].co2_reading = sensor_data[0][i][IDX_CO2];
+            ESP_LOGI(TAG, "%s, CO2: %.2f", co2_sensors[j].valve, co2_sensors[j].co2_reading);
+            j++;
+        }
+
+        if (s1 && s1->co2_enabled)
+        {
+            co2_sensors[j].valve = (char *)s1->valve;
+            co2_sensors[j].co2_reading = sensor_data[1][i][IDX_CO2];
+            ESP_LOGI(TAG, "%s, CO2: %.2f", co2_sensors[j].valve, co2_sensors[j].co2_reading);
+            j++;
+        }
+
+        if (s0 && s0->rh_enabled)
+        {
+            rh_sensors[k].valve = (char *)s0->valve;
+            rh_sensors[k].rh_reading = sensor_data[0][i][IDX_HUMIDITY];
+            ESP_LOGI(TAG, "%s, RH: %.2f", rh_sensors[k].valve, rh_sensors[k].rh_reading);
+            k++;
+        }
+
+        if (s1 && s1->rh_enabled)
+        {
+            rh_sensors[k].valve = (char *)s1->valve;
+            rh_sensors[k].rh_reading = sensor_data[1][i][IDX_HUMIDITY];
+            ESP_LOGI(TAG, "%s, RH: %.2f", rh_sensors[k].valve, rh_sensors[k].rh_reading);
+            k++;
+        }
+    }
+
+    co2_sensor_counter = j;
+    rh_sensor_counter = k;
+}
+
+// Helper functions to have data available in other tasks
+int parse_co2_sensors_high(void)
+{
+    return co2_sensors_high;
+}
+
+int parse_rh_sensors_high(void)
+{
+    return rh_sensors_high;
+}
