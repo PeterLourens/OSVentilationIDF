@@ -5,10 +5,6 @@ static const char *TAG = "Statemachine";
 float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-int co2_sensor_counter = 0;
-int rh_sensor_counter = 0;
-int co2_sensors_high = 0;
-int rh_sensors_high = 0;
 int old_time = 0;
 int elapsed_time = 0;
 
