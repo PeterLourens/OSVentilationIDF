@@ -41,6 +41,7 @@ extern int co2_sensors_high;
 extern int rh_sensors_high;
 
 /* Expose numeric state constants from statemachine.c */
+extern const int STATE_NR_INIT;
 extern const int STATE_NR_STOPPED;
 
 #endif

@@ -1,4 +1,5 @@
 #include "http_functions.h"
+#include "statemachine.h"
 
 static const char *TAG = "http server";
 
@@ -837,6 +838,40 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
+// POST handler: stop the statemachine (set state to STOPPED)
+esp_err_t stop_statemachine_handler(httpd_req_t *req)
+{
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = STATE_NR_STOPPED;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    ESP_LOGI(TAG, "Statemachine stopped via web request");
+
+    // return valvecontrol page so UI stays consistent
+    httpd_resp_set_type(req, "text/html");
+    size_t plen = valvecontrol_html_end - valvecontrol_html_start;
+    return httpd_resp_send(req, valvecontrol_html_start, plen);
+}
+
+// POST handler: start the statemachine (set state to INIT)
+esp_err_t start_statemachine_handler(httpd_req_t *req)
+{
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = STATE_NR_INIT;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    ESP_LOGI(TAG, "Statemachine started via web request");
+
+    // return valvecontrol page so UI stays consistent
+    httpd_resp_set_type(req, "text/html");
+    size_t plen = valvecontrol_html_end - valvecontrol_html_start;
+    return httpd_resp_send(req, valvecontrol_html_start, plen);
+}
+
 // POST handler: update `valvecontroldata` from valvecontrol form and notify valve control task
 esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 {
@@ -1093,6 +1128,24 @@ httpd_handle_t start_webserver(void)
         .handler = reset_valves_handler,
     };
     httpd_register_uri_handler(http_server, &reset_valves_uri);
+
+    // POST URI to stop the statemachine from the Valve Control page
+    httpd_uri_t stop_statemachine_uri = {
+        .uri = "/stop_statemachine",
+        .method = HTTP_POST,
+        .handler = stop_statemachine_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &stop_statemachine_uri);
+
+    // POST URI to start the statemachine from the Valve Control page
+    httpd_uri_t start_statemachine_uri = {
+        .uri = "/start_statemachine",
+        .method = HTTP_POST,
+        .handler = start_statemachine_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &start_statemachine_uri);
 
     httpd_uri_t sensorconfig1_post_uri = {
         .uri = "/sensorconfig1",

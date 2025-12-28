@@ -28,6 +28,8 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *);
 esp_err_t delete_bus0_config_post_handler(httpd_req_t *);
 esp_err_t delete_bus1_config_post_handler(httpd_req_t *);
 esp_err_t reset_valves_handler(httpd_req_t *);
+esp_err_t stop_statemachine_handler(httpd_req_t *);
+esp_err_t start_statemachine_handler(httpd_req_t *);
 esp_err_t valvecontrol_post_handler(httpd_req_t *);
 esp_err_t network_config_post_handler(httpd_req_t *);
 esp_err_t i2c_config_post_handler(httpd_req_t *);
