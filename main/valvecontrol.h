@@ -10,6 +10,7 @@ void short_delay_us(int us);
 void shift_out_msbfist(int, int, uint8_t);
 void latch_pulse(int);
 void all_outputs_off(int, int, int);
-void valvecontrol(int, int, int, int, int, int);
+void control_valves(void);
+esp_err_t valvecontrol(int, int, int, int, int, int);
 
 #endif

@@ -240,9 +240,9 @@ void app_main(void)
 
         // show_system_and_task_stats();
 
-        ESP_LOGI(TAG, "Running valvecontrol");
-        valvecontrol(1, 12, 0, 13, 11, 12);
-        // valvecontrol(1, 4, 0, 14, 15, 16);
+        // ESP_LOGI(TAG, "Running valvecontrol");
+        // valvecontrol(1, 12, 0, 13, 11, 12);
+        //  valvecontrol(1, 4, 0, 14, 15, 16);
 
         char uptime_str[64] = {};
         formatted_uptime(uptime_str, sizeof(uptime_str));

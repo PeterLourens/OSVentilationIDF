@@ -69,6 +69,15 @@
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
 
+// Define I/O for 74595 chips
+#define CLOCKPIN1 11
+#define LATCHPIN1 12
+#define DATAPIN1 13
+
+#define CLOCKPIN2 15
+#define LATCHPIN2 16
+#define DATAPIN2 14
+
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
 #define LARGE_CONFIG_ITEM 64
@@ -140,6 +149,7 @@ extern TaskHandle_t task_wifi;
 extern TaskHandle_t task_i2c_lcd;
 extern TaskHandle_t task_rgb_leds;
 extern TaskHandle_t task_statemachine;
+extern TaskHandle_t task_valvectrl;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -159,6 +169,7 @@ extern SemaphoreHandle_t lock_valve_move_mutex;
 extern SemaphoreHandle_t sensor_cfg_mutex;
 extern SemaphoreHandle_t state_config_mutex;
 extern SemaphoreHandle_t statemachine_mutex;
+extern SemaphoreHandle_t valve_control_data_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
@@ -290,6 +301,18 @@ typedef struct
     bool valve_lock;
 } Statemachine_actuals_t;
 
+// To store valve control data from web page and from statemachine and actual valvel data
+typedef struct
+{
+    int valve_number[MAX_VALVE_COUNT];
+    int position_change[MAX_VALVE_COUNT];
+    int direction[MAX_VALVE_COUNT];
+    int actual_valve_position[MAX_VALVE_COUNT];
+    bool check_position;
+    bool write_new_position;
+
+} Valve_control_data;
+
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 extern Network_config_t network_config;
@@ -303,6 +326,7 @@ extern ping_summary_t g_ping_summary;
 extern Statemachine_gen_config_t statemachine_gen_config;
 extern Statemachine_config_t statemachine_config[MAX_NR_STATES];
 extern Statemachine_actuals_t sm_actuals;
+extern Valve_control_data valvecontroldata;
 
 extern struct tm timeinfo;
 

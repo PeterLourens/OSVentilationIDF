@@ -837,6 +837,113 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
+// POST handler: update `valvecontroldata` from valvecontrol form and notify valve control task
+esp_err_t valvecontrol_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    char key[64];
+    char val[128];
+
+    bool check_pos = false;
+    bool store_pos = false;
+
+    // parse check/store checkboxes
+    if (httpd_query_key_value(buf, "check_valve_position", val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
+        check_pos = (strcasecmp(val, "true") == 0 || strcmp(val, "On") == 0 || strcmp(val, "on") == 0 || strcmp(val, "1") == 0);
+    }
+
+    if (httpd_query_key_value(buf, "store_valve_position_in_file", val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
+        store_pos = (strcasecmp(val, "true") == 0 || strcmp(val, "On") == 0 || strcmp(val, "on") == 0 || strcmp(val, "1") == 0);
+    }
+
+    // Write values into global valvecontroldata under mutex
+    if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) == pdTRUE)
+    {
+        for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+        {
+            // default assignments
+            valvecontroldata.valve_number[i] = i;
+            valvecontroldata.position_change[i] = 0;
+            valvecontroldata.direction[i] = 1; // default to Open
+
+            // position
+            snprintf(key, sizeof(key), "valve%d_position_move", i);
+            if (httpd_query_key_value(buf, key, val, sizeof(val)) == ESP_OK)
+            {
+                url_decode_inplace(val);
+                int pos = atoi(val);
+                if (pos < 0)
+                    pos = 0;
+                if (pos > 24)
+                    pos = 24;
+                valvecontroldata.position_change[i] = pos;
+            }
+
+            // direction
+            snprintf(key, sizeof(key), "valve%d_direction", i);
+            if (httpd_query_key_value(buf, key, val, sizeof(val)) == ESP_OK)
+            {
+                url_decode_inplace(val);
+                // Accept 'Open' or 'Close' (case-insensitive)
+                if (strcasecmp(val, "open") == 0)
+                    valvecontroldata.direction[i] = 1;
+                else if (strcasecmp(val, "close") == 0)
+                    valvecontroldata.direction[i] = 0;
+                else
+                    valvecontroldata.direction[i] = 1; // fallback
+            }
+
+            // keep actual_valve_position untouched here
+        }
+
+        valvecontroldata.check_position = check_pos;
+        valvecontroldata.write_new_position = store_pos;
+
+        xSemaphoreGive(valve_control_data_mutex);
+    }
+
+    // notify valve control task to carry out moves
+    if (task_valvectrl)
+    {
+        xTaskNotifyGive(task_valvectrl);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Valve control task handle not present - cannot notify");
+    }
+
+    free(buf);
+
+    // Return the original valvecontrol.html page
+    httpd_resp_set_type(req, "text/html");
+    size_t plen = valvecontrol_html_end - valvecontrol_html_start;
+    return httpd_resp_send(req, valvecontrol_html_start, plen);
+}
+
 void ws_async_send(char *buf, size_t len)
 {
     if (http_server == NULL)
@@ -950,6 +1057,13 @@ httpd_handle_t start_webserver(void)
         .handler = valvecontrol_get_handler,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &valvecontrol_uri);
+
+    httpd_uri_t valvecontrol_post_uri = {
+        .uri = "/valvecontrol",
+        .method = HTTP_POST,
+        .handler = valvecontrol_post_handler,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(http_server, &valvecontrol_post_uri);
 
     httpd_uri_t webserial_uri = {
         .uri = "/webserial",

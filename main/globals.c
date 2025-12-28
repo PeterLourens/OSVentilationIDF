@@ -35,6 +35,7 @@ TaskHandle_t task_wifi = NULL;
 TaskHandle_t task_i2c_lcd = NULL;
 TaskHandle_t task_rgb_leds = NULL;
 TaskHandle_t task_statemachine = NULL;
+TaskHandle_t task_valvectrl = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
@@ -50,6 +51,7 @@ SemaphoreHandle_t lock_valve_move_mutex = NULL;
 SemaphoreHandle_t sensor_cfg_mutex = NULL;
 SemaphoreHandle_t state_config_mutex = NULL;
 SemaphoreHandle_t statemachine_mutex = NULL;
+SemaphoreHandle_t valve_control_data_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;
@@ -85,6 +87,9 @@ ping_summary_t g_ping_summary = {0};
 Statemachine_gen_config_t statemachine_gen_config = {0};
 Statemachine_config_t statemachine_config[MAX_NR_STATES] = {0};
 Statemachine_actuals_t sm_actuals = {0};
+
+// Valve control structs
+Valve_control_data valvecontroldata = {0};
 
 // Valvecontrol variables
 int lock_valve_move = 0;
