@@ -15,14 +15,14 @@ void task_statemachine_code(void *pvParameters)
     // size_t snapshot_bytes = sizeof(double) * snap_count;
     // sensor_avg_queue = xQueueCreate(1, snapshot_bytes);
 
-    sensor_avg_queue = xQueueCreate(1, sizeof(double[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]));
+    // sensor_avg_queue = xQueueCreate(1, sizeof(double[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]));
 
     init_statemachine();
 
     for (;;)
     {
         // Update average sensor data queue
-        sensor_data_average();
+        // sensor_data_average();
         run_statemachine();
 
         vTaskDelay(60000);
