@@ -245,46 +245,75 @@ void control_valves(void)
 }
 
 void valve_position_statemachine(int state_config_index) {
+    
+    int desired_positions[MAX_VALVE_COUNT] = {0};
+
     if (state_config_index < 0) {
         ESP_LOGE(TAG, "valve_position_statemachine: invalid state_config_index=%d", state_config_index);
         return;
-    }
+    }  
 
-    bool targets[MAX_VALVES] = {false};
-
-    /* Read targets from the state config under state_config_mutex */
+    /* Read desired positions from the state config under state_config_mutex */
     if (state_config_mutex == NULL || xSemaphoreTake(state_config_mutex, (TickType_t)10) != pdTRUE)
     {
         ESP_LOGW(TAG,"valve_position_statemachine: could not take state_config_mutex");
         return;
     }
 
-    for (int v = 0; v < MAX_VALVES; ++v) 
+    for (int v = 0; v < MAX_VALVE_COUNT; ++v)
     {
-        /* Expectation: state config exposes valve_open[] (bool) per valve.
-        * If your config uses a different name or type (e.g. int positions 0..24),
-        * adapt this copy accordingly.
-        */
-        targets[v] = statemachine_config[state_config_index].valve_open[v];
+        desired_positions[v] = statemachine_config[state_config_index].valve_position[v];
     }
-
     xSemaphoreGive(state_config_mutex);
 
-    /* Apply targets into sm_actuals under statemachine_mutex */
-    if (statemachine_mutex == NULL || xSemaphoreTake(statemachine_mutex, (TickType_t)10) != pdTRUE) 
+    // Update global valvecontroldata with move requests (compute delta from in-memory actuals).
+    // Protect with valve_control_data_mutex.
+    if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) != pdTRUE)
     {
-        ESP_LOGW(TAG,"valve_position_statemachine: could not take statemachine_mutex");
+        ESP_LOGW(TAG, "valve_position_statemachine: could not take valve_control_data_mutex");
         return;
     }
 
-    for (int v = 0; v < MAX_VALVES; ++v) 
-    {
-        sm_actuals.valve_open[v] = targets[v];
-        ESP_LOGD(TAG, "Applied valve target %d: %s", v, targets[v] ? "open" : "closed");
-    }
-    xSemaphoreGive(statemachine_mutex);
+    // Populate valvecontroldata arrays so control_valves() can process them.
+    // We set check_position=true to compute movement relative to current actual_valve_position[].
+    // Valve numbers are set 0..N-1 to match indices.
+    valvecontroldata.check_position = true;
+    valvecontroldata.write_new_position = true;
 
-    ESP_LOGI(TAG,"Valve targets from state %d copied to runtime targets. Movement must be requested by POST handler.", state_config_index);
+    for (int v = 0; v < MAX_VALVE_COUNT; ++v)
+    {
+        int current = valvecontroldata.actual_valve_position[v];
+        int desired = desired_positions[v];
+
+        valvecontroldata.valve_number[v] = v;
+
+        if (desired == current)
+        {
+            valvecontroldata.position_change[v] = 0;
+            valvecontroldata.direction[v] = 0; /* direction irrelevant when no movement */
+        }
+        else if (desired > current)
+        {
+            valvecontroldata.position_change[v] = desired - current;
+            valvecontroldata.direction[v] = 1; /* open/forward */
+        }
+        else /* desired < current */
+        {
+            valvecontroldata.position_change[v] = current - desired;
+            valvecontroldata.direction[v] = 0; /* close/backward */
+        }
+        ESP_LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+    }
+
+    /* Clear any previous POST-request flag — movement is requested programmatically now */
+    valvecontroldata.valve_move_request_from_post = false;
+
+    xSemaphoreGive(valve_control_data_mutex);
+
+    ESP_LOGI(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
+
+    /* Invoke control_valves() to perform movements. It will check statemachine state internally. */
+    control_valves();
 }
 
 /*

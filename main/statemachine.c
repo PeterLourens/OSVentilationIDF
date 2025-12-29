@@ -142,9 +142,10 @@ void init_transitions(void)
     // Actions for this state
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        sm_actuals.state = state_fanspeed;
-        sm_actuals.fanspeed = state;
-        ESP_LOGI(TAG, "State: init, fanspeed: %s.", sm_actuals.fanspeed);
+        /* FIX: assign correct fields */
+        sm_actuals.state = state;
+        sm_actuals.fanspeed = state_fanspeed;
+        ESP_LOGI(TAG, "State: init, fanspeed: %d.", sm_actuals.fanspeed);
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -213,7 +214,7 @@ void day_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
     set_fanspeed(state_fanspeed);
     select_sensors();
@@ -230,7 +231,7 @@ void day_transitions(void)
 
     if (valve_move_locked == 0)
     {
-        // valve_position_statemachine(statemachine_state);
+        valve_position_statemachine(state_config_index);
     }
     else
     {
@@ -273,6 +274,7 @@ void day_transitions(void)
         ESP_LOGI(TAG, "Transit to night.");
         new_state = STATE_NR_NIGHT;
     }
+    // Disabled states for now
     /*else if (cooking_times() == true)
     {
         ESP_LOGI(TAG, "Transit to cooking.");
@@ -321,7 +323,7 @@ void night_transitions(void) {
     rh_sensors_high = 0;
 
     // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_DAY, sizeof(state_name));
+    strncpy(state_name, STATE_NIGHT, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
 
@@ -364,7 +366,7 @@ void night_transitions(void) {
 
     if (valve_move_locked == 0)
     {
-        // valve_position_statemachine(statemachine_state);
+        valve_position_statemachine(state_config_index);
     }
     else
     {
@@ -407,6 +409,7 @@ void night_transitions(void) {
         ESP_LOGI(TAG, "Transit to day.");
         new_state = STATE_NR_DAY;
     }
+    // Disabled states for now
     /*else if (cooking_times() == true)
     {
         ESP_LOGI(TAG, "Transit to cooking.");

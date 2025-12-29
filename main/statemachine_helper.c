@@ -1,5 +1,8 @@
 #include "statemachine_helper.h"
 #include "statemachine.h"
+#include "globals.h"
+
+static const char *TAG = "StatemachineHelper";
 
 static float sensor_fifo[2][8][3][MAX_FIFO_SIZE];
 static float sum[48] = {0.0};
@@ -600,3 +603,23 @@ int parse_rh_sensors_high(void)
 {
     return rh_sensors_high;
 }
+
+/* Consume (check-and-clear) request set by POST handler. Returns true if move was requested. */
+bool statemachine_consume_valve_move_request(void)
+{
+    bool rv = false;
+    if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) == pdTRUE)
+    {
+        rv = valvecontroldata.valve_move_request_from_post;
+        valvecontroldata.valve_move_request_from_post = false;
+        xSemaphoreGive(valve_control_data_mutex);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
+        /* conservative: avoid triggering move if mutex cannot be taken */
+        rv = false;
+    }
+    return rv;
+}
+

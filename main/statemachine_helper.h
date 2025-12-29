@@ -30,10 +30,6 @@ extern "C"
     /* Select sensors which have high readings */
     void select_sensors(void);
 
-    /* Deprecated / unused helpers
-    // int fanspeed_char_to_int(char);
-    */
-
 #ifdef __cplusplus
 }
 #endif

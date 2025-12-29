@@ -310,7 +310,7 @@ typedef struct
     int actual_valve_position[MAX_VALVE_COUNT];
     bool check_position;
     bool write_new_position;
-
+    bool valve_move_request_from_post; /* POST handler requests movement */
 } Valve_control_data;
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];

@@ -178,7 +178,23 @@ void app_main(void)
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();
-    start_task_rgb_leds();
+    start_task_rgb_leds();   
+
+    /* Bring up Wi‑Fi and wait for IP */
+    if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
+    {
+        ESP_LOGE(TAG, "Network not available after retries");
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
+        start_webserver();
+        start_task_statemachine();
+        syslog_send_line("Boot complete, system running");
+    }
+
+    esp_log_set_vprintf(uart_log_output);
+    ESP_LOGI(TAG, "System startup, logs go to UART");
 
     // Print network settings
     /*ESP_LOGI(TAG, "\nNetwork Settings:\n"
@@ -199,21 +215,6 @@ void app_main(void)
              network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
              network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
              time_config.ntp_server, time_config.timezone);*/
-
-    /* Bring up Wi‑Fi and wait for IP */
-    if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
-    {
-        ESP_LOGE(TAG, "Network not available after retries");
-    }
-    else
-    {
-        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
-        start_webserver();
-        syslog_send_line("Boot complete, system running");
-    }
-
-    esp_log_set_vprintf(uart_log_output);
-    ESP_LOGI(TAG, "System startup, logs go to UART");
 
     while (1)
     {
