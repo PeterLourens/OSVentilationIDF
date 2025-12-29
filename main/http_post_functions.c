@@ -147,14 +147,6 @@ cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
     else
         cJSON_AddStringToObject(obj, key, "");
 
-    /*snprintf(key, sizeof(key), "lcd_i2c_address");
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
-    else
-        cJSON_AddStringToObject(obj, key, "");*/
-
-    // ESP_LOGI("JSON builder", "I2C config: %s", obj);
-
     return obj;
 }
 
@@ -327,32 +319,6 @@ cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
 
     return obj;
 }
-
-/*cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
-{
-    if (!body)
-        return NULL;
-
-    cJSON *obj = cJSON_CreateObject();
-    if (!obj)
-        return NULL;
-
-    char key[64], val[256];
-
-    snprintf(key, sizeof(key), "ntp_server");
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
-    else
-        cJSON_AddStringToObject(obj, key, "");
-
-    snprintf(key, sizeof(key), "timezone");
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
-    else
-        cJSON_AddStringToObject(obj, key, "");
-
-    return obj;
-}*/
 
 // Inline URL decode helper static
 void url_decode_inplace(char *str)
