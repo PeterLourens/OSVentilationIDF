@@ -542,9 +542,9 @@ void select_sensors(void)
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
     // Copy sensor readings from global
-    if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to read from sensor_avg_queue");
+        ESP_LOGE(TAG, "Failed to read from sensor_queue");
         return;
     }
 
@@ -635,19 +635,24 @@ esp_err_t statemachine_alloc_buffers(void)
     size_t bytes = elems * sizeof(*statemachine_sensor_data);
 
     void *p = NULL;
-    if (esp_psram_get_size() > 0) {
+    if (esp_psram_get_size() > 0)
+    {
         p = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (p) {
+        if (p)
+        {
             ESP_LOGI(TAG, "Allocated %u bytes for statemachine_sensor_data in PSRAM", (unsigned)bytes);
         }
     }
-    if (p == NULL) {
+    if (p == NULL)
+    {
         p = heap_caps_malloc(bytes, MALLOC_CAP_8BIT);
-        if (p) {
+        if (p)
+        {
             ESP_LOGW(TAG, "Allocated %u bytes for statemachine_sensor_data in internal RAM", (unsigned)bytes);
         }
     }
-    if (p == NULL) {
+    if (p == NULL)
+    {
         ESP_LOGE(TAG, "Failed to allocate %u bytes for statemachine_sensor_data", (unsigned)bytes);
         return ESP_ERR_NO_MEM;
     }
@@ -656,19 +661,24 @@ esp_err_t statemachine_alloc_buffers(void)
 
     /* avg buffer */
     p = NULL;
-    if (esp_psram_get_size() > 0) {
+    if (esp_psram_get_size() > 0)
+    {
         p = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (p) {
+        if (p)
+        {
             ESP_LOGI(TAG, "Allocated %u bytes for statemachine_avg_sensor_data in PSRAM", (unsigned)bytes);
         }
     }
-    if (p == NULL) {
+    if (p == NULL)
+    {
         p = heap_caps_malloc(bytes, MALLOC_CAP_8BIT);
-        if (p) {
+        if (p)
+        {
             ESP_LOGW(TAG, "Allocated %u bytes for statemachine_avg_sensor_data in internal RAM", (unsigned)bytes);
         }
     }
-    if (p == NULL) {
+    if (p == NULL)
+    {
         /* cleanup first allocation */
         heap_caps_free(statemachine_sensor_data);
         statemachine_sensor_data = NULL;
@@ -686,11 +696,13 @@ esp_err_t statemachine_alloc_buffers(void)
 /* Optional cleanup (call if freeing is needed) */
 void statemachine_free_buffers(void)
 {
-    if (statemachine_sensor_data) {
+    if (statemachine_sensor_data)
+    {
         heap_caps_free(statemachine_sensor_data);
         statemachine_sensor_data = NULL;
     }
-    if (statemachine_avg_sensor_data) {
+    if (statemachine_avg_sensor_data)
+    {
         heap_caps_free(statemachine_avg_sensor_data);
         statemachine_avg_sensor_data = NULL;
     }

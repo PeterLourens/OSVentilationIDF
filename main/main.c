@@ -185,7 +185,7 @@ void app_main(void)
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();
-    start_task_rgb_leds();   
+    start_task_rgb_leds();
 
     /* Bring up Wi‑Fi and wait for IP */
     if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))

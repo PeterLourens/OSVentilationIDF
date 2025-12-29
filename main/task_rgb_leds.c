@@ -22,72 +22,53 @@ void task_rgb_leds_code(void *pvParameters)
     {
         ESP_LOGI(TAG, "Update RGB LEDs");
 
-        // Turn on LED 0 with red color
-        set_single_led_color_with_brightness(0, 255, 0, 0, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        // Turn on LED 1 with blue color
-        set_single_led_color_with_brightness(1, 0, 255, 0, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        set_single_led_color_with_brightness(0, 0, 255, 0, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        // Turn on LED 1 with blue color
-        set_single_led_color_with_brightness(1, 0, 0, 255, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        set_single_led_color_with_brightness(0, 0, 0, 255, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        // Turn on LED 1 with blue color
-        set_single_led_color_with_brightness(1, 255, 0, 0, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        set_single_led_color_with_brightness(0, 255, 0, 255, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        // Turn on LED 1 with blue color
-        set_single_led_color_with_brightness(1, 0, 255, 255, brightness);
-        led_strip_refresh(rgb_leds);
-
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        set_led_color(0, COLOR_YELLOW, 16); // LED 0 → red @ 50% brightness
+        set_led_color(0, COLOR_RED, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_RED, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        set_led_color(1, COLOR_YELLOW, 16); // LED 0 → red @ 50% brightness
+        set_led_color(0, COLOR_GREEN, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_GREEN, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        set_led_color(0, COLOR_WHITE, 32); // LED 1 → cyan @ full brightness
+        set_led_color(0, COLOR_BLUE, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_BLUE, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        set_led_color(1, COLOR_WHITE, 32); // LED 1 → cyan @ full brightness
+        set_led_color(0, COLOR_YELLOW, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_YELLOW, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        set_led_color(0, COLOR_ORANGE, 8); // LED 2 → orange @ 50%
+        set_led_color(0, COLOR_MAGENTA, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_MAGENTA, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        set_led_color(1, COLOR_ORANGE, 8); // LED 2 → orange @ 50%
+        set_led_color(0, COLOR_CYAN, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_CYAN, brightness); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_WHITE, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_WHITE, brightness); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_GRAY, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_GRAY, brightness); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_ORANGE, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_ORANGE, brightness); // LED 0 → red @ 50% brightness
+        led_strip_refresh(rgb_leds);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
+        set_led_color(0, COLOR_PURPLE, brightness); // LED 0 → red @ 50% brightness
+        set_led_color(1, COLOR_PURPLE, brightness); // LED 0 → red @ 50% brightness
         led_strip_refresh(rgb_leds);
         vTaskDelay(pdMS_TO_TICKS(1000));
 

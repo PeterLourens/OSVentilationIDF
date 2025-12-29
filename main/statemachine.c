@@ -1,6 +1,5 @@
 #include "statemachine.h"
 
-
 static const char *TAG = "Statemachine";
 
 esp_err_t statemachine_alloc_buffers(void);
@@ -45,7 +44,7 @@ void init_statemachine(void)
     }
 
     // Code to set fanspeed
-    set_fanspeed(FANSPEED_LOW);
+    // set_fanspeed(FANSPEED_LOW);
 }
 
 void run_statemachine(void)
@@ -61,8 +60,10 @@ void run_statemachine(void)
     ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
 
     /* Ensure buffers allocated before using queue */
-    if (statemachine_sensor_data == NULL || statemachine_avg_sensor_data == NULL) {
-        if (statemachine_alloc_buffers() != ESP_OK) {
+    if (statemachine_sensor_data == NULL || statemachine_avg_sensor_data == NULL)
+    {
+        if (statemachine_alloc_buffers() != ESP_OK)
+        {
             ESP_LOGE(TAG, "statemachine buffers not available");
             return;
         }
@@ -76,13 +77,13 @@ void run_statemachine(void)
         return;
     }
 
-    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    // ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
+    /*if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;
-    }
+    }*/
 
     if (temp_state == STATE_NR_INIT)
     {
@@ -233,10 +234,10 @@ void day_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+    // ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    set_fanspeed(state_fanspeed);
-    select_sensors();
+    // set_fanspeed(state_fanspeed);
+    // select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)
@@ -250,7 +251,7 @@ void day_transitions(void)
 
     if (valve_move_locked == 0)
     {
-        valve_position_statemachine(state_config_index);
+        // valve_position_statemachine(state_config_index);
     }
     else
     {
@@ -323,9 +324,10 @@ void day_transitions(void)
     }
 }
 
-void night_transitions(void) {
+void night_transitions(void)
+{
 
-    int state = STATE_NR_NIGHT;   // Local state variable
+    int state = STATE_NR_NIGHT; // Local state variable
     int state_config_index = 0; // Index number for state configuration
     int new_state = 0;          // State after logic in this function
     int state_fanspeed = 0;     // Fanspeed from global config struct
@@ -345,6 +347,8 @@ void night_transitions(void) {
     strncpy(state_name, STATE_NIGHT, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
+
+    ESP_LOGI(TAG, "State config index is %d", state_config_index);
 
     // Actions for this state
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
@@ -368,10 +372,10 @@ void night_transitions(void) {
         xSemaphoreGive(statemachine_mutex);
     }
 
-    ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
+    // ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    set_fanspeed(state_fanspeed);
-    select_sensors();
+    // set_fanspeed(state_fanspeed);
+    // select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)
@@ -385,7 +389,7 @@ void night_transitions(void) {
 
     if (valve_move_locked == 0)
     {
-        valve_position_statemachine(state_config_index);
+        // valve_position_statemachine(state_config_index);
     }
     else
     {

@@ -7,6 +7,7 @@
 #include "fancontrol.h"
 #include "valvecontrol.h"
 
+void init_statemachine(void);
 void run_statemachine(void);
 void init_transitions(void);
 void stopped_transitions(void);
@@ -54,7 +55,6 @@ extern const int STATE_NR_COOKING;
 extern const int STATE_NR_CYCLINGDAY;
 extern const int STATE_NR_CYCLINGNIGHT;
 extern const int STATE_NR_MANUALHS;
-
 
 /* Large statemachine buffers (allocated at runtime, possibly in PSRAM) */
 extern float (*statemachine_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
