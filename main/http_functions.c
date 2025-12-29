@@ -1,5 +1,6 @@
 #include "http_functions.h"
 #include "statemachine.h"
+#include <stdint.h>
 
 static const char *TAG = "http server";
 
@@ -752,14 +753,14 @@ esp_err_t state_gen_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
-// POST handler: save state configuration to flash
 esp_err_t state_config_post_handler(httpd_req_t *req)
 {
-    int state_number = (int)req->user_ctx;
+    int state_number = (int)(intptr_t)req->user_ctx;
     char path[64];
 
     size_t len = req->content_len;
 
+    ESP_LOGI(TAG, "Handling POST for state %d", state_number);
     ESP_LOGI(TAG, "Handling POST for state %d", state_number);
 
     if (len == 0)

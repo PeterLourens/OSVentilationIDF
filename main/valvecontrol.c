@@ -244,6 +244,49 @@ void control_valves(void)
     // No statemachine 'state' changes done here; leave state handling to statemachine task.
 }
 
+void valve_position_statemachine(int state_config_index) {
+    if (state_config_index < 0) {
+        ESP_LOGE(TAG, "valve_position_statemachine: invalid state_config_index=%d", state_config_index);
+        return;
+    }
+
+    bool targets[MAX_VALVES] = {false};
+
+    /* Read targets from the state config under state_config_mutex */
+    if (state_config_mutex == NULL || xSemaphoreTake(state_config_mutex, (TickType_t)10) != pdTRUE)
+    {
+        ESP_LOGW(TAG,"valve_position_statemachine: could not take state_config_mutex");
+        return;
+    }
+
+    for (int v = 0; v < MAX_VALVES; ++v) 
+    {
+        /* Expectation: state config exposes valve_open[] (bool) per valve.
+        * If your config uses a different name or type (e.g. int positions 0..24),
+        * adapt this copy accordingly.
+        */
+        targets[v] = statemachine_config[state_config_index].valve_open[v];
+    }
+
+    xSemaphoreGive(state_config_mutex);
+
+    /* Apply targets into sm_actuals under statemachine_mutex */
+    if (statemachine_mutex == NULL || xSemaphoreTake(statemachine_mutex, (TickType_t)10) != pdTRUE) 
+    {
+        ESP_LOGW(TAG,"valve_position_statemachine: could not take statemachine_mutex");
+        return;
+    }
+
+    for (int v = 0; v < MAX_VALVES; ++v) 
+    {
+        sm_actuals.valve_open[v] = targets[v];
+        ESP_LOGD(TAG, "Applied valve target %d: %s", v, targets[v] ? "open" : "closed");
+    }
+    xSemaphoreGive(statemachine_mutex);
+
+    ESP_LOGI(TAG,"Valve targets from state %d copied to runtime targets. Movement must be requested by POST handler.", state_config_index);
+}
+
 /*
  * direction: 1 = open (forward), 0 = close (backward)
  * position_change: 0..24 (1 => 24 cycles as in original)
