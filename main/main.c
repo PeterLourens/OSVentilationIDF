@@ -172,6 +172,13 @@ void app_main(void)
         return;
     }
 
+    err = statemachine_alloc_buffers();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to allocate statemachine buffers");
+        return;
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();

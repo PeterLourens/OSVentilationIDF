@@ -84,8 +84,10 @@ void control_valves(void)
     int valve_position_change = 0;
     int new_valve_position_change = 0;
     int new_valve_position = 0;
+    int sm_state = 0;
     bool store_valve_position = false;
     bool check_valve_position = false;
+    bool valvecontrol_from_post = false;
 
     // No temporary 'state' pointer used here (statemachine state changes are handled elsewhere)
     if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) == pdTRUE)
@@ -98,14 +100,19 @@ void control_valves(void)
     ESP_LOGI(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
 
     /* Ensure statemachine is in stopped mode before allowing manual valve moves */
-    int sm_state = -1;
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
         sm_state = sm_actuals.state;
         xSemaphoreGive(statemachine_mutex);
     }
 
-    if (sm_state != STATE_NR_STOPPED)
+    if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) == pdTRUE)
+    {
+        valvecontrol_from_post = valvecontroldata.valve_move_request_from_post;
+        xSemaphoreGive(valve_control_data_mutex);
+    }
+
+    if (valvecontrol_from_post == true && sm_state != STATE_NR_STOPPED)
     {
         ESP_LOGW(TAG, "Statemachine not stopped (state=%d) — manual valve control aborted", sm_state);
         return;
@@ -260,9 +267,9 @@ void valve_position_statemachine(int state_config_index) {
         return;
     }
 
-    for (int v = 0; v < MAX_VALVE_COUNT; ++v)
+    for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
-        desired_positions[v] = statemachine_config[state_config_index].valve_position[v];
+        desired_positions[i] = statemachine_config[state_config_index].valve_position[i];
     }
     xSemaphoreGive(state_config_mutex);
 
@@ -302,7 +309,7 @@ void valve_position_statemachine(int state_config_index) {
             valvecontroldata.position_change[v] = current - desired;
             valvecontroldata.direction[v] = 0; /* close/backward */
         }
-        ESP_LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+        ESP_LOGI(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
     }
 
     /* Clear any previous POST-request flag — movement is requested programmatically now */

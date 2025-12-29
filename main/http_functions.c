@@ -958,6 +958,7 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 
         valvecontroldata.check_position = check_pos;
         valvecontroldata.write_new_position = store_pos;
+        valvecontroldata.valve_move_request_from_post = true;
 
         xSemaphoreGive(valve_control_data_mutex);
     }

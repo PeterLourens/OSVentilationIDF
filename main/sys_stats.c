@@ -153,12 +153,32 @@ void show_system_and_task_stats(void)
                      "Heap fragmentation estimate: %.1f%%\n",
                      (unsigned)free_heap, (unsigned)min_free, (unsigned)largest, frag_pct);
 
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, 
+                "\n\nNetwork Settings:\n"
+                "┌──────────────┬────────────────────────────────┐\n"
+                "│ Setting      │ Value                          │\n"
+                "├──────────────┼────────────────────────────────┤\n"
+                "│ DHCP         │ %-30s │\n"
+                "│ SSID         │ %-30s │\n"
+                "| Wifi Pass.   | %-30s │\n"
+                "│ IP Address   │ %-30s │\n"
+                "│ Subnet Mask  │ %-30s │\n"
+                "│ Gateway      │ %-30s │\n"
+                "│ Primary DNS  │ %-30s │\n"
+                "│ Secondary DNS│ %-30s │\n"
+                "| Time Server  │ %-30s │\n"
+                "| Timezone     │ %-30s │\n"
+                "└──────────────┴────────────────────────────────┘",
+             network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
+             network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
+             time_config.ntp_server, time_config.timezone);
+
 send_out:
     // Print to UART
     // printf("%s", out);
 
     // Send to WebSocket clients
-    ws_async_send("STATS:\n", strlen("STATS:\n"));
+    //ws_async_send("STATS:\n", strlen("STATS:\n"));
     ws_async_send(out, used);
 
     free(out);

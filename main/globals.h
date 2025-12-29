@@ -10,24 +10,27 @@
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
+
+#include "esp_cpu.h"
+#include "esp_heap_caps.h"
+#include "esp_event.h"
+#include "esp_mac.h"
 #include "esp_log.h"
 #include "esp_err.h"
-#include "esp_timer.h"
-#include "esp_system.h"
-#include "esp_wifi.h"
-#include "esp_netif.h"
-#include "esp_mac.h"
-#include "esp_rom_sys.h"
-#include "esp_sntp.h"
 #include "esp_ping.h"
+#include "esp_netif.h"
 #include "esp_netif_sntp.h"
 #include "esp_partition.h"
+#include "esp_rom_sys.h"
+#include "esp_sntp.h"
+#include "esp_psram.h"
 #include "esp_system.h"
-#include "esp_heap_caps.h"
-#include "esp_cpu.h"
-#include "esp_event.h"
+#include "esp_timer.h"
+#include "esp_wifi.h"
+
 #include "driver/i2c_master.h"
 #include "driver/gpio.h"
+
 #include "time.h"
 #include "lwip/err.h"
 #include "lwip/inet.h"
@@ -36,6 +39,7 @@
 #include "ping/ping_sock.h"
 #include "arpa/inet.h"
 #include "sys/socket.h"
+
 #include "wear_levelling.h" // Wear leveling support (for flash-based FATFS)
 #include "nvs_flash.h"      // NVS initialization
 #include "nvs.h"            // NVS read/write APIs
@@ -45,6 +49,7 @@
 #include "esp_littlefs.h"   // Mounting littlefs
 #include "led_strip.h"
 #include "esp_http_server.h"
+
 
 #ifdef CONFIG_SPIRAM_ALLOW_NESTED_RAM_ALLOC
 #include "esp_psram.h"

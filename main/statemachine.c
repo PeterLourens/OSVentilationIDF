@@ -1,12 +1,18 @@
 #include "statemachine.h"
 
+
 static const char *TAG = "Statemachine";
 
-float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+esp_err_t statemachine_alloc_buffers(void);
+void statemachine_free_buffers(void);
 
 int old_time = 0;
 int elapsed_time = 0;
+
+int co2_sensor_counter = 0;
+int rh_sensor_counter = 0;
+int co2_sensors_high = 0;
+int rh_sensors_high = 0;
 
 const int STATE_NR_ERROR = 0;
 const int STATE_NR_INIT = 1;
@@ -21,6 +27,9 @@ const int STATE_NR_CYCLINGDAY = 9;
 const int STATE_NR_CYCLINGNIGHT = 10;
 const int STATE_NR_MANUALHS = 11;
 const int STATE_NR_STOPPED = 12;
+
+CO2_Sensors_t co2_sensors[MAX_SENSORS] = {};
+RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
 
 // bool valve_open[MAX_VALVES] = {false};
 
@@ -51,7 +60,17 @@ void run_statemachine(void)
 
     ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    /* Ensure buffers allocated before using queue */
+    if (statemachine_sensor_data == NULL || statemachine_avg_sensor_data == NULL) {
+        if (statemachine_alloc_buffers() != ESP_OK) {
+            ESP_LOGE(TAG, "statemachine buffers not available");
+            return;
+        }
+    }
+
+    /* xQueuePeek expects a pointer to destination memory. Previously the code passed
+       &statemachine_sensor_data when arrays were static; now pass the allocated pointer. */
+    if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from sensor queue.");
         return;
@@ -59,7 +78,7 @@ void run_statemachine(void)
 
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;

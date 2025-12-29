@@ -44,5 +44,20 @@ extern int rh_sensors_high;
 /* Expose numeric state constants from statemachine.c */
 extern const int STATE_NR_INIT;
 extern const int STATE_NR_STOPPED;
+extern const int STATE_NR_DAY;
+extern const int STATE_NR_NIGHT;
+extern const int STATE_NR_HIGHCO2DAY;
+extern const int STATE_NR_HIGHCO2NIGHT;
+extern const int STATE_NR_HIGHRHDAY;
+extern const int STATE_NR_HIGHRHNIGHT;
+extern const int STATE_NR_COOKING;
+extern const int STATE_NR_CYCLINGDAY;
+extern const int STATE_NR_CYCLINGNIGHT;
+extern const int STATE_NR_MANUALHS;
+
+
+/* Large statemachine buffers (allocated at runtime, possibly in PSRAM) */
+extern float (*statemachine_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
+extern float (*statemachine_avg_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
 
 #endif
