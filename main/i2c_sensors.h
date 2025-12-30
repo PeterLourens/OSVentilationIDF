@@ -33,4 +33,7 @@ bool is_dht20(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
 esp_err_t read_sensors_into_queue(void);
 
+void sensor_data_average(void);
+void fifoPush(int, int, int, float, int);
+
 #endif

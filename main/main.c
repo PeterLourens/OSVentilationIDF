@@ -198,6 +198,8 @@ void app_main(void)
              network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
              time_config.ntp_server, time_config.timezone);*/
 
+    //float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
     while (1)
     {
         /*if (sensor_queue != NULL)
