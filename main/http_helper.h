@@ -4,6 +4,9 @@
 #include "globals.h"
 #include "general.h"
 
+#include "cJSON.h"
+#include "driver/i2c_master.h"
+
 // Function declarations
 size_t remove_ansi_escape_codes(const char *, char *, size_t);
 int websocket_log_output(const char *, va_list);

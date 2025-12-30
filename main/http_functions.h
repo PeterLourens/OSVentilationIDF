@@ -1,9 +1,9 @@
 #ifndef HTTP_FUNCTIONS_H
 #define HTTP_FUNCTIONS_H
 
-#include "globals.h"
-#include "general.h"
-#include "sys_stats.h"
+//#include "driver/i2c_master.h"
+#include <esp_http_server.h>
+
 #include "config_files.h"
 #include "http_helper.h"
 #include "http_send_ws_data.h"

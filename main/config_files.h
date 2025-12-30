@@ -1,6 +1,10 @@
 #ifndef CONFIG_FILES_H
 #define CONFIG_FILES_H
 
+#include "cJSON.h"
+#include "dirent.h"
+#include "esp_log.h"
+
 #include "globals.h"
 #include "general.h"
 

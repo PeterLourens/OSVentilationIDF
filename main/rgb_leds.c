@@ -1,5 +1,8 @@
 #include "rgb_leds.h"
 
+// RGB LED handle
+led_strip_handle_t rgb_leds = NULL;
+
 const Color_t COLORS[] = {
     {255, 0, 0},     // RED
     {0, 255, 0},     // GREEN

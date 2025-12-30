@@ -1,59 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/event_groups.h"
-#include "freertos/queue.h"
-#include "freertos/event_groups.h"
-
-#include "esp_cpu.h"
-#include "esp_heap_caps.h"
-#include "esp_event.h"
-#include "esp_mac.h"
-#include "esp_log.h"
-#include "esp_err.h"
-#include "esp_ping.h"
-#include "esp_netif.h"
-#include "esp_netif_sntp.h"
-#include "esp_partition.h"
-#include "esp_rom_sys.h"
-#include "esp_sntp.h"
-#include "esp_psram.h"
-#include "esp_system.h"
-#include "esp_timer.h"
-#include "esp_wifi.h"
-
-#include "driver/i2c_master.h"
-#include "driver/gpio.h"
-
-#include "time.h"
-#include "lwip/err.h"
-#include "lwip/inet.h"
-#include "lwip/sys.h"
-#include "lwip/ip_addr.h"
-#include "ping/ping_sock.h"
-#include "arpa/inet.h"
-#include "sys/socket.h"
-
-#include "wear_levelling.h" // Wear leveling support (for flash-based FATFS)
-#include "nvs_flash.h"      // NVS initialization
-#include "nvs.h"            // NVS read/write APIs
-#include "cJSON.h"          // JSON parsing
-#include "dirent.h"         // Directory operations
-#include "sys/stat.h"       // File status
-#include "esp_littlefs.h"   // Mounting littlefs
-#include "led_strip.h"
-#include "esp_http_server.h"
-
-
-#ifdef CONFIG_SPIRAM_ALLOW_NESTED_RAM_ALLOC
-#include "esp_psram.h"
-#endif
+#include <driver/i2c_master.h>
+#include <esp_http_server.h>
+#include <esp_netif_sntp.h>
+#include <led_strip.h>
 
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
@@ -158,6 +109,7 @@ extern TaskHandle_t task_i2c_lcd;
 extern TaskHandle_t task_rgb_leds;
 extern TaskHandle_t task_statemachine;
 extern TaskHandle_t task_valvectrl;
+extern TaskHandle_t task_mqtt;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -181,9 +133,6 @@ extern SemaphoreHandle_t valve_control_data_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
-
-// RGB LED handle
-extern led_strip_handle_t rgb_leds;
 
 // HTTP server handle
 extern httpd_handle_t http_server;

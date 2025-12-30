@@ -1,7 +1,8 @@
 #ifndef I2C_SENSORS_H
 #define I2C_SENSORS_H
 
-#include <stdio.h>
+#include <driver/i2c_master.h>
+#include <esp_log.h>
 
 #include "globals.h"
 

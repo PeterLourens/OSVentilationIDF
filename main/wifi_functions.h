@@ -1,7 +1,10 @@
 #ifndef WIFI_FUNCTIONS_H
 #define WIFI_FUNCTIONS_H
 
-#include <stdio.h>
+#include <esp_log.h>
+#include <esp_mac.h>
+#include <esp_wifi.h>
+#include <sys/socket.h>
 
 #include "globals.h"
 #include "general.h"

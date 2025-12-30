@@ -4,6 +4,8 @@
 #include "globals.h"
 #include "general.h"
 
+#include "driver/gpio.h"
+
 // Function declarations
 esp_err_t gpio_setup_3pins(int, int, int);
 void short_delay_us(int us);

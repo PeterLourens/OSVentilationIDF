@@ -198,19 +198,19 @@ esp_err_t load_network_config(void)
     network_config.wifi_password[LARGE_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.ip_address[LARGE_CONFIG_ITEM - 1] = '\0';
+    network_config.ip_address[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.subnet_mask[LARGE_CONFIG_ITEM - 1] = '\0';
+    network_config.subnet_mask[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.gateway[LARGE_CONFIG_ITEM - 1] = '\0';
+    network_config.gateway[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.primary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
+    network_config.primary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.secondary_dns[LARGE_CONFIG_ITEM - 1] = '\0';
+    network_config.secondary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     // Release sensor config mutex after updates
     if (taken)
@@ -437,7 +437,7 @@ esp_err_t load_influxdb_config(void)
     }
 
     strncpy(influxdb_config.enable_influxdb, cJSON_IsString(enable_influxdb) ? enable_influxdb->valuestring : "", SMALL_CONFIG_ITEM - 1);
-    influxdb_config.enable_influxdb[LARGE_CONFIG_ITEM - 1] = '\0';
+    influxdb_config.enable_influxdb[SMALL_CONFIG_ITEM - 1] = '\0';
 
     strncpy(influxdb_config.influxdb_url, cJSON_IsString(influxdb_url) ? influxdb_url->valuestring : "", XXLARGE_CONFIG_ITEM - 1);
     influxdb_config.influxdb_url[XXLARGE_CONFIG_ITEM - 1] = '\0';
@@ -523,7 +523,7 @@ esp_err_t load_fan_config(void)
     }
 
     strncpy(fan_config.fan_control_mode, cJSON_IsString(fan_control_mode) ? fan_control_mode->valuestring : "", SMALL_CONFIG_ITEM - 1);
-    fan_config.fan_control_mode[LARGE_CONFIG_ITEM - 1] = '\0';
+    fan_config.fan_control_mode[SMALL_CONFIG_ITEM - 1] = '\0';
 
     strncpy(fan_config.fan_control_mqtt_server, cJSON_IsString(fan_control_mqtt_server) ? fan_control_mqtt_server->valuestring : "", LARGE_CONFIG_ITEM - 1);
     fan_config.fan_control_mqtt_server[LARGE_CONFIG_ITEM - 1] = '\0';

@@ -1,6 +1,8 @@
 #ifndef I2C_LCD_H
 #define I2C_LCD_H
 
+#include "driver/i2c_master.h"
+
 #include "globals.h"
 #include "general.h"
 #include "wifi_functions.h"

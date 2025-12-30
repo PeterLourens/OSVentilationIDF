@@ -6,9 +6,12 @@
 #define DS3231_REG_TEMP_MSB 0x11
 #define DS3231_REG_TEMP_LSB 0x12
 
-#include <stdio.h>
+#include <driver/i2c_master.h>
+#include <esp_log.h>
+#include <esp_sntp.h>
+#include <esp_wifi.h>
+#include <nvs_flash.h>
 
-#include "globals.h"
 #include "general.h"
 
 // Function declarations

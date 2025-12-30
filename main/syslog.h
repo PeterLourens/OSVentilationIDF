@@ -1,6 +1,9 @@
 #ifndef SYSLOG_H
 #define SYSLOG_H
 
+#include "esp_netif.h"
+#include "sys/socket.h"
+
 #include "globals.h"
 #include "general.h"
 

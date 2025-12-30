@@ -36,6 +36,7 @@ TaskHandle_t task_i2c_lcd = NULL;
 TaskHandle_t task_rgb_leds = NULL;
 TaskHandle_t task_statemachine = NULL;
 TaskHandle_t task_valvectrl = NULL;
+TaskHandle_t task_mqtt = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
@@ -64,8 +65,7 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS] = {0};
 QueueHandle_t sensor_queue;
 QueueHandle_t sensor_avg_queue;
 
-// RGB LED handle
-led_strip_handle_t rgb_leds = NULL;
+
 
 // HTTP server handle
 httpd_handle_t http_server = NULL;

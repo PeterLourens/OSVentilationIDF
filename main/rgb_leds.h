@@ -1,12 +1,18 @@
 #ifndef RGB_LEDS_H
 #define RGB_LEDS_H
 
-#include <stdio.h>
-#include "globals.h"
+#include <driver/i2c_master.h>
+#include <esp_log.h>
+#include <led_strip.h>
+
+//#include "globals.h"
 
 #define GPIO_RGB_LED 42           // The ESP32 pin GPIO10 connected to WS2812B
 #define RGB_LED_NUM 2             // The number of LEDs (pixels) on WS2812B LED strip
 #define RMT_RESOLUTION_HZ 8000000 // 8 MHz
+
+// RGB LED handle
+extern led_strip_handle_t rgb_leds;
 
 typedef struct
 {

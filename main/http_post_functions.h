@@ -4,6 +4,9 @@
 #include "globals.h"
 #include "general.h"
 
+#include "cJSON.h"
+#include "driver/i2c_master.h"
+
 #define LOG_BUF_SIZE 256
 
 // Function declarations
