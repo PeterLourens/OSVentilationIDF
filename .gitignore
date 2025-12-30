@@ -1,5 +1,6 @@
 .devcontainer
 .vscode
+.cache
 build
 managed_components
 
