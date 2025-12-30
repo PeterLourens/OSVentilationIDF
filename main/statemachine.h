@@ -37,6 +37,7 @@ typedef struct
 
 extern CO2_Sensors_t co2_sensors[MAX_SENSORS];
 extern RH_Sensors_t rh_sensors[MAX_SENSORS];
+
 extern int co2_sensor_counter;
 extern int rh_sensor_counter;
 extern int co2_sensors_high;
@@ -55,9 +56,5 @@ extern const int STATE_NR_COOKING;
 extern const int STATE_NR_CYCLINGDAY;
 extern const int STATE_NR_CYCLINGNIGHT;
 extern const int STATE_NR_MANUALHS;
-
-/* Large statemachine buffers (allocated at runtime, possibly in PSRAM) */
-extern float (*statemachine_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
-extern float (*statemachine_avg_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
 
 #endif

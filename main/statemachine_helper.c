@@ -4,15 +4,12 @@
 
 static const char *TAG = "StatemachineHelper";
 
-// Definitions: allocate storage for pointers shared across translation units. These must be non-static so statemachine.c and other files can use them.
-float (*statemachine_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS] = NULL;
-float (*statemachine_avg_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS] = NULL;
-
+// FIFO buffer for sensor moving average calculation
 static float sensor_fifo[2][8][3][MAX_FIFO_SIZE];
-static float sum[48] = {0.0};
-static float avg[48] = {0.0};
-static int fifoSize[48] = {0}; // Current number of elements in the FIFO.
-static int fifoHead[48] = {0}; // Index of the oldest element in the FIFO.
+static float sum[SENSOR_AVG_SIZE] = {0.0};
+static float avg[SENSOR_AVG_SIZE] = {0.0};
+static int fifoSize[SENSOR_AVG_SIZE] = {0}; // Current number of elements in the FIFO.
+static int fifoHead[SENSOR_AVG_SIZE] = {0}; // Index of the oldest element in the FIFO.
 
 void sensor_data_average(void)
 {
@@ -542,7 +539,7 @@ void select_sensors(void)
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
 
     // Copy sensor readings from global
-    if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read from sensor_queue");
         return;
@@ -625,85 +622,4 @@ bool statemachine_consume_valve_move_request(void)
         rv = false;
     }
     return rv;
-}
-
-/* Allocate the two big buffers. Prefer PSRAM, fall back to internal heap.
-   Call early in startup (e.g. from main init) before run_statemachine runs. */
-esp_err_t statemachine_alloc_buffers(void)
-{
-    size_t elems = (size_t)MAX_I2C_BUSES;
-    size_t bytes = elems * sizeof(*statemachine_sensor_data);
-
-    void *p = NULL;
-    if (esp_psram_get_size() > 0)
-    {
-        p = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (p)
-        {
-            ESP_LOGI(TAG, "Allocated %u bytes for statemachine_sensor_data in PSRAM", (unsigned)bytes);
-        }
-    }
-    if (p == NULL)
-    {
-        p = heap_caps_malloc(bytes, MALLOC_CAP_8BIT);
-        if (p)
-        {
-            ESP_LOGW(TAG, "Allocated %u bytes for statemachine_sensor_data in internal RAM", (unsigned)bytes);
-        }
-    }
-    if (p == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to allocate %u bytes for statemachine_sensor_data", (unsigned)bytes);
-        return ESP_ERR_NO_MEM;
-    }
-    statemachine_sensor_data = (float (*)[CHANNELS_PER_BUS][DATA_FIELDS])p;
-    memset(statemachine_sensor_data, 0, bytes);
-
-    /* avg buffer */
-    p = NULL;
-    if (esp_psram_get_size() > 0)
-    {
-        p = heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-        if (p)
-        {
-            ESP_LOGI(TAG, "Allocated %u bytes for statemachine_avg_sensor_data in PSRAM", (unsigned)bytes);
-        }
-    }
-    if (p == NULL)
-    {
-        p = heap_caps_malloc(bytes, MALLOC_CAP_8BIT);
-        if (p)
-        {
-            ESP_LOGW(TAG, "Allocated %u bytes for statemachine_avg_sensor_data in internal RAM", (unsigned)bytes);
-        }
-    }
-    if (p == NULL)
-    {
-        /* cleanup first allocation */
-        heap_caps_free(statemachine_sensor_data);
-        statemachine_sensor_data = NULL;
-        ESP_LOGE(TAG, "Failed to allocate %u bytes for statemachine_avg_sensor_data", (unsigned)bytes);
-        return ESP_ERR_NO_MEM;
-    }
-    statemachine_avg_sensor_data = (float (*)[CHANNELS_PER_BUS][DATA_FIELDS])p;
-    memset(statemachine_avg_sensor_data, 0, bytes);
-
-    ESP_LOGI(TAG, "Statemachine buffers ready (max buses=%d, channels=%d, fields=%d).",
-             MAX_I2C_BUSES, CHANNELS_PER_BUS, DATA_FIELDS);
-    return ESP_OK;
-}
-
-/* Optional cleanup (call if freeing is needed) */
-void statemachine_free_buffers(void)
-{
-    if (statemachine_sensor_data)
-    {
-        heap_caps_free(statemachine_sensor_data);
-        statemachine_sensor_data = NULL;
-    }
-    if (statemachine_avg_sensor_data)
-    {
-        heap_caps_free(statemachine_avg_sensor_data);
-        statemachine_avg_sensor_data = NULL;
-    }
 }

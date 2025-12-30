@@ -4,9 +4,6 @@
 #include "globals.h"
 #include "general.h"
 
-extern float (*statemachine_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
-extern float (*statemachine_avg_sensor_data)[CHANNELS_PER_BUS][DATA_FIELDS];
-
 // Sensor averaging helpers
 void sensor_data_average(void);
 
@@ -27,9 +24,5 @@ bool valve_cycle_times_night(void);
 
 // Select sensors which have high readings
 void select_sensors(void);
-
-// Memory allocation helpers for statemachine sensor data buffers
-esp_err_t statemachine_alloc_buffers(void);
-void statemachine_free_buffers(void);
 
 #endif /* STATEMACHINE_HELPER_H */

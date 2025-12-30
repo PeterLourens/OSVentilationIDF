@@ -119,6 +119,9 @@
 #define FANSPEED_MEDIUM 2
 #define FANSPEED_HIGH 3
 
+// Number of samples for moving average calculation
+#define SENSOR_AVG_SIZE 48
+
 extern const char *STATE_ERROR;
 extern const char *STATE_INIT;
 extern const char *STATE_DAY;

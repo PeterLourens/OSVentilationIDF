@@ -6,9 +6,6 @@ static const char *TAG = "main";
 
 void app_main(void)
 {
-    // Sensor data array to contain data from queue
-    // double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
-
     esp_err_t err = ESP_OK;
 
     set_log_levels();
@@ -52,21 +49,6 @@ void app_main(void)
         ESP_LOGE(TAG, "I2C master bus1 initialization failed: %s", esp_err_to_name(err));
         return;
     }
-
-    // Init DS3231 and sync system time after that
-    /*err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
-        vTaskDelete(NULL);
-        return;
-    }
-    else
-    {
-        ESP_LOGI(TAG, "DS3231 initialized on bus 0");
-    }*/
-
-    // init_system_time_from_ds3231(ds3231_bus0_handle);
 
     // Init LCD on bus1
     err = i2c_lcd_init(i2c_bus1_handle, &lcd_bus1_handle);
@@ -169,13 +151,6 @@ void app_main(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to load states configuration");
-        return;
-    }
-
-    err = statemachine_alloc_buffers();
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to allocate statemachine buffers");
         return;
     }
 

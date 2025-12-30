@@ -2,9 +2,6 @@
 
 static const char *TAG = "Statemachine";
 
-esp_err_t statemachine_alloc_buffers(void);
-void statemachine_free_buffers(void);
-
 int old_time = 0;
 int elapsed_time = 0;
 
@@ -57,34 +54,7 @@ void run_statemachine(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-
-    /* Ensure buffers allocated before using queue */
-    if (statemachine_sensor_data == NULL || statemachine_avg_sensor_data == NULL)
-    {
-        if (statemachine_alloc_buffers() != ESP_OK)
-        {
-            ESP_LOGE(TAG, "statemachine buffers not available");
-            return;
-        }
-    }
-
-    /* xQueuePeek expects a pointer to destination memory. Previously the code passed
-       &statemachine_sensor_data when arrays were static; now pass the allocated pointer. */
-    if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-        return;
-    }
-
-    // ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
-
-    /*if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
-    }*/
-
+    // Call the correct state function based on current state
     if (temp_state == STATE_NR_INIT)
     {
         init_transitions();
@@ -191,6 +161,9 @@ void init_transitions(void)
 
 void day_transitions(void)
 {
+    float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    
     int state = STATE_NR_DAY;   // Local state variable
     int state_config_index = 0; // Index number for state configuration
     int new_state = 0;          // State after logic in this function
@@ -206,6 +179,23 @@ void day_transitions(void)
 
     co2_sensors_high = 0;
     rh_sensors_high = 0;
+
+    // read sensor data from queue into local buffer
+    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
+
+    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
+        return;
+    }
+
+    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+
+    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
+        return;
+    }
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_DAY, sizeof(state_name));
@@ -326,7 +316,9 @@ void day_transitions(void)
 
 void night_transitions(void)
 {
-
+    float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    
     int state = STATE_NR_NIGHT; // Local state variable
     int state_config_index = 0; // Index number for state configuration
     int new_state = 0;          // State after logic in this function
@@ -342,6 +334,21 @@ void night_transitions(void)
 
     co2_sensors_high = 0;
     rh_sensors_high = 0;
+
+    // read sensor data from queue into local buffer
+    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
+    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
+        return;
+    }
+
+    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
+        return;
+    }
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_NIGHT, sizeof(state_name));
