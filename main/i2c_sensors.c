@@ -9,61 +9,6 @@ static float avg[SENSOR_AVG_SIZE] = {0.0};
 static int fifoSize[SENSOR_AVG_SIZE] = {0}; // Current number of elements in the FIFO.
 static int fifoHead[SENSOR_AVG_SIZE] = {0}; // Index of the oldest element in the FIFO.
 
-void sensor_data_average(void)
-{
-    static const char *TAG = "Sensor avg";
-
-    int pos;
-    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-    float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-    if (xQueuePeek(sensor_queue, &sensor_data, 0) == pdTRUE)
-    {
-        pos = 0;
-        for (int bus = 0; bus < 2; bus++)
-        {
-            for (int slot = 0; slot < 8; slot++)
-            {
-                for (int measurement = 0; measurement < 3; measurement++)
-                {
-                    fifoPush(bus, slot, measurement, sensor_data[bus][slot][measurement], pos);
-                    sensor_avg_data[bus][slot][measurement] = avg[pos];
-                    pos++; // counter for fifoSize and fifoHead
-                }
-            }
-        }
-        if (sensor_avg_queue != NULL)
-        {
-            xQueueOverwrite(sensor_avg_queue, &sensor_avg_data);
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Average sensor data queue handle is NULL.");
-        }
-    }
-}
-
-// FIFO push function to add a new value and update sum and average required for sensor moving average calculation
-void fifoPush(int bus, int slot, int measurement, float value, int pos)
-{
-    if (fifoSize[pos] < MAX_FIFO_SIZE)
-    {
-        // Add the value to the next available position.
-        sensor_fifo[bus][slot][measurement][(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
-        sum[pos] += value;
-        fifoSize[pos] = fifoSize[pos] + 1;
-    }
-    else
-    {
-        // Overwrite the oldest value and move the head forward.
-        sum[pos] -= sensor_fifo[bus][slot][measurement][fifoHead[pos]];
-        sensor_fifo[bus][slot][measurement][fifoHead[pos]] = value;
-        sum[pos] += value;
-        fifoHead[pos] = (fifoHead[pos] + 1) % MAX_FIFO_SIZE;
-    }
-    avg[pos] = sum[pos] / fifoSize[pos];
-}
-
 esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     esp_err_t err = ESP_OK;
@@ -688,7 +633,74 @@ esp_err_t read_sensors_into_queue(void)
     }*/
 
     // Overwrite the queue with the full snapshot
-    xQueueOverwrite(sensor_queue, &snapshot);
+    xQueueOverwrite(sensor_queue, snapshot);
 
     return ESP_OK;
+}
+
+void sensor_data_average(void)
+{
+    static const char *TAG = "Sensor avg";
+
+    int pos;
+    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
+    if (xQueuePeek(sensor_queue, sensor_data, 0) == pdTRUE)
+    {
+        pos = 0;
+        for (int bus = 0; bus < 2; bus++)
+        {
+            for (int slot = 0; slot < 8; slot++)
+            {
+                for (int measurement = 0; measurement < 3; measurement++)
+                {
+                    fifoPush(bus, slot, measurement, sensor_data[bus][slot][measurement], pos);
+                    sensor_avg_data[bus][slot][measurement] = avg[pos];
+                    pos++; // counter for fifoSize and fifoHead
+                }
+            }
+        }
+
+        for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+        {
+            for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+            {
+                if (sensor_avg_data[bus][ch][IDX_VALID])
+                {
+                    ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
+                }
+            }
+        }
+
+        if (sensor_avg_queue != NULL)
+        {
+            xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
+        }
+        else
+        {
+            ESP_LOGE(TAG, "Average sensor data queue handle is NULL.");
+        }
+    }
+}
+
+// FIFO push function to add a new value and update sum and average required for sensor moving average calculation
+void fifoPush(int bus, int slot, int measurement, float value, int pos)
+{
+    if (fifoSize[pos] < MAX_FIFO_SIZE)
+    {
+        // Add the value to the next available position.
+        sensor_fifo[bus][slot][measurement][(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
+        sum[pos] += value;
+        fifoSize[pos] = fifoSize[pos] + 1;
+    }
+    else
+    {
+        // Overwrite the oldest value and move the head forward.
+        sum[pos] -= sensor_fifo[bus][slot][measurement][fifoHead[pos]];
+        sensor_fifo[bus][slot][measurement][fifoHead[pos]] = value;
+        sum[pos] += value;
+        fifoHead[pos] = (fifoHead[pos] + 1) % MAX_FIFO_SIZE;
+    }
+    avg[pos] = sum[pos] / fifoSize[pos];
 }

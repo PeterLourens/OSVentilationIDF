@@ -25,9 +25,6 @@ void task_statemachine_code(void *pvParameters)
 
     for (;;)
     {
-        // Update average sensor data queue
-        // sensor_data_average();
-
         // Run the state machine
         run_statemachine();
         vTaskDelay(60000);

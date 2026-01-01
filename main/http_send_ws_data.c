@@ -48,9 +48,9 @@ void send_index_html_ws(void)
     }
 
     // --- Sensors ---
-    if (sensor_queue != NULL)
+    if (sensor_avg_queue != NULL)
     {
-        if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
+        if (xQueuePeek(sensor_avg_queue, snapshot, portMAX_DELAY))
         {
             for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
             {

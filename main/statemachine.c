@@ -182,19 +182,19 @@ void day_transitions(void)
     // read sensor data from queue into local buffer
     ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from sensor queue.");
         return;
     }
 
-    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    /*ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;
-    }
+    }*/
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_DAY, sizeof(state_name));
@@ -336,14 +336,14 @@ void night_transitions(void)
 
     // read sensor data from queue into local buffer
     ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from sensor queue.");
         return;
     }
 
     /*ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;

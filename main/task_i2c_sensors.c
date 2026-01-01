@@ -75,7 +75,7 @@ void task_i2c_sensors_code(void *pvParameters)
 
         // vTaskDelay(pdMS_TO_TICKS(100)); // Delay after readings
         //  ESP_LOGI(TAG, "Update average sensor queue");
-        //sensor_data_average();
+        sensor_data_average();
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
 }
