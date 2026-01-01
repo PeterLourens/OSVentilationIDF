@@ -5,8 +5,8 @@
 // Functions for the task statemachine would go here
 void start_task_statemachine(void)
 {
-    // Create LCD task
-    xTaskCreate(task_statemachine_code, "statemach", 10000, NULL, 6, &task_statemachine);
+    // Create statemachine task
+    xTaskCreate(task_statemachine_code, "statemach", 15000, NULL, 6, &task_statemachine);
 }
 
 void task_statemachine_code(void *pvParameters)
@@ -29,8 +29,7 @@ void task_statemachine_code(void *pvParameters)
         // sensor_data_average();
 
         // Run the state machine
-        // run_statemachine();
-
-        // vTaskDelay(60000);
+        run_statemachine();
+        vTaskDelay(60000);
     }
 }

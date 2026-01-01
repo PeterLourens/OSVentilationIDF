@@ -132,7 +132,6 @@ void init_transitions(void)
     // Actions for this state
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-        /* FIX: assign correct fields */
         sm_actuals.state = state;
         sm_actuals.fanspeed = state_fanspeed;
         ESP_LOGI(TAG, "State: init, fanspeed: %d.", sm_actuals.fanspeed);
@@ -163,7 +162,7 @@ void day_transitions(void)
 {
     float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-    
+
     int state = STATE_NR_DAY;   // Local state variable
     int state_config_index = 0; // Index number for state configuration
     int new_state = 0;          // State after logic in this function
@@ -224,9 +223,9 @@ void day_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    // ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    // set_fanspeed(state_fanspeed);
+    set_fanspeed(state_fanspeed);
     // select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
@@ -318,7 +317,7 @@ void night_transitions(void)
 {
     float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-    
+
     int state = STATE_NR_NIGHT; // Local state variable
     int state_config_index = 0; // Index number for state configuration
     int new_state = 0;          // State after logic in this function
@@ -343,12 +342,12 @@ void night_transitions(void)
         return;
     }
 
-    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    /*ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;
-    }
+    }*/
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_NIGHT, sizeof(state_name));
@@ -379,9 +378,9 @@ void night_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    // ESP_LOGI(TAG, "State: %s, fanspeed: %s, state_time: %d.", state, state_fanspeed, elapsed_time);
+    // ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    // set_fanspeed(state_fanspeed);
+    set_fanspeed(state_fanspeed);
     // select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
@@ -457,13 +456,14 @@ void night_transitions(void)
         new_state = STATE_NR_NIGHT;
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (state != new_state)
     {
-        if (state != new_state)
-        {
-            elapsed_time = 0;
-            old_time = (esp_timer_get_time()) / 1000000;
-        }
+        elapsed_time = 0;
+        old_time = (esp_timer_get_time()) / 1000000;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }

@@ -73,9 +73,9 @@ void task_i2c_sensors_code(void *pvParameters)
             ESP_LOGE(TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
         }
 
-        vTaskDelay(pdMS_TO_TICKS(100)); // Delay after readings
-        // ESP_LOGI(TAG, "Update average sensor queue");
-        sensor_data_average();
+        // vTaskDelay(pdMS_TO_TICKS(100)); // Delay after readings
+        //  ESP_LOGI(TAG, "Update average sensor queue");
+        //sensor_data_average();
         vTaskDelay(pdMS_TO_TICKS(5000)); // Delay after readings
     }
 }
