@@ -7,7 +7,7 @@ static const char *TAG = "http json ws";
 void send_index_html_ws(void)
 {
     // Sensor data array to contain data from queue
-    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+    float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
     char key[64];
     char buf[16];
 

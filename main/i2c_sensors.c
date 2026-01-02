@@ -3,11 +3,11 @@
 static const char *TAG = "i2c sensors";
 
 // FIFO buffer for sensor moving average calculation
-static float sensor_fifo[2][8][3][MAX_FIFO_SIZE];
-static float sum[SENSOR_AVG_SIZE] = {0.0};
-static float avg[SENSOR_AVG_SIZE] = {0.0};
-static int fifoSize[SENSOR_AVG_SIZE] = {0}; // Current number of elements in the FIFO.
-static int fifoHead[SENSOR_AVG_SIZE] = {0}; // Index of the oldest element in the FIFO.
+static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][3][MAX_FIFO_SIZE];
+static float sum[SENSOR_AVG_SIZE] = {0};
+static float avg[SENSOR_AVG_SIZE] = {0};
+static int fifoSize[SENSOR_AVG_SIZE] = {0};
+static int fifoHead[SENSOR_AVG_SIZE] = {0};
 
 esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
@@ -472,235 +472,143 @@ esp_err_t init_sensors_on_mux_channels(void)
 
 esp_err_t read_sensors_into_queue(void)
 {
-    esp_err_t err;
-    double snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    // --- Bus0 ---
-    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    for (uint8_t bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
-        snapshot[0][ch][4] = 0; // valid = false
-
-        if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
-            continue;
-
-        uint8_t mask = (0x01 << ch);
-        err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
-        if (err != ESP_OK)
+        for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
         {
-            ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
-            continue;
-        }
+            snapshot[bus][ch][4] = 0.0f; // valid = false
 
-        snapshot[0][ch][3] = (double)esp_timer_get_time(); // timestamp
+            const char *type =
+                (bus == 0) ? bus0_sensor_settings[ch].type
+                           : bus1_sensor_settings[ch].type;
 
-        if (is_aht20(bus0_sensor_settings[ch].type))
-        {
-            float temp, rh;
-            if (aht20_read(aht20_bus0_handle, &temp, &rh) == ESP_OK)
-            {
-                snapshot[0][ch][0] = temp;
-                snapshot[0][ch][1] = rh;
-                snapshot[0][ch][4] = 1; // valid
-            }
-        }
-        if (is_dht20(bus0_sensor_settings[ch].type))
-        {
-            float temp, rh;
-            if (dht20_read(dht20_bus0_handle, &temp, &rh) == ESP_OK)
-            {
-                snapshot[0][ch][0] = temp;
-                snapshot[0][ch][1] = rh;
-                snapshot[0][ch][4] = 1; // valid
-            }
-        }
-        else if (is_scd4x(bus0_sensor_settings[ch].type))
-        {
-            uint16_t co2;
-            float temp, rh;
-            bool data_ready = false;
+            if (strcmp(type, "None") == 0)
+                continue;
 
-            // Check if data is ready
-            esp_err_t err = scd41_data_ready(scd41_bus0_handle, &data_ready);
+            uint8_t mask = (1 << ch);
+            esp_err_t err = i2c_tca9548_set_channel(
+                (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle,
+                mask);
             if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to check data ready status on channel %d: %s", ch, esp_err_to_name(err));
                 continue;
-            }
 
-            if (!data_ready)
+            snapshot[bus][ch][3] = (float)esp_timer_get_time();
+
+            float temp = 0, rh = 0;
+            uint16_t co2 = 0;
+
+            if (is_aht20(type))
             {
-                ESP_LOGW(TAG, "Data not ready on channel %d, waiting for next cycle", ch);
-                continue;
+                if (aht20_read((bus == 0) ? aht20_bus0_handle : aht20_bus1_handle,
+                               &temp, &rh) == ESP_OK)
+                {
+                    snapshot[bus][ch][0] = temp;
+                    snapshot[bus][ch][1] = rh;
+                    snapshot[bus][ch][4] = 1.0f;
+                }
             }
-
-            // Read data only when ready
-            err = scd41_read(scd41_bus0_handle, &co2, &temp, &rh);
-            if (err != ESP_OK)
+            else if (is_dht20(type))
             {
-                ESP_LOGE(TAG, "Failed to read SCD41 on channel %d: %s", ch, esp_err_to_name(err));
-                continue;
+                if (dht20_read((bus == 0) ? dht20_bus0_handle : dht20_bus1_handle,
+                               &temp, &rh) == ESP_OK)
+                {
+                    snapshot[bus][ch][0] = temp;
+                    snapshot[bus][ch][1] = rh;
+                    snapshot[bus][ch][4] = 1.0f;
+                }
             }
-
-            snapshot[0][ch][0] = temp;
-            snapshot[0][ch][1] = rh;
-            snapshot[0][ch][2] = co2;
-            snapshot[0][ch][4] = 1; // Mark as valid
-
-            // ESP_LOGI(TAG, "SCD41 read success - CO2: %d ppm, Temp: %.2f°C, RH: %.2f%%",co2, temp, rh);
-        }
-    }
-
-    // --- Bus1 ---
-    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
-    {
-        snapshot[1][ch][4] = 0;
-
-        if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
-            continue;
-
-        uint8_t mask = (1 << ch);
-        err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
-        if (err != ESP_OK)
-        {
-            ESP_LOGE(TAG, "Failed to set channel %d on bus 1: %s", ch, esp_err_to_name(err));
-            continue;
-        }
-        // else
-        // {
-        //     ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
-        // }
-        // if (err != ESP_OK)
-        // continue;
-
-        snapshot[1][ch][3] = (double)esp_timer_get_time();
-
-        if (is_aht20(bus1_sensor_settings[ch].type))
-        {
-            float temp, rh;
-            if (aht20_read(aht20_bus1_handle, &temp, &rh) == ESP_OK)
+            else if (is_scd4x(type))
             {
-                snapshot[1][ch][0] = temp;
-                snapshot[1][ch][1] = rh;
-                snapshot[1][ch][4] = 1;
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read AHT20 on bus 1 channel %d", ch);
-            }
-        }
-        else if (is_dht20(bus1_sensor_settings[ch].type))
-        {
-            float temp, rh;
-            if (dht20_read(dht20_bus1_handle, &temp, &rh) == ESP_OK)
-            {
-                snapshot[1][ch][0] = temp;
-                snapshot[1][ch][1] = rh;
-                snapshot[1][ch][4] = 1;
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read AHT20 on bus 1 channel %d", ch);
-            }
-        }
-        else if (is_scd4x(bus1_sensor_settings[ch].type))
-        {
-            uint16_t co2;
-            float temp, rh;
-            if (scd41_read(scd41_bus1_handle, &co2, &temp, &rh) == ESP_OK)
-            {
-                snapshot[1][ch][0] = temp;
-                snapshot[1][ch][1] = rh;
-                snapshot[1][ch][2] = co2;
-                snapshot[1][ch][4] = 1;
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to read SCD4x on bus 1 channel %d", ch);
+                if (scd41_read((bus == 0) ? scd41_bus0_handle : scd41_bus1_handle,
+                               &co2, &temp, &rh) == ESP_OK)
+                {
+                    snapshot[bus][ch][0] = temp;
+                    snapshot[bus][ch][1] = rh;
+                    snapshot[bus][ch][2] = (float)co2;
+                    snapshot[bus][ch][4] = 1.0f;
+                }
             }
         }
     }
 
-    // For debug
-    /*for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-        {
-            if (snapshot[bus][ch][IDX_VALID])
-            {
-                ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, snapshot[bus][ch][IDX_TEMP], snapshot[bus][ch][IDX_HUMIDITY], snapshot[bus][ch][IDX_CO2]);
-            }
-        }
-    }*/
-
-    // Overwrite the queue with the full snapshot
     xQueueOverwrite(sensor_queue, snapshot);
-
     return ESP_OK;
 }
 
 void sensor_data_average(void)
 {
-    static const char *TAG = "Sensor avg";
-
-    int pos;
-    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
     float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    if (xQueuePeek(sensor_queue, sensor_data, 0) == pdTRUE)
+    if (xQueuePeek(sensor_queue, sensor_data, 0) != pdTRUE)
+        return;
+
+    int pos = 0;
+
+    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
-        pos = 0;
-        for (int bus = 0; bus < 2; bus++)
+        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
-            for (int slot = 0; slot < 8; slot++)
+            for (int m = 0; m < 3; m++) // only temp/rh/co2
             {
-                for (int measurement = 0; measurement < 3; measurement++)
-                {
-                    fifoPush(bus, slot, measurement, sensor_data[bus][slot][measurement], pos);
-                    sensor_avg_data[bus][slot][measurement] = avg[pos];
-                    pos++; // counter for fifoSize and fifoHead
-                }
+                fifoPush(bus, slot, m, sensor_data[bus][slot][m], pos);
+                sensor_avg_data[bus][slot][m] = avg[pos];
+                pos++;
             }
-        }
 
-        for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-        {
-            for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-            {
-                if (sensor_avg_data[bus][ch][IDX_VALID])
-                {
-                    ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
-                }
-            }
-        }
-
-        if (sensor_avg_queue != NULL)
-        {
-            xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Average sensor data queue handle is NULL.");
+            // copy timestamp + valid flag unchanged
+            sensor_avg_data[bus][slot][3] = sensor_data[bus][slot][3];
+            sensor_avg_data[bus][slot][4] = sensor_data[bus][slot][4];
         }
     }
+
+    // For debug sensor data
+    /*for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+        {
+            // if (sensor_data[bus][ch][IDX_VALID])
+            //{
+            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
+            //}
+        }
+    }*/
+
+    // For debug sensor avg
+    /*for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+        {
+            // if (sensor_data[bus][ch][IDX_VALID])
+            //{
+            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
+            //}
+        }
+    }*/
+
+    xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
 }
 
-// FIFO push function to add a new value and update sum and average required for sensor moving average calculation
 void fifoPush(int bus, int slot, int measurement, float value, int pos)
 {
     if (fifoSize[pos] < MAX_FIFO_SIZE)
     {
-        // Add the value to the next available position.
-        sensor_fifo[bus][slot][measurement][(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
+        sensor_fifo[bus][slot][measurement]
+                   [(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
+
         sum[pos] += value;
-        fifoSize[pos] = fifoSize[pos] + 1;
+        fifoSize[pos]++;
     }
     else
     {
-        // Overwrite the oldest value and move the head forward.
         sum[pos] -= sensor_fifo[bus][slot][measurement][fifoHead[pos]];
         sensor_fifo[bus][slot][measurement][fifoHead[pos]] = value;
         sum[pos] += value;
+
         fifoHead[pos] = (fifoHead[pos] + 1) % MAX_FIFO_SIZE;
     }
+
     avg[pos] = sum[pos] / fifoSize[pos];
 }

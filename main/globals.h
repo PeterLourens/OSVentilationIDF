@@ -71,7 +71,8 @@
 #define FANSPEED_HIGH 3
 
 // Number of samples for moving average calculation
-#define SENSOR_AVG_SIZE 48
+// #define SENSOR_AVG_SIZE 48
+#define SENSOR_AVG_SIZE (MAX_I2C_BUSES * CHANNELS_PER_BUS * 3) // only 3 averaged fields
 
 extern const char *STATE_ERROR;
 extern const char *STATE_INIT;

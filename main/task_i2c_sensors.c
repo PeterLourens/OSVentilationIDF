@@ -21,8 +21,10 @@ void task_i2c_sensors_code(void *pvParameters)
     // sensor_queue = xQueueCreate(1, sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
 
     // create sensor_queue at init time (place in startup where you currently create the queue)
-    size_t snap_count = (size_t)MAX_I2C_BUSES * (size_t)CHANNELS_PER_BUS * (size_t)DATA_FIELDS;
-    size_t snapshot_bytes = sizeof(double) * snap_count;
+    // Queue creation
+    size_t snap_count = MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
+    size_t snapshot_bytes = sizeof(float) * snap_count;
+
     sensor_queue = xQueueCreate(1, snapshot_bytes);
     sensor_avg_queue = xQueueCreate(1, snapshot_bytes);
 
