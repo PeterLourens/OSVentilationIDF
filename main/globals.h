@@ -41,7 +41,7 @@
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
 
-// I2C Sensor config
+// I2C Sensor config including average calculation
 #define MAX_I2C_BUSES 2
 #define CHANNELS_PER_BUS 8
 #define DATA_FIELDS 5 // 0=temp, 1=humidity, 2=CO2, 3=timestamp, 4=valid
@@ -50,6 +50,7 @@
 #define IDX_CO2 2
 #define IDX_TIMESTAMP 3
 #define IDX_VALID 4
+#define MAX_FIFO_SIZE 25
 
 // Valves config
 #define MAX_VALVE_COUNT 12 // Maximum number of valves supported by the hardware
@@ -62,7 +63,6 @@
 
 // statemachine settings
 #define MAX_NR_STATES 12
-#define MAX_FIFO_SIZE 25
 
 // Fanspeed values
 #define FANSPEED_ERROR 0
