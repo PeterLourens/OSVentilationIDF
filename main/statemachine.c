@@ -188,13 +188,13 @@ void day_transitions(void)
         return;
     }
 
-    /*ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
     if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;
-    }*/
+    }
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_DAY, sizeof(state_name));
@@ -342,12 +342,12 @@ void night_transitions(void)
         return;
     }
 
-    /*ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
+    ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
         return;
-    }*/
+    }
 
     // Copy state_name and call function to find index of the config
     strncpy(state_name, STATE_NIGHT, sizeof(state_name));
@@ -378,7 +378,7 @@ void night_transitions(void)
         xSemaphoreGive(statemachine_mutex);
     }
 
-    // ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
     set_fanspeed(state_fanspeed);
     // select_sensors();

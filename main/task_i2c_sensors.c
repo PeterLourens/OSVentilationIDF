@@ -17,10 +17,6 @@ void task_i2c_sensors_code(void *pvParameters)
 {
     esp_err_t err = ESP_OK;
 
-    // sensor_queue = xQueueCreate(1, sizeof(double[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]));
-    // sensor_queue = xQueueCreate(1, sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
-
-    // create sensor_queue at init time (place in startup where you currently create the queue)
     // Queue creation
     size_t snap_count = MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
     size_t snapshot_bytes = sizeof(float) * snap_count;
@@ -30,12 +26,21 @@ void task_i2c_sensors_code(void *pvParameters)
 
     if (!sensor_queue)
     {
-        ESP_LOGE(TAG, "failed to create sensor_queue (%u bytes)", sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
+        ESP_LOGE(TAG, "failed to create sensor_queue (%u bytes)", snapshot_bytes);
         // task cannot continue without the queue — delete this task
         vTaskDelete(NULL);
         return;
     }
-    ESP_LOGI(TAG, "created sensor_queue, item size=%u", sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
+    ESP_LOGI(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
+
+    if (!sensor_avg_queue)
+    {
+        ESP_LOGE(TAG, "failed to create sensor_queue (%u bytes)", snapshot_bytes);
+        // task cannot continue without the queue — delete this task
+        vTaskDelete(NULL);
+        return;
+    }
+    ESP_LOGI(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
 
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
     if (err != ESP_OK)
