@@ -1,8 +1,8 @@
 #include "http_helper.h"
 
 // Used to concact two log lines of the log output
-//static bool ws_prefix_pending = false;
-//static char ws_prefix_buf[256]; // holds prefix until message arrives
+static bool ws_prefix_pending = false;
+static char ws_prefix_buf[256]; // holds prefix until message arrives
 
 size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
 {
@@ -48,24 +48,24 @@ int websocket_log_output(const char *fmt, va_list args)
         static char clean_buf[512];
         // size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
         remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
-        ws_async_send(clean_buf, sizeof(clean_buf));
+        // ws_async_send(clean_buf, sizeof(clean_buf));
 
         // Detect prefix vs message
-        //if (!ws_prefix_pending && strstr(clean_buf, ":"))
-        //{
+        if (!ws_prefix_pending && strstr(clean_buf, ":"))
+        {
             // Likely the prefix line (ends with ":")
-            //strncpy(ws_prefix_buf, clean_buf, sizeof(ws_prefix_buf));
-            //ws_prefix_pending = true;
-        //}
-        //else if (ws_prefix_pending)
-        //{
+            strncpy(ws_prefix_buf, clean_buf, sizeof(ws_prefix_buf));
+            ws_prefix_pending = true;
+        }
+        else if (ws_prefix_pending)
+        {
             // Concatenate prefix + message
-            //char final_buf[768];
-            //int final_len = snprintf(final_buf, sizeof(final_buf), "%s %s", ws_prefix_buf, clean_buf);
+            char final_buf[768];
+            int final_len = snprintf(final_buf, sizeof(final_buf), "%s %s", ws_prefix_buf, clean_buf);
 
-            //ws_async_send(final_buf, final_len);
-            //ws_prefix_pending = false; // reset
-        //}
+            ws_async_send(final_buf, final_len);
+            ws_prefix_pending = false; // reset
+        }
     }
     return ret;
 }
