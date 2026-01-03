@@ -62,7 +62,7 @@
 #define AP_STARTED_BIT BIT2
 
 // statemachine settings
-#define MAX_NR_STATES 12
+#define MAX_NR_STATES 15
 
 // Fanspeed values
 #define FANSPEED_ERROR 0
@@ -87,6 +87,7 @@ extern const char *STATE_CYCLINGDAY;
 extern const char *STATE_CYCLINGNIGHT;
 extern const char *STATE_MANUALHS;
 extern const char *STATE_STOPPED;
+extern const char *STATE_TEMP;
 
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;

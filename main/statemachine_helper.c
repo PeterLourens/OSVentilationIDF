@@ -86,8 +86,9 @@ bool is_weekend(void)
         xSemaphoreGive(state_config_mutex);
     }
 
-    ESP_LOGI(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
-    ESP_LOGI(TAG, "Today is: %s", day_now);
+    // Debug
+    // ESP_LOGI(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
+    // ESP_LOGI(TAG, "Today is: %s", day_now);
 
     if (strcmp(day_now, day_buffer1) == 0 || strcmp(day_now, day_buffer2) == 0)
     {

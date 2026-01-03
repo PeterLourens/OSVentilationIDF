@@ -13,6 +13,7 @@ const char *STATE_CYCLINGDAY = "cyclingday";      // state_nr = 9
 const char *STATE_CYCLINGNIGHT = "cyclingnight";  // state_nr = 10
 const char *STATE_MANUALHS = "manual_high_speed"; // state_nr = 11
 const char *STATE_STOPPED = "stopped";            // state_nr = 12
+const char *STATE_TEMP = "temp";                  // state_nr = 13
 
 // I2C Devices new driver style
 i2c_master_bus_handle_t i2c_bus0_handle = {0};
