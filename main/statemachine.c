@@ -226,7 +226,7 @@ void day_transitions(void)
     ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
     set_fanspeed(state_fanspeed);
-    // select_sensors();
+    select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)
@@ -240,7 +240,7 @@ void day_transitions(void)
 
     if (valve_move_locked == 0)
     {
-        // valve_position_statemachine(state_config_index);
+        valve_position_statemachine(state_config_index);
     }
     else
     {
@@ -381,7 +381,7 @@ void night_transitions(void)
     ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
     set_fanspeed(state_fanspeed);
-    // select_sensors();
+    select_sensors();
 
     new_time = (esp_timer_get_time()) / 1000000;
     if (new_time > old_time)
@@ -395,7 +395,7 @@ void night_transitions(void)
 
     if (valve_move_locked == 0)
     {
-        // valve_position_statemachine(state_config_index);
+        valve_position_statemachine(state_config_index);
     }
     else
     {
