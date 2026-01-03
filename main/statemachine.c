@@ -42,7 +42,7 @@ void init_statemachine(void)
     }
 
     // Code to set fanspeed
-    set_fanspeed(FANSPEED_LOW);
+    // set_fanspeed(FANSPEED_LOW);
 }
 
 void run_statemachine(void)

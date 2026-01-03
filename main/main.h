@@ -17,5 +17,6 @@
 #include "statemachine.h"
 #include "task_statemachine.h"
 #include "syslog.h"
+#include "task_valvecontrol.h"
 
 #endif

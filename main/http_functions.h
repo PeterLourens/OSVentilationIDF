@@ -1,13 +1,14 @@
 #ifndef HTTP_FUNCTIONS_H
 #define HTTP_FUNCTIONS_H
 
-//#include "driver/i2c_master.h"
 #include <esp_http_server.h>
 
+#include "globals.h"
 #include "config_files.h"
 #include "http_helper.h"
 #include "http_send_ws_data.h"
 #include "http_post_functions.h"
+#include "valvecontrol.h"
 
 #define LOG_BUF_SIZE 256
 
