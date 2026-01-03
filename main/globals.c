@@ -65,8 +65,6 @@ bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS] = {0};
 QueueHandle_t sensor_queue;
 QueueHandle_t sensor_avg_queue;
 
-
-
 // HTTP server handle
 httpd_handle_t http_server = NULL;
 
