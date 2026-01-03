@@ -154,6 +154,9 @@ void app_main(void)
         return;
     }
 
+    // Read valve positions from NVS into valvecontrol struct
+    read_valve_pos_in_valvecontrol();
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();

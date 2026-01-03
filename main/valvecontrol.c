@@ -6,8 +6,6 @@
 static const uint8_t pattern1[4] = {0b00000101, 0b00001001, 0b00001010, 0b00000110};
 static const uint8_t pattern2[4] = {0b01010000, 0b10010000, 0b10100000, 0b01100000};
 
-static const char *TAG = "Valvecontrol";
-
 /* ---------------------- Generic helpers ---------------------- */
 
 /* Configure three GPIOs as outputs (idempotent). Returns ESP_OK or error. */
@@ -70,10 +68,52 @@ void all_outputs_off(int dataPin, int clockPin, int latchPin)
     latch_pulse(latchPin);
 }
 
+void read_valve_pos_in_valvecontrol(void)
+{
+    static const char *TAG = "Valve positions at boot";
+
+    nvs_handle_t nvs;
+    esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGW(TAG, "Failed to open NVS namespace 'valves' for read: %d", err);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Reading valve positions in valve control struct");
+    }
+
+    for (int i = 0; i < MAX_VALVE_COUNT; i++)
+    {
+        // Read current position (default 0 on error)
+        int32_t pos = 0;
+        if (err == ESP_OK)
+        {
+            char key[16];
+            snprintf(key, sizeof(key), "valve%d", i);
+            esp_err_t r = nvs_get_i32(nvs, key, &pos);
+            if (r != ESP_OK)
+            {
+                ESP_LOGW(TAG, "NVS read for %s failed: %d; assuming position 0", key, r);
+                pos = 0;
+            }
+        }
+
+        if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)100) == pdTRUE)
+        {
+            valvecontroldata.valve_number[i] = (int)pos;
+            xSemaphoreGive(valve_control_data_mutex);
+        }
+    }
+}
+
 // Control valves from web interface and from statemachine
 // Uses NVS namespace "valves" to read/write valve positions.
 void control_valves(void)
 {
+    static const char *TAG = "control_valves";
+
     // Temporary variables used after selection of I/O
     int clockPin = 0;
     int latchPin = 0;
@@ -253,6 +293,8 @@ void control_valves(void)
 
 void valve_position_statemachine(int state_config_index)
 {
+    static const char *TAG = "valve pos statemachine";
+
     int desired_positions[MAX_VALVE_COUNT] = {0};
     int sum_move = 0;
     int current = 0;
@@ -354,6 +396,8 @@ void valve_position_statemachine(int state_config_index)
 
 esp_err_t valvecontrol(int direction, int position_change, int valve_number, int dataPin, int clockPin, int latchPin)
 {
+    static const char *TAG = "Valvecontrol";
+
     int output[3][4] = {{0}};
     int i, j, k;
     const int cycles = 24; // cycles per full rotation (same as original)
