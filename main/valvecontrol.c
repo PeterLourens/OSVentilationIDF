@@ -253,8 +253,10 @@ void control_valves(void)
 
 void valve_position_statemachine(int state_config_index)
 {
-
     int desired_positions[MAX_VALVE_COUNT] = {0};
+    int sum_move = 0;
+    int current = 0;
+    int desired = 0;
 
     if (state_config_index < 0)
     {
@@ -286,13 +288,10 @@ void valve_position_statemachine(int state_config_index)
     // Populate valvecontroldata arrays so control_valves() can process them.
     // We set check_position=true to compute movement relative to current actual_valve_position[].
     // Valve numbers are set 0..N-1 to match indices.
-    valvecontroldata.check_position = true;
-    valvecontroldata.write_new_position = true;
-
     for (int v = 0; v < MAX_VALVE_COUNT; ++v)
     {
-        int current = valvecontroldata.actual_valve_position[v];
-        int desired = desired_positions[v];
+        current = valvecontroldata.actual_valve_position[v];
+        desired = desired_positions[v];
 
         valvecontroldata.valve_number[v] = v;
 
@@ -305,24 +304,45 @@ void valve_position_statemachine(int state_config_index)
         {
             valvecontroldata.position_change[v] = desired - current;
             valvecontroldata.direction[v] = 1; /* open/forward */
+            sum_move = sum_move + valvecontroldata.position_change[v];
         }
         else /* desired < current */
         {
             valvecontroldata.position_change[v] = current - desired;
             valvecontroldata.direction[v] = 0; /* close/backward */
+            sum_move = sum_move + valvecontroldata.position_change[v];
         }
-        ESP_LOGI(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+        // ESP_LOGI(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+    }
+
+    if (sum_move > 0)
+    {
+        valvecontroldata.check_position = true;
+        valvecontroldata.write_new_position = true;
+    }
+    else
+    {
+        valvecontroldata.check_position = true;
+        valvecontroldata.write_new_position = false;
     }
 
     /* Clear any previous POST-request flag — movement is requested programmatically now */
     valvecontroldata.valve_move_request_from_post = false;
-
     xSemaphoreGive(valve_control_data_mutex);
 
-    ESP_LOGI(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
+    // ESP_LOGI(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
 
     /* Invoke control_valves() to perform movements. It will check statemachine state internally. */
-    control_valves();
+    if (sum_move > 0)
+    {
+        // ESP_LOGI(TAG, "sum_move: %d, Valve %d: cur=%d desired=%d change=%d dir=%s", sum_move, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+        ESP_LOGI(TAG, "sum_move is >0 (%d)", sum_move);
+        control_valves();
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Sum move is 0, no need to call control_valves function");
+    }
 }
 
 /*

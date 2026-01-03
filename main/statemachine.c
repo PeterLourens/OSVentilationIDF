@@ -660,7 +660,6 @@ void high_co2_day_transitions(void)
     }
     else
     {
-
         ESP_LOGI(TAG, "Remain in highco2day state.");
         new_state = STATE_NR_HIGHCO2DAY;
     }
