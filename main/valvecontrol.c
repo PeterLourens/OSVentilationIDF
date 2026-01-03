@@ -251,19 +251,21 @@ void control_valves(void)
     // No statemachine 'state' changes done here; leave state handling to statemachine task.
 }
 
-void valve_position_statemachine(int state_config_index) {
-    
+void valve_position_statemachine(int state_config_index)
+{
+
     int desired_positions[MAX_VALVE_COUNT] = {0};
 
-    if (state_config_index < 0) {
+    if (state_config_index < 0)
+    {
         ESP_LOGE(TAG, "valve_position_statemachine: invalid state_config_index=%d", state_config_index);
         return;
-    }  
+    }
 
     /* Read desired positions from the state config under state_config_mutex */
     if (state_config_mutex == NULL || xSemaphoreTake(state_config_mutex, (TickType_t)10) != pdTRUE)
     {
-        ESP_LOGW(TAG,"valve_position_statemachine: could not take state_config_mutex");
+        ESP_LOGW(TAG, "valve_position_statemachine: could not take state_config_mutex");
         return;
     }
 
@@ -275,7 +277,7 @@ void valve_position_statemachine(int state_config_index) {
 
     // Update global valvecontroldata with move requests (compute delta from in-memory actuals).
     // Protect with valve_control_data_mutex.
-    if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)10) != pdTRUE)
+    if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)100) != pdTRUE)
     {
         ESP_LOGW(TAG, "valve_position_statemachine: could not take valve_control_data_mutex");
         return;

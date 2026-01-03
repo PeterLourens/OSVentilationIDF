@@ -269,6 +269,7 @@ void day_transitions(void)
 
     ESP_LOGI(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
     ESP_LOGI(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
+    ESP_LOGI(TAG, "Elapsed time: %d", elapsed_time);
 
     if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
     {
@@ -392,6 +393,7 @@ void night_transitions(void)
 
     ESP_LOGI(TAG, "High CO2 level: %d", co2highlevel);
     ESP_LOGI(TAG, "High RH level: %d", rhhighlevel);
+    ESP_LOGI(TAG, "Elapsed time: %d", elapsed_time);
 
     if (valve_move_locked == 0)
     {

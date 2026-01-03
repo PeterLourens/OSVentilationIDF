@@ -51,22 +51,22 @@ bool is_day(void)
     current_minutes = temp_time.tm_hour * 60 + temp_time.tm_min;
 
     // Debug
-    ESP_LOGI(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
-    ESP_LOGI(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
-    ESP_LOGI(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
+    // ESP_LOGI(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
+    // ESP_LOGI(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
+    // ESP_LOGI(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
 
     if (is_weekend())
     {
         int day_start = weekend_day_hour_start * 60 + weekend_day_minute_start;
         int night_start = weekend_night_hour_start * 60 + weekend_night_minute_start;
-        ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        // ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
     else
     {
         int day_start = weekday_day_hour_start * 60 + weekday_day_minute_start;
         int night_start = weekday_night_hour_start * 60 + weekday_night_minute_start;
-        ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        // ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
 }

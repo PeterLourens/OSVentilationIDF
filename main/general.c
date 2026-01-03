@@ -230,6 +230,13 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
+    valve_control_data_mutex = xSemaphoreCreateMutex();
+    if (valve_control_data_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create statemachine_mutex");
+        ok = false;
+    }
+
     if (!ok)
     {
         // cleanup any created semaphores to avoid leaks and to keep state consistent
@@ -287,6 +294,11 @@ esp_err_t create_mutexes(void)
         {
             vSemaphoreDelete(statemachine_mutex);
             statemachine_mutex = NULL;
+        }
+        if (valve_control_data_mutex)
+        {
+            vSemaphoreDelete(valve_control_data_mutex);
+            valve_control_data_mutex = NULL;
         }
 
         ESP_LOGE(TAG, "One or more mutexes failed to create");
