@@ -50,26 +50,46 @@ bool is_day(void)
 
     current_minutes = temp_time.tm_hour * 60 + temp_time.tm_min;
 
+    // Debug
+    ESP_LOGI(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
+    ESP_LOGI(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
+    ESP_LOGI(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
+
     if (is_weekend())
     {
         int day_start = weekend_day_hour_start * 60 + weekend_day_minute_start;
         int night_start = weekend_night_hour_start * 60 + weekend_night_minute_start;
+        ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
     else
     {
         int day_start = weekday_day_hour_start * 60 + weekday_day_minute_start;
         int night_start = weekday_night_hour_start * 60 + weekday_night_minute_start;
+        ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
 }
 
 bool is_weekend(void)
 {
-    char day_buffer[10];
-    formatted_day(day_buffer, sizeof(day_buffer));
+    char day_buffer1[SMALL_CONFIG_ITEM] = {};
+    char day_buffer2[SMALL_CONFIG_ITEM] = {};
+    char day_now[SMALL_CONFIG_ITEM] = {};
 
-    if (strcmp(day_buffer, "Saturday") == 0 || strcmp(day_buffer, "Sunday") == 0)
+    formatted_day(day_now, sizeof(day_now));
+
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10))
+    {
+        strncpy(day_buffer1, statemachine_gen_config.wkend_d1, sizeof(day_buffer1));
+        strncpy(day_buffer2, statemachine_gen_config.wkend_d2, sizeof(day_buffer2));
+        xSemaphoreGive(state_config_mutex);
+    }
+
+    ESP_LOGI(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
+    ESP_LOGI(TAG, "Today is: %s", day_now);
+
+    if (strcmp(day_now, day_buffer1) == 0 || strcmp(day_now, day_buffer2) == 0)
     {
         return true;
     }

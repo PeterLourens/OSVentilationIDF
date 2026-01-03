@@ -747,8 +747,8 @@ esp_err_t load_statemachine_general_config(void)
 
     cJSON *wday_d_h_start = cJSON_GetObjectItem(json, "wday_d_h_start");
     cJSON *wday_d_m_start = cJSON_GetObjectItem(json, "wday_d_m_start");
-    cJSON *wday_n_h_start = cJSON_GetObjectItem(json, "wday_n_d_h_start");
-    cJSON *wday_n_m_start = cJSON_GetObjectItem(json, "wday_n_d_m_start");
+    cJSON *wday_n_h_start = cJSON_GetObjectItem(json, "wday_n_h_start");
+    cJSON *wday_n_m_start = cJSON_GetObjectItem(json, "wday_n_m_start");
     cJSON *wkend_d_h_start = cJSON_GetObjectItem(json, "wkend_d_h_start");
     cJSON *wkend_d_m_start = cJSON_GetObjectItem(json, "wkend_d_m_start");
     cJSON *wkend_n_h_start = cJSON_GetObjectItem(json, "wkend_n_h_start");
