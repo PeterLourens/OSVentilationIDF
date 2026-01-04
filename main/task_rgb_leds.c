@@ -24,17 +24,13 @@ void task_rgb_leds_code(void *pvParameters)
 
     while (1)
     {
-        if (sm_get_snapshot(&snap))
+        while (1)
         {
-            update_status_leds(&snap, brightness);
-        }
-        else
-        {
-            // If mutex is busy, fallback: blink LED0 fast red
-            blink_fast(0, COLOR_RED, brightness);
-        }
+            if (sm_get_snapshot(&snap))
+                update_status_leds(&snap, brightness);
 
-        rgb_leds_update(); // non-blocking blink engine
-        vTaskDelay(pdMS_TO_TICKS(10));
+            rgb_leds_update(); // non-blocking blink engine
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
     }
 }

@@ -258,6 +258,9 @@ typedef struct
     int fanspeed;
     int state;
     bool valve_lock;
+    bool wifi_error;
+    bool wifi_connected;
+    bool wifi_ap_mode;
 } Statemachine_actuals_t;
 
 // To store valve control data from web page and from statemachine and actual valvel data

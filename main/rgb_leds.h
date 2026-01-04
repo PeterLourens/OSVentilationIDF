@@ -21,6 +21,13 @@ typedef struct
     uint8_t b;
 } Color_t;
 
+typedef struct
+{
+    int priority;
+    bool (*condition)(const Statemachine_actuals_t *sm);
+    void (*action)(const Statemachine_actuals_t *sm, uint8_t brightness);
+} LedRule_t;
+
 typedef enum
 {
     COLOR_RED,

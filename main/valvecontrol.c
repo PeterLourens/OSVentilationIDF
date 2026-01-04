@@ -116,8 +116,7 @@ void read_valve_pos_in_valvecontrol(void)
 
         esp_err_t r = nvs_get_i32(nvs, key, &pos);
 
-        ESP_LOGI(TAG, "Key %s -> err=%s, value=%ld",
-                 key, esp_err_to_name(r), (long)pos);
+        ESP_LOGI(TAG, "Key %s -> err=%s, value=%ld", key, esp_err_to_name(r), (long)pos);
 
         if (r != ESP_OK)
         {
@@ -458,12 +457,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     }
 
     /* Take lock_valve_move mutex and set flag like original (if available) */
-    if (lock_valve_move_mutex)
+    if (statemachine_mutex)
     {
-        if (xSemaphoreTake(lock_valve_move_mutex, (TickType_t)10) == pdTRUE)
+        if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
-            lock_valve_move = 1;
-            xSemaphoreGive(lock_valve_move_mutex);
+            sm_actuals.valve_lock = true;
+            xSemaphoreGive(statemachine_mutex);
         }
     }
 
@@ -525,12 +524,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     default:
         ESP_LOGE(TAG, "Invalid valve_number: %d", valve_number);
         /* Clear lock flag if set then return */
-        if (lock_valve_move_mutex)
+        if (statemachine_mutex)
         {
-            if (xSemaphoreTake(lock_valve_move_mutex, (TickType_t)10) == pdTRUE)
+            if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
             {
-                lock_valve_move = 0;
-                xSemaphoreGive(lock_valve_move_mutex);
+                sm_actuals.valve_lock = false;
+                xSemaphoreGive(statemachine_mutex);
             }
         }
         return ESP_ERR_INVALID_ARG;
@@ -540,12 +539,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
     {
         ESP_LOGE(TAG, "GPIO config failed in valvecontrol");
-        if (lock_valve_move_mutex)
+        if (statemachine_mutex)
         {
-            if (xSemaphoreTake(lock_valve_move_mutex, (TickType_t)10) == pdTRUE)
+            if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
             {
-                lock_valve_move = 0;
-                xSemaphoreGive(lock_valve_move_mutex);
+                sm_actuals.valve_lock = false;
+                xSemaphoreGive(statemachine_mutex);
             }
         }
         return ESP_FAIL;
@@ -595,12 +594,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     }
 
     /* Release lock flag */
-    if (lock_valve_move_mutex)
+    if (statemachine_mutex)
     {
-        if (xSemaphoreTake(lock_valve_move_mutex, (TickType_t)10) == pdTRUE)
+        if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
-            lock_valve_move = 0;
-            xSemaphoreGive(lock_valve_move_mutex);
+            sm_actuals.valve_lock = false;
+            xSemaphoreGive(statemachine_mutex);
         }
     }
     return ESP_OK;
