@@ -70,41 +70,79 @@ void all_outputs_off(int dataPin, int clockPin, int latchPin)
 
 void read_valve_pos_in_valvecontrol(void)
 {
-    static const char *TAG = "Valve positions at boot";
+    static const char *TAG = "VALVE_BOOT";
+
+    int32_t positions[MAX_VALVE_COUNT] = {0};
 
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
 
     if (err != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to open NVS namespace 'valves' for read: %d", err);
+        ESP_LOGW(TAG, "Failed to open NVS namespace 'valves': %s", esp_err_to_name(err));
+        return;
+    }
+
+    ESP_LOGI(TAG, "Reading valve positions from NVS");
+
+    /*nvs_iterator_t it = NULL;
+
+    esp_err_t res = nvs_entry_find("nvs", "valves", NVS_TYPE_I32, &it);
+    if (res == ESP_ERR_NVS_NOT_FOUND)
+    {
+        ESP_LOGW("VALVE_BOOT", "No valve keys found in NVS!");
+    }
+    else if (res != ESP_OK)
+    {
+        ESP_LOGE("VALVE_BOOT", "nvs_entry_find failed: %s", esp_err_to_name(res));
     }
     else
     {
-        ESP_LOGI(TAG, "Reading valve positions in valve control struct");
-    }
+        while (it != NULL)
+        {
+            nvs_entry_info_t info;
+            nvs_entry_info(it, &info);
+            ESP_LOGI("VALVE_BOOT", "Found key: %s", info.key);
+
+            nvs_entry_next(&it);
+        }
+    }*/
 
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
-        // Read current position (default 0 on error)
-        int32_t pos = 0;
-        if (err == ESP_OK)
+        int32_t pos = -999; // sentinel so we see if it changes
+        char key[16];
+        snprintf(key, sizeof(key), "valve%d", i);
+
+        esp_err_t r = nvs_get_i32(nvs, key, &pos);
+
+        ESP_LOGI(TAG, "Key %s -> err=%s, value=%ld",
+                 key, esp_err_to_name(r), (long)pos);
+
+        if (r != ESP_OK)
         {
-            char key[16];
-            snprintf(key, sizeof(key), "valve%d", i);
-            esp_err_t r = nvs_get_i32(nvs, key, &pos);
-            if (r != ESP_OK)
-            {
-                ESP_LOGW(TAG, "NVS read for %s failed: %d; assuming position 0", key, r);
-                pos = 0;
-            }
+            pos = 0;
         }
 
-        if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)100) == pdTRUE)
+        if (valve_control_data_mutex &&
+            xSemaphoreTake(valve_control_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
-            valvecontroldata.valve_number[i] = (int)pos;
+            valvecontroldata.actual_valve_position[i] = (int)pos;
             xSemaphoreGive(valve_control_data_mutex);
         }
+    }
+
+    nvs_close(nvs);
+
+    // Write all values under one lock
+    if (valve_control_data_mutex &&
+        xSemaphoreTake(valve_control_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+    {
+        for (int i = 0; i < MAX_VALVE_COUNT; i++)
+        {
+            valvecontroldata.valve_number[i] = positions[i];
+        }
+        xSemaphoreGive(valve_control_data_mutex);
     }
 }
 
@@ -313,6 +351,9 @@ void valve_position_statemachine(int state_config_index)
         return;
     }
 
+    // Read actual valve data from NVS
+    // read_valve_pos_in_valvecontrol();
+
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
         desired_positions[i] = statemachine_config[state_config_index].valve_position[i];
@@ -334,6 +375,8 @@ void valve_position_statemachine(int state_config_index)
     {
         current = valvecontroldata.actual_valve_position[v];
         desired = desired_positions[v];
+
+        // ESP_LOGI(TAG, "Valve%d: %d", v, current);
 
         valvecontroldata.valve_number[v] = v;
 
