@@ -70,7 +70,7 @@ void all_outputs_off(int dataPin, int clockPin, int latchPin)
 
 void read_valve_pos_in_valvecontrol(void)
 {
-    static const char *TAG = "VALVE_BOOT";
+    static const char *TAG = "Read valve pos";
 
     int32_t positions[MAX_VALVE_COUNT] = {0};
 

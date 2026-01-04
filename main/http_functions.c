@@ -833,6 +833,10 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
         // still return the page so UI stays consistent
     }
 
+    // Update actual valve positions struct after writing all zeros to NVS
+    // otherwise the statemachine will still have old values
+    read_valve_pos_in_valvecontrol();
+
     // Return the original valvecontrol.html page
     httpd_resp_set_type(req, "text/html");
     size_t len = valvecontrol_html_end - valvecontrol_html_start;

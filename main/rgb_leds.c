@@ -66,7 +66,7 @@ ColorName_t state_to_color(int state)
     case 11:
         return COLOR_TEAL; // Manual fan high speed
     case 12:
-        return COLOR_DARK_GREEN; // Stopped
+        return COLOR_MEDIUM_SLATE_BLUE; // Stopped
     case 13:
         return COLOR_INDIGO; // Temp
     case 14:
