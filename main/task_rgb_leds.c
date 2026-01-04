@@ -11,6 +11,7 @@ void start_task_rgb_leds(void)
 void task_rgb_leds_code(void *pvParameters)
 {
     u_int8_t brightness = 16;
+    Statemachine_actuals_t snap;
 
     esp_err_t err = init_rgb_led();
     if (err != ESP_OK)
@@ -23,38 +24,17 @@ void task_rgb_leds_code(void *pvParameters)
 
     while (1)
     {
-        // ESP_LOGI(TAG, "Update RGB LEDs");
-
-        /*set_led_color(0, COLOR_RED, brightness); // LED 0 → red @ 50% brightness
-        set_led_color(1, COLOR_RED, brightness); // LED 0 → red @ 50% brightness
-        led_strip_refresh(rgb_leds);
-        vTaskDelay(pdMS_TO_TICKS(1000));
-
-        // Turn off the LEDs
-        led_strip_clear(rgb_leds);
-        led_strip_refresh(rgb_leds);*/
-
-        update_status_leds(&sm_actuals, brightness);
+        if (sm_get_snapshot(&snap))
+        {
+            update_status_leds(&snap, brightness);
+        }
+        else
+        {
+            // If mutex is busy, fallback: blink LED0 fast red
+            blink_fast(0, COLOR_RED, brightness);
+        }
 
         rgb_leds_update(); // non-blocking blink engine
         vTaskDelay(pdMS_TO_TICKS(10));
-
-        /*static int color = 0;
-
-        ESP_LOGI(TAG, "LEDs → color index %d", color);
-
-        set_led_color(0, color, brightness);
-        set_led_color(1, color, brightness);
-
-        led_strip_refresh(rgb_leds);
-
-        color = (color + 1) % COLOR_COUNT;
-
-        vTaskDelay(pdMS_TO_TICKS(1000));*/
-
-        // blink_slow(0, COLOR_RED, brightness);
-        // vTaskDelay(pdMS_TO_TICKS(4000));
-        // blink_fast(1, COLOR_BLUE, brightness);
-        // vTaskDelay(pdMS_TO_TICKS(4000));
     }
 }

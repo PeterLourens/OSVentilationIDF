@@ -230,6 +230,16 @@ void blink_stop(int led)
     set_led_off(led);
 }
 
+bool sm_get_snapshot(Statemachine_actuals_t *out)
+{
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(5)) != pdTRUE)
+        return false;
+
+    *out = sm_actuals; // atomic copy
+    xSemaphoreGive(statemachine_mutex);
+    return true;
+}
+
 void rgb_leds_update(void)
 {
     TickType_t now = xTaskGetTickCount();

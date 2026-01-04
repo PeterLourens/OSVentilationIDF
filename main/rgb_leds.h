@@ -72,6 +72,8 @@ void set_led_color(int, ColorName_t, uint8_t);
 void blink_led(int, ColorName_t, uint8_t, uint32_t, uint32_t);
 void blink_slow(int, ColorName_t, uint8_t);
 void blink_fast(int, ColorName_t, uint8_t);
+void blink_stop(int);
+bool sm_get_snapshot(Statemachine_actuals_t *);
 void rgb_leds_update(void);
 void update_status_leds(const Statemachine_actuals_t *, uint8_t);
 
