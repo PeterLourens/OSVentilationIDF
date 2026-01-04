@@ -233,6 +233,8 @@ void led_breathe(int led, ColorName_t color)
 // ---------------------------------------------------------------------------
 void update_led0(const Statemachine_actuals_t *sm, uint8_t brightness)
 {
+    // ESP_LOGI("LED0", "state=%d valve_lock=%d", sm->state, sm->valve_lock);
+
     if (sm->state == 0)
     {
         blink_fast(0, COLOR_RED, brightness);
@@ -241,6 +243,7 @@ void update_led0(const Statemachine_actuals_t *sm, uint8_t brightness)
 
     if (sm->valve_lock)
     {
+        ESP_LOGI("LED0", "VALVE LOCK → blink_slow()");
         blink_slow(0, state_to_color(sm->state), brightness);
         return;
     }
