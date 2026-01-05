@@ -6,7 +6,7 @@
 void start_task_statemachine(void)
 {
     // Create statemachine task
-    xTaskCreate(task_statemachine_code, "statemach", 15000, NULL, 6, &task_statemachine);
+    xTaskCreate(task_statemachine_code, "statemach", 8192, NULL, 6, &task_statemachine);
 }
 
 void task_statemachine_code(void *pvParameters)

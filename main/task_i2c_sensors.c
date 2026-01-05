@@ -10,7 +10,7 @@ static const char *TAG = "i2c sensors task";
 
 void start_task_i2c_sensors(void)
 {
-    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 10000, NULL, 10, &task_i2c_sensors);
+    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 4096, NULL, 10, &task_i2c_sensors);
 }
 
 void task_i2c_sensors_code(void *pvParameters)
