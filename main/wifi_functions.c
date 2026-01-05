@@ -178,6 +178,15 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         ESP_LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
+
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
+        {
+            sm_actuals.wifi_connected = true;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+            xSemaphoreGive(statemachine_mutex);
+        }
+        xTaskNotifyGive(task_rgb_leds);
     }
 }
 
