@@ -119,42 +119,56 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         switch (event_id)
         {
         case WIFI_EVENT_STA_START:
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+            {
+                sm_actuals.wifi_connected = false;
+                sm_actuals.wifi_error = false;
+                xSemaphoreGive(statemachine_mutex);
+            }
+            xTaskNotifyGive(task_rgb_leds);
             esp_wifi_connect();
             break;
 
         case WIFI_EVENT_STA_DISCONNECTED:
             if (s_retry_num < MAXIMUM_RETRY)
             {
+                if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+                {
+                    sm_actuals.wifi_connected = false;
+                    sm_actuals.wifi_error = true;
+                    xSemaphoreGive(statemachine_mutex);
+                }
+                xTaskNotifyGive(task_rgb_leds);
                 esp_wifi_connect();
                 s_retry_num++;
-                ESP_LOGI(TAG, "Retry to connect to the AP (%d/%d)",
-                         s_retry_num, MAXIMUM_RETRY);
+                ESP_LOGI(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
             }
             else
             {
                 xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-                ESP_LOGI(TAG, "Failed to connect to AP after %d retries",
-                         MAXIMUM_RETRY);
+                ESP_LOGI(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
             }
             break;
 
         case WIFI_EVENT_AP_START:
             ESP_LOGI(TAG, "AP Started");
             xEventGroupSetBits(s_wifi_event_group, AP_STARTED_BIT);
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+            {
+                sm_actuals.wifi_ap_mode = true;
+                xSemaphoreGive(statemachine_mutex);
+            }
+            xTaskNotifyGive(task_rgb_leds);
             break;
 
         case WIFI_EVENT_AP_STACONNECTED:
-            wifi_event_ap_staconnected_t *event =
-                (wifi_event_ap_staconnected_t *)event_data;
-            ESP_LOGI(TAG, "Station " MACSTR " joined, AID=%d",
-                     MAC2STR(event->mac), event->aid);
+            wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)event_data;
+            ESP_LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
             break;
 
         case WIFI_EVENT_AP_STADISCONNECTED:
-            wifi_event_ap_stadisconnected_t *event_disc =
-                (wifi_event_ap_stadisconnected_t *)event_data;
-            ESP_LOGI(TAG, "Station " MACSTR " left, AID=%d",
-                     MAC2STR(event_disc->mac), event_disc->aid);
+            wifi_event_ap_stadisconnected_t *event_disc = (wifi_event_ap_stadisconnected_t *)event_data;
+            ESP_LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
             break;
         }
     }

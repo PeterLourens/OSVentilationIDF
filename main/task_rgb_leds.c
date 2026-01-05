@@ -2,6 +2,9 @@
 
 static const char *TAG = "RGB Leds";
 
+// Local snapshot (safe copy)
+static Statemachine_actuals_t snap;
+
 void start_task_rgb_leds(void)
 {
     // Create LCD task
@@ -10,7 +13,6 @@ void start_task_rgb_leds(void)
 
 void task_rgb_leds_code(void *pvParameters)
 {
-    u_int8_t brightness = 16;
     Statemachine_actuals_t snap;
 
     esp_err_t err = init_rgb_led();
@@ -19,21 +21,19 @@ void task_rgb_leds_code(void *pvParameters)
         ESP_LOGE(TAG, "Failed to initialise RGB LEDs");
     }
 
-    // blink_slow(0, COLOR_RED, brightness);
-    // blink_fast(1, COLOR_BLUE, brightness);
-
     while (1)
     {
-        while (1)
-        {
-            if (sm_get_snapshot(&snap))
-            {
-                // ESP_LOGI("SNAP", "snap.valve_lock=%d", snap.valve_lock);
-                update_status_leds(&snap, brightness);
-            }
+        // Wait for notify OR timeout (for blinking)
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
 
-            rgb_leds_update(); // non-blocking blink engine
-            vTaskDelay(pdMS_TO_TICKS(10));
+        // Safe snapshot
+        if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
+        {
+            snap = sm_actuals;
+            xSemaphoreGive(statemachine_mutex);
         }
+
+        // Update LEDs
+        leds_update(&snap);
     }
 }

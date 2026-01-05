@@ -27,6 +27,11 @@ void task_statemachine_code(void *pvParameters)
     {
         // Run the state machine
         run_statemachine();
+
+        // Update LEDs
+        xTaskNotifyGive(task_rgb_leds);
+
+        // Run every 60 secs
         vTaskDelay(60000);
     }
 }

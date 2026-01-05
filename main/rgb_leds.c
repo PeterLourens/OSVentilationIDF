@@ -5,6 +5,14 @@ static const char *TAG = "RGB LED";
 // RGB LED handle
 led_strip_handle_t rgb_leds = NULL;
 
+static uint8_t led_brightness = 16;
+
+// Local snapshot (copied by LED task)
+static Statemachine_actuals_t sm_snap;
+
+static bool blink0 = false;
+static bool blink1 = false;
+
 const Color_t COLORS[] = {
     {255, 0, 0},     // RED
     {0, 255, 0},     // GREEN
@@ -102,200 +110,105 @@ esp_err_t init_rgb_led(void)
         .flags.invert_out = false,
     };
 
-    led_strip_rmt_config_t rmt = {
-        .resolution_hz = 10 * 1000 * 1000,
-    };
+    led_strip_rmt_config_t rmt = {.resolution_hz = 10 * 1000 * 1000};
 
     esp_err_t err = led_strip_new_rmt_device(&cfg, &rmt, &rgb_leds);
     ESP_LOGI(TAG, "LED strip initialized");
     return err;
 }
 
-uint8_t apply_brightness(uint8_t c, uint8_t b)
+// ---------------------------------------------------------------------------
+// BRIGHTNESS HELPERS
+// ---------------------------------------------------------------------------
+static uint8_t apply_brightness(uint8_t c, uint8_t b)
 {
     return (c * b) / 255;
 }
 
-void set_raw(int led, uint8_t r, uint8_t g, uint8_t b)
+void leds_set_brightness(uint8_t b)
 {
-    if (led < 0 || led >= RGB_LED_NUM)
-        return;
-    led_strip_set_pixel(rgb_leds, led, r, g, b);
+    led_brightness = b;
 }
 
-void set_led_color(int led, ColorName_t color, uint8_t brightness)
+// ---------------------------------------------------------------------------
+// BASIC LED SET
+// ---------------------------------------------------------------------------
+void set_led_brightness(int led, ColorName_t color, uint8_t brightness)
 {
     const Color_t *c = &COLORS[color];
-    set_raw(led,
-            apply_brightness(c->r, brightness),
-            apply_brightness(c->g, brightness),
-            apply_brightness(c->b, brightness));
+
+    led_strip_set_pixel(
+        rgb_leds,
+        led,
+        apply_brightness(c->r, brightness),
+        apply_brightness(c->g, brightness),
+        apply_brightness(c->b, brightness));
 }
 
-void set_led_off(int led)
+void set_led(int led, ColorName_t color)
 {
-    set_raw(led, 0, 0, 0);
+    set_led_brightness(led, color, led_brightness);
 }
 
-void rgb_leds_refresh(void)
+void set_off(int led)
 {
+    led_strip_set_pixel(rgb_leds, led, 0, 0, 0);
+}
+
+// ---------------------------------------------------------------------------
+// BLINK TOGGLE STATE
+// ---------------------------------------------------------------------------
+void toggle_led(int led, ColorName_t color, bool *state)
+{
+    *state = !*state;
+
+    if (*state)
+        set_led_brightness(led, color, led_brightness);
+    else
+        set_off(led);
+}
+
+// ---------------------------------------------------------------------------
+// MAIN LED UPDATE (called by LED task)
+// ---------------------------------------------------------------------------
+void leds_update(const Statemachine_actuals_t *sm)
+{
+    // Copy snapshot
+    sm_snap = *sm;
+
+    // ---------------- LED0: STATE ----------------
+    if (sm_snap.state == 0)
+    {
+        toggle_led(0, COLOR_RED, &blink0);
+    }
+    else if (sm_snap.valve_lock)
+    {
+        toggle_led(0, state_to_color(sm_snap.state), &blink0);
+    }
+    else
+    {
+        blink0 = false;
+        set_led(0, state_to_color(sm_snap.state));
+    }
+
+    // ---------------- LED1: WIFI overrides FAN ----------------
+    if (sm_snap.wifi_error)
+    {
+        toggle_led(1, COLOR_RED, &blink1);
+    }
+    else if (sm_snap.wifi_ap_mode)
+    {
+        toggle_led(1, COLOR_YELLOW, &blink1);
+    }
+    else if (!sm_snap.wifi_connected)
+    {
+        toggle_led(1, COLOR_CYAN, &blink1);
+    }
+    else
+    {
+        blink1 = false;
+        set_led(1, fan_to_color(sm_snap.fanspeed));
+    }
+
     led_strip_refresh(rgb_leds);
-}
-
-// ---------------------------------------------------------------------------
-// NON-BLOCKING BLINK ENGINE
-// ---------------------------------------------------------------------------
-static BlinkState_t blink_state[RGB_LED_NUM] = {0};
-
-void blink_start(int led, ColorName_t color, uint8_t brightness, uint32_t on_ms, uint32_t off_ms)
-{
-    blink_state[led] = (BlinkState_t){
-        .enabled = true,
-        .led_on = false,
-        .next_toggle = xTaskGetTickCount(),
-        .on_ms = on_ms,
-        .off_ms = off_ms,
-        .color = color,
-        .brightness = brightness};
-}
-
-void blink_stop(int led)
-{
-    blink_state[led].enabled = false;
-    set_led_off(led);
-}
-
-void blink_slow(int led, ColorName_t color, uint8_t brightness)
-{
-    blink_start(led, color, brightness, 500, 500);
-}
-
-void blink_fast(int led, ColorName_t color, uint8_t brightness)
-{
-    blink_start(led, color, brightness, 100, 100);
-}
-
-void rgb_leds_update(void)
-{
-    TickType_t now = xTaskGetTickCount();
-
-    for (int i = 0; i < RGB_LED_NUM; i++)
-    {
-        BlinkState_t *bs = &blink_state[i];
-        if (!bs->enabled)
-            continue;
-
-        if (now >= bs->next_toggle)
-        {
-            if (bs->led_on)
-            {
-                set_led_off(i);
-                bs->led_on = false;
-                bs->next_toggle = now + pdMS_TO_TICKS(bs->off_ms);
-            }
-            else
-            {
-                set_led_color(i, bs->color, bs->brightness);
-                bs->led_on = true;
-                bs->next_toggle = now + pdMS_TO_TICKS(bs->on_ms);
-            }
-        }
-    }
-
-    rgb_leds_refresh();
-}
-
-// ---------------------------------------------------------------------------
-// BREATHING EFFECT (for WiFi AP mode)
-// ---------------------------------------------------------------------------
-static uint8_t breathe_level = 0;
-static int breathe_dir = 1;
-
-void led_breathe(int led, ColorName_t color)
-{
-    breathe_level += breathe_dir * 5;
-    if (breathe_level >= 255)
-    {
-        breathe_level = 255;
-        breathe_dir = -1;
-    }
-    if (breathe_level <= 10)
-    {
-        breathe_level = 10;
-        breathe_dir = 1;
-    }
-
-    set_led_color(led, color, breathe_level);
-}
-
-// ---------------------------------------------------------------------------
-// LED0 — STATE MACHINE
-// ---------------------------------------------------------------------------
-void update_led0(const Statemachine_actuals_t *sm, uint8_t brightness)
-{
-    // ESP_LOGI("LED0", "state=%d valve_lock=%d", sm->state, sm->valve_lock);
-
-    if (sm->state == 0)
-    {
-        blink_fast(0, COLOR_RED, brightness);
-        return;
-    }
-
-    if (sm->valve_lock)
-    {
-        ESP_LOGI("LED0", "VALVE LOCK → blink_slow()");
-        blink_slow(0, state_to_color(sm->state), brightness);
-        return;
-    }
-
-    blink_stop(0);
-    set_led_color(0, state_to_color(sm->state), brightness);
-}
-
-// ---------------------------------------------------------------------------
-// LED1 — WIFI (OVERRIDES FAN SPEED)
-// ---------------------------------------------------------------------------
-void update_led1(const Statemachine_actuals_t *sm, uint8_t brightness)
-{
-    // WiFi ERROR → slow red blink
-    if (sm->wifi_error)
-    {
-        blink_slow(1, COLOR_RED, brightness);
-        return;
-    }
-
-    // WiFi AP MODE → breathing yellow
-    if (sm->wifi_ap_mode)
-    {
-        blink_stop(1);
-        led_breathe(1, COLOR_YELLOW);
-        return;
-    }
-
-    // WiFi NOT CONNECTED → fast cyan blink
-    if (!sm->wifi_connected)
-    {
-        blink_fast(1, COLOR_CYAN, brightness);
-        return;
-    }
-
-    // WiFi OK → FAN SPEED (steady)
-    blink_stop(1);
-    set_led_color(1, fan_to_color(sm->fanspeed), brightness);
-}
-
-void update_status_leds(const Statemachine_actuals_t *sm, uint8_t brightness)
-{
-    update_led0(sm, brightness);
-    update_led1(sm, brightness);
-}
-
-bool sm_get_snapshot(Statemachine_actuals_t *out)
-{
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(5)) != pdTRUE)
-        return false;
-
-    *out = sm_actuals;
-    xSemaphoreGive(statemachine_mutex);
-    return true;
 }

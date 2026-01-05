@@ -7,6 +7,7 @@
 #include "general.h"
 #include "statemachine.h"
 #include "statemachine_helper.h"
+#include "rgb_leds.h"
 
 void start_task_statemachine(void);
 void task_statemachine_code(void *);
