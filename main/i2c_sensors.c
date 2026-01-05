@@ -542,7 +542,7 @@ void sensor_data_average(void)
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
     float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    if (xQueuePeek(sensor_queue, sensor_data, 0) != pdTRUE)
+    if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
         return;
 
     int pos = 0;
