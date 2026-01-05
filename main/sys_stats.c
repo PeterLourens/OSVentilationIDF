@@ -120,14 +120,11 @@ void show_system_and_task_stats(void)
     }
 
     // High‑watermark table
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "\nTask stack usage (high‑watermarks):\n");
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "%-20s %-12s\n", "Task Name", "HighWater (bytes)");
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "%-20s %-12s\n", "--------------------", "--------------");
+    // used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "\nTask stack usage (high‑watermarks):\n");
+    // used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-12s\n", "Task Name", "HighWater (bytes)");
+    // used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-12s\n", "--------------------", "--------------");
 
-    for (UBaseType_t i = 0; i < task_count; i++)
+    /*for (UBaseType_t i = 0; i < task_count; i++)
     {
         TaskStatus_t *ts = &tasks[i];
         uint32_t highwater_bytes = ts->usStackHighWaterMark * sizeof(StackType_t);
@@ -139,7 +136,7 @@ void show_system_and_task_stats(void)
                          note);
     }
 
-    vPortFree(tasks);
+    vPortFree(tasks);*/
 
     // Heap metrics
     size_t free_heap = esp_get_free_heap_size();
@@ -158,7 +155,7 @@ void show_system_and_task_stats(void)
     esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg);
     const char *ssid = (const char *)wifi_cfg.sta.ssid;
 
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
+    /*used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
                      "\n\nNetwork Settings:\n"
                      "┌──────────────┬────────────────────────────────┐\n"
                      "│ Setting      │ Value                          │\n"
@@ -176,7 +173,7 @@ void show_system_and_task_stats(void)
                      "└──────────────┴────────────────────────────────┘",
                      network_config.enable_dhcp, ssid, network_config.wifi_password, network_config.ip_address,
                      network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
-                     time_config.ntp_server, time_config.timezone);
+                     time_config.ntp_server, time_config.timezone);*/
 
 send_out:
     // Print to UART
