@@ -38,6 +38,7 @@ TaskHandle_t task_rgb_leds = NULL;
 TaskHandle_t task_statemachine = NULL;
 TaskHandle_t task_valvectrl = NULL;
 TaskHandle_t task_mqtt = NULL;
+TaskHandle_t task_influxdb = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;

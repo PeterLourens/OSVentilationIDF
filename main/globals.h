@@ -112,6 +112,7 @@ extern TaskHandle_t task_rgb_leds;
 extern TaskHandle_t task_statemachine;
 extern TaskHandle_t task_valvectrl;
 extern TaskHandle_t task_mqtt;
+extern TaskHandle_t task_influxdb;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
