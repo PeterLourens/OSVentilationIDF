@@ -1,6 +1,6 @@
 #include "task_influxdb.h"
 
-static const char *TAG = "Influxdb";
+static const char *TAG = "Influxdb task";
 
 void start_task_influxdb(void)
 {
@@ -10,4 +10,9 @@ void start_task_influxdb(void)
 
 void task_influxdb_code(void *pvParameters)
 {
+    while (true)
+    {
+        influxdb_process(sensor_queue, sensor_avg_queue);
+        vTaskDelay(pdMS_TO_TICKS(10000));
+    }
 }

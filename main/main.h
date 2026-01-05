@@ -18,5 +18,6 @@
 #include "task_statemachine.h"
 #include "syslog.h"
 #include "task_valvecontrol.h"
+#include "task_influxdb.h"
 
 #endif

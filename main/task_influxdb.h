@@ -2,6 +2,7 @@
 #define TASK_INFLUXDB_H
 
 #include "globals.h"
+#include "influxdb.h"
 
 // Function definitions
 void start_task_influxdb(void);

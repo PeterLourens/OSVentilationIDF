@@ -176,6 +176,7 @@ void app_main(void)
         ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
         start_webserver();
         start_task_statemachine();
+        start_task_influxdb();
         syslog_send_line("Boot complete, system running");
     }
 
