@@ -1,5 +1,5 @@
 {
-    "enable_mqtt": "Off",
+    "enable_mqtt": "On",
     "mqtt_server": "192.168.0.15",
     "mqtt_port": "1883",
     "mqtt_base_topic": "OSVentilationIDFdev"

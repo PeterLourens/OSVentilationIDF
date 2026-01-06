@@ -26,8 +26,7 @@ static inline bool mqtt_is_enabled(const MQTT_config_t *cfg)
 // ---------------------------------------------------------------------------
 // MQTT event handler
 // ---------------------------------------------------------------------------
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
-							   int32_t event_id, void *event_data)
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
 	switch (event_id)
 	{
@@ -118,14 +117,6 @@ void mqtt_apply_config_change(void)
 }
 
 // ---------------------------------------------------------------------------
-// Initialize mutex
-// ---------------------------------------------------------------------------
-void mqtt_init(void)
-{
-	mqtt_config_mutex = xSemaphoreCreateMutex();
-}
-
-// ---------------------------------------------------------------------------
 // Start MQTT client
 // ---------------------------------------------------------------------------
 esp_err_t mqtt_start_client(void)
@@ -161,7 +152,7 @@ esp_err_t mqtt_start_client(void)
 static inline void mqtt_pubf(const char *topic, float value)
 {
 	char payload[32];
-	snprintf(payload, sizeof(payload), "%.3f", value);
+	snprintf(payload, sizeof(payload), "%.2f", value);
 	esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
 }
 
