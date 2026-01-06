@@ -19,5 +19,6 @@
 #include "syslog.h"
 #include "task_valvecontrol.h"
 #include "task_influxdb.h"
+#include "task_mqtt.h"
 
 #endif
