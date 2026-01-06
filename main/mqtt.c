@@ -4,9 +4,9 @@ static const char *TAG = "MQTT";
 
 // Global MQTT client + connection state
 esp_mqtt_client_handle_t s_mqtt = NULL;
-bool s_mqtt_connected = false;
 static MQTT_config_t s_last_cfg = {0};
-static bool s_mqtt_running = false;
+static bool s_mqtt_running = false; // client started (start() called)
+bool s_mqtt_connected = false;		// broker connection up (event based)
 
 // ---------------------------------------------------------------------------
 // Mutex-protected config snapshot
@@ -121,12 +121,18 @@ void mqtt_apply_config_change(void)
 // ---------------------------------------------------------------------------
 esp_err_t mqtt_start_client(void)
 {
+	if (s_mqtt_running)
+	{
+		// Already started
+		return ESP_OK;
+	}
+
 	MQTT_config_t cfg;
 	mqtt_get_config_snapshot(&cfg);
 
-	if (!mqtt_is_enabled(&cfg))
+	if (strcmp(cfg.enable_mqtt, "On") != 0)
 	{
-		ESP_LOGW(TAG, "MQTT disabled");
+		ESP_LOGW(TAG, "MQTT start requested, but MQTT is disabled");
 		return ESP_OK;
 	}
 
@@ -137,13 +143,37 @@ esp_err_t mqtt_start_client(void)
 		.broker.address.uri = uri,
 	};
 
+	if (s_mqtt)
+	{
+		// Just in case – destroy any previous client
+		esp_mqtt_client_destroy(s_mqtt);
+		s_mqtt = NULL;
+	}
+
 	s_mqtt = esp_mqtt_client_init(&mqtt_cfg);
 	if (!s_mqtt)
+	{
+		ESP_LOGE(TAG, "Failed to init MQTT client");
 		return ESP_FAIL;
+	}
 
-	esp_mqtt_client_register_event(s_mqtt, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
+	esp_mqtt_client_register_event(s_mqtt, ESP_EVENT_ANY_ID,
+								   mqtt_event_handler, NULL);
 
-	return esp_mqtt_client_start(s_mqtt);
+	esp_err_t err = esp_mqtt_client_start(s_mqtt);
+	if (err != ESP_OK)
+	{
+		ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));
+		esp_mqtt_client_destroy(s_mqtt);
+		s_mqtt = NULL;
+		return err;
+	}
+
+	s_mqtt_running = true;
+	s_last_cfg = cfg; // snapshot config used for this client
+
+	ESP_LOGI(TAG, "MQTT client started (uri=%s)", uri);
+	return ESP_OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -246,8 +276,12 @@ void mqtt_publish_sensor_values(void)
 			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
 			mqtt_pubf(topic, raw[bus][slot][IDX_HUMIDITY]);
 
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
-			mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
+			// CO2 is always higher than 0 and no need to publish if sensor does not supply this value
+			if (raw[bus][slot][IDX_CO2] > 0)
+			{
+				mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
+				mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
+			}
 
 			// AVG
 			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
@@ -256,8 +290,12 @@ void mqtt_publish_sensor_values(void)
 			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
 			mqtt_pubf(topic, avg[bus][slot][IDX_HUMIDITY]);
 
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
-			mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
+			// CO2 is always higher than 0 and no need to publish if sensor does not supply this value
+			if (avg[bus][slot][IDX_CO2] > 0)
+			{
+				mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
+				mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
+			}
 		}
 	}
 }
