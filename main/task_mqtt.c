@@ -15,14 +15,11 @@ void start_task_mqtt(void)
 
 void task_mqtt_code(void *pvParameters)
 {
-    ESP_LOGI(TAG, "MQTT task started...");
-
-    ESP_LOGI(TAG, "MQTT task running");
-
     mqtt_start_client();
 
     while (true)
     {
+        ESP_LOGI(TAG, "Update MQTT...");
         mqtt_apply_config_change();
         mqtt_publish_sensor_values();
         vTaskDelay(pdMS_TO_TICKS(10000)); // publish every 10s

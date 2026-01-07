@@ -12,6 +12,7 @@ void task_influxdb_code(void *pvParameters)
 {
     while (true)
     {
+        ESP_LOGI(TAG, "Update InfluxDB...");
         influxdb_process(sensor_queue, sensor_avg_queue);
         vTaskDelay(pdMS_TO_TICKS(10000));
     }

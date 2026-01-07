@@ -176,7 +176,7 @@ void app_main(void)
         ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
         start_webserver();
         start_task_statemachine();
-        // start_task_influxdb();
+        start_task_influxdb();
         start_task_mqtt();
         syslog_send_line("Boot complete, system running");
     }
@@ -208,35 +208,10 @@ void app_main(void)
 
     while (1)
     {
-        /*if (sensor_queue != NULL)
-        {
-            if (xQueuePeek(sensor_queue, &snapshot, portMAX_DELAY))
-            {
-                for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-                {
-                    for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-                    {
-                        if (snapshot[bus][ch][IDX_VALID])
-                        {
-                            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, snapshot[bus][ch][IDX_TEMP], snapshot[bus][ch][IDX_HUMIDITY], snapshot[bus][ch][IDX_CO2]);
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Sensor queue is NULL");
-        }*/
-
-        // show_system_and_task_stats();
-
-        // ESP_LOGI(TAG, "Running valvecontrol");
-        // valvecontrol(1, 12, 0, 13, 11, 12);
-        //  valvecontrol(1, 4, 0, 14, 15, 16);
-
         char uptime_str[64] = {};
+
         formatted_uptime(uptime_str, sizeof(uptime_str));
+
         ESP_LOGI(TAG, "System uptime: %s", uptime_str);
 
         // Ensure connected and have IP before pinging (check esp_netif_get_ip_info)
