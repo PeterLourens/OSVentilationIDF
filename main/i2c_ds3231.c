@@ -95,12 +95,24 @@ esp_err_t ds3231_get_time(i2c_master_dev_handle_t dev, struct tm *timeinfo)
         return err;
 
     timeinfo->tm_sec = bcd_to_dec(buf[0] & 0x7F);
-    timeinfo->tm_min = bcd_to_dec(buf[1]);
+    timeinfo->tm_min = bcd_to_dec(buf[1] & 0x7F);
     timeinfo->tm_hour = bcd_to_dec(buf[2] & 0x3F);
-    timeinfo->tm_wday = bcd_to_dec(buf[3]);
-    timeinfo->tm_mday = bcd_to_dec(buf[4]);
-    timeinfo->tm_mon = bcd_to_dec(buf[5]) - 1;
-    timeinfo->tm_year = bcd_to_dec(buf[6]) + 1900; // years since 1900
+    timeinfo->tm_wday = bcd_to_dec(buf[3] & 0x07);
+    timeinfo->tm_mday = bcd_to_dec(buf[4] & 0x3F);
+    timeinfo->tm_mon = bcd_to_dec(buf[5] & 0x1F) - 1;
+
+    uint8_t year_bcd = buf[6] & 0x7F;
+    uint8_t century = (buf[6] & 0x80) ? 1 : 0;
+
+    int year = bcd_to_dec(year_bcd); // 0–99
+
+    if (century == 0)
+        year += 2000;
+    else
+        year += 2100;
+
+    timeinfo->tm_year = year - 1900; // struct tm format
+
     return ESP_OK;
 }
 
