@@ -1,6 +1,8 @@
 #ifndef INFLUXDB_H
 #define INFLUXDB_H
 
+#include <time.h>
+
 #include "globals.h"
 #include "esp_http_client.h"
 #include "esp_log.h"
