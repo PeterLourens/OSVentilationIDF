@@ -205,7 +205,7 @@ void control_valves(void)
 
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
-        if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)100) == pdTRUE)
+        if (valve_control_data_mutex && xSemaphoreTake(valve_control_data_mutex, (TickType_t)50) == pdTRUE)
         {
             valve_number = valvecontroldata.valve_number[i];
             valve_position_change = valvecontroldata.position_change[i];
@@ -361,7 +361,7 @@ void valve_position_statemachine(int state_config_index)
 
     // Update global valvecontroldata with move requests (compute delta from in-memory actuals).
     // Protect with valve_control_data_mutex.
-    if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)100) != pdTRUE)
+    if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)50) != pdTRUE)
     {
         ESP_LOGW(TAG, "valve_position_statemachine: could not take valve_control_data_mutex");
         return;

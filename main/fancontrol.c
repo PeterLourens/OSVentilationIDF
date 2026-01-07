@@ -84,7 +84,7 @@ void set_fanspeed(int fanspeed)
     int cur_speed = fanspeed;
 
     /* Read fan control config under fan_config_mutex */
-    if (fan_config_mutex && xSemaphoreTake(fan_config_mutex, (TickType_t)100) == pdTRUE)
+    if (fan_config_mutex && xSemaphoreTake(fan_config_mutex, (TickType_t)50) == pdTRUE)
     {
         strncpy(fan_control_mode, fan_config.fan_control_mode, sizeof(fan_control_mode) - 1);
         fan_control_mode[sizeof(fan_control_mode) - 1] = '\0';

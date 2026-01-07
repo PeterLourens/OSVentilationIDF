@@ -258,6 +258,8 @@ typedef struct
 {
     int fanspeed;
     int state;
+    int co2_sensors_high;
+    int rh_sensors_high;
     bool valve_lock;
     bool wifi_error;
     bool wifi_connected;

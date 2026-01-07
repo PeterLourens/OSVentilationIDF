@@ -116,7 +116,7 @@ bool cooking_times(void)
     // Get state config setting when cooking is required
     if (state_config_mutex != NULL)
     {
-        if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
+        if (xSemaphoreTake(state_config_mutex, (TickType_t)50) == pdTRUE)
         {
             start_hour = statemachine_config[2].state_start_hour;
             start_min = statemachine_config[2].state_start_minute;
@@ -258,7 +258,7 @@ bool valve_cycle_times_day(void)
     // Read config values and general day/night config under mutex
     if (state_config_mutex != NULL)
     {
-        if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
+        if (xSemaphoreTake(state_config_mutex, (TickType_t)50) == pdTRUE)
         {
             start_hour = statemachine_config[state_config_index].state_start_hour;
             start_min = statemachine_config[state_config_index].state_start_minute;
@@ -389,7 +389,7 @@ bool valve_cycle_times_night(void)
     // Read config values and general day/night config under mutex
     if (state_config_mutex != NULL)
     {
-        if (xSemaphoreTake(state_config_mutex, (TickType_t)100) == pdTRUE)
+        if (xSemaphoreTake(state_config_mutex, (TickType_t)50) == pdTRUE)
         {
             start_hour = statemachine_config[state_config_index].state_start_hour;
             start_min = statemachine_config[state_config_index].state_start_minute;
@@ -554,15 +554,15 @@ void select_sensors(void)
 }
 
 // Helper functions to have data available in other tasks
-int parse_co2_sensors_high(void)
-{
-    return co2_sensors_high;
-}
+//int parse_co2_sensors_high(void)
+//{
+   // return co2_sensors_high;
+//}
 
-int parse_rh_sensors_high(void)
-{
-    return rh_sensors_high;
-}
+//int parse_rh_sensors_high(void)
+//{
+  //  return rh_sensors_high;
+//}
 
 /* Consume (check-and-clear) request set by POST handler. Returns true if move was requested. */
 bool statemachine_consume_valve_move_request(void)
