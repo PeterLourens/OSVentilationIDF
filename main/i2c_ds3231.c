@@ -74,14 +74,16 @@ static int bcd_to_dec(uint8_t val)
 
 esp_err_t ds3231_set_time(i2c_master_dev_handle_t dev, const struct tm *timeinfo)
 {
-    uint8_t buf[7];
-    buf[0] = dec_to_bcd(timeinfo->tm_sec);
-    buf[1] = dec_to_bcd(timeinfo->tm_min);
-    buf[2] = dec_to_bcd(timeinfo->tm_hour);
-    buf[3] = dec_to_bcd(timeinfo->tm_wday ? timeinfo->tm_wday : 7); // Sunday=7
-    buf[4] = dec_to_bcd(timeinfo->tm_mday);
-    buf[5] = dec_to_bcd(timeinfo->tm_mon + 1);
-    buf[6] = dec_to_bcd(timeinfo->tm_year % 100);
+    uint8_t buf[8];
+    buf[0] = 0x00; // start writing at register 0x00 (seconds)
+
+    buf[1] = dec_to_bcd(timeinfo->tm_sec);
+    buf[2] = dec_to_bcd(timeinfo->tm_min);
+    buf[3] = dec_to_bcd(timeinfo->tm_hour);
+    buf[4] = dec_to_bcd(timeinfo->tm_wday ? timeinfo->tm_wday : 7);
+    buf[5] = dec_to_bcd(timeinfo->tm_mday);
+    buf[6] = dec_to_bcd(timeinfo->tm_mon + 1);
+    buf[7] = dec_to_bcd(timeinfo->tm_year % 100); // 2000–2099
 
     return i2c_master_transmit(dev, buf, sizeof(buf), -1);
 }

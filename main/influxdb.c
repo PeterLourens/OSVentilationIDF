@@ -52,6 +52,7 @@ int64_t influxdb_get_timestamp(void)
   int64_t days = era * 146097 + doe - 719468;
 
   int64_t ts = days * 86400LL + hour * 3600 + min * 60 + sec;
+
   return ts;
 }
 
@@ -139,29 +140,24 @@ void influxdb_build_payload(char *out, size_t out_size, float sensor[MAX_I2C_BUS
     {
       // Skip invalid sensors
       if (sensor[bus][ch][IDX_VALID] != 1)
+      {
         continue;
+      }
 
       // Start building the line
-      int n = snprintf(
-          line, sizeof(line),
-          "sensors,bus=%d,channel=%d "
-          "raw0=%.3f,raw1=%.3f,avg0=%.3f,avg1=%.3f",
-          bus, ch,
-          sensor[bus][ch][IDX_TEMP],
-          sensor[bus][ch][IDX_HUMIDITY],
-          avg[bus][ch][IDX_TEMP],
-          avg[bus][ch][IDX_HUMIDITY]);
+      int n = snprintf(line, sizeof(line), "sensors,bus=%d,channel=%d "
+                                           "raw0=%.2f,raw1=%.2f,avg0=%.2f,avg1=%.2f",
+                       bus, ch, sensor[bus][ch][IDX_TEMP], sensor[bus][ch][IDX_HUMIDITY], avg[bus][ch][IDX_TEMP], avg[bus][ch][IDX_HUMIDITY]);
 
       if (n < 0 || n >= sizeof(line))
+      {
         continue; // truncated → skip
+      }
 
       // Add CO2 only if valid (non-zero AND valid flag)
       if (sensor[bus][ch][IDX_CO2] > 0.0f)
       {
-        n += snprintf(line + n, sizeof(line) - n,
-                      ",raw2=%.3f,avg2=%.3f",
-                      sensor[bus][ch][IDX_CO2],
-                      avg[bus][ch][IDX_CO2]);
+        n += snprintf(line + n, sizeof(line) - n, ",raw2=%.2f,avg2=%.2f", sensor[bus][ch][IDX_CO2], avg[bus][ch][IDX_CO2]);
 
         if (n < 0 || n >= sizeof(line))
           continue; // truncated → skip
