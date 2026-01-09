@@ -68,6 +68,21 @@ static void normalize_influx_url(char *url)
   }
 }
 
+static void escape_tag(char *dst, size_t dst_size, const char *src)
+{
+  size_t j = 0;
+  for (size_t i = 0; src[i] != '\0' && j + 2 < dst_size; i++)
+  {
+    char c = src[i];
+    if (c == ' ' || c == ',' || c == '=')
+    {
+      dst[j++] = '\\';
+    }
+    dst[j++] = c;
+  }
+  dst[j] = '\0';
+}
+
 // ---------------------------------------------------------------------------
 // Build full InfluxDB write URL
 // ---------------------------------------------------------------------------
@@ -83,7 +98,7 @@ void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg
 // ---------------------------------------------------------------------------
 // Format a single line of line protocol
 // ---------------------------------------------------------------------------
-void influxdb_format_line(char *out, size_t out_size, int bus, int ch, float raw0, float raw1, float raw2, float avg0, float avg1, float avg2, int64_t ts)
+/*void influxdb_format_line(char *out, size_t out_size, int bus, int ch, float raw0, float raw1, float raw2, float avg0, float avg1, float avg2, int64_t ts)
 {
   if (raw2 == 0.0f && avg2 == 0.0f)
   {
@@ -100,7 +115,7 @@ void influxdb_format_line(char *out, size_t out_size, int bus, int ch, float raw
                             "avg0=%.2f,avg1=%.2f,avg2=%.2f %lld\n",
              bus, ch, raw0, raw1, raw2, avg0, avg1, avg2, ts);
   }
-}
+}*/
 
 // ---------------------------------------------------------------------------
 // Append a line to the payload buffer
@@ -126,7 +141,6 @@ void influxdb_append_line(char *out, size_t out_size, const char *line)
 // ---------------------------------------------------------------------------
 void influxdb_build_payload(char *out, size_t out_size, float sensor[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
 {
-  // out[0] = '\0';
   memset(out, 0, out_size);
 
   char line[256];
@@ -134,46 +148,73 @@ void influxdb_build_payload(char *out, size_t out_size, float sensor[MAX_I2C_BUS
 
   int64_t ts = influxdb_get_timestamp();
 
+  // 🔒 Take mutex before reading ANY sensor or metadata
+  xSemaphoreTake(sensor_cfg_mutex, portMAX_DELAY);
+
   for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
   {
     for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
-      // Skip invalid sensors
       if (sensor[bus][ch][IDX_VALID] != 1)
-      {
         continue;
-      }
 
-      // Start building the line
-      int n = snprintf(line, sizeof(line), "sensors,bus=%d,channel=%d "
-                                           "raw0=%.2f,raw1=%.2f,avg0=%.2f,avg1=%.2f",
-                       bus, ch, sensor[bus][ch][IDX_TEMP], sensor[bus][ch][IDX_HUMIDITY], avg[bus][ch][IDX_TEMP], avg[bus][ch][IDX_HUMIDITY]);
+      const bus_sensor_t *meta =
+          (bus == 0) ? &bus0_sensor_settings[ch]
+                     : &bus1_sensor_settings[ch];
+
+      char type_esc[64];
+      char valve_esc[64];
+      char loc_esc[128];
+
+      escape_tag(type_esc, sizeof(type_esc), meta->type);
+      escape_tag(valve_esc, sizeof(valve_esc), meta->valve);
+      escape_tag(loc_esc, sizeof(loc_esc), meta->location);
+
+      char sensor_id[32];
+      snprintf(sensor_id, sizeof(sensor_id), "bus%d_ch%d", bus, ch);
+
+      int n = snprintf(line, sizeof(line),
+                       "sensors,"
+                       "bus=%d,"
+                       "channel=%d,"
+                       "sensor_id=%s,"
+                       "type=%s,"
+                       "location=%s,"
+                       "valve=%s "
+                       "temperature_raw=%.2f,temperature_avg=%.2f,"
+                       "humidity_raw=%.2f,humidity_avg=%.2f",
+                       bus, ch,
+                       sensor_id,
+                       type_esc, loc_esc, valve_esc,
+                       sensor[bus][ch][IDX_TEMP], avg[bus][ch][IDX_TEMP],
+                       sensor[bus][ch][IDX_HUMIDITY], avg[bus][ch][IDX_HUMIDITY]);
 
       if (n < 0 || n >= sizeof(line))
-      {
-        continue; // truncated → skip
-      }
+        continue;
 
-      // Add CO2 only if valid (non-zero AND valid flag)
       if (sensor[bus][ch][IDX_CO2] > 0.0f)
       {
-        n += snprintf(line + n, sizeof(line) - n, ",raw2=%.2f,avg2=%.2f", sensor[bus][ch][IDX_CO2], avg[bus][ch][IDX_CO2]);
+        n += snprintf(line + n, sizeof(line) - n,
+                      ",co2_raw=%.2f,co2_avg=%.2f",
+                      sensor[bus][ch][IDX_CO2], avg[bus][ch][IDX_CO2]);
 
         if (n < 0 || n >= sizeof(line))
-          continue; // truncated → skip
+          continue;
       }
 
-      // Add timestamp
       n += snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
 
       if (n < 0 || n >= sizeof(line))
-        continue; // truncated → skip
+        continue;
 
-      // Append to output buffer
       influxdb_append_line(out, out_size, line);
     }
   }
-  ESP_LOGI(TAG, "Payload strlen: %d", strlen(out));
+
+  // 🔓 Release mutex after snapshot is complete
+  xSemaphoreGive(sensor_cfg_mutex);
+
+  // ESP_LOGI(TAG, "Payload strlen: %d", strlen(out));
 }
 
 // ---------------------------------------------------------------------------
@@ -206,8 +247,8 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
   esp_http_client_set_header(client, "Accept", "application/json");
 
   int payload_len = strlen(payload);
-  ESP_LOGI(TAG, "Payload strlen: %d", payload_len);
-  ESP_LOGI(TAG, "Sending payload:\n%s", payload);
+  // ESP_LOGI(TAG, "Payload strlen: %d", payload_len);
+  // ESP_LOGI(TAG, "Sending payload:\n%s", payload);
 
   // esp_http_client_set_post_field(client, payload, payload_len);
   esp_http_client_set_method(client, HTTP_METHOD_POST);
@@ -238,10 +279,10 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     ESP_LOGE(TAG, "HTTP error: %s", esp_err_to_name(err));
   }
 
-  ESP_LOGI(TAG, "DEBUG URL: '%s'", url);
-  ESP_LOGI(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
-  ESP_LOGI(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
-  ESP_LOGI(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
+  // ESP_LOGI(TAG, "DEBUG URL: '%s'", url);
+  // ESP_LOGI(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
+  // ESP_LOGI(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
+  // ESP_LOGI(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
 
   esp_http_client_cleanup(client);
 }
