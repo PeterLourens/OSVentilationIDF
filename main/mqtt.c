@@ -185,6 +185,27 @@ static inline void mqtt_pubf(const char *topic, float value)
 	esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
 }
 
+// ---------------------------------------------------------------------------
+// Publish integer value to MQTT
+// ---------------------------------------------------------------------------
+static inline void mqtt_pubi(const char *topic, int value)
+{
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "mqtt_pubi: MQTT not connected; skipping publish");
+		return;
+	}
+
+	char payload[16];
+	snprintf(payload, sizeof(payload), "%d", value);
+
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
+	if (err < 0)
+	{
+		ESP_LOGW(TAG, "mqtt_pubi: publish failed for topic %s", topic);
+	}
+}
+
 static inline void mqtt_topic(char *out, size_t out_sz, const char *base, int bus, int slot, const char *type, const char *field)
 {
 	snprintf(out, out_sz, "%s/sensors/bus%d/slot%d/%s/%s", base, bus, slot, type, field);
@@ -304,7 +325,11 @@ void mqtt_publish_sensor_values(void)
 // ---------------------------------------------------------------------------
 void mqtt_publish_valve_positions(void)
 {
+	char base[256] = {0};
+	char topic[512] = {0};
+
 	MQTT_config_t cfg;
+
 	mqtt_get_config_snapshot(&cfg);
 
 	if (!mqtt_is_enabled(&cfg))
@@ -326,10 +351,7 @@ void mqtt_publish_valve_positions(void)
 		return;
 	}
 
-	char base[256] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	char topic[512];
 
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
@@ -352,11 +374,10 @@ void mqtt_publish_valve_positions(void)
 
 		// Build topic manually
 		snprintf(topic, sizeof(topic), "%s/valve/%d/position", base, id);
+		mqtt_pubi(topic, pos);
 
 		// ESP_LOGI(TAG, "Publishing valve %d position: %d", id, pos);
 		// ESP_LOGI(TAG, "Topic: %s", topic);
-
-		mqtt_pubf(topic, (int)pos);
 	}
 
 	nvs_close(nvs);
@@ -400,8 +421,8 @@ void mqtt_publish_state_and_fanspeed(void)
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	snprintf(topic, sizeof(topic), "%s/system/state", base);
-	mqtt_pubf(topic, (int)state);
+	mqtt_pubi(topic, state);
 
 	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
-	mqtt_pubf(topic, (int)fanspeed);
+	mqtt_pubi(topic, fanspeed);
 }

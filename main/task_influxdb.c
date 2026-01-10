@@ -10,6 +10,9 @@ void start_task_influxdb(void)
 
 void task_influxdb_code(void *pvParameters)
 {
+    // Some delay a boot
+    vTaskDelay(pdMS_TO_TICKS(10000));
+
     while (true)
     {
         ESP_LOGI(TAG, "Update InfluxDB...");

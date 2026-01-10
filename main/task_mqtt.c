@@ -15,6 +15,8 @@ void start_task_mqtt(void)
 
 void task_mqtt_code(void *pvParameters)
 {
+    // Some delay a boot
+    vTaskDelay(pdMS_TO_TICKS(10000));
     mqtt_start_client();
 
     while (true)
