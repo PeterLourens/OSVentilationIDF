@@ -299,3 +299,66 @@ void mqtt_publish_sensor_values(void)
 		}
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Publish all valve positions
+// ---------------------------------------------------------------------------
+void mqtt_publish_valve_positions(void)
+{
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "MQTT not connected; skipping valve publish");
+		return;
+	}
+
+	// Open NVS namespace for valve positions
+	nvs_handle_t nvs;
+	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+	if (err != ESP_OK)
+	{
+		ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s",
+				 esp_err_to_name(err));
+		return;
+	}
+
+	char base[256] = {0};
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	char topic[512];
+
+	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	{
+		int32_t pos = 0;
+
+		char key[16];
+		snprintf(key, sizeof(key), "valve%d", id);
+
+		esp_err_t r = nvs_get_i32(nvs, key, &pos);
+		if (r == ESP_ERR_NVS_NOT_FOUND)
+		{
+			// Valve not configured → skip
+			continue;
+		}
+		else if (r != ESP_OK)
+		{
+			ESP_LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+			pos = 0;
+		}
+
+		// Build topic manually
+		snprintf(topic, sizeof(topic), "%s/valve/%d/position", base, id);
+
+		// ESP_LOGI(TAG, "Publishing valve %d position: %d", id, pos);
+		// ESP_LOGI(TAG, "Topic: %s", topic);
+
+		mqtt_pubf(topic, (int)pos);
+	}
+
+	nvs_close(nvs);
+}

@@ -21,7 +21,10 @@ void task_mqtt_code(void *pvParameters)
     {
         ESP_LOGI(TAG, "Update MQTT...");
         mqtt_apply_config_change();
+        ESP_LOGI(TAG, "Publish sensors...");
         mqtt_publish_sensor_values();
+        ESP_LOGI(TAG, "Publish valve positions...");
+        mqtt_publish_valve_positions();
         vTaskDelay(pdMS_TO_TICKS(10000)); // publish every 10s
     }
 }

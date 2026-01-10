@@ -238,7 +238,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     char line[768];
     memset(line, 0, sizeof(line));
 
-    int64_t ts = influxdb_get_timestamp(); // seconds (precision=s)
+    int64_t ts = influxdb_get_timestamp();            // seconds (precision=s)
+    uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
 
     snprintf(line, sizeof(line),
              "actuals "
@@ -263,6 +264,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
 
              // System stats
              "cpu_temp=%d,"
+             "uptime=%lld,"
              "heap_free=%u,"
              "heap_min_ever=%u,"
 
@@ -297,6 +299,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              sm_actuals.dhcp_enabled ? "true" : "false",
 
              sm_actuals.cpu_temp,
+             uptime,
              (unsigned)sm_actuals.heap_free,
              (unsigned)sm_actuals.heap_min_ever,
 
@@ -379,12 +382,12 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
         if (rlen > 0)
         {
             resp[rlen] = '\0';
-            ESP_LOGI(TAG, "Influx response: %s", resp);
+            // ESP_LOGI(TAG, "Influx response: %s", resp);
         }
-        else
-        {
-            ESP_LOGI(TAG, "Influx response: %d", rlen);
-        }
+        // else
+        //{
+        // ESP_LOGI(TAG, "Influx response: %d", rlen);
+        //}
     }
     else
     {
