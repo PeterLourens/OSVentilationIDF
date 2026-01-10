@@ -552,6 +552,7 @@ void set_log_levels(void)
     esp_log_level_set("transport_base", ESP_LOG_ERROR);
     esp_log_level_set("outbox", ESP_LOG_ERROR);
     esp_log_level_set("esp-tls", ESP_LOG_ERROR);
+    esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
     // esp_log_level_set("*", ESP_LOG_ERROR);
 }
 
