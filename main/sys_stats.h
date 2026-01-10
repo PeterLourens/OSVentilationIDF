@@ -1,6 +1,8 @@
 #ifndef SYS_STATS_H
 #define SYS_STATS_H
 
+#include <driver/temperature_sensor.h>
+
 #include "globals.h"
 #include "general.h"
 

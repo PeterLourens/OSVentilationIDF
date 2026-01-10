@@ -264,6 +264,38 @@ typedef struct
     bool wifi_error;
     bool wifi_connected;
     bool wifi_ap_mode;
+
+    // System stats
+    int wifi_rssi;
+    int wifi_channel;
+    int wifi_authmode;
+    int wifi_phy;
+    int wifi_bandwidth;
+    char wifi_bssid[18]; // "AA:BB:CC:DD:EE:FF"
+    char wifi_ssid[33];
+
+    char ip_addr[16];
+    char netmask[16];
+    char gateway[16];
+    char dns1[16];
+    char dns2[16];
+    bool dhcp_enabled;
+
+    int cpu_temp;
+
+    size_t heap_free;
+    size_t heap_min_ever;
+
+    uint32_t stack_i2c_sensors;
+    uint32_t stack_i2c_ds3231;
+    uint32_t stack_wifi;
+    uint32_t stack_i2c_lcd;
+    uint32_t stack_rgb_leds;
+    uint32_t stack_statemachine;
+    uint32_t stack_valvectrl;
+    uint32_t stack_mqtt;
+    uint32_t stack_influxdb;
+
 } Statemachine_actuals_t;
 
 // To store valve control data from web page and from statemachine and actual valvel data
