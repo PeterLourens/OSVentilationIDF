@@ -186,6 +186,30 @@ static inline void mqtt_pubf(const char *topic, float value)
 }
 
 // ---------------------------------------------------------------------------
+// Publish string value to MQTT
+// ---------------------------------------------------------------------------
+static inline void mqtt_pubs(const char *topic, const char *value)
+{
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs: MQTT not connected; skipping publish");
+		return;
+	}
+
+	if (!value)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs: NULL value for topic %s", topic);
+		return;
+	}
+
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, value, 0, 1, 0);
+	if (err < 0)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs: publish failed for topic %s", topic);
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Publish integer value to MQTT
 // ---------------------------------------------------------------------------
 static inline void mqtt_pubi(const char *topic, int value)
@@ -373,7 +397,7 @@ void mqtt_publish_valve_positions(void)
 		}
 
 		// Build topic manually
-		snprintf(topic, sizeof(topic), "%s/valve/%d/position", base, id);
+		snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
 		mqtt_pubi(topic, pos);
 
 		// ESP_LOGI(TAG, "Publishing valve %d position: %d", id, pos);
@@ -392,10 +416,13 @@ void mqtt_publish_state_and_fanspeed(void)
 	int fanspeed = 0;
 
 	char base[256] = {0};
-	char topic[512];
+	char topic[512] = {0};
+	char uptime_str[64] = {0};
 
 	MQTT_config_t cfg;
 	mqtt_get_config_snapshot(&cfg);
+
+	formatted_uptime(uptime_str, sizeof(uptime_str));
 
 	if (!mqtt_is_enabled(&cfg))
 		return;
@@ -425,4 +452,7 @@ void mqtt_publish_state_and_fanspeed(void)
 
 	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
 	mqtt_pubi(topic, fanspeed);
+
+	snprintf(topic, sizeof(topic), "%s/system/uptime", base);
+	mqtt_pubs(topic, uptime_str);
 }

@@ -205,11 +205,11 @@ void show_system_and_task_stats(void)
 
     char uptime_str[64] = {};
     formatted_uptime(uptime_str, sizeof(uptime_str));
-    ESP_LOGI(TAG, "System uptime: %s", uptime_str);
+    // ESP_LOGI(TAG, "System uptime: %s", uptime_str);
 
     char time_str[64] = {};
     formatted_daydatetime(time_str, sizeof(time_str));
-    ESP_LOGI(TAG, "System time: %s", time_str);
+    // ESP_LOGI(TAG, "System time: %s", time_str);
 
     esp_reset_reason_t rr = esp_reset_reason();
 
@@ -233,12 +233,8 @@ void show_system_and_task_stats(void)
 
     uint32_t total_run_time = uxTaskGetSystemState(tasks, task_count, NULL);
 
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "%-20s %-4s %-4s %-12s %-12s %-6s\n",
-                     "Task Name", "St", "Prio", "HighWater", "RunTicks", "CPU%");
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "%-20s %-4s %-4s %-12s %-12s %-6s\n",
-                     "--------------------", "--", "----", "------------", "------------", "------");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %-4s %-12s %-12s %-6s\n", "Task Name", "St", "Prio", "HighWater", "RunTicks", "CPU%");
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "%-20s %-4s %-4s %-12s %-12s %-6s\n", "--------------------", "--", "----", "------------", "------------", "------");
 
     for (UBaseType_t i = 0; i < task_count; i++)
     {
@@ -262,10 +258,9 @@ void show_system_and_task_stats(void)
     size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
     float frag_pct = free_heap ? 100.0f * (1.0f - ((float)largest / (float)free_heap)) : 0.0f;
 
-    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "\nHeap metrics:\n"
-                     "free_heap: %u\nmin_ever_free: %u\nlargest_free_block: %u\n"
-                     "Heap fragmentation estimate: %.1f%%\n",
+    used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used, "\nHeap metrics:\n"
+                                                           "free_heap: %u\nmin_ever_free: %u\nlargest_free_block: %u\n"
+                                                           "Heap fragmentation estimate: %.1f%%\n",
                      (unsigned)free_heap, (unsigned)min_free, (unsigned)largest, frag_pct);
 
     // Other stats
