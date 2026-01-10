@@ -190,7 +190,7 @@ void sys_stats_update_actuals(void)
 
 void show_system_and_task_stats(void)
 {
-    const size_t SNAPSHOT_BUF_SIZE = 32 * 1024;
+    const size_t SNAPSHOT_BUF_SIZE = 64 * 1024;
     char *out = malloc(SNAPSHOT_BUF_SIZE);
     if (!out)
         return;
@@ -309,31 +309,6 @@ void show_system_and_task_stats(void)
                      sm_actuals.dns2,
                      sm_actuals.dhcp_enabled ? "enabled" : "static");
     xSemaphoreGive(statemachine_mutex);
-
-    // Network information
-    // wifi_config_t wifi_cfg;
-    // esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg);
-    // const char *ssid = (const char *)wifi_cfg.sta.ssid;
-
-    /*used += snprintf(out + used, SNAPSHOT_BUF_SIZE - used,
-                     "\n\nNetwork Settings:\n"
-                     "┌──────────────┬────────────────────────────────┐\n"
-                     "│ Setting      │ Value                          │\n"
-                     "├──────────────┼────────────────────────────────┤\n"
-                     "│ DHCP         │ %-30s │\n"
-                     "│ SSID         │ %-30s │\n"
-                     "| Wifi Pass.   | %-30s │\n"
-                     "│ IP Address   │ %-30s │\n"
-                     "│ Subnet Mask  │ %-30s │\n"
-                     "│ Gateway      │ %-30s │\n"
-                     "│ Primary DNS  │ %-30s │\n"
-                     "│ Secondary DNS│ %-30s │\n"
-                     "| Time Server  │ %-30s │\n"
-                     "| Timezone     │ %-30s │\n"
-                     "└──────────────┴────────────────────────────────┘",
-                     network_config.enable_dhcp, ssid, network_config.wifi_password, network_config.ip_address,
-                     network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
-                     time_config.ntp_server, time_config.timezone);*/
 
 send_out:
     // Print to UART

@@ -173,7 +173,7 @@ void app_main(void)
     }
     else
     {
-        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver...");
+        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver, influxdb and mqtt tasks...");
         start_webserver();
         start_task_statemachine();
         start_task_influxdb();
@@ -183,28 +183,6 @@ void app_main(void)
 
     esp_log_set_vprintf(uart_log_output);
     ESP_LOGI(TAG, "System startup, logs go to UART");
-
-    // Print network settings
-    /*ESP_LOGI(TAG, "\nNetwork Settings:\n"
-                  "┌──────────────┬────────────────────────────────┐\n"
-                  "│ Setting      │ Value                          │\n"
-                  "├──────────────┼────────────────────────────────┤\n"
-                  "│ DHCP         │ %-30s │\n"
-                  "│ SSID         │ %-30s │\n"
-                  "| Wifi Pass.   | %-30s │\n"
-                  "│ IP Address   │ %-30s │\n"
-                  "│ Subnet Mask  │ %-30s │\n"
-                  "│ Gateway      │ %-30s │\n"
-                  "│ Primary DNS  │ %-30s │\n"
-                  "│ Secondary DNS│ %-30s │\n"
-                  "| Time Server  │ %-30s │\n"
-                  "| Timezone     │ %-30s │\n"
-                  "└──────────────┴────────────────────────────────┘",
-             network_config.enable_dhcp, network_config.ssid, network_config.wifi_password, network_config.ip_address,
-             network_config.subnet_mask, network_config.gateway, network_config.primary_dns, network_config.secondary_dns,
-             time_config.ntp_server, time_config.timezone);*/
-
-    // float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     while (1)
     {

@@ -157,8 +157,7 @@ esp_err_t mqtt_start_client(void)
 		return ESP_FAIL;
 	}
 
-	esp_mqtt_client_register_event(s_mqtt, ESP_EVENT_ANY_ID,
-								   mqtt_event_handler, NULL);
+	esp_mqtt_client_register_event(s_mqtt, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 
 	esp_err_t err = esp_mqtt_client_start(s_mqtt);
 	if (err != ESP_OK)
@@ -361,4 +360,48 @@ void mqtt_publish_valve_positions(void)
 	}
 
 	nvs_close(nvs);
+}
+
+// ---------------------------------------------------------------------------
+// Publish system state and fan speed (mutex-protected read from sm_actuals)
+// ---------------------------------------------------------------------------
+void mqtt_publish_state_and_fanspeed(void)
+{
+	int state = 0;
+	int fanspeed = 0;
+
+	char base[256] = {0};
+	char topic[512];
+
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "MQTT not connected; skipping state/fanspeed publish");
+		return;
+	}
+
+	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+	{
+		state = sm_actuals.state;
+		fanspeed = sm_actuals.fanspeed;
+		xSemaphoreGive(statemachine_mutex);
+	}
+	else
+	{
+		ESP_LOGW(TAG, "Failed to lock statemachine_mutex; skipping publish");
+		return;
+	}
+
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	snprintf(topic, sizeof(topic), "%s/system/state", base);
+	mqtt_pubf(topic, (int)state);
+
+	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
+	mqtt_pubf(topic, (int)fanspeed);
 }
