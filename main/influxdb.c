@@ -52,10 +52,10 @@ int64_t influxdb_get_timestamp(void)
 
     // Days since Unix epoch (1970-01-01)
     int64_t days = era * 146097 + doe - 719468;
-
     int64_t ts = days * 86400LL + hour * 3600 + min * 60 + sec;
 
-    return ts;
+    // return ts;
+    return ts * 1000000000LL; // <-- REQUIRED for ns precision
 }
 
 static void normalize_influx_url(char *url)
