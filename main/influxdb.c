@@ -24,7 +24,9 @@ int64_t influxdb_get_timestamp(void)
         // Fallback: system time if RTC read fails
         time_t now;
         time(&now);
-        return (int64_t)now;
+        // Nanoseconds timestamp which is native to InfluxDB
+        // return (int64_t)now;
+        return (int64_t)now * 1000000000LL;
     }
 
     // Convert struct tm (UTC) → Unix timestamp manually
@@ -94,7 +96,7 @@ void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg
     strlcpy(base, cfg->influxdb_url, sizeof(base));
     normalize_influx_url(base);
 
-    snprintf(out, out_size, "%s/api/v2/write?org=%s&bucket=%s&precision=s", base, cfg->influxdb_org, cfg->influxdb_bucket);
+    snprintf(out, out_size, "%s/api/v2/write?org=%s&bucket=%s&precision=ns", base, cfg->influxdb_org, cfg->influxdb_bucket);
 }
 
 // ---------------------------------------------------------------------------

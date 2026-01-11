@@ -5,7 +5,7 @@ static const char *TAG = "MQTT Task";
 void start_task_mqtt(void)
 {
     // Create LCD task
-    BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 10000, NULL, 6, &task_mqtt);
+    BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 6144, NULL, 6, &task_mqtt);
 
     if (created != pdPASS)
     {

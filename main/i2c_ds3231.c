@@ -187,11 +187,14 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     time_t now;
     struct tm timeinfo;
     time(&now);
-    localtime_r(&now, &timeinfo);
+
+    // Write UTC to DS3231, not localtime
+    // localtime_r(&now, &timeinfo);
+    gmtime_r(&now, &timeinfo);
 
     char buf[64];
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
-    ESP_LOGI(TAG, "System time synchronized: %s", buf);
+    ESP_LOGI(TAG, "System time synchronized (UTC): %s", buf);
 
     // --- Update DS3231 ---
     esp_err_t err = ds3231_set_time(dev_handle, &timeinfo);
