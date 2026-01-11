@@ -229,3 +229,45 @@ bool i2c_lcd_backlight_get(void)
 {
     return s_backlight;
 }
+
+void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
+{
+    bus_sensor_t meta;
+
+    // --- Read metadata safely ---
+    if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+        const bus_sensor_t *src =
+            (bus == 0) ? &bus0_sensor_settings[ch]
+                       : &bus1_sensor_settings[ch];
+
+        meta = *src; // copy to local struct
+        xSemaphoreGive(sensor_cfg_mutex);
+    }
+    else
+    {
+        memset(&meta, 0, sizeof(meta));
+        strcpy(meta.location, "<unknown>");
+        meta.rh_enabled = false;
+        meta.co2_enabled = false;
+    }
+
+    // --- Read sensor values ---
+    float temp_c = avg[bus][ch][IDX_TEMP];
+    float humidity = avg[bus][ch][IDX_HUMIDITY];
+    float co2_ppm = avg[bus][ch][IDX_CO2];
+
+    // --- Format output ---
+    snprintf(out, out_size,
+             "b%ds%d - %s\n"
+             "T:%.2f C H:%.2f %%\n"
+             "RH: %s - CO2: %s\n"
+             "CO2: %.2f ppm",
+             bus, ch,
+             meta.location,
+             temp_c,
+             humidity,
+             meta.rh_enabled ? "On" : "Off",
+             meta.co2_enabled ? "On" : "Off",
+             co2_ppm);
+}

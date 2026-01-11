@@ -15,7 +15,9 @@ void task_i2c_lcd_code(void *pvParameters)
     char ping_result[20] = {};
     char formatted_time[32] = {};
     char lcd_contents[100] = {}; // LCD has 20x4=80 chars, so 100 is safe
-    char ds3231_status[30] = {};
+    // char ds3231_status[30] = {};
+
+    float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     ESP_LOGI(TAG, "LCD task started...");
 
@@ -49,14 +51,38 @@ void task_i2c_lcd_code(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(10000));
 
         /*----- Display 2 -----*/
-        float temp_c = 0;
+        if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
+        {
+            ESP_LOGE(TAG, "Failed to read avg sensor queue");
+            return;
+        }
+
+        char buf[100]; // plenty for your 4‑line block
+
+        for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+        {
+            for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+            {
+                format_sensor_overview(buf, sizeof(buf), bus, ch, avg);
+                i2c_lcd_write_text(buf);
+                vTaskDelay(pdMS_TO_TICKS(10000));
+            }
+        }
+
+        // b0s0 - Location
+        // T:XX.XX C H:XX.XX %
+        // RH: Off - CO2: Off
+        // CO2: XXXX.XX ppm
+        //
+
+        /*float temp_c = 0;
 
         ds3231_health_monitor(ds3231_bus0_handle);
         ds3231_read_temperature(ds3231_bus0_handle, &temp_c);
         ds3231_check_status(ds3231_bus0_handle, ds3231_status, sizeof(ds3231_status));
 
         snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f C%s", temp_c, ds3231_status);
-        i2c_lcd_write_text(lcd_contents);
+        i2c_lcd_write_text(lcd_contents);*/
 
         // vTaskDelay(pdMS_TO_TICKS(10000));
         // i2c_lcd_clear();
