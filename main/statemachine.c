@@ -8,10 +8,10 @@ int elapsed_time = 0;
 
 int co2_sensor_counter = 0;
 int rh_sensor_counter = 0;
-//int co2_sensors_high = 0;
-//int rh_sensors_high = 0;
+// int co2_sensors_high = 0;
+// int rh_sensors_high = 0;
 
-const int STATE_NR_ERROR = 0;
+/*const int STATE_NR_ERROR = 0;
 const int STATE_NR_INIT = 1;
 const int STATE_NR_DAY = 2;
 const int STATE_NR_NIGHT = 3;
@@ -24,7 +24,7 @@ const int STATE_NR_CYCLINGDAY = 9;
 const int STATE_NR_CYCLINGNIGHT = 10;
 const int STATE_NR_MANUALHS = 11;
 const int STATE_NR_STOPPED = 12;
-const int STATE_NR_TEMP = 13;
+const int STATE_NR_TEMP = 13;*/
 
 CO2_Sensors_t co2_sensors[MAX_SENSORS] = {};
 RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
@@ -173,8 +173,8 @@ void day_transitions(void)
     int rhhighlevel = 0;        // Local variable for RH high level from general statemachine config
     int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int co2_sensors_high = 0;   // Local variable following the struct value
-    int rh_sensors_high = 0;    // Local variable following the struct value
+    int co2_sensors_high = 0; // Local variable following the struct value
+    int rh_sensors_high = 0;  // Local variable following the struct value
 
     bool valve_move_locked = 0;
 
@@ -231,7 +231,7 @@ void day_transitions(void)
             if (co2_sensors[i].co2_reading > co2highlevel)
             {
                 ESP_LOGI(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
-                ESP_LOGI(TAG,"Transit to highco2day if minimum state time has expired.");
+                ESP_LOGI(TAG, "Transit to highco2day if minimum state time has expired.");
                 sm_actuals.co2_sensors_high++;
             }
         }
@@ -243,7 +243,7 @@ void day_transitions(void)
                 ESP_LOGI(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
                 ESP_LOGI(TAG, "Transit to highrhday if minimum state time has expired.");
                 sm_actuals.rh_sensors_high++;
-          }
+            }
         }
         co2_sensors_high = sm_actuals.co2_sensors_high;
         rh_sensors_high = sm_actuals.rh_sensors_high;
@@ -333,8 +333,8 @@ void night_transitions(void)
     int rhhighlevel = 0;        // Local variable for RH high level from general statemachine config
     int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int co2_sensors_high = 0;   // Local variable following the struct value
-    int rh_sensors_high = 0;    // Local variable following the struct value
+    int co2_sensors_high = 0; // Local variable following the struct value
+    int rh_sensors_high = 0;  // Local variable following the struct value
 
     bool valve_move_locked = 0;
 
@@ -495,7 +495,7 @@ void high_co2_day_transitions(void)
     int co2lowlevel = 0;        // Local variable for CO2 low level from general statemachine config
     int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
+    int co2_sensors_high = 0;                        // Local variable following the struct value
     int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
 
     float reading = 0.2f;
@@ -554,8 +554,8 @@ void high_co2_day_transitions(void)
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-        //co2_sensors_high = sm_actuals.co2_sensors_high;
-        //rh_sensors_high = sm_actuals.rh_sensors_high;
+        // co2_sensors_high = sm_actuals.co2_sensors_high;
+        // rh_sensors_high = sm_actuals.rh_sensors_high;
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -708,11 +708,11 @@ void high_co2_night_transitions(void)
     int new_state = 0;                 // State after logic in this function
     int state_fanspeed = 0;            // Fanspeed from global config struct
     int valve_nr = 0;
-    int minimum_state_time = 0;        // Minimum state time from global state settings struct
-    int co2lowlevel = 0;               // Local variable for CO2 low level from general statemachine config
-    int co2highlevel = 0;              // Local variable for CO2 high level from general statemachine config
+    int minimum_state_time = 0; // Minimum state time from global state settings struct
+    int co2lowlevel = 0;        // Local variable for CO2 low level from general statemachine config
+    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int co2_sensors_high = 0;          // Local variable following the struct value
+    int co2_sensors_high = 0; // Local variable following the struct value
 
     int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
 
@@ -834,8 +834,8 @@ void high_co2_night_transitions(void)
     // Copy to local variable
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
-      co2_sensors_high = sm_actuals.co2_sensors_high;
-      xSemaphoreGive(statemachine_mutex);
+        co2_sensors_high = sm_actuals.co2_sensors_high;
+        xSemaphoreGive(statemachine_mutex);
     }
 
     ESP_LOGI(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);

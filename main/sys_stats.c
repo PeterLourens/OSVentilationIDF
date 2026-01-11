@@ -255,7 +255,9 @@ void sys_stats_update_actuals(void)
 
 static size_t append_header(char *out, size_t used, size_t buf_size)
 {
-    char uptime[64], timestr[64];
+    char uptime[64];
+    char timestr[64];
+
     formatted_uptime(uptime, sizeof(uptime));
     formatted_daydatetime(timestr, sizeof(timestr));
 
@@ -268,6 +270,7 @@ static size_t append_header(char *out, size_t used, size_t buf_size)
 static size_t append_task_table(char *out, size_t used, size_t buf_size)
 {
     UBaseType_t count = uxTaskGetNumberOfTasks();
+
     if (count == 0)
     {
         SAFE_APPEND("No tasks\n\n");
@@ -284,10 +287,8 @@ static size_t append_task_table(char *out, size_t used, size_t buf_size)
     uint32_t total = uxTaskGetSystemState(tasks, count, NULL);
     qsort(tasks, count, sizeof(TaskStatus_t), compare_tasks);
 
-    SAFE_APPEND("%-20s %-4s %-4s %-12s %-12s %-6s\n",
-                "Task Name", "St", "Prio", "HighWater", "RunTicks", "CPU%");
-    SAFE_APPEND("%-20s %-4s %-4s %-12s %-12s %-6s\n",
-                "--------------------", "--", "----", "------------", "------------", "------");
+    SAFE_APPEND("%-20s %-4s %-4s %-12s %-12s %-6s\n", "Task Name", "St", "Prio", "HighWater", "RunTicks", "CPU%");
+    SAFE_APPEND("%-20s %-4s %-4s %-12s %-12s %-6s\n", "--------------------", "--", "----", "------------", "------------", "------");
 
     for (UBaseType_t i = 0; i < count; i++)
     {

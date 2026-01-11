@@ -1,8 +1,63 @@
 #include "http_send_ws_data.h"
+#include "statemachine_states.h"
 
 // Functions to send configuration as JSON via WebSocket
 
 static const char *TAG = "http json ws";
+
+const char *state_nr_to_str(state_nr_t state)
+{
+    switch (state)
+    {
+    case STATE_NR_ERROR:
+        return "ERROR";
+    case STATE_NR_INIT:
+        return "INIT";
+    case STATE_NR_DAY:
+        return "DAY";
+    case STATE_NR_NIGHT:
+        return "NIGHT";
+    case STATE_NR_HIGHCO2DAY:
+        return "HIGH_CO2_DAY";
+    case STATE_NR_HIGHCO2NIGHT:
+        return "HIGH_CO2_NIGHT";
+    case STATE_NR_HIGHRHDAY:
+        return "HIGH_RH_DAY";
+    case STATE_NR_HIGHRHNIGHT:
+        return "HIGH_RH_NIGHT";
+    case STATE_NR_COOKING:
+        return "COOKING";
+    case STATE_NR_CYCLINGDAY:
+        return "CYCLING_DAY";
+    case STATE_NR_CYCLINGNIGHT:
+        return "CYCLING_NIGHT";
+    case STATE_NR_MANUALHS:
+        return "MANUAL_HS";
+    case STATE_NR_STOPPED:
+        return "STOPPED";
+    case STATE_NR_TEMP:
+        return "TEMP";
+    default:
+        return "UNKNOWN_STATE";
+    }
+}
+
+const char *fan_speed_to_str(fan_speed_t f)
+{
+    switch (f)
+    {
+    case FAN_SPEED_ERROR:
+        return "ERROR";
+    case FAN_SPEED_LOW:
+        return "LOW";
+    case FAN_SPEED_MEDIUM:
+        return "MEDIUM";
+    case FAN_SPEED_HIGH:
+        return "HIGH";
+    default:
+        return "UNKNOWN_FAN_SPEED";
+    }
+}
 
 void send_index_html_ws(void)
 {
@@ -10,6 +65,11 @@ void send_index_html_ws(void)
     float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
     char key[64];
     char buf[16];
+    char uptime[32];
+    char date_time[64];
+
+    formatted_uptime(uptime, sizeof(uptime));
+    formatted_daydatetime(date_time, sizeof(date_time));
 
     cJSON *root = cJSON_CreateObject();
 
@@ -109,6 +169,21 @@ void send_index_html_ws(void)
         {
             ESP_LOGW(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
         }
+
+        if (statemachine_mutex)
+        {
+            if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+            {
+                cJSON_AddStringToObject(root, "statemachine_state", state_nr_to_str(sm_actuals.state));
+                cJSON_AddStringToObject(root, "fanspeed", fan_speed_to_str(sm_actuals.fanspeed));
+                cJSON_AddNumberToObject(root, "co2_sensors_high", sm_actuals.co2_sensors_high);
+                cJSON_AddNumberToObject(root, "rh_sensors_high", sm_actuals.rh_sensors_high);
+            }
+            xSemaphoreGive(statemachine_mutex);
+        }
+
+        cJSON_AddStringToObject(root, "uptime", uptime);
+        cJSON_AddStringToObject(root, "date_time", date_time);
 
         char *out = cJSON_PrintUnformatted(root);
         cJSON_Delete(root);

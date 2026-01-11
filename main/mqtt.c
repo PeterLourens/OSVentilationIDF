@@ -448,10 +448,10 @@ void mqtt_publish_state_and_fanspeed(void)
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	snprintf(topic, sizeof(topic), "%s/system/state", base);
-	mqtt_pubi(topic, state);
+	mqtt_pubs(topic, state_nr_to_str(state));
 
 	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
-	mqtt_pubi(topic, fanspeed);
+	mqtt_pubs(topic, fan_speed_to_str(fanspeed));
 
 	snprintf(topic, sizeof(topic), "%s/system/uptime", base);
 	mqtt_pubs(topic, uptime_str);

@@ -1,13 +1,12 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-
-
 #include "globals.h"
 #include "general.h"
 #include "statemachine_helper.h"
 #include "fancontrol.h"
 #include "valvecontrol.h"
+#include "statemachine_states.h"
 
 void init_statemachine(void);
 void run_statemachine(void);
@@ -46,7 +45,7 @@ extern int co2_sensors_high;
 extern int rh_sensors_high;
 
 /* Expose numeric state constants from statemachine.c */
-extern const int STATE_NR_INIT;
+/*extern const int STATE_NR_INIT;
 extern const int STATE_NR_STOPPED;
 extern const int STATE_NR_DAY;
 extern const int STATE_NR_NIGHT;
@@ -57,6 +56,6 @@ extern const int STATE_NR_HIGHRHNIGHT;
 extern const int STATE_NR_COOKING;
 extern const int STATE_NR_CYCLINGDAY;
 extern const int STATE_NR_CYCLINGNIGHT;
-extern const int STATE_NR_MANUALHS;
+extern const int STATE_NR_MANUALHS;*/
 
 #endif
