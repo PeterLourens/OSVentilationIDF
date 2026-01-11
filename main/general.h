@@ -9,6 +9,7 @@
 
 #include "i2c_ds3231.h"
 #include "http_functions.h"
+#include "statemachine_states.h"
 
 // Function declarations
 esp_err_t init_nvs(void);
@@ -24,7 +25,7 @@ void init_timezone(void);
 void on_ping_end(esp_ping_handle_t, void *);
 void formatted_daydatetime(char *, size_t);
 void formatted_datetime(char *, size_t);
-void formatted_day(char *, size_t );
+void formatted_day(char *, size_t);
 void show_system_and_task_stats(void);
 void set_log_levels(void);
 void print_html_file(const char *);

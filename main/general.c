@@ -1,5 +1,59 @@
 #include "general.h"
 
+const char *state_nr_to_str(state_nr_t state)
+{
+    switch (state)
+    {
+    case STATE_NR_ERROR:
+        return "ERROR";
+    case STATE_NR_INIT:
+        return "INIT";
+    case STATE_NR_DAY:
+        return "DAY";
+    case STATE_NR_NIGHT:
+        return "NIGHT";
+    case STATE_NR_HIGHCO2DAY:
+        return "HIGH_CO2_DAY";
+    case STATE_NR_HIGHCO2NIGHT:
+        return "HIGH_CO2_NIGHT";
+    case STATE_NR_HIGHRHDAY:
+        return "HIGH_RH_DAY";
+    case STATE_NR_HIGHRHNIGHT:
+        return "HIGH_RH_NIGHT";
+    case STATE_NR_COOKING:
+        return "COOKING";
+    case STATE_NR_CYCLINGDAY:
+        return "CYCLING_DAY";
+    case STATE_NR_CYCLINGNIGHT:
+        return "CYCLING_NIGHT";
+    case STATE_NR_MANUALHS:
+        return "MANUAL_HS";
+    case STATE_NR_STOPPED:
+        return "STOPPED";
+    case STATE_NR_TEMP:
+        return "TEMP";
+    default:
+        return "UNKNOWN_STATE";
+    }
+}
+
+const char *fan_speed_to_str(fan_speed_t f)
+{
+    switch (f)
+    {
+    case FAN_SPEED_ERROR:
+        return "ERROR";
+    case FAN_SPEED_LOW:
+        return "LOW";
+    case FAN_SPEED_MEDIUM:
+        return "MEDIUM";
+    case FAN_SPEED_HIGH:
+        return "HIGH";
+    default:
+        return "UNKNOWN_FAN_SPEED";
+    }
+}
+
 esp_err_t init_nvs(void)
 {
     const char *TAG = "Storage";
