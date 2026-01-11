@@ -237,9 +237,7 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     // --- Read metadata safely ---
     if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
-        const bus_sensor_t *src =
-            (bus == 0) ? &bus0_sensor_settings[ch]
-                       : &bus1_sensor_settings[ch];
+        const bus_sensor_t *src = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
 
         meta = *src; // copy to local struct
         xSemaphoreGive(sensor_cfg_mutex);
@@ -248,6 +246,7 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     {
         memset(&meta, 0, sizeof(meta));
         strcpy(meta.location, "<unknown>");
+        strcpy(meta.valve, "v?"); // fallback
         meta.rh_enabled = false;
         meta.co2_enabled = false;
     }
@@ -258,16 +257,87 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     float co2_ppm = avg[bus][ch][IDX_CO2];
 
     // --- Format output ---
-    snprintf(out, out_size,
-             "b%ds%d - %s\n"
-             "T:%.2f C H:%.2f %%\n"
-             "RH: %s - CO2: %s\n"
-             "CO2: %.2f ppm",
-             bus, ch,
-             meta.location,
-             temp_c,
-             humidity,
-             meta.rh_enabled ? "On" : "Off",
-             meta.co2_enabled ? "On" : "Off",
-             co2_ppm);
+    if (co2_ppm > 0.0f)
+    {
+        snprintf(out, out_size,
+                 "b%ds%d %s (%s)\n" // <-- valve added here
+                 "T:%.2f C H:%.2f %%\n"
+                 "RH: %s CO2: %s\n"
+                 "CO2: %.2f ppm",
+                 bus, ch,
+                 meta.location,
+                 meta.valve, // <-- valve string
+                 temp_c,
+                 humidity,
+                 meta.rh_enabled ? "On" : "Off",
+                 meta.co2_enabled ? "On" : "Off",
+                 co2_ppm);
+    }
+    else
+    {
+        snprintf(out, out_size,
+                 "b%ds%d %s (%s)\n" // <-- valve added here
+                 "T:%.2f C H:%.2f %%\n"
+                 "RH: %s CO2: %s",
+                 bus, ch,
+                 meta.location,
+                 meta.valve, // <-- valve string
+                 temp_c,
+                 humidity,
+                 meta.rh_enabled ? "On" : "Off",
+                 meta.co2_enabled ? "On" : "Off");
+    }
+}
+
+typedef struct
+{
+    int pos; // 0–99
+} valve_pos_t;
+
+// Build a buffer containing all 12 valve positions from NVS
+// Format:
+// v0:pos
+// v1:pos
+// ...
+// v11:pos
+
+void build_valve_positions_buffer(char *buf, size_t buf_size)
+{
+    nvs_handle_t nvs;
+    esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s",
+                 esp_err_to_name(err));
+        buf[0] = '\0';
+        return;
+    }
+
+    size_t used = 0;
+
+    for (int i = 0; i < 12; i++)
+    {
+        char key[16];
+        snprintf(key, sizeof(key), "v%d_pos", i);
+
+        int32_t pos = 0;
+        if (nvs_get_i32(nvs, key, &pos) != ESP_OK)
+        {
+            pos = 0; // default if missing
+        }
+
+        int written = snprintf(buf + used,
+                               buf_size - used,
+                               "v%d:%ld\n",
+                               i, pos);
+
+        if (written < 0 || written >= (int)(buf_size - used))
+        {
+            break; // buffer full
+        }
+
+        used += written;
+    }
+
+    nvs_close(nvs);
 }

@@ -63,11 +63,31 @@ void task_i2c_lcd_code(void *pvParameters)
         {
             for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
             {
+                bool active = false;
+
+                // Check if sensor is active (type != "None")
+                if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+                {
+                    const bus_sensor_t *meta = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
+
+                    active = (strcmp(meta->type, "None") != 0);
+                    xSemaphoreGive(sensor_cfg_mutex);
+                }
+
+                if (!active)
+                    continue; // skip inactive sensors
+
+                // Format and send
                 format_sensor_overview(buf, sizeof(buf), bus, ch, avg);
                 i2c_lcd_write_text(buf);
-                vTaskDelay(pdMS_TO_TICKS(10000));
+                vTaskDelay(pdMS_TO_TICKS(5000));
             }
         }
+
+        /*----- Display 3 -----*/
+        char buf2[256];
+        build_valve_positions_buffer(buf2, sizeof(buf));
+        i2c_lcd_write_text(buf2); // your LCD driver handles multiline
 
         // b0s0 - Location
         // T:XX.XX C H:XX.XX %
