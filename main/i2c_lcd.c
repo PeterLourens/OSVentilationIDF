@@ -319,7 +319,7 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
     for (int i = 0; i < 12; i++)
     {
         char key[16];
-        snprintf(key, sizeof(key), "v%d_pos", i);
+        snprintf(key, sizeof(key), "valve%d", i); // FIXED: match your real keys
 
         int32_t pos = 0;
         if (nvs_get_i32(nvs, key, &pos) != ESP_OK)
@@ -340,7 +340,7 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
             break;
         used += w;
 
-        // FIX: add space for all except the last valve (v11)
+        // Add trailing space for all except last valve (v11)
         if (i < 11)
         {
             if (used < buf_size - 1)
