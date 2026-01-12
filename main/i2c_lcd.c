@@ -302,13 +302,6 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     }
 }
 
-// Build a buffer containing all 12 valve positions from NVS
-// Format:
-// v0:pos
-// v1:pos
-// ...
-// v11:pos
-
 void build_valve_positions_buffer(char *buf, size_t buf_size)
 {
     nvs_handle_t nvs;
@@ -347,11 +340,10 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
             break;
         used += w;
 
-        // Add trailing space for all except v10 and v11
+        // FIX: add space for all except the last valve (v11)
         if (i < 11)
         {
-            // Ensure room for space + next entry (at least 6 chars)
-            if (used < buf_size - 6)
+            if (used < buf_size - 1)
                 buf[used++] = ' ';
             else
                 break;
