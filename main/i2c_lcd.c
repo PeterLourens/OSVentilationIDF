@@ -348,9 +348,10 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
         used += w;
 
         // Add trailing space for all except v10 and v11
-        if (i < 10) // v0..v9 get a space
+        if (i < 11)
         {
-            if (used < buf_size - 1)
+            // Ensure room for space + next entry (at least 6 chars)
+            if (used < buf_size - 6)
                 buf[used++] = ' ';
             else
                 break;
@@ -358,6 +359,62 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
     }
 
     nvs_close(nvs);
+
+    // Null‑terminate
+    if (used < buf_size)
+        buf[used] = '\0';
+    else
+        buf[buf_size - 1] = '\0';
+}
+
+void build_sm_actuals_buffer(char *buf, size_t buf_size)
+{
+    Statemachine_actuals_t snap;
+    size_t used = 0;
+
+    // --- Take snapshot under mutex ---
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+        snap = sm_actuals;
+        xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        // Fallback defaults if mutex not available
+        memset(&snap, 0, sizeof(snap));
+    }
+
+    // --- Line 1: State ---
+    const char *state_str = state_nr_to_str((state_nr_t)snap.state);
+    int w = snprintf(buf + used, buf_size - used,
+                     "STATE: %-12s\n", state_str);
+    if (w < 0 || w >= (int)(buf_size - used))
+        return;
+    used += w;
+
+    // --- Line 2: Fan speed ---
+    const char *fan_str = fan_speed_to_str((fan_speed_t)snap.fanspeed);
+    w = snprintf(buf + used, buf_size - used,
+                 "FAN:   %-12s\n", fan_str);
+    if (w < 0 || w >= (int)(buf_size - used))
+        return;
+    used += w;
+
+    // --- Line 3: CO2 sensors high ---
+    w = snprintf(buf + used, buf_size - used,
+                 "CO2 HIGH: %2d\n",
+                 snap.co2_sensors_high);
+    if (w < 0 || w >= (int)(buf_size - used))
+        return;
+    used += w;
+
+    // --- Line 4: RH sensors high ---
+    w = snprintf(buf + used, buf_size - used,
+                 "RH HIGH:  %2d",
+                 snap.rh_sensors_high);
+    if (w < 0 || w >= (int)(buf_size - used))
+        return;
+    used += w;
 
     // Null‑terminate
     if (used < buf_size)

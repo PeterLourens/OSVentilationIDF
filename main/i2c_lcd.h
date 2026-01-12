@@ -20,7 +20,8 @@ esp_err_t i2c_lcd_write_text(const char *);
 esp_err_t lcd_write_backlight_state(void);
 esp_err_t i2c_lcd_backlight_set(bool on);
 bool i2c_lcd_backlight_get(void);
-void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]);
-void build_valve_positions_buffer(char *buf, size_t buf_size);
+void format_sensor_overview(char *, size_t, int, int, float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]);
+void build_valve_positions_buffer(char *, size_t);
+void build_sm_actuals_buffer(char *, size_t);
 
 #endif
