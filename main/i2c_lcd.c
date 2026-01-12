@@ -237,18 +237,29 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     // --- Read metadata safely ---
     if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
-        const bus_sensor_t *src = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
+        const bus_sensor_t *src =
+            (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
 
-        meta = *src; // copy to local struct
+        meta = *src;
         xSemaphoreGive(sensor_cfg_mutex);
     }
     else
     {
         memset(&meta, 0, sizeof(meta));
         strcpy(meta.location, "<unknown>");
-        strcpy(meta.valve, "v?"); // fallback
+        strcpy(meta.valve, "valve0");
         meta.rh_enabled = false;
         meta.co2_enabled = false;
+    }
+
+    // --- Extract numeric valve index from meta.valve ---
+    int valve_num = 0;
+    {
+        const char *p = meta.valve;
+        while (*p && !isdigit((unsigned char)*p))
+            p++;
+        if (*p)
+            valve_num = atoi(p);
     }
 
     // --- Read sensor values ---
@@ -256,17 +267,18 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     float humidity = avg[bus][ch][IDX_HUMIDITY];
     float co2_ppm = avg[bus][ch][IDX_CO2];
 
-    // --- Format output ---
+    // --- Format output (valve shown as vXX) ---
     if (co2_ppm > 0.0f)
     {
         snprintf(out, out_size,
-                 "b%ds%d %s (%s)\n" // <-- valve added here
-                 "T:%.2f C H:%.2f %%\n"
+                 "b%ds%d %s v%d\n"
+                 "T:%.2f\xDF"
+                 "C H:%.2f%%\n"
                  "RH: %s CO2: %s\n"
-                 "CO2: %.2f ppm",
+                 "CO2:%.2fppm",
                  bus, ch,
                  meta.location,
-                 meta.valve, // <-- valve string
+                 valve_num,
                  temp_c,
                  humidity,
                  meta.rh_enabled ? "On" : "Off",
@@ -276,23 +288,19 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     else
     {
         snprintf(out, out_size,
-                 "b%ds%d %s (%s)\n" // <-- valve added here
-                 "T:%.2f C H:%.2f %%\n"
+                 "b%ds%d %s v%d\n"
+                 "T:%.2f\xDF"
+                 "C H:%.2f%%\n"
                  "RH: %s CO2: %s",
                  bus, ch,
                  meta.location,
-                 meta.valve, // <-- valve string
+                 valve_num,
                  temp_c,
                  humidity,
                  meta.rh_enabled ? "On" : "Off",
                  meta.co2_enabled ? "On" : "Off");
     }
 }
-
-typedef struct
-{
-    int pos; // 0–99
-} valve_pos_t;
 
 // Build a buffer containing all 12 valve positions from NVS
 // Format:
@@ -322,22 +330,38 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
 
         int32_t pos = 0;
         if (nvs_get_i32(nvs, key, &pos) != ESP_OK)
+            pos = 0;
+
+        // Insert newline every 3 valves
+        if (i > 0 && (i % 3) == 0)
         {
-            pos = 0; // default if missing
+            int w = snprintf(buf + used, buf_size - used, "\n");
+            if (w < 0 || w >= (int)(buf_size - used))
+                break;
+            used += w;
         }
 
-        int written = snprintf(buf + used,
-                               buf_size - used,
-                               "v%d:%ld\n",
-                               i, pos);
+        // Write vX:pos
+        int w = snprintf(buf + used, buf_size - used, "v%d:%ld", i, pos);
+        if (w < 0 || w >= (int)(buf_size - used))
+            break;
+        used += w;
 
-        if (written < 0 || written >= (int)(buf_size - used))
+        // Add trailing space for all except v10 and v11
+        if (i < 10) // v0..v9 get a space
         {
-            break; // buffer full
+            if (used < buf_size - 1)
+                buf[used++] = ' ';
+            else
+                break;
         }
-
-        used += written;
     }
 
     nvs_close(nvs);
+
+    // Null‑terminate
+    if (used < buf_size)
+        buf[used] = '\0';
+    else
+        buf[buf_size - 1] = '\0';
 }

@@ -31,7 +31,7 @@ void task_i2c_lcd_code(void *pvParameters)
         ESP_LOGI(TAG, "Update LCD...");
         i2c_lcd_backlight_set(true);
 
-        /*----- Display 1 -----*/
+        /*----- Display 1 - General info -----*/
         formatted_uptime(uptime, sizeof(uptime));
         formatted_datetime(formatted_time, sizeof(formatted_time));
         wifi_manager_get_ip_info(ip_str, sizeof(ip_str));
@@ -50,7 +50,7 @@ void task_i2c_lcd_code(void *pvParameters)
 
         vTaskDelay(pdMS_TO_TICKS(10000));
 
-        /*----- Display 2 -----*/
+        /*----- Display 2 - Sensors -----*/
         if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
         {
             ESP_LOGE(TAG, "Failed to read avg sensor queue");
@@ -84,7 +84,7 @@ void task_i2c_lcd_code(void *pvParameters)
             }
         }
 
-        /*----- Display 3 -----*/
+        /*----- Display 3 - Valve positions -----*/
         char buf2[256];
         build_valve_positions_buffer(buf2, sizeof(buf));
         i2c_lcd_write_text(buf2); // your LCD driver handles multiline
