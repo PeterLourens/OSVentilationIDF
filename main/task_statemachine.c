@@ -23,7 +23,7 @@ void task_statemachine_code(void *pvParameters)
         ESP_LOGI(TAG, "Update LEDs...");
         xTaskNotifyGive(task_rgb_leds);
 
-        // Run every 60 secs
-        vTaskDelay(60000);
+        // Run every 30 secs
+        vTaskDelay(30000);
     }
 }

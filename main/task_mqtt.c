@@ -18,6 +18,7 @@ void task_mqtt_code(void *pvParameters)
     // Some delay a boot
     vTaskDelay(pdMS_TO_TICKS(10000));
     mqtt_start_client();
+    vTaskDelay(pdMS_TO_TICKS(2000)); // publish every 10s
 
     while (true)
     {

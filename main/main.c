@@ -174,6 +174,7 @@ void app_main(void)
     else
     {
         ESP_LOGI(TAG, "Wi-Fi init done, starting webserver, influxdb and mqtt tasks...");
+        vTaskDelay(pdMS_TO_TICKS(3000));
         start_webserver();
         start_task_statemachine();
         start_task_influxdb();
