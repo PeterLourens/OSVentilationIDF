@@ -15,10 +15,5 @@ dependencies:
   #   # All dependencies of `main` are public by default.
   #   public: true
 
-  #esp-idf-lib/aht: ^1.0.4
-  #esp-idf-lib/scd4x: ^1.0.8
-  #esp-idf-lib/tca9548: ^1.0.7
   joltwallet/littlefs: ^1.20.1
-  #esp-idf-lib/bme680: ^1.0.7
-  #esp-idf-lib/ds3231: ^1.1.7
   espressif/led_strip: ^3.0.1~1

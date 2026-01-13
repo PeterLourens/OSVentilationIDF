@@ -43,7 +43,7 @@ void init_statemachine(void)
     }
 
     // Code to set fanspeed
-    // set_fanspeed(FANSPEED_LOW);
+    set_fanspeed(FANSPEED_LOW);
 }
 
 void run_statemachine(void)
@@ -162,7 +162,7 @@ void init_transitions(void)
 
 void day_transitions(void)
 {
-    float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    // float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     int state = STATE_NR_DAY;   // Local state variable
@@ -183,11 +183,11 @@ void day_transitions(void)
     // read sensor data from queue into local buffer
     ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
 
-    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-        return;
-    }
+    // if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    //{
+    //     ESP_LOGE(TAG, "Failed to read data from sensor queue.");
+    //     return;
+    // }
 
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
 
@@ -322,7 +322,7 @@ void day_transitions(void)
 
 void night_transitions(void)
 {
-    float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    // float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     int state = STATE_NR_NIGHT; // Local state variable
@@ -341,12 +341,12 @@ void night_transitions(void)
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
     // read sensor data from queue into local buffer
-    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-        return;
-    }
+    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
+    // if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
+    //{
+    //    ESP_LOGE(TAG, "Failed to read data from sensor queue.");
+    //    return;
+    //}
 
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
@@ -482,7 +482,7 @@ void night_transitions(void)
 
 void high_co2_day_transitions(void)
 {
-    float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    // float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     int state = STATE_NR_HIGHCO2DAY; // Local state variable
@@ -508,12 +508,12 @@ void high_co2_day_transitions(void)
     char valve[MEDIUM_CONFIG_ITEM] = {};
 
     // read sensor data from queue into local buffer
-    ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-        return;
-    }
+    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
+    // if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
+    //{
+    //    ESP_LOGE(TAG, "Failed to read data from sensor queue.");
+    //    return;
+    //}
 
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)

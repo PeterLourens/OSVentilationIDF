@@ -498,12 +498,6 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
     else
         cJSON_AddStringToObject(obj, "enable_state", "Off");
 
-    /*snprintf(key, sizeof(key), "s%d_fanspeed", state_number);
-    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "fanspeed", val);
-    else
-        cJSON_AddStringToObject(obj, "fanspeed", "0");*/
-
     // Map fanspeed string to code, Low=1, Medium=2, High=3, Error=0
     snprintf(key, sizeof(key), "s%d_fanspeed", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)

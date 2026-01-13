@@ -1024,7 +1024,7 @@ void ws_async_send(char *buf, size_t len)
 httpd_handle_t start_webserver(void)
 {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 30;                 // increase from default 8 to 30
+    config.max_uri_handlers = 50;                 // increase from default 8 to 50
     config.stack_size = 6144;                     // increase stack size for websocket handling
     config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
     ESP_ERROR_CHECK(httpd_start(&http_server, &config));

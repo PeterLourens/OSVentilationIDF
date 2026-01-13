@@ -95,7 +95,7 @@ ColorName_t fan_to_color(int fanspeed)
     case 2:
         return COLOR_YELLOW; // Medium
     case 3:
-        return COLOR_CYAN; // High
+        return COLOR_DEEP_ORANGE; // High
     default:
         return COLOR_RED; // invalid
     }
