@@ -313,14 +313,6 @@ void night_transitions(void)
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
-    // read sensor data from queue into local buffer
-    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    // if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
-    //{
-    //    ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-    //    return;
-    //}
-
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
     {
@@ -363,7 +355,7 @@ void night_transitions(void)
             {
                 ESP_LOGI(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
                 ESP_LOGI(TAG, "Transit to highco2night if minimum state time has expired.");
-                co2_sensors_high++;
+                sm_actuals.co2_sensors_high++;
                 ESP_LOGI(TAG, "CO2 sensors high: %d", co2_sensors_high);
             }
         }
@@ -374,7 +366,7 @@ void night_transitions(void)
             {
                 ESP_LOGI(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
                 ESP_LOGI(TAG, "Transit to highrhnight if minimum state time has expired.");
-                rh_sensors_high++;
+                sm_actuals.rh_sensors_high++;
             }
         }
         co2_sensors_high = sm_actuals.co2_sensors_high;
@@ -698,14 +690,6 @@ void high_co2_night_transitions(void)
     char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
     char valve[MEDIUM_CONFIG_ITEM] = {};
 
-    // read sensor data from queue into local buffer
-    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    // if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
-    //{
-    //    ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-    //    return;
-    //}
-
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
@@ -723,7 +707,32 @@ void high_co2_night_transitions(void)
     state_name_temp[sizeof(state_name_temp) - 1] = '\0';
     state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
 
+    // Actions for this state
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    {
+        // State specific config
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+
+        // General statemachine config
+        co2lowlevel = statemachine_gen_config.co2_low_level;
+
+        // Create name for state temp
+        // strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
+        xSemaphoreGive(state_config_mutex);
+    }
+
     ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = state;
+        sm_actuals.fanspeed = state_fanspeed; // Set fanspeed as defined in state settings
+        valve_move_locked = sm_actuals.valve_lock;
+        sm_actuals.co2_sensors_high = 0;
+        sm_actuals.rh_sensors_high = 0;
+        xSemaphoreGive(statemachine_mutex);
+    }
 
     set_fanspeed(state_fanspeed);
     select_sensors();
@@ -742,9 +751,6 @@ void high_co2_night_transitions(void)
         {
             state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
         }
-
-        // Create name for state temp
-        // strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -802,16 +808,10 @@ void high_co2_night_transitions(void)
             if (reading > co2lowlevel)
             {
                 sm_actuals.co2_sensors_high++;
+                co2_sensors_high = sm_actuals.co2_sensors_high;
             }
             xSemaphoreGive(statemachine_mutex);
         }
-    }
-
-    // Copy to local variable
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
-    {
-        co2_sensors_high = sm_actuals.co2_sensors_high;
-        xSemaphoreGive(statemachine_mutex);
     }
 
     ESP_LOGI(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
