@@ -13,6 +13,13 @@ void task_statemachine_code(void *pvParameters)
 {
     init_statemachine();
 
+    // Set name temp to state number 13 otherwise function state name cannot be found from state number
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    {
+        strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
+        xSemaphoreGive(state_config_mutex);
+    }
+
     for (;;)
     {
         // Run the state machine

@@ -163,17 +163,7 @@ void day_transitions(void)
 
     char state_name[MEDIUM_CONFIG_ITEM] = {};
 
-    // read sensor data from queue into local buffer
-    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-
-    // if (xQueuePeek(sensor_queue, &statemachine_sensor_data, 0) != pdTRUE)
-    //{
-    //     ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-    //     return;
-    // }
-
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
-
     if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
     {
         ESP_LOGE(TAG, "Failed to read data from average sensor queue.");
@@ -490,14 +480,6 @@ void high_co2_day_transitions(void)
     char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
     char valve[MEDIUM_CONFIG_ITEM] = {};
 
-    // read sensor data from queue into local buffer
-    // ESP_LOGI(TAG, "Read sensor data from queue for statemachine.");
-    // if (xQueuePeek(sensor_queue, statemachine_sensor_data, 0) != pdTRUE)
-    //{
-    //    ESP_LOGE(TAG, "Failed to read data from sensor queue.");
-    //    return;
-    //}
-
     ESP_LOGI(TAG, "Read average sensor data from queue for statemachine.");
     if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
     {
@@ -509,6 +491,11 @@ void high_co2_day_transitions(void)
     strncpy(state_name, STATE_HIGHCO2DAY, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
+
+    // Copy state_name and call function to find index of the config
+    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
+    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
+    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
 
     ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
 
@@ -524,14 +511,9 @@ void high_co2_day_transitions(void)
         co2highlevel = statemachine_gen_config.co2_high_level;
 
         // Create name for state temp
-        strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
+        // strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
         xSemaphoreGive(state_config_mutex);
     }
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
-    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
-    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
 
     ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name_temp, state_config_index_temp);
 
@@ -760,6 +742,9 @@ void high_co2_night_transitions(void)
         {
             state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
         }
+
+        // Create name for state temp
+        // strncpy(statemachine_config[STATE_NR_TEMP].state_name, "temp", sizeof(statemachine_config[STATE_NR_TEMP].state_name));
         xSemaphoreGive(state_config_mutex);
     }
 
