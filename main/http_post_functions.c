@@ -373,6 +373,8 @@ cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
 
 cJSON *build_state_gen_config_from_body_urlencoded(const char *body, size_t len)
 {
+    int temp_val = 0;
+
     if (!body)
         return NULL;
 
@@ -384,49 +386,75 @@ cJSON *build_state_gen_config_from_body_urlencoded(const char *body, size_t len)
 
     snprintf(key, sizeof(key), "wday_d_h_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wday_d_m_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wday_n_h_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wday_n_m_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wkend_d_h_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wkend_d_m_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
+
     snprintf(key, sizeof(key), "wkend_n_h_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
+
     snprintf(key, sizeof(key), "wkend_n_m_start");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+    {
+        temp_val = atoi(val);
+        cJSON_AddNumberToObject(obj, key, temp_val);
+    }
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddNumberToObject(obj, key, 0);
 
     snprintf(key, sizeof(key), "wkend_d1");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
