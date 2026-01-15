@@ -5,7 +5,7 @@ static const char *TAG = "Influxdb task";
 void start_task_influxdb(void)
 {
     // Create influxdb task
-    xTaskCreate(task_influxdb_code, "influxdb", 8192, NULL, 6, &task_influxdb);
+    xTaskCreate(task_influxdb_code, "influxdb", 8192, NULL, 12, &task_influxdb);
 }
 
 void task_influxdb_code(void *pvParameters)
