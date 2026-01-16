@@ -1,5 +1,4 @@
 #include "statemachine.h"
-#include "globals.h"
 
 static const char *TAG = "Statemachine";
 
@@ -11,8 +10,6 @@ int rh_sensor_counter = 0;
 
 CO2_Sensors_t co2_sensors[MAX_SENSORS] = {};
 RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
-
-// bool valve_open[MAX_VALVES] = {false};
 
 // Functions for the state machine would go here
 void init_statemachine(void)
@@ -145,7 +142,6 @@ void init_transitions(void)
 
 void day_transitions(void)
 {
-    // float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     int state = STATE_NR_DAY;   // Local state variable
