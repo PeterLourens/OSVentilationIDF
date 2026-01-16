@@ -290,7 +290,6 @@ void day_transitions(void)
 
 void night_transitions(void)
 {
-    // float statemachine_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     int state = STATE_NR_NIGHT; // Local state variable
@@ -448,11 +447,11 @@ void high_co2_day_transitions(void)
     int new_state = 0;               // State after logic in this function
     int state_fanspeed = 0;          // Fanspeed from global config struct
     int valve_nr = 0;
-    int minimum_state_time = 0;      // Minimum state time from global state settings struct
-    int co2lowlevel = 0;             // Local variable for CO2 low level from general statemachine config
-    int co2highlevel = 0;            // Local variable for CO2 high level from general statemachine config
+    int minimum_state_time = 0; // Minimum state time from global state settings struct
+    int co2lowlevel = 0;        // Local variable for CO2 low level from general statemachine config
+    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int co2_sensors_high = 0;        // Local variable following the struct value
+    int co2_sensors_high = 0; // Local variable following the struct value
 
     int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
 
@@ -749,68 +748,109 @@ void high_co2_night_transitions(void)
 
     // High CO2 has been detected to come into this state. Iterate through CO2 sensors to see which sensor detects high CO2. Valves with CO2 sensors are default
     // set to 20 for this state. Valves with a CO2 value lower than co2lowlevel will be closed to 4 to direct airflow to the rooms with high CO2 reading.
+    // ------------------------------------------------------------
+    // CO₂ valve logic for HIGHCO2NIGHT
+    // ------------------------------------------------------------
+
+    // 1. Detect if ANY sensor is above the high threshold
+    bool any_high = false;
+    co2_sensors_high = 0;
+
     for (int i = 0; i < co2_sensor_counter; i++)
     {
+        float reading = co2_sensors[i].co2_reading;
+
+        if (reading > co2highlevel)
+            any_high = true;
+
+        if (reading > co2lowlevel)
+            co2_sensors_high++;
+    }
+
+    // 2. Apply valve logic
+    for (int i = 0; i < co2_sensor_counter; i++)
+    {
+        // Copy valve name locally
         strncpy(valve, co2_sensors[i].valve, sizeof(valve) - 1);
         valve[sizeof(valve) - 1] = '\0';
 
-        char *substr = strstr(valve, "valve");
+        // Skip fan inlet
+        if (strcmp(valve, "Fan inlet") == 0)
+            continue;
 
+        // Extract valve number
+        char *substr = strstr(valve, "valve");
         if (substr)
-        {
-            memmove(substr, substr + 5, strlen(substr + 5) + 1); // 5 is length of "valve"
-        }
+            memmove(substr, substr + 5, strlen(substr + 5) + 1);
 
         valve_nr = atoi(valve);
+        if (valve_nr < 0 || valve_nr >= MAX_VALVE_COUNT)
+        {
+            ESP_LOGW(TAG, "Invalid valve number parsed from '%s'", co2_sensors[i].valve);
+            continue;
+        }
+
         reading = co2_sensors[i].co2_reading;
 
-        if (strcmp(valve, "Fan inlet") != 0) // If fan inlet is high or if no co2 sensors have high reading there is no need to move the valves
+        // ------------------------------------------------------------
+        // CASE A: No sensor is high → all CO₂ sensor valves open to 20
+        // ------------------------------------------------------------
+        if (!any_high)
         {
-            // Hysteresis logic
-            if (valve_open[valve_nr])
+            valve_open[valve_nr] = true;
+            state_valve_position[valve_nr] = 20;
+
+            ESP_LOGI(TAG, "No high CO₂ sensors. Opening %s to 20 (%.1f ppm).", co2_sensors[i].valve, reading);
+            continue;
+        }
+
+        // ------------------------------------------------------------
+        // CASE B: At least one sensor is high → hysteresis per valve
+        // ------------------------------------------------------------
+        if (valve_open[valve_nr])
+        {
+            // Valve currently open → close only if below low threshold
+            if (reading < co2lowlevel)
             {
-                // Valve is currently open → only close if CO₂ drops below low threshold
-                if (reading < co2lowlevel)
-                {
-                    valve_open[valve_nr] = false;
-                    state_valve_position[valve_nr] = 4;
-                    ESP_LOGI(TAG, "CO₂ dropped below low threshold (%.1f ppm). Closing %s.", reading, co2_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 20;
-                    ESP_LOGI(TAG, "CO₂ still above low threshold (%.1f ppm). Keeping %s open.", reading, co2_sensors[i].valve);
-                }
+                valve_open[valve_nr] = false;
+                state_valve_position[valve_nr] = 4;
+
+                ESP_LOGI(TAG, "CO₂ dropped below low threshold (%.1f ppm). Closing %s.", reading, co2_sensors[i].valve);
             }
             else
             {
-                // Valve is currently closed → only open if CO₂ rises above high threshold
-                if (reading > co2highlevel)
-                {
-                    valve_open[valve_nr] = true;
-                    state_valve_position[valve_nr] = 20;
-                    ESP_LOGI(TAG, "CO₂ rose above high threshold (%.1f ppm). Opening %s.", reading, co2_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 4;
-                    ESP_LOGI(TAG, "CO₂ still below high threshold (%.1f ppm). Keeping %s closed.", reading, co2_sensors[i].valve);
-                }
+                state_valve_position[valve_nr] = 20;
+
+                ESP_LOGI(TAG, "CO₂ still above low threshold (%.1f ppm). Keeping %s open.", reading, co2_sensors[i].valve);
             }
         }
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        else
         {
-            if (reading > co2lowlevel)
+            // Valve currently closed → open only if above high threshold
+            if (reading > co2highlevel)
             {
-                sm_actuals.co2_sensors_high++;
+                valve_open[valve_nr] = true;
+                state_valve_position[valve_nr] = 20;
+
+                ESP_LOGI(TAG, "CO₂ rose above high threshold (%.1f ppm). Opening %s.", reading, co2_sensors[i].valve);
             }
-            co2_sensors_high = sm_actuals.co2_sensors_high;
-            xSemaphoreGive(statemachine_mutex);
+            else
+            {
+                state_valve_position[valve_nr] = 4;
+
+                ESP_LOGI(TAG, "CO₂ still below high threshold (%.1f ppm). Keeping %s closed.", reading, co2_sensors[i].valve);
+            }
         }
     }
 
-    ESP_LOGI(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
+    // Store the count for the rest of the state machine
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.co2_sensors_high = co2_sensors_high;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    ESP_LOGI(TAG, "Number of sensors have high CO₂: %d.", co2_sensors_high);
 
     // Copy high CO2 state valve positions to temp settings
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
@@ -865,17 +905,17 @@ void high_rh_day_transitions(void)
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    int state = STATE_NR_HIGHRHDAY;     // Local state variable
-    int state_config_index = 0;         // Index number for state configuration
-    int state_config_index_temp = 0;    // Index number for state configuration
-    int new_state = 0;                  // State after logic in this function
-    int state_fanspeed = 0;             // Fanspeed from global config struct
+    int state = STATE_NR_HIGHRHDAY;  // Local state variable
+    int state_config_index = 0;      // Index number for state configuration
+    int state_config_index_temp = 0; // Index number for state configuration
+    int new_state = 0;               // State after logic in this function
+    int state_fanspeed = 0;          // Fanspeed from global config struct
     int valve_nr = 0;
-    int minimum_state_time = 0;         // Minimum state time from global state settings struct
-    int rhlowlevel = 0;                 // Local variable for CO2 low level from general statemachine config
-    int rhhighlevel = 0;                // Local variable for CO2 high level from general statemachine config
+    int minimum_state_time = 0; // Minimum state time from global state settings struct
+    int rhlowlevel = 0;         // Local variable for CO2 low level from general statemachine config
+    int rhhighlevel = 0;        // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int rh_sensors_high = 0;            // Local variable following the struct value
+    int rh_sensors_high = 0; // Local variable following the struct value
 
     int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
 
@@ -909,9 +949,9 @@ void high_rh_day_transitions(void)
 
     // Actions for this state
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-      {
+    {
         // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
         minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
 
         // General statemachine config
@@ -926,7 +966,7 @@ void high_rh_day_transitions(void)
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
         sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed; // Set fanspeed as defined in state settings
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.rh_sensors_high = 0;
 
@@ -986,7 +1026,7 @@ void high_rh_day_transitions(void)
                     valve_open[valve_nr] = false;
                     state_valve_position[valve_nr] = 4;
                     ESP_LOGI(TAG, "RH dropped below low threshold (%.1f %%). Closing valve %s.",
-                    reading, rh_sensors[i].valve);
+                             reading, rh_sensors[i].valve);
                 }
                 else
                 {
@@ -1060,7 +1100,8 @@ void high_rh_day_transitions(void)
         new_state = STATE_NR_HIGHRHDAY;
     }
 
-    if (state != new_state) {
+    if (state != new_state)
+    {
         elapsed_time = 0;
         old_time = (esp_timer_get_time()) / 1000000;
     }
@@ -1070,24 +1111,23 @@ void high_rh_day_transitions(void)
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }
-
 }
 
 void high_rh_night_transitions()
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    int state = STATE_NR_HIGHRHNIGHT;     // Local state variable
-    int state_config_index = 0;         // Index number for state configuration
-    int state_config_index_temp = 0;    // Index number for state configuration
-    int new_state = 0;                  // State after logic in this function
-    int state_fanspeed = 0;             // Fanspeed from global config struct
+    int state = STATE_NR_HIGHRHNIGHT; // Local state variable
+    int state_config_index = 0;       // Index number for state configuration
+    int state_config_index_temp = 0;  // Index number for state configuration
+    int new_state = 0;                // State after logic in this function
+    int state_fanspeed = 0;           // Fanspeed from global config struct
     int valve_nr = 0;
-    int minimum_state_time = 0;         // Minimum state time from global state settings struct
-    int rhlowlevel = 0;                 // Local variable for CO2 low level from general statemachine config
-    int rhhighlevel = 0;                // Local variable for CO2 high level from general statemachine config
+    int minimum_state_time = 0; // Minimum state time from global state settings struct
+    int rhlowlevel = 0;         // Local variable for CO2 low level from general statemachine config
+    int rhhighlevel = 0;        // Local variable for CO2 high level from general statemachine config
     int new_time = 0;
-    int rh_sensors_high = 0;            // Local variable following the struct value
+    int rh_sensors_high = 0; // Local variable following the struct value
 
     int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
 
@@ -1121,9 +1161,9 @@ void high_rh_night_transitions()
 
     // Actions for this state
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-      {
+    {
         // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
         minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
 
         // General statemachine config
@@ -1138,7 +1178,7 @@ void high_rh_night_transitions()
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
         sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed; // Set fanspeed as defined in state settings
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.rh_sensors_high = 0;
 
@@ -1198,7 +1238,7 @@ void high_rh_night_transitions()
                     valve_open[valve_nr] = false;
                     state_valve_position[valve_nr] = 4;
                     ESP_LOGI(TAG, "RH dropped below low threshold (%.1f %%). Closing valve %s.",
-                    reading, rh_sensors[i].valve);
+                             reading, rh_sensors[i].valve);
                 }
                 else
                 {
@@ -1272,7 +1312,8 @@ void high_rh_night_transitions()
         new_state = STATE_NR_HIGHRHNIGHT;
     }
 
-    if (state != new_state) {
+    if (state != new_state)
+    {
         elapsed_time = 0;
         old_time = (esp_timer_get_time()) / 1000000;
     }
@@ -1282,7 +1323,6 @@ void high_rh_night_transitions()
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }
-
 }
 void cooking_transitions(void) {}
 void valve_cycle_day_transitions(void) {}
