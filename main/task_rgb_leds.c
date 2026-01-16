@@ -3,7 +3,7 @@
 static const char *TAG = "RGB Leds";
 
 // Local snapshot (safe copy)
-static Statemachine_actuals_t snap;
+//static Statemachine_actuals_t snap;
 
 void start_task_rgb_leds(void)
 {
