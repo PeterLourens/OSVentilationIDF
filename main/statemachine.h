@@ -1,11 +1,8 @@
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 
-#include "globals.h"
-#include "general.h"
 #include "statemachine_helper.h"
 #include "fancontrol.h"
-#include "valvecontrol.h"
 #include "statemachine_states.h"
 
 void init_statemachine(void);
