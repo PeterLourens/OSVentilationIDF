@@ -485,7 +485,120 @@ bool valve_cycle_times_night(void)
     return false;
 }
 
+static inline const char *safe_str(const char *s)
+{
+    return (s && s[0] != '\0') ? s : "(null)";
+}
+
 void select_sensors(void)
+{
+    int j = 0; // CO2 sensor counter
+    int k = 0; // RH sensor counter
+
+    static const char *TAG = "select_sensors";
+
+    co2_sensor_counter = 0;
+    rh_sensor_counter = 0;
+
+    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
+    if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
+    {
+        ESP_LOGE(TAG, "Failed to read from sensor_avg_queue");
+        return;
+    }
+
+    for (int i = 0; i < CHANNELS_PER_BUS; i++)
+    {
+        const bus_sensor_t *s0 = NULL;
+        const bus_sensor_t *s1 = NULL;
+
+        if (sensor_cfg_mutex &&
+            xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        {
+            s0 = &bus0_sensor_settings[i];
+            s1 = &bus1_sensor_settings[i];
+            xSemaphoreGive(sensor_cfg_mutex);
+        }
+
+        // -----------------------------
+        // CO₂ sensors (bus 0)
+        // -----------------------------
+        if (s0 && s0->co2_enabled && j < MAX_SENSORS)
+        {
+            const char *valve = safe_str(s0->valve);
+            float reading = sensor_data[0][i][IDX_CO2];
+
+            if (!isfinite(reading))
+                reading = 0.0f;
+
+            co2_sensors[j].valve = (char *)valve;
+            co2_sensors[j].co2_reading = reading;
+
+            ESP_LOGI(TAG, "%s, CO2: %.2f", valve, reading);
+            j++;
+        }
+
+        // -----------------------------
+        // CO₂ sensors (bus 1)
+        // -----------------------------
+        if (s1 && s1->co2_enabled && j < MAX_SENSORS)
+        {
+            const char *valve = safe_str(s1->valve);
+            float reading = sensor_data[1][i][IDX_CO2];
+
+            if (!isfinite(reading))
+                reading = 0.0f;
+
+            co2_sensors[j].valve = (char *)valve;
+            co2_sensors[j].co2_reading = reading;
+
+            ESP_LOGI(TAG, "%s, CO2: %.2f", valve, reading);
+            j++;
+        }
+
+        // -----------------------------
+        // RH sensors (bus 0)
+        // -----------------------------
+        if (s0 && s0->rh_enabled && k < MAX_SENSORS)
+        {
+            const char *valve = safe_str(s0->valve);
+            float reading = sensor_data[0][i][IDX_HUMIDITY];
+
+            if (!isfinite(reading))
+                reading = 0.0f;
+
+            rh_sensors[k].valve = (char *)valve;
+            rh_sensors[k].rh_reading = reading;
+
+            ESP_LOGI(TAG, "%s, RH: %.2f", valve, reading);
+            k++;
+        }
+
+        // -----------------------------
+        // RH sensors (bus 1)
+        // -----------------------------
+        if (s1 && s1->rh_enabled && k < MAX_SENSORS)
+        {
+            const char *valve = safe_str(s1->valve);
+            float reading = sensor_data[1][i][IDX_HUMIDITY];
+
+            if (!isfinite(reading))
+                reading = 0.0f;
+
+            rh_sensors[k].valve = (char *)valve;
+            rh_sensors[k].rh_reading = reading;
+
+            ESP_LOGI(TAG, "%s, RH: %.2f", valve, reading);
+            k++;
+        }
+    }
+
+    co2_sensor_counter = j;
+    rh_sensor_counter = k;
+}
+
+/*void select_sensors(void)
 {
     int j = 0; // counter for struct
     int k = 0; // counter for struct
@@ -551,18 +664,7 @@ void select_sensors(void)
 
     co2_sensor_counter = j;
     rh_sensor_counter = k;
-}
-
-// Helper functions to have data available in other tasks
-//int parse_co2_sensors_high(void)
-//{
-   // return co2_sensors_high;
-//}
-
-//int parse_rh_sensors_high(void)
-//{
-  //  return rh_sensors_high;
-//}
+}*/
 
 /* Consume (check-and-clear) request set by POST handler. Returns true if move was requested. */
 bool statemachine_consume_valve_move_request(void)

@@ -1,6 +1,8 @@
 #ifndef STATEMACHINE_HELPER_H
 #define STATEMACHINE_HELPER_H
 
+#include <math.h> // For isfinite()
+
 #include "globals.h"
 #include "general.h"
 

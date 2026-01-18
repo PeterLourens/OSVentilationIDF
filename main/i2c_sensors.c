@@ -104,6 +104,18 @@ static sensor_type_t sensor_type_from_str(const char *type_str)
 }
 
 // -----------------------------------------------------------------------------
+// Pre-load sensor type so sensors only once
+// -----------------------------------------------------------------------------
+void preload_sensor_types_from_config(void)
+{
+    for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        bus0_sensors[ch].type = sensor_type_from_str(bus0_sensor_settings[ch].type);
+        bus1_sensors[ch].type = sensor_type_from_str(bus1_sensor_settings[ch].type);
+    }
+}
+
+// -----------------------------------------------------------------------------
 // Sensor init helpers (per type)
 // -----------------------------------------------------------------------------
 esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
@@ -633,7 +645,7 @@ void sensor_data_average(void)
     }
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-    ESP_LOGI("AVG", "sensor_data_average: wrote avg data to queue");
+    // ESP_LOGI("AVG", "sensor_data_average: wrote avg data to queue");
 }
 
 void fifoPush(int bus, int slot, int measurement, float value, int pos)

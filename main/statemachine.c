@@ -540,6 +540,12 @@ void high_co2_day_transitions(void)
     // or only one valve needs to open (when high reading is in a room)
     for (int i = 0; i < co2_sensor_counter; i++)
     {
+        if (!co2_sensors[i].valve)
+        {
+            ESP_LOGE(TAG, "Valve name missing for sensor index %d", i);
+            continue;
+        }
+
         strncpy(valve, co2_sensors[i].valve, sizeof(valve) - 1);
         valve[sizeof(valve) - 1] = '\0';
         char *substr = strstr(valve, "valve");
@@ -550,37 +556,45 @@ void high_co2_day_transitions(void)
         valve_nr = atoi(valve);
         reading = co2_sensors[i].co2_reading;
 
-        if (strcmp(valve, "Fan inlet") != 0)
+        if (strcmp(valve, "Fan_inlet") != 0)
         {
             // Hysteresis logic
             if (valve_open[valve_nr])
             {
-                // Valve is currently open → only close if CO₂ drops below low threshold
+                // Valve is open → close only if CO₂ drops below low threshold
                 if (reading < co2lowlevel)
                 {
                     valve_open[valve_nr] = false;
                     state_valve_position[valve_nr] = 4;
-                    ESP_LOGI(TAG, "CO₂ dropped below low threshold (%.1f ppm). Closing valve %s.", reading, co2_sensors[i].valve);
+                    ESP_LOGI(TAG,
+                             "CO₂ %.1f ppm < low threshold %.1f ppm → closing valve %s",
+                             reading, co2lowlevel, co2_sensors[i].valve);
                 }
                 else
                 {
                     state_valve_position[valve_nr] = 20;
-                    ESP_LOGI(TAG, "CO₂ still above low threshold (%.1f ppm). Keeping valve %s open.", reading, co2_sensors[i].valve);
+                    ESP_LOGI(TAG,
+                             "CO₂ %.1f ppm ≥ low threshold %.1f ppm → keeping valve %s open",
+                             reading, co2lowlevel, co2_sensors[i].valve);
                 }
             }
             else
             {
-                // Valve is currently closed → only open if CO₂ rises above high threshold
+                // Valve is closed → open only if CO₂ rises above high threshold
                 if (reading > co2highlevel)
                 {
                     valve_open[valve_nr] = true;
                     state_valve_position[valve_nr] = 20;
-                    ESP_LOGI(TAG, "CO₂ rose above high threshold (%.1f ppm). Opening valve %s.", reading, co2_sensors[i].valve);
+                    ESP_LOGI(TAG,
+                             "CO₂ %.1f ppm > high threshold %.1f ppm → opening valve %s",
+                             reading, co2highlevel, co2_sensors[i].valve);
                 }
                 else
                 {
                     state_valve_position[valve_nr] = 4;
-                    ESP_LOGI(TAG, "CO₂ still below high threshold (%.1f ppm). Keeping valve %s closed.", reading, co2_sensors[i].valve);
+                    ESP_LOGI(TAG,
+                             "CO₂ %.1f ppm ≤ high threshold %.1f ppm → keeping valve %s closed",
+                             reading, co2highlevel, co2_sensors[i].valve);
                 }
             }
         }

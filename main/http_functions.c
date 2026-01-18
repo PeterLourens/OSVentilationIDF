@@ -275,6 +275,7 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     }
 
     // After reconfig of sensors the sensors should re-init
+    preload_sensor_types_from_config();
     esp_err_t err = init_sensors_on_mux_channels();
     if (err != ESP_OK)
         ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
@@ -340,6 +341,7 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     }
 
     // After reconfig of sensors the sensors should re-init
+    preload_sensor_types_from_config();
     esp_err_t err = init_sensors_on_mux_channels();
     if (err != ESP_OK)
         ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));

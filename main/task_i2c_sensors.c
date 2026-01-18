@@ -60,6 +60,7 @@ void task_i2c_sensors_code(void *pvParameters)
     // ------------------------------------------------------------
     // Initialize sensors based on current configuration
     // ------------------------------------------------------------
+    preload_sensor_types_from_config();
     err = init_sensors_on_mux_channels();
     if (err != ESP_OK)
         ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));

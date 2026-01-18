@@ -26,6 +26,8 @@ uint8_t scd41_crc8(const uint8_t *, size_t);
 esp_err_t scd41_data_ready(i2c_master_dev_handle_t, bool *);
 esp_err_t scd41_read(i2c_master_dev_handle_t, uint16_t *, float *, float *);
 
+// sensor_type_t sensor_type_from_str(const char *type_str);
+
 // Functions to init and read sensors on mux channels based on config struct
 bool is_scd4x(const char *);
 bool is_aht20(const char *);
@@ -33,6 +35,7 @@ bool is_dht20(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
 esp_err_t read_sensors_into_queue(void);
 
+void preload_sensor_types_from_config(void);
 void sensor_data_average(void);
 void fifoPush(int, int, int, float, int);
 
