@@ -9,6 +9,7 @@
 #include "http_send_ws_data.h"
 #include "http_post_functions.h"
 #include "valvecontrol.h"
+#include "i2c_sensors.h"
 
 #define LOG_BUF_SIZE 256
 

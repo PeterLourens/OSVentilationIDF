@@ -274,6 +274,13 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
         ESP_LOGW(TAG, "Failed to reload bus0 config after write");
     }
 
+    // After reconfig of sensors the sensors should re-init
+    esp_err_t err = init_sensors_on_mux_channels();
+    if (err != ESP_OK)
+        ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
+    else
+        ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
+
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
     len = sensor_config_html_end - sensor_config_html_start;
@@ -331,6 +338,13 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     {
         ESP_LOGW(TAG, "Failed to reload bus1 config after write");
     }
+
+    // After reconfig of sensors the sensors should re-init
+    esp_err_t err = init_sensors_on_mux_channels();
+    if (err != ESP_OK)
+        ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
+    else
+        ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
 
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");

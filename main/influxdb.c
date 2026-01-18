@@ -169,6 +169,7 @@ void influxdb_build_payload_sensors(char *out, size_t out_size, float sensor[MAX
             }
 
             snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
+            // ESP_LOGE(TAG, "type='%s' valve='%s' location='%s'", meta->type, meta->valve, meta->location);
 
             influxdb_append_line(out, out_size, line);
         }
