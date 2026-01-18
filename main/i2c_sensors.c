@@ -115,6 +115,12 @@ void preload_sensor_types_from_config(void)
     }
 }
 
+void reload_and_init_sensors(void)
+{
+    preload_sensor_types_from_config();
+    init_sensors_on_mux_channels();
+}
+
 // -----------------------------------------------------------------------------
 // Sensor init helpers (per type)
 // -----------------------------------------------------------------------------
@@ -362,9 +368,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     sensor_type_t new_type = sensor_type_from_str(type_str);
     sensor_type_t old_type = slots[ch].type;
 
-    // ---------------------------------------------------------------------
-    // CASE 1: No sensor configured
-    // ---------------------------------------------------------------------
+    // No sensor configured
     if (new_type == SENSOR_NONE)
     {
         if (slots[ch].handle != NULL)
@@ -373,29 +377,25 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
             slots[ch].handle = NULL;
         }
         slots[ch].type = SENSOR_NONE;
-        ESP_LOGI(TAG, "No sensor configured on bus channel %u", ch);
+        ESP_LOGI(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
         return ESP_OK;
     }
 
-    // ---------------------------------------------------------------------
-    // CASE 2: Sensor type unchanged → DO NOT re-init
-    // ---------------------------------------------------------------------
+    // Type unchanged
     if (old_type == new_type)
     {
         if (slots[ch].handle != NULL)
         {
-            // Already initialized → skip
-            ESP_LOGI(TAG, "Bus %u channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
+            ESP_LOGI(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
             return ESP_OK;
         }
 
-        // Type unchanged but handle missing → initialize once, but DO NOT log "type changed"
-        ESP_LOGI(TAG, "Bus %u channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
+        ESP_LOGI(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
     }
     else
     {
-        // Type changed → re-init
-        ESP_LOGI(TAG, "Bus %u channel %u: type changed (%d → %d), re-initializing", bus_index, ch, old_type, new_type);
+        ESP_LOGI(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
+                 bus_index, ch, old_type, new_type);
 
         if (slots[ch].handle != NULL)
         {
@@ -404,29 +404,16 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
         }
     }
 
-    // ---------------------------------------------------------------------
-    // CASE 3: Type changed → re-init required
-    // ---------------------------------------------------------------------
-    ESP_LOGI(TAG, "Bus %u channel %u: type changed (%d → %d), re-initializing", (bus_handle == i2c_bus0_handle ? 0 : 1), ch, old_type, new_type);
+    // From here on: single init path
 
-    // Remove old device if present
-    if (slots[ch].handle != NULL)
-    {
-        i2c_master_bus_rm_device(slots[ch].handle);
-        slots[ch].handle = NULL;
-    }
-
-    // Select TCA channel
     esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to set channel %u: %s",
-                 ch, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to set channel %u: %s", ch, esp_err_to_name(err));
         return err;
     }
     vTaskDelay(pdMS_TO_TICKS(3));
 
-    // Init new sensor
     i2c_master_dev_handle_t h = NULL;
 
     switch (new_type)
@@ -446,7 +433,8 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize %s on channel %u: %s", type_str, ch, esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to initialize %s on channel %u: %s",
+                 type_str, ch, esp_err_to_name(err));
         return err;
     }
 
@@ -481,7 +469,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
         // ESP_LOGI(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
-        err = configure_bus_channel(bus0_sensors, 0, i2c_bus0_handle, tca9548_bus1_handle, ch, type_str);
+        err = configure_bus_channel(bus1_sensors, 0, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
         if (err != ESP_OK)
         {
             ESP_LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));

@@ -182,6 +182,17 @@ void app_main(void)
         syslog_send_line("Boot complete, system running");
     }
 
+    // ------------------------------------------------------------
+    // Initialize sensors based on current configuration
+    // ------------------------------------------------------------
+    // preload_sensor_types_from_config();
+    // err = init_sensors_on_mux_channels();
+    reload_and_init_sensors();
+    // if (err != ESP_OK)
+    //     ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
+    // else
+    //     ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
+
     esp_log_set_vprintf(uart_log_output);
     ESP_LOGI(TAG, "System startup, logs go to UART");
 

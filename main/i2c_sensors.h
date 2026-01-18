@@ -34,6 +34,7 @@ bool is_aht20(const char *);
 bool is_dht20(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
 esp_err_t read_sensors_into_queue(void);
+void reload_and_init_sensors(void);
 
 void preload_sensor_types_from_config(void);
 void sensor_data_average(void);
