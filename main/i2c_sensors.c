@@ -9,140 +9,194 @@ static float avg[SENSOR_AVG_SIZE] = {0};
 static int fifoSize[SENSOR_AVG_SIZE] = {0};
 static int fifoHead[SENSOR_AVG_SIZE] = {0};
 
+// -----------------------------------------------------------------------------
+// Sensor slot model (per bus, per channel)
+// -----------------------------------------------------------------------------
+typedef enum
+{
+    SENSOR_NONE = 0,
+    SENSOR_AHT20,
+    SENSOR_DHT20,
+    SENSOR_SCD41,
+} sensor_type_t;
+
+typedef struct
+{
+    sensor_type_t type;
+    i2c_master_dev_handle_t handle;
+} sensor_slot_t;
+
+static sensor_slot_t bus0_sensors[CHANNELS_PER_BUS] = {0};
+static sensor_slot_t bus1_sensors[CHANNELS_PER_BUS] = {0};
+
+// -----------------------------------------------------------------------------
+// TCA9548A helpers
+// -----------------------------------------------------------------------------
 esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
-    esp_err_t err = ESP_OK;
+    if (!bus_handle || !dev_handle)
+    {
+        return ESP_ERR_INVALID_ARG;
+    }
 
-    i2c_device_config_t tca9548_cfg = {
+    const i2c_device_config_t tca9548_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = TCA9548_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
 
-    err = i2c_master_bus_add_device(bus_handle, &tca9548_cfg, dev_handle);
+    esp_err_t err = i2c_master_bus_add_device(bus_handle, &tca9548_cfg, dev_handle);
     if (err != ESP_OK)
     {
         ESP_LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
-        return err;
     }
     return err;
 }
 
 esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t channel)
 {
-    esp_err_t err = ESP_OK;
-
-    if (!dev_handle || channel > 7 || dev_handle == NULL)
-    {
+    if (!dev_handle || channel > 7)
         return ESP_ERR_INVALID_ARG;
-    }
 
-    err = i2c_master_transmit(dev_handle, &channel, 1, -1);
+    uint8_t mask = (1u << channel);
+
+    esp_err_t err = i2c_master_transmit(dev_handle, &mask, 1, -1);
     if (err != ESP_OK)
     {
-        ESP_LOGE("TCA9548A", "Failed to select channel: %s", esp_err_to_name(err));
+        ESP_LOGE("TCA9548A", "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
     }
     return err;
 }
 
+// -----------------------------------------------------------------------------
+// Sensor type helpers
+// -----------------------------------------------------------------------------
+bool is_scd4x(const char *type)
+{
+    return (strcmp(type, "SCD41") == 0 || strcmp(type, "SCD40") == 0);
+}
+
+bool is_aht20(const char *type)
+{
+    return (strcmp(type, "AHT20") == 0);
+}
+
+bool is_dht20(const char *type)
+{
+    return (strcmp(type, "DHT20") == 0);
+}
+
+static sensor_type_t sensor_type_from_str(const char *type_str)
+{
+    if (!type_str)
+        return SENSOR_NONE;
+
+    if (is_aht20(type_str))
+        return SENSOR_AHT20;
+    if (is_dht20(type_str))
+        return SENSOR_DHT20;
+    if (is_scd4x(type_str))
+        return SENSOR_SCD41;
+    if (strcmp(type_str, "None") == 0)
+        return SENSOR_NONE;
+
+    return SENSOR_NONE;
+}
+
+// -----------------------------------------------------------------------------
+// Sensor init helpers (per type)
+// -----------------------------------------------------------------------------
 esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
-    esp_err_t err = ESP_OK;
-    i2c_device_config_t aht20_cfg = {
+    if (!bus_handle || !dev_handle)
+        return ESP_ERR_INVALID_ARG;
+
+    const i2c_device_config_t aht20_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = AHT20_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
-    err = i2c_master_bus_add_device(bus_handle, &aht20_cfg, dev_handle);
-    return err;
+    return i2c_master_bus_add_device(bus_handle, &aht20_cfg, dev_handle);
 }
 
 esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
 {
-    esp_err_t err = ESP_OK;
+    if (!dev_handle || !temperature || !humidity)
+        return ESP_ERR_INVALID_ARG;
 
-    if (aht20_bus0_handle == NULL)
-        return ESP_ERR_INVALID_STATE;
-
-    uint8_t cmd[] = {0xAC, 0x33, 0x00};
-    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1);
-
-    vTaskDelay(pdMS_TO_TICKS(120)); // Wait for measurement
-
-    uint8_t data[7];
-    err = i2c_master_receive(aht20_bus0_handle, data, sizeof(data), -1);
-
-    uint32_t raw_humidity = ((uint32_t)(data[1] << 12 | data[2] << 4 | (data[3] >> 4)));
-    uint32_t raw_temperature = ((uint32_t)((data[3] & 0x0F) << 16 | data[4] << 8 | data[5]));
-
-    *humidity = ((float)raw_humidity * 100) / 1048576.0;
-    *temperature = ((float)raw_temperature * 200 / 1048576.0) - 50;
-
-    return err;
-}
-
-esp_err_t i2c_dht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
-{
-    esp_err_t err = ESP_OK;
-    i2c_device_config_t dht20_cfg = {
-        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = DHT20_I2C_ADDR,
-        .scl_speed_hz = 100000,
-    };
-    err = i2c_master_bus_add_device(bus_handle, &dht20_cfg, dev_handle);
-
-    return err;
-}
-
-esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
-{
     esp_err_t err;
     uint8_t cmd[] = {0xAC, 0x33, 0x00};
-
-    // Wake up the sensor (dummy read)
-    uint8_t dummy[1];
-    i2c_master_receive(dev_handle, dummy, 1, -1);
-    vTaskDelay(pdMS_TO_TICKS(50));
-
-    // Check status register
-    uint8_t status[1];
-    err = i2c_master_receive(dev_handle, status, 1, -1);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to read status: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    // Bit 3 and 4 must be set (calibrated + ready)
-    if ((status[0] & 0x18) != 0x18)
-    {
-        ESP_LOGW(TAG, "DHT20 not calibrated yet (status=0x%02X)", status[0]);
-        // You can retry or send init command here if needed
-    }
-    // else
-    //{
-    // ESP_LOGI(TAG, "DHT20 ready (status=0x%02X)", status[0]);
-    //}
 
     // Trigger measurement
     err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1);
     if (err != ESP_OK)
         return err;
 
-    vTaskDelay(pdMS_TO_TICKS(80)); // wait at least 80ms
+    vTaskDelay(pdMS_TO_TICKS(120)); // Wait for measurement
 
     uint8_t data[7];
     err = i2c_master_receive(dev_handle, data, sizeof(data), -1);
     if (err != ESP_OK)
         return err;
 
-    // Check busy bit
-    if (data[0] & 0x80)
-    {
-        return ESP_ERR_INVALID_STATE; // still busy
-    }
+    uint32_t raw_humidity =
+        ((uint32_t)(data[1] << 12 | data[2] << 4 | (data[3] >> 4)));
+    uint32_t raw_temperature =
+        ((uint32_t)((data[3] & 0x0F) << 16 | data[4] << 8 | data[5]));
 
-    // Parse values
+    *humidity = ((float)raw_humidity * 100.0f) / 1048576.0f;
+    *temperature = ((float)raw_temperature * 200.0f / 1048576.0f) - 50.0f;
+
+    return ESP_OK;
+}
+
+esp_err_t i2c_dht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
+{
+    if (!bus_handle || !dev_handle)
+        return ESP_ERR_INVALID_ARG;
+
+    const i2c_device_config_t dht20_cfg = {
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = DHT20_I2C_ADDR,
+        .scl_speed_hz = 100000,
+    };
+    return i2c_master_bus_add_device(bus_handle, &dht20_cfg, dev_handle);
+}
+
+esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
+{
+    if (!dev_handle || !temperature || !humidity)
+        return ESP_ERR_INVALID_ARG;
+
+    esp_err_t err;
+    uint8_t cmd[] = {0xAC, 0x33, 0x00};
+
+    // Wake up sensor (dummy read)
+    uint8_t dummy[1];
+    (void)i2c_master_receive(dev_handle, dummy, 1, -1);
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    // Read status
+    uint8_t status[1];
+    err = i2c_master_receive(dev_handle, status, 1, -1);
+    if (err != ESP_OK)
+        return err;
+
+    // Trigger measurement
+    err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), -1);
+    if (err != ESP_OK)
+        return err;
+
+    vTaskDelay(pdMS_TO_TICKS(80));
+
+    uint8_t data[7];
+    err = i2c_master_receive(dev_handle, data, sizeof(data), -1);
+    if (err != ESP_OK)
+        return err;
+
+    if (data[0] & 0x80)
+        return ESP_ERR_INVALID_STATE; // still busy
+
     uint32_t raw_humidity = ((uint32_t)data[1] << 12) | ((uint32_t)data[2] << 4) | (data[3] >> 4);
     uint32_t raw_temperature = (((uint32_t)data[3] & 0x0F) << 16) | ((uint32_t)data[4] << 8) | data[5];
 
@@ -152,9 +206,13 @@ esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
     return ESP_OK;
 }
 
-esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
+esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle,
+                         i2c_master_dev_handle_t *dev_handle)
 {
-    i2c_device_config_t scd41_cfg = {
+    if (!bus_handle || !dev_handle)
+        return ESP_ERR_INVALID_ARG;
+
+    const i2c_device_config_t scd41_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = SCD41_I2C_ADDR,
         .scl_speed_hz = 100000,
@@ -162,51 +220,38 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
 
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &scd41_cfg, dev_handle);
     if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to add device: %s", esp_err_to_name(err));
         return err;
-    }
 
-    // Perform soft reset
+    // Optional but recommended: stop any previous measurement
+    uint8_t stop_cmd[2] = {0x3F, 0x86};
+    i2c_master_transmit(*dev_handle, stop_cmd, 2, pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    // Reset
     uint8_t reset_cmd[2] = {0x36, 0x32};
     err = i2c_master_transmit(*dev_handle, reset_cmd, 2, pdMS_TO_TICKS(100));
     if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to send reset command: %s", esp_err_to_name(err));
         return err;
-    }
 
-    // Wait for reset to complete (minimum 2ms)
-    vTaskDelay(pdMS_TO_TICKS(20));
-
-    // Stop any ongoing measurement
-    uint8_t stop_cmd[2] = {0x3F, 0x86};
-    err = i2c_master_transmit(*dev_handle, stop_cmd, 2, pdMS_TO_TICKS(100));
-    if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to stop measurement: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    // Wait for stop to complete
-    vTaskDelay(pdMS_TO_TICKS(500));
+    // ⭐ REQUIRED: wait 1 second AFTER reset
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     // Start periodic measurement
     uint8_t start_cmd[2] = {0x21, 0xB1};
     err = i2c_master_transmit(*dev_handle, start_cmd, 2, pdMS_TO_TICKS(100));
     if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to start measurement: %s", esp_err_to_name(err));
         return err;
-    }
 
-    // Wait for first measurement to be ready (minimum 5 seconds)
+    // Warm-up
     vTaskDelay(pdMS_TO_TICKS(5000));
 
     ESP_LOGI("SCD41", "SCD41 initialized successfully");
     return ESP_OK;
 }
 
+// -----------------------------------------------------------------------------
+// SCD41 helpers
+// -----------------------------------------------------------------------------
 uint8_t scd41_crc8(const uint8_t *data, size_t len)
 {
     uint8_t crc = 0xFF;
@@ -229,8 +274,8 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
     if (!dev_handle || !data_ready)
         return ESP_ERR_INVALID_ARG;
 
-    uint8_t cmd[2] = {0xE4, 0xB8}; // Get data ready status
-    uint8_t response[3];           // MSB, LSB, CRC
+    uint8_t cmd[2] = {0xE4, 0xB8};
+    uint8_t response[3];
 
     esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
@@ -246,7 +291,6 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
         return err;
     }
 
-    // CRC check on first two data bytes
     uint8_t crc = scd41_crc8(response, 2);
     if (crc != response[2])
     {
@@ -254,13 +298,8 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
         return ESP_ERR_INVALID_CRC;
     }
 
-    // Combine into 16-bit status word (MSB first)
     uint16_t status = ((uint16_t)response[0] << 8) | response[1];
-
-    // Bit 15 (MSB) indicates data ready: 1 = ready
     *data_ready = (status & 0x8000) != 0;
-
-    // ESP_LOGD("SCD41", "Status raw: MSB=0x%02X LSB=0x%02X (0x%04X), ready=%d", response[0], response[1], status, *data_ready);
 
     return ESP_OK;
 }
@@ -268,76 +307,116 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
 esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *temp, float *rh)
 {
     if (!dev_handle || !co2 || !temp || !rh)
-    {
         return ESP_ERR_INVALID_ARG;
-    }
 
-    uint8_t cmd[2] = {0xEC, 0x05}; // read measurement command
-    uint8_t response[9];           // 3 words (2 bytes + CRC each)
+    uint8_t cmd[2] = {0xEC, 0x05};
+    uint8_t response[9];
 
-    // Send read measurement command
     esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to send read command: %s", esp_err_to_name(err));
         return err;
-    }
 
-    // Add delay between send and receive (minimum 1ms according to datasheet)
     vTaskDelay(pdMS_TO_TICKS(5));
 
-    // Read 9 bytes with timeout
     err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
-    {
-        ESP_LOGE("SCD41", "Failed to read measurement data: %s", esp_err_to_name(err));
         return err;
-    }
 
-    // Parse CO₂ with CRC check
+    // CO₂
     if (scd41_crc8(response, 2) != response[2])
-    {
-        ESP_LOGE("SCD41", "CO2 CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    }
     *co2 = ((uint16_t)response[0] << 8) | response[1];
 
-    // Parse Temperature with CRC check
+    // Temperature
     if (scd41_crc8(response + 3, 2) != response[5])
-    {
-        ESP_LOGE("SCD41", "Temperature CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    }
     uint16_t raw_temp = ((uint16_t)response[3] << 8) | response[4];
     *temp = -45.0f + 175.0f * ((float)raw_temp / 65535.0f);
 
-    // Parse RH with CRC check
+    // Humidity
     if (scd41_crc8(response + 6, 2) != response[8])
-    {
-        ESP_LOGE("SCD41", "Humidity CRC check failed");
         return ESP_ERR_INVALID_CRC;
-    }
     uint16_t raw_rh = ((uint16_t)response[6] << 8) | response[7];
     *rh = 100.0f * ((float)raw_rh / 65535.0f);
 
     return ESP_OK;
 }
 
-bool is_scd4x(const char *type)
+// -----------------------------------------------------------------------------
+// Per-bus channel configuration
+// -----------------------------------------------------------------------------
+static esp_err_t configure_bus_channel(sensor_slot_t *slots, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
 {
-    return (strcmp(type, "SCD41") == 0 || strcmp(type, "SCD40") == 0);
+    if (!slots || !bus_handle || !tca_handle || ch >= CHANNELS_PER_BUS)
+    {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    sensor_type_t new_type = sensor_type_from_str(type_str);
+
+    if (new_type == SENSOR_NONE)
+    {
+        ESP_LOGI(TAG, "No sensor configured on bus channel %u", ch);
+
+        if (slots[ch].handle != NULL)
+        {
+            i2c_master_bus_rm_device(slots[ch].handle);
+            slots[ch].handle = NULL;
+            slots[ch].type = SENSOR_NONE;
+        }
+        return ESP_OK;
+    }
+
+    // uint8_t mask = (uint8_t)(1u << ch);
+    // esp_err_t err = i2c_tca9548_set_channel(tca_handle, mask);
+    esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to set channel %u: %s", ch, esp_err_to_name(err));
+        return err;
+    }
+    vTaskDelay(pdMS_TO_TICKS(3));
+
+    if (slots[ch].handle != NULL)
+    {
+        i2c_master_bus_rm_device(slots[ch].handle);
+        slots[ch].handle = NULL;
+        slots[ch].type = SENSOR_NONE;
+    }
+
+    i2c_master_dev_handle_t h = NULL;
+
+    switch (new_type)
+    {
+    case SENSOR_AHT20:
+        err = i2c_aht20_init(bus_handle, &h);
+        break;
+    case SENSOR_DHT20:
+        err = i2c_dht20_init(bus_handle, &h);
+        break;
+    case SENSOR_SCD41:
+        err = i2c_init_scd41(bus_handle, &h);
+        break;
+    default:
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to initialize %s on channel %u: %s", type_str, ch, esp_err_to_name(err));
+        return err;
+    }
+
+    slots[ch].handle = h;
+    slots[ch].type = new_type;
+
+    ESP_LOGI(TAG, "%s initialized on channel %u", type_str, ch);
+    return ESP_OK;
 }
 
-bool is_aht20(const char *type)
-{
-    return (strcmp(type, "AHT20") == 0);
-}
-
-bool is_dht20(const char *type)
-{
-    return (strcmp(type, "DHT20") == 0);
-}
-
+// -----------------------------------------------------------------------------
+// Public: init_sensors_on_mux_channels
+// -----------------------------------------------------------------------------
 esp_err_t init_sensors_on_mux_channels(void)
 {
     esp_err_t err;
@@ -345,190 +424,160 @@ esp_err_t init_sensors_on_mux_channels(void)
     // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
-        // ESP_LOGI(TAG, "Checking sensor config on bus 0 channel %d: %s", ch, bus0_sensor_settings[ch].type);
-        if (strcmp(bus0_sensor_settings[ch].type, "None") == 0)
-        {
-            ESP_LOGI(TAG, "No sensor configured on bus 0 channel %d", ch);
-            continue;
-        }
-
-        uint8_t mask = (0x01 << ch);
-        err = i2c_tca9548_set_channel(tca9548_bus0_handle, mask);
+        const char *type_str = bus0_sensor_settings[ch].type;
+        ESP_LOGI(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
+        err = configure_bus_channel(bus0_sensors, i2c_bus0_handle, tca9548_bus0_handle, ch, type_str);
         if (err != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to set channel %d on bus 0: %s", ch, esp_err_to_name(err));
-            continue;
-        }
-        else
-        {
-            ESP_LOGI(TAG, "Channel %d on bus 0 set successfully", ch);
-        }
-        // if (err != ESP_OK)
-        // continue;
-
-        if (is_aht20(bus0_sensor_settings[ch].type))
-        {
-
-            err = i2c_aht20_init(i2c_bus0_handle, &aht20_bus0_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize AHT20 on bus 0 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "AHT20 initialized on bus 0 channel %d", ch);
-            }
-        }
-        else if (is_dht20(bus0_sensor_settings[ch].type))
-        {
-            err = i2c_dht20_init(i2c_bus0_handle, &dht20_bus0_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize DHT20 on bus 0 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "DHT20 initialized on bus 0 channel %d", ch);
-            }
-        }
-        else if (is_scd4x(bus0_sensor_settings[ch].type))
-        {
-            err = i2c_init_scd41(i2c_bus0_handle, &scd41_bus0_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize SCD4x on bus 0 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "SCD4x initialized on bus 0 channel %d", ch);
-            }
+            ESP_LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
         }
     }
 
     // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
-        // ESP_LOGI(TAG, "Checking sensor config on bus 1 channel %d: %s", ch, bus1_sensor_settings[ch].type);
-        if (strcmp(bus1_sensor_settings[ch].type, "None") == 0)
-        {
-            ESP_LOGI(TAG, "No sensor configured on bus 1 channel %d", ch);
-            continue;
-        }
-
-        uint8_t mask = (0x01 << ch);
-        err = i2c_tca9548_set_channel(tca9548_bus1_handle, mask);
+        const char *type_str = bus1_sensor_settings[ch].type;
+        ESP_LOGI(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
+        err = configure_bus_channel(bus1_sensors, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
         if (err != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to set channel %d on bus 1: %s", ch, esp_err_to_name(err));
-            continue;
-        }
-        // else
-        // {
-        //     ESP_LOGI(TAG, "Channel %d on bus 1 set successfully", ch);
-        // }
-        // if (err != ESP_OK)
-        // continue;
-
-        if (is_aht20(bus1_sensor_settings[ch].type))
-        {
-            err = i2c_aht20_init(i2c_bus1_handle, &aht20_bus1_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize AHT20 on bus 1 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "AHT20 initialized on bus 1 channel %d", ch);
-            }
-        }
-        else if (is_dht20(bus1_sensor_settings[ch].type))
-        {
-            err = i2c_dht20_init(i2c_bus1_handle, &dht20_bus1_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize DHT20 on bus 1 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "DHT20 initialized on bus 1 channel %d", ch);
-            }
-        }
-        else if (is_scd4x(bus1_sensor_settings[ch].type))
-        {
-            err = i2c_init_scd41(i2c_bus1_handle, &scd41_bus1_handle);
-            if (err != ESP_OK)
-            {
-                ESP_LOGE(TAG, "Failed to initialize SCD4x on bus 1 channel %d: %s", ch, esp_err_to_name(err));
-            }
-            else
-            {
-                ESP_LOGI(TAG, "SCD4x initialized on bus 1 channel %d", ch);
-            }
+            ESP_LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
         }
     }
 
     return ESP_OK;
 }
 
+// -----------------------------------------------------------------------------
+// Reading sensors into queue (using per-channel slots)
+// -----------------------------------------------------------------------------
 esp_err_t read_sensors_into_queue(void)
 {
     float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
     for (uint8_t bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
+        sensor_slot_t *slots =
+            (bus == 0) ? bus0_sensors : bus1_sensors;
+
+        i2c_master_dev_handle_t tca =
+            (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle;
+
         for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
         {
             snapshot[bus][ch][4] = 0.0f; // valid = false
 
-            const char *type =
-                (bus == 0) ? bus0_sensor_settings[ch].type
-                           : bus1_sensor_settings[ch].type;
+            sensor_slot_t *slot = &slots[ch];
 
-            if (strcmp(type, "None") == 0)
+            // ------------------------------------------------------------
+            // Diagnostic: show slot state
+            // ------------------------------------------------------------
+            ESP_LOGI(TAG,
+                     "BUS %u CH %u → type=%d handle=%p",
+                     bus, ch, slot->type, slot->handle);
+
+            if (slot->type == SENSOR_NONE || slot->handle == NULL)
+            {
+                ESP_LOGW(TAG,
+                         "BUS %u CH %u has no valid sensor or handle",
+                         bus, ch);
                 continue;
+            }
 
-            uint8_t mask = (1 << ch);
-            esp_err_t err = i2c_tca9548_set_channel(
-                (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle,
-                mask);
+            // ------------------------------------------------------------
+            // Select TCA channel (corrected version)
+            // ------------------------------------------------------------
+            ESP_LOGI(TAG,
+                     "BUS %u CH %u → selecting TCA channel %u",
+                     bus, ch, ch);
+
+            esp_err_t err = i2c_tca9548_set_channel(tca, ch);
+
+            ESP_LOGI(TAG,
+                     "BUS %u CH %u → channel select result: %s",
+                     bus, ch, esp_err_to_name(err));
+
             if (err != ESP_OK)
+            {
+                ESP_LOGE(TAG,
+                         "BUS %u CH %u → FAILED to select channel",
+                         bus, ch);
                 continue;
+            }
 
             snapshot[bus][ch][3] = (float)esp_timer_get_time();
 
             float temp = 0, rh = 0;
             uint16_t co2 = 0;
 
-            if (is_aht20(type))
+            // ------------------------------------------------------------
+            // Read based on sensor type
+            // ------------------------------------------------------------
+            switch (slot->type)
             {
-                if (aht20_read((bus == 0) ? aht20_bus0_handle : aht20_bus1_handle,
-                               &temp, &rh) == ESP_OK)
+            case SENSOR_AHT20:
+                ESP_LOGI(TAG,
+                         "BUS %u CH %u → reading AHT20 (handle=%p)",
+                         bus, ch, slot->handle);
+
+                if (aht20_read(slot->handle, &temp, &rh) == ESP_OK)
                 {
                     snapshot[bus][ch][0] = temp;
                     snapshot[bus][ch][1] = rh;
                     snapshot[bus][ch][4] = 1.0f;
                 }
-            }
-            else if (is_dht20(type))
-            {
-                if (dht20_read((bus == 0) ? dht20_bus0_handle : dht20_bus1_handle,
-                               &temp, &rh) == ESP_OK)
+                else
+                {
+                    ESP_LOGE(TAG,
+                             "BUS %u CH %u → AHT20 read FAILED",
+                             bus, ch);
+                }
+                break;
+
+            case SENSOR_DHT20:
+                ESP_LOGI(TAG,
+                         "BUS %u CH %u → reading DHT20 (handle=%p)",
+                         bus, ch, slot->handle);
+
+                if (dht20_read(slot->handle, &temp, &rh) == ESP_OK)
                 {
                     snapshot[bus][ch][0] = temp;
                     snapshot[bus][ch][1] = rh;
                     snapshot[bus][ch][4] = 1.0f;
                 }
-            }
-            else if (is_scd4x(type))
-            {
-                if (scd41_read((bus == 0) ? scd41_bus0_handle : scd41_bus1_handle,
-                               &co2, &temp, &rh) == ESP_OK)
+                else
+                {
+                    ESP_LOGE(TAG,
+                             "BUS %u CH %u → DHT20 read FAILED",
+                             bus, ch);
+                }
+                break;
+
+            case SENSOR_SCD41:
+                ESP_LOGI(TAG,
+                         "BUS %u CH %u → reading SCD41 (handle=%p)",
+                         bus, ch, slot->handle);
+
+                if (scd41_read(slot->handle, &co2, &temp, &rh) == ESP_OK)
                 {
                     snapshot[bus][ch][0] = temp;
                     snapshot[bus][ch][1] = rh;
                     snapshot[bus][ch][2] = (float)co2;
                     snapshot[bus][ch][4] = 1.0f;
                 }
+                else
+                {
+                    ESP_LOGE(TAG,
+                             "BUS %u CH %u → SCD41 read FAILED",
+                             bus, ch);
+                }
+                break;
+
+            default:
+                ESP_LOGE(TAG,
+                         "BUS %u CH %u → UNKNOWN SENSOR TYPE %d",
+                         bus, ch, slot->type);
+                break;
             }
         }
     }
@@ -536,6 +585,11 @@ esp_err_t read_sensors_into_queue(void)
     xQueueOverwrite(sensor_queue, snapshot);
     return ESP_OK;
 }
+
+// -----------------------------------------------------------------------------
+// Averaging logic (unchanged except for using same snapshot layout)
+// -----------------------------------------------------------------------------
+void fifoPush(int bus, int slot, int measurement, float value, int pos);
 
 void sensor_data_average(void)
 {
@@ -551,42 +605,17 @@ void sensor_data_average(void)
     {
         for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
-            for (int m = 0; m < 3; m++) // only temp/rh/co2
+            for (int m = 0; m < 3; m++)
             {
                 fifoPush(bus, slot, m, sensor_data[bus][slot][m], pos);
                 sensor_avg_data[bus][slot][m] = avg[pos];
                 pos++;
             }
 
-            // copy timestamp + valid flag unchanged
             sensor_avg_data[bus][slot][3] = sensor_data[bus][slot][3];
             sensor_avg_data[bus][slot][4] = sensor_data[bus][slot][4];
         }
     }
-
-    // For debug sensor data
-    /*for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-        {
-            // if (sensor_data[bus][ch][IDX_VALID])
-            //{
-            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
-            //}
-        }
-    }*/
-
-    // For debug sensor avg
-    /*for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
-        {
-            // if (sensor_data[bus][ch][IDX_VALID])
-            //{
-            ESP_LOGI(TAG, "Bus %d, CH%d: Temp=%.2f °C, RH=%.2f %%, CO₂=%.0f ppm", bus, ch, sensor_avg_data[bus][ch][IDX_TEMP], sensor_avg_data[bus][ch][IDX_HUMIDITY], sensor_avg_data[bus][ch][IDX_CO2]);
-            //}
-        }
-    }*/
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
 }
@@ -595,8 +624,7 @@ void fifoPush(int bus, int slot, int measurement, float value, int pos)
 {
     if (fifoSize[pos] < MAX_FIFO_SIZE)
     {
-        sensor_fifo[bus][slot][measurement]
-                   [(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
+        sensor_fifo[bus][slot][measurement][(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
 
         sum[pos] += value;
         fifoSize[pos]++;

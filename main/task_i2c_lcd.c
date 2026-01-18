@@ -58,7 +58,7 @@ void task_i2c_lcd_code(void *pvParameters)
         if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
         {
             ESP_LOGE(TAG, "Failed to read avg sensor queue");
-            return;
+            continue;
         }
 
         for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
