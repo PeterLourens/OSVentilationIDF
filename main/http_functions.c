@@ -275,12 +275,7 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     }
 
     // After reconfig of sensors the sensors should re-init
-    // esp_err_t err = init_sensors_on_mux_channels();
     reload_and_init_sensors();
-    // if (err != ESP_OK)
-    //     ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
-    // else
-    //     ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
 
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
@@ -341,17 +336,28 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     }
 
     // After reconfig of sensors the sensors should re-init
-    // esp_err_t err = init_sensors_on_mux_channels();
     reload_and_init_sensors();
-    // if (err != ESP_OK)
-    //     ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
-    // else
-    //     ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
 
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
     len = sensor_config_html_end - sensor_config_html_start;
     return httpd_resp_send(req, sensor_config_html_start, len);
+}
+
+/* POST handler: restart ESP */
+esp_err_t restart_esp_post_handler(httpd_req_t *req)
+{
+    // Send response BEFORE rebooting
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_sendstr(req, "{\"status\":\"rebooting\"}");
+
+    // Allow the response to actually leave the ESP
+    vTaskDelay(pdMS_TO_TICKS(200));
+
+    // Now reboot
+    esp_restart();
+
+    return ESP_OK; // never reached
 }
 
 /* POST handler: delete bus0 config file */
@@ -1150,6 +1156,15 @@ httpd_handle_t start_webserver(void)
         .handler = reset_valves_handler,
     };
     httpd_register_uri_handler(http_server, &reset_valves_uri);
+
+    // POST URI to restart the ESP
+    httpd_uri_t restart_esp_uri = {
+        .uri = "/restart_esp",
+        .method = HTTP_POST,
+        .handler = restart_esp_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &restart_esp_uri);
 
     // POST URI to stop the statemachine from the Valve Control page
     httpd_uri_t stop_statemachine_uri = {

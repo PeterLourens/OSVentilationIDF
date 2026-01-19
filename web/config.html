@@ -4,8 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="The front-end for configuration of the open source demand controlled ventilation system">
+    <meta name="description" content="The front-end for configuration of the open source demand controlled ventilation system">
     <title>Open Source demand driven ventilation system &ndash; Configuration and Monitoring</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="pure_min.css">
@@ -39,7 +38,7 @@
                 <h2>Settings</h2>
             </div>
             <div class="content">
-                <form method="POST" action="/restart_esp32">
+                <form method="POST" action="/restart_esp">
                     <input type="submit" value="Restart ESP32" class="pure-button-primary button-xsmall pure-button">
                 </form>
 
@@ -65,33 +64,27 @@
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="ip_address">IP Address:</label>
-                                <input type="text" placeholder="Leave blank for DHCP" name="ip_address" id="ip_address"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="Leave blank for DHCP" name="ip_address" id="ip_address" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="subnet_mask">Subnet mask:</label>
-                                <input type="text" placeholder="Leave blank for DHCP" name="subnet_mask"
-                                    id="subnet_mask" class="pure-input-3-4">
+                                <input type="text" placeholder="Leave blank for DHCP" name="subnet_mask" id="subnet_mask" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="gateway">Gateway:</label>
-                                <input type="text" placeholder="Leave blank for DHCP" name="gateway" id="gateway"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="Leave blank for DHCP" name="gateway" id="gateway" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="primary_dns">Primary DNS server:</label>
-                                <input type="text" placeholder="Leave blank for DHCP" name="primary_dns"
-                                    id="primary_dns" class="pure-input-3-4">
+                                <input type="text" placeholder="Leave blank for DHCP" name="primary_dns" id="primary_dns" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="secondary_dns">Secundary DNS server (optional):</label>
-                                <input type="text" placeholder="Leave blank for DHCP" name="secondary_dns"
-                                    id="secondary_dns" class="pure-input-3-4">
+                                <input type="text" placeholder="Leave blank for DHCP" name="secondary_dns" id="secondary_dns" class="pure-input-3-4">
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save network configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save network configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -110,23 +103,19 @@
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="mqtt_server">MQTT Server:</label>
-                                <input type="text" placeholder="MQTT Server ipdress or hostname" name="mqtt_server"
-                                    id="mqtt_server" class="pure-input-3-4">
+                                <input type="text" placeholder="MQTT Server ipdress or hostname" name="mqtt_server" id="mqtt_server" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="mqtt_port">MQTT Server port:</label>
-                                <input type="text" placeholder="default is 1883" name="mqtt_port" id="mqtt_port"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="default is 1883" name="mqtt_port" id="mqtt_port" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="mqtt_base_topic">MQTT Base topic:</label>
-                                <input type="text" placeholder="Fill in base topic" name="mqtt_base_topic"
-                                    id="mqtt_base_topic" class="pure-input-3-4">
+                                <input type="text" placeholder="Fill in base topic" name="mqtt_base_topic" id="mqtt_base_topic" class="pure-input-3-4">
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save MQTT configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save MQTT configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -138,13 +127,11 @@
                         <div class="pure-g">
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="bus0_multiplexer_address">Bus0 I2C Multiplexer address (in dec):</label>
-                                <input type="text" placeholder="default 0x70" name="bus0_multiplexer_address"
-                                    id="bus0_multiplexer_address" class="pure-input-3-4">
+                                <input type="text" placeholder="default 0x70" name="bus0_multiplexer_address" id="bus0_multiplexer_address" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="bus1_multiplexer_address">Bus1 I2C Multiplexer address (in dec):</label>
-                                <input type="text" placeholder="default 0x70" name="bus1_multiplexer_address"
-                                    id="bus1_multiplexer_address" class="pure-input-3-4">
+                                <input type="text" placeholder="default 0x70" name="bus1_multiplexer_address" id="bus1_multiplexer_address" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="enable_lcd">Enable LCD display:</label>
@@ -155,8 +142,7 @@
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save I2C configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save I2C configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -175,38 +161,32 @@
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_server">Fan control MQTT Server:</label>
-                                <input type="text" placeholder="Fan control MQTT server ipdress or hostname"
-                                    name="fan_control_mqtt_server" id="fan_control_mqtt_server" class="pure-input-3-4">
+                                <input type="text" placeholder="Fan control MQTT server ipdress or hostname" name="fan_control_mqtt_server" id="fan_control_mqtt_server"
+                                    class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_port">Fan control MQTT Server port:</label>
-                                <input type="text" placeholder="default is 1883" name="fan_control_mqtt_port"
-                                    id="fan_control_mqtt_port" class="pure-input-3-4">
+                                <input type="text" placeholder="default is 1883" name="fan_control_mqtt_port" id="fan_control_mqtt_port" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_topic">Fan control MQTT publish topic:</label>
-                                <input type="text" placeholder="MQTT topic" name="fan_control_mqtt_topic"
-                                    id="fan_control_mqtt_topic" class="pure-input-3-4">
+                                <input type="text" placeholder="MQTT topic" name="fan_control_mqtt_topic" id="fan_control_mqtt_topic" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_url_hs">Fan control URL high speed:</label>
-                                <input type="text" placeholder="URL" name="fan_control_url_hs" id="fan_control_url_hs"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="URL" name="fan_control_url_hs" id="fan_control_url_hs" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_url_ms">Fan control URL medium speed:</label>
-                                <input type="text" placeholder="URL" name="fan_control_url_ms" id="fan_control_url_ms"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="URL" name="fan_control_url_ms" id="fan_control_url_ms" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_url_ls">Fan control URL low speed:</label>
-                                <input type="text" placeholder="URL" name="fan_control_url_ls" id="fan_control_url_ls"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="URL" name="fan_control_url_ls" id="fan_control_url_ls" class="pure-input-3-4">
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save fan control config"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save fan control config" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -225,28 +205,23 @@
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="influxdb_url">InfluxDB URL:</label>
-                                <input type="text" placeholder="http://ip-address:8086" name="influxdb_url"
-                                    id="influxdb_url" class="pure-input-3-4">
+                                <input type="text" placeholder="http://ip-address:8086" name="influxdb_url" id="influxdb_url" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="influxdb_org">InfluxDB org:</label>
-                                <input type="text" placeholder="Fill in InfluxDB organisation" name="influxdb_org"
-                                    id="influxdb_org" class="pure-input-3-4">
+                                <input type="text" placeholder="Fill in InfluxDB organisation" name="influxdb_org" id="influxdb_org" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="influxdb_bucket">InfluxDB bucket:</label>
-                                <input type="text" placeholder="Fill in InfluxDB bucket name" name="influxdb_bucket"
-                                    id="influxdb_bucket" class="pure-input-3-4">
+                                <input type="text" placeholder="Fill in InfluxDB bucket name" name="influxdb_bucket" id="influxdb_bucket" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="influxdb_token">InfluxDB token:</label>
-                                <input type="text" placeholder="Fill in InfluxDB token" name="influxdb_token"
-                                    id="influxdb_token" class="pure-input-3-4">
+                                <input type="text" placeholder="Fill in InfluxDB token" name="influxdb_token" id="influxdb_token" class="pure-input-3-4">
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save InfluxDB configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save InfluxDB configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -265,18 +240,15 @@
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="syslog_ip">Syslog server IP:</label>
-                                <input type="text" placeholder="Syslog server ip" name="syslog_ip" id="syslog_ip"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="Syslog server ip" name="syslog_ip" id="syslog_ip" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="syslog_port">Syslog server port:</label>
-                                <input type="text" placeholder="Syslog server port" name="syslog_port" id="syslog_port"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="Syslog server port" name="syslog_port" id="syslog_port" class="pure-input-3-4">
                             </div>
                         </div>
                         <br>
-                        <input type="submit" value="Save Syslog configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save Syslog configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
@@ -288,25 +260,22 @@
                         <div class="pure-g">
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="timezone">Timezone:</label>
-                                <input type="text" placeholder="CET-1CEST,M3.5.0,M10.5.0/3" name="timezone"
-                                    id="timezone" class="pure-input-3-4">
+                                <input type="text" placeholder="CET-1CEST,M3.5.0,M10.5.0/3" name="timezone" id="timezone" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="ntp_server">NTP server address:</label>
-                                <input type="text" placeholder="e.g. pool.ntp.org" name="ntp_server" id="ntp_server"
-                                    class="pure-input-3-4">
+                                <input type="text" placeholder="e.g. pool.ntp.org" name="ntp_server" id="ntp_server" class="pure-input-3-4">
                             </div>
 
                         </div>
                         <br>
-                        <input type="submit" value="Save time configuration"
-                            class="pure-button-primary button-xsmall pure-button">
+                        <input type="submit" value="Save time configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>
                 <p>
-                    Refer to <a href="https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html"
-                        target="_blank">GNU documentation on TZ-Variable</a> for more details on format.<br>
+                    Refer to <a href="https://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html" target="_blank">GNU documentation on TZ-Variable</a> for more details on
+                    format.<br>
                     For Europe/Amsterdam use: CET-1CEST,M3.5.0,M10.5.0/3
                 </p>
             </div>
@@ -315,7 +284,18 @@
     </div>
     <script src="ui.js"></script>
     <script src="send_json_ws.js"></script>
-    <!-- <script src="config_ws.js"></script> -->
+    <script>
+        fetch("/api/restart", { method: "POST" })
+            .then(() => {
+                // Optional: show a message
+                showToast("Rebooting…");
+
+                // Redirect after a short delay
+                setTimeout(() => {
+                    window.location.href = "/";
+                }, 3000);
+            });
+    </script>
 </body>
 
 </html>
