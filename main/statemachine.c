@@ -258,7 +258,6 @@ void day_transitions(void)
         ESP_LOGI(TAG, "Transit to night.");
         new_state = STATE_NR_NIGHT;
     }
-    // Disabled states for now
     else if (cooking_times() == true)
     {
         ESP_LOGI(TAG, "Transit to cooking.");
@@ -775,7 +774,7 @@ void high_co2_night_transitions(void)
         valve[sizeof(valve) - 1] = '\0';
 
         // Skip fan inlet
-        if (strcmp(valve, "Fan inlet") == 0)
+        if (strcmp(valve, "Fan_inlet") == 0)
             continue;
 
         // Extract valve number
@@ -996,7 +995,7 @@ void high_rh_day_transitions(void)
         xSemaphoreGive(state_config_mutex);
     }
 
-    // Iterate through CO2 sensors to see which one has high CO2 reading to see if default settings apply when high reading is at fan inlet or only one valve
+    // Iterate through RH sensors to see which one has high CO2 reading to see if default settings apply when high reading is at fan inlet or only one valve
     // needs to open (when high reading is in a room)
     for (int i = 0; i < rh_sensor_counter; i++)
     {
@@ -1012,7 +1011,7 @@ void high_rh_day_transitions(void)
         valve_nr = atoi(valve);
         reading = rh_sensors[i].rh_reading;
 
-        if (strcmp(valve, "Fan inlet") != 0)
+        if (strcmp(valve, "Fan_inlet") != 0)
         {
             // Hysteresis logic
             if (valve_open[valve_nr])
@@ -1205,8 +1204,8 @@ void high_rh_night_transitions()
         xSemaphoreGive(state_config_mutex);
     }
 
-    // Iterate through CO2 sensors to see which one has high CO2 reading to see if default settings apply when high reading is at fan inlet or only one valve
-    // needs to open (when high reading is in a room)
+    /// Iterate through RH sensors to see which one has high RH reading to see if default settings apply when high reading is
+    // at fan inlet or only one valve needs to open (when high reading is in a room)
     for (int i = 0; i < rh_sensor_counter; i++)
     {
         strncpy(valve, rh_sensors[i].valve, sizeof(valve) - 1);
@@ -1221,7 +1220,7 @@ void high_rh_night_transitions()
         valve_nr = atoi(valve);
         reading = rh_sensors[i].rh_reading;
 
-        if (strcmp(valve, "Fan inlet") != 0)
+        if (strcmp(valve, "Fan_inlet") != 0)
         {
             // Hysteresis logic
             if (valve_open[valve_nr])
@@ -1453,6 +1452,9 @@ void valve_cycle_day_transitions(void)
     }
 
     // Conditions for transition
+
+    // Add here 2 conditions; RH sensors high and CO2 sensors high. If that's the case exit this state
+    // and transfer to highXXXday
     if (valve_cycle_times_day() == false && is_day() == true)
     {
         ESP_LOGI(TAG, "Transit to day.");
