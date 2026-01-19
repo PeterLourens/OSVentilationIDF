@@ -259,7 +259,7 @@ void day_transitions(void)
         new_state = STATE_NR_NIGHT;
     }
     // Disabled states for now
-    /*else if (cooking_times() == true)
+    else if (cooking_times() == true)
     {
         ESP_LOGI(TAG, "Transit to cooking.");
         new_state = STATE_NR_COOKING;
@@ -268,7 +268,7 @@ void day_transitions(void)
     {
         ESP_LOGI(TAG, "Transit to valve cycling day state.");
         new_state = STATE_NR_CYCLINGDAY;
-    }*/
+    }
     // Manual high speed mode is ignored for now
     else
     {
@@ -329,7 +329,6 @@ void night_transitions(void)
         // General statemachine config
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
-
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -406,18 +405,11 @@ void night_transitions(void)
         ESP_LOGI(TAG, "Transit to day.");
         new_state = STATE_NR_DAY;
     }
-    // Disabled states for now
-    /*else if (cooking_times() == true)
+    else if (valve_cycle_times_night() == true)
     {
-        ESP_LOGI(TAG, "Transit to cooking.");
-        new_state = STATE_NR_COOKING;
+        ESP_LOGI(TAG, "Transit to valve cycling night state.");
+        new_state = STATE_NR_CYCLINGNIGHT;
     }
-    else if (valve_cycle_times_day() == true)
-    {
-        ESP_LOGI(TAG, "Transit to valve cycling day state.");
-        new_state = STATE_NR_CYCLINGDAY;
-    }*/
-    // Manual high speed mode is ignored for now
     else
     {
         ESP_LOGI(TAG, "Stay in night state.");
@@ -493,7 +485,6 @@ void high_co2_day_transitions(void)
         // General statemachine config
         co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
-
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -506,9 +497,7 @@ void high_co2_day_transitions(void)
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-
         co2_sensors_high = sm_actuals.co2_sensors_high;
-
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -717,7 +706,6 @@ void high_co2_night_transitions(void)
         // General statemachine config
         co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
-
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -730,9 +718,7 @@ void high_co2_night_transitions(void)
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-
         co2_sensors_high = sm_actuals.co2_sensors_high;
-
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -971,7 +957,6 @@ void high_rh_day_transitions(void)
         // General statemachine config
         rhlowlevel = statemachine_gen_config.rh_low_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
-
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -983,9 +968,7 @@ void high_rh_day_transitions(void)
         sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.rh_sensors_high = 0;
-
         rh_sensors_high = sm_actuals.rh_sensors_high;
-
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -1076,7 +1059,7 @@ void high_rh_day_transitions(void)
         }
     }
 
-    ESP_LOGI(TAG, "Number of sensors have high RH: %d %%", rh_sensors_high);
+    ESP_LOGI(TAG, "Number of sensors have high RH: %d", rh_sensors_high);
 
     // Copy values to temp settings
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
@@ -1183,7 +1166,6 @@ void high_rh_night_transitions()
         // General statemachine config
         rhlowlevel = statemachine_gen_config.rh_low_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
-
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -1195,9 +1177,7 @@ void high_rh_night_transitions()
         sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
         valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
         sm_actuals.rh_sensors_high = 0;
-
         rh_sensors_high = sm_actuals.rh_sensors_high;
-
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -1288,7 +1268,7 @@ void high_rh_night_transitions()
         }
     }
 
-    ESP_LOGI(TAG, "Number of sensors have high RH: %d %%", rh_sensors_high);
+    ESP_LOGI(TAG, "Number of sensors have high RH: %d", rh_sensors_high);
 
     // Copy values to temp settings
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
@@ -1338,7 +1318,242 @@ void high_rh_night_transitions()
         xSemaphoreGive(statemachine_mutex);
     }
 }
-void cooking_transitions(void) {}
-void valve_cycle_day_transitions(void) {}
-void valve_cycle_night_transitions(void) {}
+void cooking_transitions(void)
+{
+    int new_time = 0;
+    int state_config_index = 0;
+    int state_fanspeed = 0;
+    int state = 0;
+    int new_state = 0;
+
+    bool valve_move_locked = 0;
+
+    char state_name[MEDIUM_CONFIG_ITEM] = {};
+
+    // Copy state_name and call function to find index of the config
+    strncpy(state_name, STATE_COOKING, sizeof(state_name));
+    state_name[sizeof(state_name) - 1] = '\0';
+    state_config_index = find_state_index_by_name_ci(state_name);
+
+    ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
+
+    // Actions for this state
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    {
+        // State specific config
+        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        xSemaphoreGive(state_config_mutex);
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = state;
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
+        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    set_fanspeed(state_fanspeed);
+
+    new_time = (esp_timer_get_time()) / 1000000;
+    if (new_time > old_time)
+    {
+        elapsed_time += new_time - old_time;
+        old_time = new_time;
+    }
+
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+
+    if (valve_move_locked == 0)
+    {
+        valve_position_statemachine(state_config_index);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Valves are locked for moving.");
+    }
+
+    // Conditions for transition
+    if (cooking_times() == false && is_day() == true)
+    {
+        ESP_LOGI(TAG, "Transit to day.");
+        new_state = STATE_NR_DAY;
+    }
+    else if (cooking_times() == false && is_day() == false)
+    {
+        ESP_LOGI(TAG, "Transit to night.");
+        new_state = STATE_NR_NIGHT;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Remain in cooking state.");
+        new_state = STATE_NR_COOKING;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    {
+        sm_actuals.state = new_state;
+        xSemaphoreGive(statemachine_mutex);
+    }
+}
+
+void valve_cycle_day_transitions(void)
+{
+    int new_time = 0;
+    int state_config_index = 0;
+    int state_fanspeed = 0;
+    int state = 0;
+    int new_state = 0;
+
+    bool valve_move_locked = 0;
+
+    char state_name[MEDIUM_CONFIG_ITEM] = {};
+
+    // Copy state_name and call function to find index of the config
+    strncpy(state_name, STATE_COOKING, sizeof(state_name));
+    state_name[sizeof(state_name) - 1] = '\0';
+    state_config_index = find_state_index_by_name_ci(state_name);
+
+    ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
+
+    // Actions for this state
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    {
+        // State specific config
+        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        xSemaphoreGive(state_config_mutex);
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = state;
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
+        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    set_fanspeed(state_fanspeed);
+
+    new_time = (esp_timer_get_time()) / 1000000;
+    if (new_time > old_time)
+    {
+        elapsed_time += new_time - old_time;
+        old_time = new_time;
+    }
+
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+
+    if (valve_move_locked == 0)
+    {
+        valve_position_statemachine(state_config_index);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Valves are locked for moving.");
+    }
+
+    // Conditions for transition
+    if (valve_cycle_times_day() == false && is_day() == true)
+    {
+        ESP_LOGI(TAG, "Transit to day.");
+        new_state = STATE_NR_DAY;
+    }
+    else if (valve_cycle_times_day() == false && is_day() == false)
+    {
+        ESP_LOGI(TAG, "Transit to night.");
+        new_state = STATE_NR_NIGHT;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Remain in valve cycling day state.");
+        new_state = STATE_NR_COOKING;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    {
+        sm_actuals.state = new_state;
+        xSemaphoreGive(statemachine_mutex);
+    }
+}
+
+void valve_cycle_night_transitions(void)
+{
+    int new_time = 0;
+    int state_config_index = 0;
+    int state_fanspeed = 0;
+    int state = 0;
+    int new_state = 0;
+
+    bool valve_move_locked = 0;
+
+    char state_name[MEDIUM_CONFIG_ITEM] = {};
+
+    // Copy state_name and call function to find index of the config
+    strncpy(state_name, STATE_COOKING, sizeof(state_name));
+    state_name[sizeof(state_name) - 1] = '\0';
+    state_config_index = find_state_index_by_name_ci(state_name);
+
+    ESP_LOGI(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
+
+    // Actions for this state
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    {
+        // State specific config
+        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        xSemaphoreGive(state_config_mutex);
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.state = state;
+        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
+        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    set_fanspeed(state_fanspeed);
+
+    new_time = (esp_timer_get_time()) / 1000000;
+    if (new_time > old_time)
+    {
+        elapsed_time += new_time - old_time;
+        old_time = new_time;
+    }
+
+    ESP_LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
+
+    if (valve_move_locked == 0)
+    {
+        valve_position_statemachine(state_config_index);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Valves are locked for moving.");
+    }
+
+    // Conditions for transition
+    if (valve_cycle_times_night() == false && is_day() == true)
+    {
+        ESP_LOGI(TAG, "Transit to day.");
+        new_state = STATE_NR_DAY;
+    }
+    else if (valve_cycle_times_night() == false && is_day() == false)
+    {
+        ESP_LOGI(TAG, "Transit to night.");
+        new_state = STATE_NR_NIGHT;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Remain in valve cycling night state.");
+        new_state = STATE_NR_COOKING;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    {
+        sm_actuals.state = new_state;
+        xSemaphoreGive(statemachine_mutex);
+    }
+}
+
 void manual_high_speed_transitions(void) {}
