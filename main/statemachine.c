@@ -1405,6 +1405,8 @@ void valve_cycle_day_transitions(void)
     int new_state = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
+    int co2_sensors_high = 0;
+    int rh_sensors_high = 0;
 
     bool valve_move_locked = 0;
 
@@ -1530,6 +1532,8 @@ void valve_cycle_night_transitions(void)
     int new_state = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
+    int co2_sensors_high = 0; // Local variable following the struct value
+    int rh_sensors_high = 0;  // Local variable following the struct value
 
     bool valve_move_locked = 0;
 
