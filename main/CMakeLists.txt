@@ -5,6 +5,7 @@ idf_component_register(SRCS "task_valvecontrol.c" "fancontrol.c" "task_statemach
                     INCLUDE_DIRS "."
                     EMBED_TXTFILES "../web/index.html" "../web/webserial.html" "../web/pure_min.css" "../web/styles.css" "../web/ui.js" "../web/stats.html" 
                                     "../web/sensor_config.html" "../web/config.html" "../web/statemachine.html" "../web/valvecontrol.html" "../web/send_json_ws.js"
+                                    "../web/reboot.html"
                     EMBED_FILES "../web/favicon.ico"
 )
 littlefs_create_partition_image(storage ../data FLASH_IN_PROJECT)

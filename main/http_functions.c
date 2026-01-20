@@ -40,6 +40,9 @@ extern const char webserial_html_end[] asm("_binary_webserial_html_end");
 extern const char stats_html_start[] asm("_binary_stats_html_start");
 extern const char stats_html_end[] asm("_binary_stats_html_end");
 
+extern const char reboot_html_start[] asm("_binary_reboot_html_start");
+extern const char reboot_html_end[] asm("_binary_reboot_html_end");
+
 // Serve pure_min.css
 esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 {
@@ -347,16 +350,15 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
 /* POST handler: restart ESP */
 esp_err_t restart_esp_post_handler(httpd_req_t *req)
 {
-    // Send response BEFORE rebooting
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_sendstr(req, "{\"status\":\"rebooting\"}");
+    size_t html_size = reboot_html_end - reboot_html_start;
 
-    // Allow the response to actually leave the ESP
-    vTaskDelay(pdMS_TO_TICKS(200));
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, reboot_html_start, html_size);
 
-    // Now reboot
+    // Let the response flush
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
     esp_restart();
-
     return ESP_OK; // never reached
 }
 

@@ -234,6 +234,26 @@ small screens.
     white-space: pre-wrap;
 }
 
+.spinner {
+    border: 8px solid #eee;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.reboot-message {
+    font-size: 22px;
+    margin-top: 20px;
+}
 
 /* -- Responsive Styles (Media Queries) ------------------------------------- */
 
