@@ -1,4 +1,5 @@
 #include "general.h"
+#include "esp_log_level.h"
 
 const char *state_nr_to_str(state_nr_t state)
 {
@@ -607,6 +608,11 @@ void set_log_levels(void)
     esp_log_level_set("outbox", ESP_LOG_ERROR);
     esp_log_level_set("esp-tls", ESP_LOG_ERROR);
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
+
+    // Custom TAG sttings
+    esp_log_level_set("StatemachineHelper", ESP_LOG_DEBUG);
+
+    // Set all log levels
     // esp_log_level_set("*", ESP_LOG_ERROR);
 }
 
