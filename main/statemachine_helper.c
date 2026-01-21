@@ -352,19 +352,18 @@ bool valve_cycle_times_day(void)
     bool in_window = false;
     if (start == stop)
     {
-        ESP_LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
         in_window = true;
+        ESP_LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
     }
     else if (start < stop)
     {
-
-        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
         in_window = (current >= start && current < stop);
+        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     else
     {
-        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
         in_window = (current >= start || current < stop);
+        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     if (!in_window)
     {
