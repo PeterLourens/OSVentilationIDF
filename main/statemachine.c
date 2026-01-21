@@ -1,4 +1,5 @@
 #include "statemachine.h"
+#include "statemachine_states.h"
 
 static const char *TAG = "Statemachine";
 
@@ -1513,7 +1514,7 @@ void valve_cycle_day_transitions(void)
     else
     {
         ESP_LOGI(TAG, "Remain in valve cycling day state.");
-        new_state = STATE_NR_COOKING;
+        new_state = STATE_NR_CYCLINGDAY;
     }
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
@@ -1642,7 +1643,7 @@ void valve_cycle_night_transitions(void)
     else
     {
         ESP_LOGI(TAG, "Remain in valve cycling night state.");
-        new_state = STATE_NR_COOKING;
+        new_state = STATE_NR_CYCLINGNIGHT;
     }
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
