@@ -2,7 +2,7 @@
     "enable_state": "On",
     "fanspeed": 2,
     "state_name": "cyclingnight",
-    "state_start_hour": 19,
+    "state_start_hour": 22,
     "state_start_minute": 0,
     "state_end_hour": 0,
     "state_end_minute": 0,

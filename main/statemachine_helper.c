@@ -504,7 +504,7 @@ bool valve_cycle_times_night(void)
     ESP_LOGD(TAG, "Config '%s': start=%02d:%02d stop=%02d:%02d, interval=%d min, duration=%d min", state_name, start_hour, start_min, stop_hour, stop_min, cycling_interval_min, duration_min);
     ESP_LOGD(TAG, "General day/night config: WD day=%02d:%02d WD night=%02d:%02d | WE day=%02d:%02d WE night=%02d:%02d", wday_d_h, wday_d_m, wday_n_h, wday_n_m, wkend_d_h, wkend_d_m, wkend_n_h, wkend_n_m);
 
-    // Enforce minimum interval of 10 minutes
+    // Enforce minimum interval of 30 minutes
     if (cycling_interval_min < 30)
     {
         ESP_LOGD(TAG, "Invalid cycling interval (%d) <= 30. Returning false.", cycling_interval_min);
@@ -532,13 +532,13 @@ bool valve_cycle_times_night(void)
     }
     else if (start < stop)
     {
-        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
         in_window = (current >= start && current < stop);
+        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     else
     {
-        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
         in_window = (current >= start || current < stop);
+        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     if (!in_window)
     {
@@ -552,16 +552,17 @@ bool valve_cycle_times_night(void)
     {
         night_start = wkend_n_h * 60 + wkend_n_m;
         night_stop = wkend_d_h * 60 + wkend_d_m;
-        ESP_LOGD(TAG, "Weekend: day window [%d, %d)", night_start, night_stop);
+        ESP_LOGD(TAG, "Weekend: night window [%d, %d)", night_start, night_stop);
     }
     else
     {
         night_start = wday_n_h * 60 + wday_n_m;
         night_stop = wday_d_h * 60 + wday_d_m;
-        ESP_LOGD(TAG, "Weekday: day window [%d, %d)", night_start, night_stop);
+        ESP_LOGD(TAG, "Weekday: night window [%d, %d)", night_start, night_stop);
     }
 
     int overlap_minutes = minutes_overlap(start, stop, night_start, night_stop);
+
     if (overlap_minutes <= 0)
         return false;
 
@@ -708,74 +709,6 @@ void select_sensors(void)
     co2_sensor_counter = j;
     rh_sensor_counter = k;
 }
-
-/*void select_sensors(void)
-{
-    int j = 0; // counter for struct
-    int k = 0; // counter for struct
-
-    static const char *TAG = "select_sensors";
-
-    co2_sensor_counter = 0;
-    rh_sensor_counter = 0;
-
-    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
-
-    // Copy sensor readings from global
-    if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
-    {
-        ESP_LOGE(TAG, "Failed to read from sensor_queue");
-        return;
-    }
-
-    for (int i = 0; i < CHANNELS_PER_BUS; i++)
-    {
-        const bus_sensor_t *s0 = NULL;
-        const bus_sensor_t *s1 = NULL;
-
-        if (sensor_cfg_mutex && xSemaphoreTake(sensor_cfg_mutex, (TickType_t)10) == pdTRUE)
-        {
-            s0 = &bus0_sensor_settings[i];
-            s1 = &bus1_sensor_settings[i];
-            xSemaphoreGive(sensor_cfg_mutex);
-        }
-
-        if (s0 && s0->co2_enabled)
-        {
-            co2_sensors[j].valve = (char *)s0->valve;
-            co2_sensors[j].co2_reading = sensor_data[0][i][IDX_CO2];
-            ESP_LOGI(TAG, "%s, CO2: %.2f", co2_sensors[j].valve, co2_sensors[j].co2_reading);
-            j++;
-        }
-
-        if (s1 && s1->co2_enabled)
-        {
-            co2_sensors[j].valve = (char *)s1->valve;
-            co2_sensors[j].co2_reading = sensor_data[1][i][IDX_CO2];
-            ESP_LOGI(TAG, "%s, CO2: %.2f", co2_sensors[j].valve, co2_sensors[j].co2_reading);
-            j++;
-        }
-
-        if (s0 && s0->rh_enabled)
-        {
-            rh_sensors[k].valve = (char *)s0->valve;
-            rh_sensors[k].rh_reading = sensor_data[0][i][IDX_HUMIDITY];
-            ESP_LOGI(TAG, "%s, RH: %.2f", rh_sensors[k].valve, rh_sensors[k].rh_reading);
-            k++;
-        }
-
-        if (s1 && s1->rh_enabled)
-        {
-            rh_sensors[k].valve = (char *)s1->valve;
-            rh_sensors[k].rh_reading = sensor_data[1][i][IDX_HUMIDITY];
-            ESP_LOGI(TAG, "%s, RH: %.2f", rh_sensors[k].valve, rh_sensors[k].rh_reading);
-            k++;
-        }
-    }
-
-    co2_sensor_counter = j;
-    rh_sensor_counter = k;
-}*/
 
 /* Consume (check-and-clear) request set by POST handler. Returns true if move was requested. */
 bool statemachine_consume_valve_move_request(void)

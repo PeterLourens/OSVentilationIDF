@@ -1320,10 +1320,10 @@ void high_rh_night_transitions()
 }
 void cooking_transitions(void)
 {
+    int state = STATE_NR_COOKING;
     int new_time = 0;
     int state_config_index = 0;
     int state_fanspeed = 0;
-    int state = 0;
     int new_state = 0;
 
     bool valve_move_locked = 0;
@@ -1399,10 +1399,10 @@ void cooking_transitions(void)
 
 void valve_cycle_day_transitions(void)
 {
+    int state = STATE_NR_CYCLINGDAY;
     int new_time = 0;
     int state_config_index = 0;
     int state_fanspeed = 0;
-    int state = 0;
     int new_state = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
@@ -1526,10 +1526,10 @@ void valve_cycle_day_transitions(void)
 
 void valve_cycle_night_transitions(void)
 {
+    int state = STATE_NR_CYCLINGNIGHT;
     int new_time = 0;
     int state_config_index = 0;
     int state_fanspeed = 0;
-    int state = 0;
     int new_state = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
