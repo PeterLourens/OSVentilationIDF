@@ -1,6 +1,6 @@
 #include "task_mqtt.h"
 
-static const char *TAG = "MQTT Task";
+static const char *TAG = "task_MQTT";
 
 void start_task_mqtt(void)
 {
@@ -24,11 +24,11 @@ void task_mqtt_code(void *pvParameters)
     {
         ESP_LOGI(TAG, "Update MQTT...");
         mqtt_apply_config_change();
-        // ESP_LOGI(TAG, "Publish sensors...");
+        ESP_LOGD(TAG, "Publish sensors...");
         mqtt_publish_sensor_values();
-        // ESP_LOGI(TAG, "Publish valve positions...");
+        ESP_LOGD(TAG, "Publish valve positions...");
         mqtt_publish_valve_positions();
-        // ESP_LOGI(TAG, "Publish state and fanspeed...");
+        ESP_LOGD(TAG, "Publish state and fanspeed...");
         mqtt_publish_state_and_fanspeed();
         vTaskDelay(pdMS_TO_TICKS(20000)); // publish every 10s
     }

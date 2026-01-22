@@ -1,6 +1,6 @@
 #include "i2c_sensors.h"
 
-static const char *TAG = "i2c sensors";
+static const char *TAG = "i2c_sensors";
 
 // FIFO buffer for sensor moving average calculation
 static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][3][MAX_FIFO_SIZE];
@@ -260,7 +260,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     // Warm-up
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    ESP_LOGI("SCD41", "SCD41 initialized successfully");
+    ESP_LOGD("SCD41", "SCD41 initialized successfully");
     return ESP_OK;
 }
 
@@ -377,7 +377,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
             slots[ch].handle = NULL;
         }
         slots[ch].type = SENSOR_NONE;
-        ESP_LOGI(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
+        ESP_LOGD(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
         return ESP_OK;
     }
 
@@ -386,15 +386,15 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     {
         if (slots[ch].handle != NULL)
         {
-            ESP_LOGI(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
+            ESP_LOGD(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
             return ESP_OK;
         }
 
-        ESP_LOGI(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
+        ESP_LOGD(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
     }
     else
     {
-        ESP_LOGI(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
+        ESP_LOGD(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
                  bus_index, ch, old_type, new_type);
 
         if (slots[ch].handle != NULL)
@@ -441,7 +441,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     slots[ch].handle = h;
     slots[ch].type = new_type;
 
-    ESP_LOGI(TAG, "%s initialized on channel %u", type_str, ch);
+    ESP_LOGD(TAG, "%s initialized on channel %u", type_str, ch);
     return ESP_OK;
 }
 
@@ -456,7 +456,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
-        // ESP_LOGI(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
+        ESP_LOGD(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
         err = configure_bus_channel(bus0_sensors, 0, i2c_bus0_handle, tca9548_bus0_handle, ch, type_str);
         if (err != ESP_OK)
         {
@@ -468,7 +468,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
-        // ESP_LOGI(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
+        ESP_LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
         err = configure_bus_channel(bus1_sensors, 0, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
         if (err != ESP_OK)
         {
@@ -585,7 +585,7 @@ void sensor_data_average(void)
     }
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-    // ESP_LOGI("AVG", "sensor_data_average: wrote avg data to queue");
+    ESP_LOGD("AVG", "sensor_data_average: wrote avg data to queue");
 }
 
 void fifoPush(int bus, int slot, int measurement, float value, int pos)

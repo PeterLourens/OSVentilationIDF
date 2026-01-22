@@ -50,7 +50,7 @@ void syslog_send_line(const char *line)
     }
     else
     {
-        ESP_LOGI(TAG, "Sent %d bytes to syslog-ng", sent);
+        ESP_LOGD(TAG, "Sent %d bytes to syslog-ng", sent);
     }
 
     close(sock);
@@ -70,7 +70,7 @@ bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
         {
             if (ip.ip.addr != 0)
             {
-                ESP_LOGI(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
+                ESP_LOGD(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
                 return true;
             }
         }

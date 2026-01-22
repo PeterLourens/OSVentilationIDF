@@ -1,6 +1,6 @@
 #include "task_influxdb.h"
 
-static const char *TAG = "Influxdb task";
+static const char *TAG = "task_influxdb";
 
 void start_task_influxdb(void)
 {

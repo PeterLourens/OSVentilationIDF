@@ -1,7 +1,5 @@
 #include "http_post_functions.h"
 
-static const char *TAG = "http post json";
-
 // Build a JSON array for one bus from urlencoded POST body.
 // field naming in the HTML: bN_sX_<type|valve|location|rh|co2>
 cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const char *bus_prefix)
@@ -592,9 +590,6 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
         else
             cJSON_AddStringToObject(obj, key_new, "");
     }
-
-    char *out = cJSON_PrintUnformatted(obj);
-    ESP_LOGI(TAG, "State %d config: %s", state_number, out ? out : "NULL");
 
     return obj;
 }

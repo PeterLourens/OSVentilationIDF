@@ -1,6 +1,6 @@
 #include "i2c_lcd.h"
 
-static const char *TAG = "LCD";
+static const char *TAG = "i2c_LCD";
 
 /* PCF8574 / LCD bits */
 #define LCD_BACKLIGHT 0x08
@@ -97,15 +97,6 @@ static inline esp_err_t lcd_data(uint8_t d)
     return lcd_write_byte(d, LCD_REGISTER_SELECT);
 }
 
-/* Bind the device handle returned by your bus API - Function not used and it works ok without
-esp_err_t i2c_lcd_bind_device(i2c_master_dev_handle_t dev_handle)
-{
-    if (dev_handle == NULL)
-        return ESP_ERR_INVALID_ARG;
-    lcd_bus1_handle = dev_handle;
-    return ESP_OK;
-}*/
-
 /* Initialize the HD44780 via PCF8574 (4-bit init sequence), call once in task_i2c_lcd */
 esp_err_t i2c_lcd_init_device(void)
 {
@@ -135,7 +126,7 @@ esp_err_t i2c_lcd_init_device(void)
     vTaskDelay(pdMS_TO_TICKS(2));
     lcd_command(0x06); // Entry mode set: increment, no shift
 
-    ESP_LOGI(TAG, "LCD initialized (device bound)");
+    ESP_LOGD(TAG, "LCD initialized (device bound)");
     return ESP_OK;
 }
 
@@ -203,7 +194,7 @@ esp_err_t i2c_lcd_write_text(const char *text)
     return ESP_OK;
 }
 
-/* Internal helper: write the current output byte (s_last_output) but ensure backlight bit matches s_backlight */
+// Internal helper: write the current output byte (s_last_output) but ensure backlight bit matches s_backlight
 esp_err_t lcd_write_backlight_state(void)
 {
     uint8_t out = s_last_output;
@@ -212,19 +203,19 @@ esp_err_t lcd_write_backlight_state(void)
     else
         out &= (uint8_t)~LCD_BACKLIGHT;
 
-    /* Write as a normal expander byte (no enable pulse) to update backlight immediately.
-       We still use lcd_dev_write_byte so behavior/error handling is consistent. */
+    // Write as a normal expander byte (no enable pulse) to update backlight immediately
+    // We still use lcd_dev_write_byte so behavior/error handling is consistent
     return lcd_dev_write_byte(out);
 }
 
-/* Public: set backlight on/off. Returns ESP_OK if the I2C write succeeded. */
+//Set backlight on/off. Returns ESP_OK if the I2C write succeeded
 esp_err_t i2c_lcd_backlight_set(bool on)
 {
     s_backlight = on;
     return lcd_write_backlight_state();
 }
 
-/* Public: read current cached backlight state */
+// Public: read current cached backlight state
 bool i2c_lcd_backlight_get(void)
 {
     return s_backlight;
@@ -305,11 +296,12 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
 void build_valve_positions_buffer(char *buf, size_t buf_size)
 {
     nvs_handle_t nvs;
+  
     esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s",
-                 esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
         buf[0] = '\0';
         return;
     }
@@ -319,7 +311,7 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
     for (int i = 0; i < 12; i++)
     {
         char key[16];
-        snprintf(key, sizeof(key), "valve%d", i); // FIXED: match your real keys
+        snprintf(key, sizeof(key), "valve%d", i);
 
         int32_t pos = 0;
         if (nvs_get_i32(nvs, key, &pos) != ESP_OK)
@@ -378,32 +370,26 @@ void build_sm_actuals_buffer(char *buf, size_t buf_size)
 
     // --- Line 1: State ---
     const char *state_str = state_nr_to_str((state_nr_t)snap.state);
-    int w = snprintf(buf + used, buf_size - used,
-                     "STATE: %-12s\n", state_str);
+    int w = snprintf(buf + used, buf_size - used, "STATE: %-12s\n", state_str);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
     // --- Line 2: Fan speed ---
     const char *fan_str = fan_speed_to_str((fan_speed_t)snap.fanspeed);
-    w = snprintf(buf + used, buf_size - used,
-                 "FAN:   %-12s\n", fan_str);
+    w = snprintf(buf + used, buf_size - used, "FAN:   %-12s\n", fan_str);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
     // --- Line 3: CO2 sensors high ---
-    w = snprintf(buf + used, buf_size - used,
-                 "CO2 HIGH: %2d\n",
-                 snap.co2_sensors_high);
+    w = snprintf(buf + used, buf_size - used, "CO2 HIGH: %2d\n", snap.co2_sensors_high);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
     // --- Line 4: RH sensors high ---
-    w = snprintf(buf + used, buf_size - used,
-                 "RH HIGH:  %2d",
-                 snap.rh_sensors_high);
+    w = snprintf(buf + used, buf_size - used, "RH HIGH:  %2d", snap.rh_sensors_high);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;

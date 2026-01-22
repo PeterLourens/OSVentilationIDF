@@ -1,6 +1,6 @@
 #include "i2c_ds3231.h"
 
-static const char *TAG = "DS3231";
+static const char *TAG = "I2C_DS3231";
 
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
@@ -38,7 +38,6 @@ void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
     time_t sys_now;
     struct tm sys_time;
 
-    // if (i2c_ds3231_read_time(dev_handle, &rtc_time) == ESP_OK)
     if (ds3231_get_time(dev_handle, &rtc_time) == ESP_OK)
     {
         time_t rtc_epoch = mktime(&rtc_time);
@@ -53,12 +52,12 @@ void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
         time(&sys_now);
         localtime_r(&sys_now, &sys_time);
 
-        ESP_LOGI(TAG, "RTC time read: %s", asctime(&rtc_time));
-        ESP_LOGI(TAG, "System time set: %s", asctime(&sys_time));
+        ESP_LOGD(TAG, "RTC time read: %s", asctime(&rtc_time));
+        ESP_LOGD(TAG, "System time set: %s", asctime(&sys_time));
     }
     else
     {
-        ESP_LOGW(TAG, "Failed to read DS3231 at boot, system time starts at default (1970)");
+        ESP_LOGE(TAG, "Failed to read DS3231 at boot, system time starts at default (1970)");
     }
 }
 
@@ -259,14 +258,14 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
         ESP_LOGW(TAG, "Oscillator Stop Flag set — RTC may have lost power!");
         ds3231_write_reg(dev, DS3231_REG_STATUS, status & ~0x80); // Clear OSF
     }
-    // else
-    //{
-    //     ESP_LOGI(TAG, "Oscillator running normally");
-    // }
+    else
+    {
+         ESP_LOGD(TAG, "Oscillator running normally");
+    }
 
     snprintf(buf, bufsize, "OSF=%d Busy=%d\nAl1=%d Al2=%d", osf, busy, alarm1, alarm2);
 
-    // ESP_LOGI(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d", osf, busy, alarm1, alarm2);
+    ESP_LOGD(TAG, "Status bits: OSF=%d, Busy=%d, Alarm1=%d, Alarm2=%d", osf, busy, alarm1, alarm2);
 
     return ESP_OK;
 }
@@ -292,7 +291,7 @@ void save_ds3231_diagnostics(float temp_c)
     esp_err_t err = nvs_open(TAG, NVS_READWRITE, &handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE("NVS", "Error opening NVS: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Error opening NVS: %s", esp_err_to_name(err));
         return;
     }
 
@@ -306,7 +305,7 @@ void save_ds3231_diagnostics(float temp_c)
     nvs_commit(handle);
     nvs_close(handle);
 
-    ESP_LOGI("NVS", "Diagnostics saved: temp=%.2f °C", temp_c);
+    ESP_LOGD(TAG, "Diagnostics saved: temp=%.2f °C", temp_c);
 }
 
 void read_ds3231_diagnostics(void)
@@ -316,7 +315,7 @@ void read_ds3231_diagnostics(void)
 
     if (err != ESP_OK)
     {
-        ESP_LOGW("NVS", "No diagnostics stored yet");
+        ESP_LOGW(TAG, "No diagnostics stored yet");
         return;
     }
 
@@ -328,12 +327,12 @@ void read_ds3231_diagnostics(void)
         struct tm tm;
 
         localtime_r((time_t *)&last_check, &tm);
-        ESP_LOGI("NVS", "Last temp: %.2f °C", temp100 / 100.0f);
-        ESP_LOGI("NVS", "Last check: %s", asctime(&tm));
+        ESP_LOGD(TAG, "Last temp: %.2f °C", temp100 / 100.0f);
+        ESP_LOGD(TAG, "Last check: %s", asctime(&tm));
     }
     else
     {
-        ESP_LOGW("NVS", "Diagnostics keys not found");
+        ESP_LOGW(TAG, "Diagnostics keys not found");
     }
 
     nvs_close(handle);

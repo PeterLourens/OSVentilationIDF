@@ -1,6 +1,6 @@
 #include "task_i2c_lcd.h"
 
-static const char *TAG = "LCD";
+static const char *TAG = "task_i2c_LCD";
 
 void start_task_i2c_lcd(void)
 {

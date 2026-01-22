@@ -1,6 +1,6 @@
 #include "task_wifi.h"
 
-static const char *TAG = "wifi task";
+static const char *TAG = "task_wifi";
 
 void start_task_wifi(void)
 {

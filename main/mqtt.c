@@ -4,8 +4,10 @@ static const char *TAG = "MQTT";
 
 // Global MQTT client + connection state
 esp_mqtt_client_handle_t s_mqtt = NULL;
+
 static MQTT_config_t s_last_cfg = {0};
 static bool s_mqtt_running = false; // client started (start() called)
+
 bool s_mqtt_connected = false;		// broker connection up (event based)
 
 // ---------------------------------------------------------------------------
@@ -59,7 +61,7 @@ void mqtt_apply_config_change(void)
 	{
 		if (s_mqtt_running)
 		{
-			ESP_LOGI(TAG, "MQTT disabled → stopping client");
+			ESP_LOGD(TAG, "MQTT disabled → stopping client");
 			esp_mqtt_client_stop(s_mqtt);
 			s_mqtt_running = false;
 			s_mqtt_connected = false;
@@ -75,7 +77,7 @@ void mqtt_apply_config_change(void)
 	// ---------------------------------------------------------
 	if (!s_mqtt_running)
 	{
-		ESP_LOGI(TAG, "MQTT enabled → starting client");
+		ESP_LOGD(TAG, "MQTT enabled → starting client");
 		if (mqtt_start_client() == ESP_OK)
 		{
 			s_mqtt_running = true;
@@ -400,8 +402,8 @@ void mqtt_publish_valve_positions(void)
 		snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
 		mqtt_pubi(topic, pos);
 
-		// ESP_LOGI(TAG, "Publishing valve %d position: %d", id, pos);
-		// ESP_LOGI(TAG, "Topic: %s", topic);
+		ESP_LOGD(TAG, "Publishing valve %d position: %d", id, pos);
+		ESP_LOGD(TAG, "Topic: %s", topic);
 	}
 
 	nvs_close(nvs);

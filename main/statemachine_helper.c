@@ -2,7 +2,7 @@
 #include "statemachine.h"
 #include "globals.h"
 
-static const char *TAG = "StatemachineHelper";
+static const char *TAG = "SM_helpers";
 
 int find_state_index_by_name_ci(const char *name)
 {
@@ -51,22 +51,22 @@ bool is_day(void)
     current_minutes = temp_time.tm_hour * 60 + temp_time.tm_min;
 
     // Debug
-    // ESP_LOGI(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
-    // ESP_LOGI(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
-    // ESP_LOGI(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
+    ESP_LOGD(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
+    ESP_LOGD(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
+    ESP_LOGD(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
 
     if (is_weekend())
     {
         int day_start = weekend_day_hour_start * 60 + weekend_day_minute_start;
         int night_start = weekend_night_hour_start * 60 + weekend_night_minute_start;
-        // ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        ESP_LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
     else
     {
         int day_start = weekday_day_hour_start * 60 + weekday_day_minute_start;
         int night_start = weekday_night_hour_start * 60 + weekday_night_minute_start;
-        // ESP_LOGI(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        ESP_LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
 }
@@ -87,8 +87,8 @@ bool is_weekend(void)
     }
 
     // Debug
-    // ESP_LOGI(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
-    // ESP_LOGI(TAG, "Today is: %s", day_now);
+    ESP_LOGD(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
+    ESP_LOGD(TAG, "Today is: %s", day_now);
 
     if (strcmp(day_now, day_buffer1) == 0 || strcmp(day_now, day_buffer2) == 0)
     {
@@ -120,11 +120,11 @@ bool cooking_times(void)
     strncpy(state_name, STATE_COOKING, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
-    ESP_LOGI(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
+    ESP_LOGD(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
 
     if (state_config_index < 0)
     {
-        ESP_LOGI(TAG, "Invalid state index (<0). Returning false.");
+        ESP_LOGD(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -141,21 +141,21 @@ bool cooking_times(void)
         }
     }
 
-    ESP_LOGI(TAG, "Config for '%s': start=%02d:%02d stop=%02d:%02d", state_name, start_hour, start_min, stop_hour, stop_min);
+    ESP_LOGD(TAG, "Config for '%s': start=%02d:%02d stop=%02d:%02d", state_name, start_hour, start_min, stop_hour, stop_min);
 
     if (temp_time.tm_hour == start_hour && temp_time.tm_min > start_min)
     {
-        ESP_LOGI(TAG, "Condition met: hour==start_hour && min>start_min -> cooking = true");
+        ESP_LOGD(TAG, "Condition met: hour==start_hour && min>start_min -> cooking = true");
         return true;
     }
     else if (temp_time.tm_hour == stop_hour && temp_time.tm_min >= stop_min)
     {
-        ESP_LOGI(TAG, "Condition met: hour==stop_hour && min>=stop_min -> cooking = false");
+        ESP_LOGD(TAG, "Condition met: hour==stop_hour && min>=stop_min -> cooking = false");
         return false;
     }
     else
     {
-        ESP_LOGI(TAG, "No conditions met -> cooking = false");
+        ESP_LOGD(TAG, "No conditions met -> cooking = false");
         return false;
     }
 }
@@ -282,7 +282,7 @@ bool valve_cycle_times_day(void)
 
     if (state_config_index < 0)
     {
-        ESP_LOGD(TAG, "Invalid state index (<0). Returning false.");
+        ESP_LOGE(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -458,7 +458,7 @@ bool valve_cycle_times_night(void)
 
     if (state_config_index < 0)
     {
-        ESP_LOGD(TAG, "Invalid state index (<0). Returning false.");
+        ESP_LOGE(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -721,7 +721,7 @@ bool statemachine_consume_valve_move_request(void)
     }
     else
     {
-        ESP_LOGW(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
+        ESP_LOGE(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
         /* conservative: avoid triggering move if mutex cannot be taken */
         rv = false;
     }

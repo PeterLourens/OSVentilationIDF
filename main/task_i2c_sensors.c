@@ -6,7 +6,7 @@
 
 #include "task_i2c_sensors.h"
 
-static const char *TAG = "i2c sensors task";
+static const char *TAG = "task_i2c_sensors";
 
 void start_task_i2c_sensors(void)
 {
@@ -32,7 +32,7 @@ void task_i2c_sensors_code(void *pvParameters)
         vTaskDelete(NULL);
         return;
     }
-    ESP_LOGI(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
+    ESP_LOGD(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
 
     if (!sensor_avg_queue)
     {
@@ -40,7 +40,7 @@ void task_i2c_sensors_code(void *pvParameters)
         vTaskDelete(NULL);
         return;
     }
-    ESP_LOGI(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
+    ESP_LOGD(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
 
     // ------------------------------------------------------------
     // Initialize both TCA9548A multiplexers
@@ -56,16 +56,6 @@ void task_i2c_sensors_code(void *pvParameters)
         ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
     else
         ESP_LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
-
-    // ------------------------------------------------------------
-    // Initialize sensors based on current configuration
-    // ------------------------------------------------------------
-    // preload_sensor_types_from_config();
-    // err = init_sensors_on_mux_channels();
-    // if (err != ESP_OK)
-    //    ESP_LOGE(TAG, "Failed to initialize sensors on mux channels: %s", esp_err_to_name(err));
-    // else
-    //    ESP_LOGI(TAG, "Sensors on mux channels initialized successfully");
 
     // ------------------------------------------------------------
     // Main loop: read + average

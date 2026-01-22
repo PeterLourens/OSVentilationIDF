@@ -3,7 +3,7 @@
 
 // Functions to send configuration as JSON via WebSocket
 
-static const char *TAG = "http json ws";
+static const char *TAG = "HTTP_JSON_ws";
 
 void send_index_html_ws(void)
 {
@@ -50,7 +50,7 @@ void send_index_html_ws(void)
     }
     else
     {
-        ESP_LOGW(TAG, "NVS open failed for send_index_html_ws: %d", err);
+        ESP_LOGE(TAG, "NVS open failed for send_index_html_ws: %d", err);
     }
 
     // --- Sensors ---
@@ -113,7 +113,7 @@ void send_index_html_ws(void)
         }
         else
         {
-            ESP_LOGW(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
+            ESP_LOGE(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
         }
 
         if (statemachine_mutex)
@@ -271,7 +271,7 @@ void send_config_json_ws(void)
 
     // Serialize to string
     char *out = cJSON_PrintUnformatted(root);
-    // ESP_LOGI(TAG, "Config JSON: %s", out ? out : "null");
+    ESP_LOGD(TAG, "Config JSON: %s", out ? out : "null");
     cJSON_Delete(root);
 
     if (out)

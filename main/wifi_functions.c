@@ -1,6 +1,6 @@
 #include "wifi_functions.h"
 
-static const char *TAG = "WiFi";
+static const char *TAG = "wifi_functions";
 static int s_retry_num = 0;
 
 esp_err_t wifi_manager_init(void)
@@ -108,7 +108,7 @@ esp_err_t select_wifi_mode(void)
     }
 
     // If we get here, either configuration was invalid or connection failed
-    ESP_LOGI(TAG, "Falling back to AP mode");
+    ESP_LOGW(TAG, "Falling back to AP mode");
     return wifi_manager_start_ap();
 }
 
@@ -141,12 +141,12 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
                 xTaskNotifyGive(task_rgb_leds);
                 esp_wifi_connect();
                 s_retry_num++;
-                ESP_LOGI(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
+                ESP_LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
             }
             else
             {
                 xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-                ESP_LOGI(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
+                ESP_LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
             }
             break;
 

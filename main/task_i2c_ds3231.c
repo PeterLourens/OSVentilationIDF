@@ -1,6 +1,6 @@
 #include "task_i2c_ds3231.h"
 
-static const char *TAG = "DS3231 Sync task";
+static const char *TAG = "task_DS3231_sync";
 
 void start_task_i2c_ds3231(void)
 {
@@ -24,7 +24,7 @@ void task_i2c_ds3231_code(void *pvParameters)
     }
     else
     {
-        ESP_LOGI(TAG, "DS3231 initialized on bus 0");
+        ESP_LOGD(TAG, "DS3231 initialized on bus 0");
     }
 
     while (1)

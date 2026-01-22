@@ -1,6 +1,6 @@
 #include "task_rgb_leds.h"
 
-static const char *TAG = "RGB Leds";
+static const char *TAG = "task_rgb_leds";
 
 // Local snapshot (safe copy)
 //static Statemachine_actuals_t snap;

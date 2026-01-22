@@ -2,7 +2,7 @@
 #include "statemachine.h"
 #include <stdint.h>
 
-static const char *TAG = "http server";
+static const char *TAG = "HTTP_server";
 
 extern const char pure_min_css_start[] asm("_binary_pure_min_css_start");
 extern const char pure_min_css_end[] asm("_binary_pure_min_css_end");
@@ -149,7 +149,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
 
     if (req->method == HTTP_GET)
     {
-        ESP_LOGI(TAG, "Handshake done, the new connection was opened");
+        ESP_LOGD(TAG, "Handshake done, the new connection was opened");
         http_server = req->handle;
         return ESP_OK;
     }
@@ -161,7 +161,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
 
     if (ret != ESP_OK)
     {
-        ESP_LOGE(TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
+        ESP_LOGW(TAG, "httpd_ws_recv_frame failed to get frame len with %d", ret);
         return ret;
     }
 
@@ -180,7 +180,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
         ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
         if (ret != ESP_OK)
         {
-            ESP_LOGE(TAG, "httpd_ws_recv_frame failed with %d", ret);
+            ESP_LOGW(TAG, "httpd_ws_recv_frame failed with %d", ret);
             free(buf);
             return ret;
         }
@@ -189,42 +189,42 @@ esp_err_t websocket_handler(httpd_req_t *req)
         {
             // Redirect log output to the custom function
             esp_log_set_vprintf(websocket_log_output);
-            ESP_LOGI(TAG, "Redirecting console to websocket");
+            ESP_LOGD(TAG, "Redirecting console to websocket");
         }
 
         if (strncmp((char *)ws_pkt.payload, "Stop", 4) == 0)
         {
             // Redirect log output to the custom function
-            ESP_LOGI(TAG, "Stopped redirecting console to websocket");
+            ESP_LOGD(TAG, "Stopped redirecting console to websocket");
             esp_log_set_vprintf(uart_log_output);
         }
 
         if (strncmp((char *)ws_pkt.payload, "stats", 8) == 0)
         {
-            ESP_LOGI(TAG, "Stats requested via WebSocket");
+            ESP_LOGD(TAG, "Stats requested via WebSocket");
             show_system_and_task_stats();
         }
 
         if (strncmp((char *)ws_pkt.payload, "index", 9) == 0)
         {
-            ESP_LOGI(TAG, "Index data requested via WebSocket");
+            ESP_LOGD(TAG, "Index data requested via WebSocket");
             send_index_html_ws();
         }
 
         if (strncmp((char *)ws_pkt.payload, "sensor_config", 17) == 0)
         {
-            ESP_LOGI(TAG, "Sensor config requested via WebSocket");
+            ESP_LOGD(TAG, "Sensor config requested via WebSocket");
             send_sensor_config_json_ws();
         }
 
         if (strncmp((char *)ws_pkt.payload, "config", 10) == 0)
         {
-            ESP_LOGI(TAG, "Config requested via WebSocket");
+            ESP_LOGD(TAG, "Config requested via WebSocket");
             send_config_json_ws();
         }
         if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
         {
-            ESP_LOGI(TAG, "Statemachine config requested via WebSocket");
+            ESP_LOGD(TAG, "Statemachine config requested via WebSocket");
             send_statemachine_config_json_ws();
         }
 
@@ -274,7 +274,7 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_sensor_config("bus0_sensor_config") != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload bus0 config after write");
+        ESP_LOGE(TAG, "Failed to reload bus0 config after write");
     }
 
     // After reconfig of sensors the sensors should re-init
@@ -317,7 +317,7 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     if (out)
     {
         // Print to UART using ESP-IDF logging
-        ESP_LOGI(TAG, "JSON: %s", out);
+        ESP_LOGD(TAG, "JSON: %s", out);
         free(out);
     }
 
@@ -335,7 +335,7 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_sensor_config("bus1_sensor_config") != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload bus1 config after write");
+        ESP_LOGE(TAG, "Failed to reload bus1 config after write");
     }
 
     // After reconfig of sensors the sensors should re-init
@@ -426,7 +426,7 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_network_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload network config after write");
+        ESP_LOGE(TAG, "Failed to reload network config after write");
     }
 
     // return the page body (original config.html)
@@ -475,7 +475,7 @@ esp_err_t i2c_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_i2c_config)
     if (load_i2c_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload i2c config after write");
+        ESP_LOGE(TAG, "Failed to reload i2c config after write");
     }
 
     // return the page body (original config.html)
@@ -524,7 +524,7 @@ esp_err_t fan_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_fan_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload fan config after write");
+        ESP_LOGE(TAG, "Failed to reload fan config after write");
     }
 
     // return the page body (original config.html)
@@ -573,7 +573,7 @@ esp_err_t influxdb_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_influxdb_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload influxdb config after write");
+        ESP_LOGE(TAG, "Failed to reload influxdb config after write");
     }
 
     // return the page body (original config.html)
@@ -622,7 +622,7 @@ esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_mqtt_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload MQTT config after write");
+        ESP_LOGE(TAG, "Failed to reload MQTT config after write");
     }
 
     // return the page body (original config.html)
@@ -671,7 +671,7 @@ esp_err_t syslog_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_syslog_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload syslog config after write");
+        ESP_LOGE(TAG, "Failed to reload syslog config after write");
     }
 
     // return the page body (original config.html)
@@ -720,7 +720,7 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_time_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload time config after write");
+        ESP_LOGE(TAG, "Failed to reload time config after write");
     }
 
     // return the page body (original config.html)
@@ -768,7 +768,7 @@ esp_err_t state_gen_config_post_handler(httpd_req_t *req)
     // reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_statemachine_general_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload statemachine general config after write");
+        ESP_LOGE(TAG, "Failed to reload statemachine general config after write");
     }
 
     // return the page body (original config.html)
@@ -784,8 +784,8 @@ esp_err_t state_config_post_handler(httpd_req_t *req)
 
     size_t len = req->content_len;
 
-    ESP_LOGI(TAG, "Handling POST for state %d", state_number);
-    ESP_LOGI(TAG, "Handling POST for state %d", state_number);
+    ESP_LOGD(TAG, "Handling POST for state %d", state_number);
+    ESP_LOGD(TAG, "Handling POST for state %d", state_number);
 
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
@@ -824,7 +824,7 @@ esp_err_t state_config_post_handler(httpd_req_t *req)
     // Reload into runtime globals (uses mutex inside load_sensor_config)
     if (load_state_config() != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to reload state config after write");
+        ESP_LOGE(TAG, "Failed to reload state config after write");
     }
 
     // return the page body (original config.html)
@@ -853,7 +853,7 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
     }
     else
     {
-        ESP_LOGW(TAG, "NVS open failed for reset_valves_handler: %d", err);
+        ESP_LOGE(TAG, "NVS open failed for reset_valves_handler: %d", err);
         // still return the page so UI stays consistent
     }
 
@@ -998,7 +998,7 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
     }
     else
     {
-        ESP_LOGW(TAG, "Valve control task handle not present - cannot notify");
+        ESP_LOGE(TAG, "Valve control task handle not present - cannot notify");
     }
 
     free(buf);
@@ -1369,7 +1369,7 @@ esp_err_t http_server_stop(void)
 {
     int ret;
 
-    ESP_LOGI(TAG, "Stopping HTTP server");
+    ESP_LOGW(TAG, "Stopping HTTP server");
 
     if (http_server)
     {

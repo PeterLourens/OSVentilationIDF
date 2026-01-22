@@ -24,9 +24,7 @@ int64_t influxdb_get_timestamp(void)
         // Fallback: system time if RTC read fails
         time_t now;
         time(&now);
-        // Nanoseconds timestamp which is native to InfluxDB
-        // return (int64_t)now;
-        return (int64_t)now * 1000000000LL;
+        return (int64_t)now * 1000000000LL;         // Nanoseconds timestamp which is native to InfluxDB
     }
 
     // Convert struct tm (UTC) → Unix timestamp manually
@@ -169,7 +167,7 @@ void influxdb_build_payload_sensors(char *out, size_t out_size, float sensor[MAX
             }
 
             snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
-            // ESP_LOGE(TAG, "type='%s' valve='%s' location='%s'", meta->type, meta->valve, meta->location);
+            ESP_LOGD(TAG, "type='%s' valve='%s' location='%s'", meta->type, meta->valve, meta->location);
 
             influxdb_append_line(out, out_size, line);
         }
@@ -224,7 +222,7 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
         // Build InfluxDB line
         snprintf(line, sizeof(line), "valve_positions,valve=%s position=%ld %lld\n", valve_name, pos, (long long)ts);
         influxdb_append_line(out, out_size, line);
-        // ESP_LOGI(TAG, "Valve positions:\n%s", out);
+        ESP_LOGD(TAG, "Valve positions:\n%s", out);
     }
 
     nvs_close(nvs);
@@ -367,8 +365,8 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     esp_http_client_set_header(client, "Accept", "application/json");
 
     int payload_len = strlen(payload);
-    // ESP_LOGI(TAG, "Payload strlen: %d", payload_len);
-    // ESP_LOGI(TAG, "Sending payload:\n%s", payload);
+    ESP_LOGD(TAG, "Payload strlen: %d", payload_len);
+    ESP_LOGD(TAG, "Sending payload:\n%s", payload);
 
     esp_http_client_set_method(client, HTTP_METHOD_POST);
     esp_http_client_set_post_field(client, payload, payload_len);
@@ -378,29 +376,29 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     if (err == ESP_OK)
     {
         int status = esp_http_client_get_status_code(client);
-        ESP_LOGI(TAG, "Influx write status: %d", status);
+        ESP_LOGD(TAG, "Influx write status: %d", status);
 
         // Read entire response body (JSON error or success)
         int rlen = esp_http_client_read_response(client, resp, sizeof(resp) - 1);
         if (rlen > 0)
         {
             resp[rlen] = '\0';
-            // ESP_LOGI(TAG, "Influx response: %s", resp);
+            ESP_LOGD(TAG, "Influx response: %s", resp);
         }
-        // else
-        //{
-        // ESP_LOGI(TAG, "Influx response: %d", rlen);
-        //}
+        else
+        {
+            ESP_LOGD(TAG, "Influx response: %d", rlen);
+        }
     }
     else
     {
         ESP_LOGE(TAG, "HTTP error: %s", esp_err_to_name(err));
     }
 
-    // ESP_LOGI(TAG, "DEBUG URL: '%s'", url);
-    // ESP_LOGI(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
-    // ESP_LOGI(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
-    // ESP_LOGI(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
+    ESP_LOGD(TAG, "DEBUG URL: '%s'", url);
+    ESP_LOGD(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
+    ESP_LOGD(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
+    ESP_LOGD(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
 
     esp_http_client_cleanup(client);
 }

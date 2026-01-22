@@ -1,6 +1,6 @@
 #include "task_statemachine.h"
 
-static const char *TAG = "Statemachine";
+static const char *TAG = "task_SM";
 
 // Functions for the task statemachine would go here
 void start_task_statemachine(void)

@@ -2,6 +2,8 @@
 #include "statemachine.h"
 #include "esp_err.h"
 
+static const char *TAG = "valve control";
+
 /* Patterns */
 static const uint8_t pattern1[4] = {0b00000101, 0b00001001, 0b00001010, 0b00000110};
 static const uint8_t pattern2[4] = {0b01010000, 0b10010000, 0b10100000, 0b01100000};
@@ -70,8 +72,6 @@ void all_outputs_off(int dataPin, int clockPin, int latchPin)
 
 void read_valve_pos_in_valvecontrol(void)
 {
-    static const char *TAG = "Read valve pos";
-
     int32_t positions[MAX_VALVE_COUNT] = {0};
 
     nvs_handle_t nvs;
@@ -85,29 +85,6 @@ void read_valve_pos_in_valvecontrol(void)
 
     ESP_LOGI(TAG, "Reading valve positions from NVS");
 
-    /*nvs_iterator_t it = NULL;
-
-    esp_err_t res = nvs_entry_find("nvs", "valves", NVS_TYPE_I32, &it);
-    if (res == ESP_ERR_NVS_NOT_FOUND)
-    {
-        ESP_LOGW("VALVE_BOOT", "No valve keys found in NVS!");
-    }
-    else if (res != ESP_OK)
-    {
-        ESP_LOGE("VALVE_BOOT", "nvs_entry_find failed: %s", esp_err_to_name(res));
-    }
-    else
-    {
-        while (it != NULL)
-        {
-            nvs_entry_info_t info;
-            nvs_entry_info(it, &info);
-            ESP_LOGI("VALVE_BOOT", "Found key: %s", info.key);
-
-            nvs_entry_next(&it);
-        }
-    }*/
-
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
         int32_t pos = -999; // sentinel so we see if it changes
@@ -116,7 +93,7 @@ void read_valve_pos_in_valvecontrol(void)
 
         esp_err_t r = nvs_get_i32(nvs, key, &pos);
 
-        ESP_LOGI(TAG, "Key %s -> err=%s, value=%ld", key, esp_err_to_name(r), (long)pos);
+        ESP_LOGD(TAG, "Key %s -> err=%s, value=%ld", key, esp_err_to_name(r), (long)pos);
 
         if (r != ESP_OK)
         {
@@ -145,8 +122,7 @@ void read_valve_pos_in_valvecontrol(void)
     }
 }
 
-// Control valves from web interface and from statemachine
-// Uses NVS namespace "valves" to read/write valve positions.
+// Control valves from web interface and from statemachine. Uses NVS namespace "valves" to read/write valve positions.
 void control_valves(void)
 {
     static const char *TAG = "control_valves";
@@ -162,6 +138,7 @@ void control_valves(void)
     int new_valve_position_change = 0;
     int new_valve_position = 0;
     int sm_state = 0;
+
     bool store_valve_position = false;
     bool check_valve_position = false;
     bool valvecontrol_from_post = false;
@@ -174,7 +151,7 @@ void control_valves(void)
         xSemaphoreGive(valve_control_data_mutex);
     }
 
-    ESP_LOGI(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
+    ESP_LOGD(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
 
     /* Ensure statemachine is in stopped mode before allowing manual valve moves */
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -309,7 +286,7 @@ void control_valves(void)
                         valvecontroldata.actual_valve_position[i] = new_valve_position;
                         xSemaphoreGive(valve_control_data_mutex);
                     }
-                    ESP_LOGI(TAG, "Valve position valve%d stored successfully in NVS: %d", i, new_valve_position);
+                    ESP_LOGD(TAG, "Valve position valve%d stored successfully in NVS: %d", i, new_valve_position);
                 }
                 nvs_close(nvsw);
                 // Re-open readonly handle for further reads
@@ -375,7 +352,7 @@ void valve_position_statemachine(int state_config_index)
         current = valvecontroldata.actual_valve_position[v];
         desired = desired_positions[v];
 
-        // ESP_LOGI(TAG, "Valve%d: %d", v, current);
+        ESP_LOGD(TAG, "Valve%d: %d", v, current);
 
         valvecontroldata.valve_number[v] = v;
 
@@ -396,7 +373,7 @@ void valve_position_statemachine(int state_config_index)
             valvecontroldata.direction[v] = 0; /* close/backward */
             sum_move = sum_move + valvecontroldata.position_change[v];
         }
-        // ESP_LOGI(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+        ESP_LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
     }
 
     if (sum_move > 0)
@@ -414,12 +391,11 @@ void valve_position_statemachine(int state_config_index)
     valvecontroldata.valve_move_request_from_post = false;
     xSemaphoreGive(valve_control_data_mutex);
 
-    // ESP_LOGI(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
+    ESP_LOGD(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
 
     /* Invoke control_valves() to perform movements. It will check statemachine state internally. */
     if (sum_move > 0)
     {
-        // ESP_LOGI(TAG, "sum_move: %d, Valve %d: cur=%d desired=%d change=%d dir=%s", sum_move, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
         ESP_LOGI(TAG, "sum_move is >0 (%d)", sum_move);
         control_valves();
     }
@@ -429,12 +405,10 @@ void valve_position_statemachine(int state_config_index)
     }
 }
 
-/*
- * direction: 1 = open (forward), 0 = close (backward)
- * position_change: 0..24 (1 => 24 cycles as in original)
- * valve_number: 0..11 (values >=6 are remapped as original)
- * dataPin, clockPin, latchPin: GPIO pins for the chain
- */
+// direction: 1 = open (forward), 0 = close (backward)
+// position_change: 0..24 (1 => 24 cycles as in original)
+// valve_number: 0..11 (values >=6 are remapped as original)
+// dataPin, clockPin, latchPin: GPIO pins for the chain
 
 esp_err_t valvecontrol(int direction, int position_change, int valve_number, int dataPin, int clockPin, int latchPin)
 {
