@@ -602,35 +602,34 @@ void set_log_levels(void)
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
 
     // Custom TAG sttings
-    esp_log_level_set("Config", ESP_LOG_WARN);
-    esp_log_level_set("Fan_control", ESP_LOG_WARN);
-    esp_log_level_set("General", ESP_LOG_WARN);
-    esp_log_level_set("HTTP_server", ESP_LOG_WARN);
-    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_WARN);
-    esp_log_level_set("HTTP_JSON_ws", ESP_LOG_WARN);
-    esp_log_level_set("I2C_DS3231", ESP_LOG_WARN);
-    esp_log_level_set("i2c_functions", ESP_LOG_WARN);
-    esp_log_level_set("i2c_LCD", ESP_LOG_WARN);
-    esp_log_level_set("i2c_sensors", ESP_LOG_WARN);
-    esp_log_level_set("Influxdb", ESP_LOG_WARN);
-    esp_log_level_set("main", ESP_LOG_WARN);
-    esp_log_level_set("MQTT", ESP_LOG_WARN);
-    esp_log_level_set("RGB_LED", ESP_LOG_WARN);
-    esp_log_level_set("SM_helpers", ESP_LOG_WARN);
-    esp_log_level_set("SM", ESP_LOG_DEBUG);
-    esp_log_level_set("Sys_stats", ESP_LOG_WARN);
-    esp_log_level_set("Syslog", ESP_LOG_WARN);
-    esp_log_level_set("task_DS3231_sync", ESP_LOG_WARN);
-    esp_log_level_set("task_i2c_LCD", ESP_LOG_WARN);
-    esp_log_level_set("task_i2c_sensors", ESP_LOG_WARN);
-    esp_log_level_set("task_influxdb", ESP_LOG_WARN);
-    esp_log_level_set("task_MQTT", ESP_LOG_WARN);
-    esp_log_level_set("task_rgb_leds", ESP_LOG_WARN);
-    esp_log_level_set("task_SM", ESP_LOG_WARN);
-    esp_log_level_set("task_wifi", ESP_LOG_WARN);
-    esp_log_level_set("valvecontrol", ESP_LOG_WARN);
-    esp_log_level_set("wifi_functions", ESP_LOG_WARN);
-
+    esp_log_level_set("Config", ESP_LOG_INFO);
+    esp_log_level_set("Fan_control", ESP_LOG_INFO);
+    esp_log_level_set("General", ESP_LOG_INFO);
+    esp_log_level_set("HTTP_server", ESP_LOG_INFO);
+    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);
+    esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
+    esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
+    esp_log_level_set("i2c_functions", ESP_LOG_INFO);
+    esp_log_level_set("i2c_LCD", ESP_LOG_INFO);
+    esp_log_level_set("i2c_sensors", ESP_LOG_INFO);
+    esp_log_level_set("Influxdb", ESP_LOG_INFO);
+    esp_log_level_set("main", ESP_LOG_INFO);
+    esp_log_level_set("MQTT", ESP_LOG_INFO);
+    esp_log_level_set("RGB_LED", ESP_LOG_INFO);
+    esp_log_level_set("SM_helpers", ESP_LOG_INFO);
+    esp_log_level_set("SM", ESP_LOG_INFO);
+    esp_log_level_set("Sys_stats", ESP_LOG_INFO);
+    esp_log_level_set("Syslog", ESP_LOG_INFO);
+    esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
+    esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
+    esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
+    esp_log_level_set("task_influxdb", ESP_LOG_INFO);
+    esp_log_level_set("task_MQTT", ESP_LOG_INFO);
+    esp_log_level_set("task_rgb_leds", ESP_LOG_INFO);
+    esp_log_level_set("task_SM", ESP_LOG_INFO);
+    esp_log_level_set("task_wifi", ESP_LOG_INFO);
+    esp_log_level_set("valve_control", ESP_LOG_INFO);
+    esp_log_level_set("wifi_functions", ESP_LOG_INFO);
 
     // Set all log levels
     // esp_log_level_set("*", ESP_LOG_ERROR);

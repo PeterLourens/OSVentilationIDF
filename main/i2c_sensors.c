@@ -260,7 +260,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     // Warm-up
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    ESP_LOGD("SCD41", "SCD41 initialized successfully");
+    ESP_LOGD(TAG, "SCD41 initialized successfully");
     return ESP_OK;
 }
 
@@ -295,21 +295,21 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
     esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Transmit failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Transmit failed: %s", esp_err_to_name(err));
         return err;
     }
 
     err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE("SCD41", "Receive failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Receive failed: %s", esp_err_to_name(err));
         return err;
     }
 
     uint8_t crc = scd41_crc8(response, 2);
     if (crc != response[2])
     {
-        ESP_LOGE("SCD41", "CRC mismatch: got 0x%02X, expected 0x%02X", response[2], crc);
+        ESP_LOGE(TAG, "CRC mismatch: got 0x%02X, expected 0x%02X", response[2], crc);
         return ESP_ERR_INVALID_CRC;
     }
 
@@ -562,7 +562,7 @@ void sensor_data_average(void)
 
     if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
     {
-        ESP_LOGW("AVG", "sensor_data_average: sensor_queue empty");
+        ESP_LOGW(TAG, "sensor_data_average: sensor_queue empty");
         return;
     }
 
@@ -585,7 +585,7 @@ void sensor_data_average(void)
     }
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-    ESP_LOGD("AVG", "sensor_data_average: wrote avg data to queue");
+    ESP_LOGD(TAG, "sensor_data_average: wrote avg data to queue");
 }
 
 void fifoPush(int bus, int slot, int measurement, float value, int pos)

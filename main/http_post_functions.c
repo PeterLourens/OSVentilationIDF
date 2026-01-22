@@ -517,6 +517,7 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
     char key_new[32];
     char val[64];
     int fanspeed_code = 0;
+    // int temp_val = 0;
 
     snprintf(key, sizeof(key), "s%d_en", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
@@ -547,48 +548,48 @@ cJSON *build_state_config_from_body_urlencoded(const char *body, size_t len, int
 
     snprintf(key, sizeof(key), "s%d_st_h", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "state_start_hour", val);
+        cJSON_AddNumberToObject(obj, "state_start_hour", atoi(val));
     else
-        cJSON_AddStringToObject(obj, "state_start_hour", "");
+        cJSON_AddNumberToObject(obj, "state_start_hour", 0);
 
     snprintf(key, sizeof(key), "s%d_st_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "state_start_minute", val);
+        cJSON_AddNumberToObject(obj, "state_start_minute", atoi(val));
     else
-        cJSON_AddStringToObject(obj, "state_start_minute", "");
+        cJSON_AddNumberToObject(obj, "state_start_minute", 0);
 
     snprintf(key, sizeof(key), "s%d_end_h", state_number);
     if (httpd_query_key_value(body, "state_end_hour", val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddNumberToObject(obj, key, atoi(val));
     else
-        cJSON_AddStringToObject(obj, "state_end_hour", "");
+        cJSON_AddNumberToObject(obj, "state_end_hour", 0);
 
     snprintf(key, sizeof(key), "s%d_end_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "state_end_minute", val);
+        cJSON_AddNumberToObject(obj, "state_end_minute", atoi(val));
     else
-        cJSON_AddStringToObject(obj, "state_end_minute", "");
+        cJSON_AddNumberToObject(obj, "state_end_minute", 0);
 
     snprintf(key, sizeof(key), "s%d_dur_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "duration_minutes", val);
+        cJSON_AddNumberToObject(obj, "duration_minutes", atoi(val));
     else
-        cJSON_AddStringToObject(obj, "duration_minutes", "");
+        cJSON_AddNumberToObject(obj, "duration_minutes", 0);
 
     snprintf(key, sizeof(key), "s%d_cycl_int_m", state_number);
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, "cycling_interval_min", val);
+        cJSON_AddNumberToObject(obj, "cycling_interval_min", atoi(val));
     else
-        cJSON_AddStringToObject(obj, "cycling_interval_min", "");
+        cJSON_AddNumberToObject(obj, "cycling_interval_min", 0);
 
     for (int j = 0; j < MAX_VALVE_COUNT; ++j)
     {
         snprintf(key, sizeof(key), "s%d_v%d_pos", state_number, j);
         snprintf(key_new, sizeof(key_new), "valve%d_pos", j);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-            cJSON_AddStringToObject(obj, key_new, val);
+            cJSON_AddNumberToObject(obj, key_new, atoi(val));
         else
-            cJSON_AddStringToObject(obj, key_new, "");
+            cJSON_AddNumberToObject(obj, key_new, 0);
     }
 
     return obj;

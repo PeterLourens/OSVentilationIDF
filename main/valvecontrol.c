@@ -2,7 +2,7 @@
 #include "statemachine.h"
 #include "esp_err.h"
 
-static const char *TAG = "valve control";
+static const char *TAG = "valve_control";
 
 /* Patterns */
 static const uint8_t pattern1[4] = {0b00000101, 0b00001001, 0b00001010, 0b00000110};
@@ -307,8 +307,6 @@ void control_valves(void)
 
 void valve_position_statemachine(int state_config_index)
 {
-    static const char *TAG = "valve pos statemachine";
-
     int desired_positions[MAX_VALVE_COUNT] = {0};
     int sum_move = 0;
     int current = 0;

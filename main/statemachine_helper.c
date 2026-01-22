@@ -606,8 +606,6 @@ void select_sensors(void)
     int j = 0; // CO2 sensor counter
     int k = 0; // RH sensor counter
 
-    static const char *TAG = "select_sensors";
-
     co2_sensor_counter = 0;
     rh_sensor_counter = 0;
 
