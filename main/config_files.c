@@ -14,7 +14,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
 
     snprintf(path, sizeof(path), "/data/json/%s.json", config_name);
-    // ESP_LOGI(TAG, "Attempting to read config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -35,7 +35,7 @@ esp_err_t load_sensor_config(const char *config_name)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -135,7 +135,7 @@ esp_err_t load_network_config(void)
     char path[128] = "/data/json/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read network config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read network config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -156,7 +156,7 @@ esp_err_t load_network_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -228,11 +228,10 @@ esp_err_t load_network_config(void)
 
 esp_err_t load_time_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/time_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read time config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read time config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -253,7 +252,7 @@ esp_err_t load_time_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -301,11 +300,10 @@ esp_err_t load_time_config(void)
 
 esp_err_t load_mqtt_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/mqtt_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read MQTT config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read MQTT config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -326,7 +324,7 @@ esp_err_t load_mqtt_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -382,11 +380,10 @@ esp_err_t load_mqtt_config(void)
 
 esp_err_t load_influxdb_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/influxdb_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read InfluxDB config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read InfluxDB config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -407,7 +404,7 @@ esp_err_t load_influxdb_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -466,11 +463,10 @@ esp_err_t load_influxdb_config(void)
 
 esp_err_t load_fan_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/fan_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read fan config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read fan config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -491,7 +487,7 @@ esp_err_t load_fan_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -558,11 +554,10 @@ esp_err_t load_fan_config(void)
 
 esp_err_t load_i2c_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/i2c_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read i2c config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read i2c config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -583,7 +578,7 @@ esp_err_t load_i2c_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -591,7 +586,6 @@ esp_err_t load_i2c_config(void)
     cJSON *bus0_multiplexer_address = cJSON_GetObjectItem(json, "bus0_multiplexer_address");
     cJSON *bus1_multiplexer_address = cJSON_GetObjectItem(json, "bus1_multiplexer_address");
     cJSON *enable_lcd = cJSON_GetObjectItem(json, "enable_lcd");
-    // cJSON *lcd_i2c_address = cJSON_GetObjectItem(json, "lcd_i2c_address");
 
     // Acquire mqtt config mutex before updating global settings
     bool taken = false;
@@ -638,11 +632,10 @@ esp_err_t load_i2c_config(void)
 
 esp_err_t load_syslog_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/syslog_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read syslog config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read syslog config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -663,7 +656,7 @@ esp_err_t load_syslog_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -715,11 +708,10 @@ esp_err_t load_syslog_config(void)
 // Load statemachine settings
 esp_err_t load_statemachine_general_config(void)
 {
-    const char *TAG = "Config";
     char path[128] = "/data/json/sm_general_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    // ESP_LOGI(TAG, "Attempting to read general statemachine config: %s", path);
+    ESP_LOGD(TAG, "Attempting to read general statemachine config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
@@ -740,7 +732,7 @@ esp_err_t load_statemachine_general_config(void)
     if (!json)
     {
         ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        // ESP_LOGW(TAG, "Raw content: %s", buffer);
+        ESP_LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -1134,29 +1126,6 @@ esp_err_t load_state_config(void)
     }
 
     ESP_LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
-
-    /*for (size_t i = 0; i < states_loaded; ++i)
-    {
-        const statemachine_config_t *s = &statemachine_config[i];
-        ESP_LOGI(TAG, "[%u] en=%d speed=%d name=%s RH(%d..%d) CO2(%d..%d) "
-                      "start=%02d:%02d end=%02d:%02d dur=%d cycle interval=%d min",
-                 (unsigned)i,
-                 s->enable_state,
-                 s->fanspeed,
-                 s->state_name,
-                 s->rh_low_level, s->rh_high_level,
-                 s->co2_low_level, s->co2_high_level,
-                 s->state_start_hour, s->state_start_minute,
-                 s->state_end_hour, s->state_end_minute,
-                 s->duration_minutes,
-                 s->cycling_interval_min);
-
-        // Print first 12 valve positions (or MAX_VALVE_COUNT)
-        for (int v = 0; v < MAX_VALVE_COUNT; ++v)
-        {
-            ESP_LOGI(TAG, "  valve[%d]=%d", v, s->valve_position[v]);
-        }
-    }*/
 
     return err;
 }

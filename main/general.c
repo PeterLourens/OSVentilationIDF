@@ -1,6 +1,8 @@
 #include "general.h"
 #include "esp_log_level.h"
 
+static const char *TAG = "General";
+
 const char *state_nr_to_str(state_nr_t state)
 {
     switch (state)
@@ -57,7 +59,6 @@ const char *fan_speed_to_str(fan_speed_t f)
 
 esp_err_t init_nvs(void)
 {
-    const char *TAG = "Storage";
     esp_err_t err = ESP_OK;
 
     err = nvs_flash_init();
@@ -80,7 +81,6 @@ esp_err_t init_nvs(void)
 
 esp_err_t init_littlefs(void)
 {
-    const char *TAG = "Storage";
     esp_err_t err = ESP_OK;
 
     const esp_vfs_littlefs_conf_t conf = {
@@ -141,8 +141,6 @@ esp_err_t init_littlefs(void)
 
 esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
 {
-    static const char *TAG = "config";
-
     if (!path || !buffer || bufferSize == 0)
     {
         ESP_LOGE(TAG, "Invalid arguments");
@@ -183,7 +181,6 @@ bool is_valid_ip_address(const char *ip_address)
 // Function to check if Wi-Fi has an IP
 bool wifi_has_ip(void)
 {
-    static const char *TAG = "IP Check";
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (netif == NULL)
     {
@@ -201,7 +198,6 @@ bool wifi_has_ip(void)
 
 esp_err_t create_mutexes(void)
 {
-    const char *TAG = "mutexes";
     bool ok = true;
 
     // Mutex for valve movement locking
@@ -366,7 +362,6 @@ esp_err_t create_mutexes(void)
 
 void init_timezone(void)
 {
-    const char *TAG = "Set timezone";
     char ntp_server[64];
     char timezone[64];
 
@@ -390,7 +385,6 @@ void init_timezone(void)
 /* ========== Ping to gateway functions ========== */
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
-    // const char *TAG = "network";
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
 
     // Profiles available in ESP‑IDF 5.5.1
@@ -412,10 +406,10 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
     g_ping_summary.duration_ms = (int)duration;
     g_ping_summary.success = (received > 0);
 
-    /*ESP_LOGI(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
+    ESP_LOGD(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
              g_ping_summary.transmitted, g_ping_summary.received,
              g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
-             g_ping_summary.duration_ms);*/
+             g_ping_summary.duration_ms);
 
     // Clean up session
     esp_ping_delete_session(hdl);
@@ -429,8 +423,6 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
 
 bool ping_gateway(void)
 {
-    const char *TAG = "network";
-
     // Ensure station netif exists
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (!netif)
@@ -447,13 +439,13 @@ bool ping_gateway(void)
     }
 
     // Log gateway using IPSTR/IP2STR to avoid incompatible-pointer warnings
-    // ESP_LOGI(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
 
     // Build ip_addr_t target_addr from ip_info.gw
     ip_addr_t target_addr;
     IP_ADDR4(&target_addr, ip4_addr1(&ip_info.gw), ip4_addr2(&ip_info.gw), ip4_addr3(&ip_info.gw), ip4_addr4(&ip_info.gw));
 
-    // ESP_LOGI(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
 
     // Reset summary
     memset(&g_ping_summary, 0, sizeof(g_ping_summary));
@@ -611,6 +603,10 @@ void set_log_levels(void)
 
     // Custom TAG sttings
     esp_log_level_set("StatemachineHelper", ESP_LOG_DEBUG);
+    esp_log_level_set("Config", ESP_LOG_WARN);
+    esp_log_level_set("Fan_control", ESP_LOG_WARN);
+    esp_log_level_set("General", ESP_LOG_WARN);
+
 
     // Set all log levels
     // esp_log_level_set("*", ESP_LOG_ERROR);
@@ -618,8 +614,6 @@ void set_log_levels(void)
 
 void print_html_file(const char *filepath)
 {
-    const char *TAG = "print";
-
     FILE *f = fopen(filepath, "r");
 
     if (!f)

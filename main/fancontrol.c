@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 
-static const char *TAG = "fancontrol";
+static const char *TAG = "Fan_control";
 
 static const char *fanspeed_to_str(int s)
 {
@@ -104,24 +104,24 @@ void set_fanspeed(int fanspeed)
         xSemaphoreGive(fan_config_mutex);
     }
 
-    ESP_LOGI(TAG, "Fanspeed %s", fanspeed_to_str(cur_speed));
+    ESP_LOGD(TAG, "Fanspeed %s", fanspeed_to_str(cur_speed));
 
     if (strcmp(fan_control_mode, "MQTT publish") == 0)
     {
-        ESP_LOGI(TAG, "Using MQTT to set fan speed");
+        ESP_LOGD(TAG, "Using MQTT to set fan speed");
         /* Not yet implemented: subscribe/publish to MQTT topic */
     }
     else if (strcmp(fan_control_mode, "HTTP API") == 0)
     {
-        ESP_LOGI(TAG, "Using HTTP API to set fan speed");
+        ESP_LOGD(TAG, "Using HTTP API to set fan speed");
 
         if (cur_speed == FANSPEED_LOW)
         {
-            ESP_LOGI(TAG, "Low speed selected");
+            ESP_LOGD(TAG, "Low speed selected");
             httpResponseCode = do_http_get(fan_control_url_low_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGI(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
@@ -130,11 +130,11 @@ void set_fanspeed(int fanspeed)
         }
         else if (cur_speed == FANSPEED_MEDIUM)
         {
-            ESP_LOGI(TAG, "Medium speed selected");
+            ESP_LOGD(TAG, "Medium speed selected");
             httpResponseCode = do_http_get(fan_control_url_medium_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGI(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
@@ -143,11 +143,11 @@ void set_fanspeed(int fanspeed)
         }
         else if (cur_speed == FANSPEED_HIGH)
         {
-            ESP_LOGI(TAG, "High speed selected");
+            ESP_LOGD(TAG, "High speed selected");
             httpResponseCode = do_http_get(fan_control_url_high_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGI(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
