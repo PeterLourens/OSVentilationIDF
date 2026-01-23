@@ -5,13 +5,16 @@
 #include "syslog.h"
 
 extern bool syslog_enabled;
-void syslog_send_line(const char *line);
 
 #define LOG_FORMAT_AND_SEND(tag, level, prefix, fmt, ...)       \
     do                                                          \
     {                                                           \
         /* Always log locally */                                \
         ESP_LOG_LEVEL(level, tag, fmt, ##__VA_ARGS__);          \
+                                                                \
+        /* Respect ESP-IDF log level for syslog too */          \
+        if (level > esp_log_level_get(tag))                     \
+            break;                                              \
                                                                 \
         if (!syslog_enabled)                                    \
             break;                                              \
