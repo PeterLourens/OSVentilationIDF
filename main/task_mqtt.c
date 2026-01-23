@@ -9,7 +9,7 @@ void start_task_mqtt(void)
 
     if (created != pdPASS)
     {
-        ESP_LOGE(TAG, "Failed to create MQTT task");
+        LOGE(TAG, "Failed to create MQTT task");
     }
 }
 
@@ -22,13 +22,13 @@ void task_mqtt_code(void *pvParameters)
 
     while (true)
     {
-        ESP_LOGI(TAG, "Update MQTT...");
+        LOGI(TAG, "Update MQTT...");
         mqtt_apply_config_change();
-        ESP_LOGD(TAG, "Publish sensors...");
+        LOGD(TAG, "Publish sensors...");
         mqtt_publish_sensor_values();
-        ESP_LOGD(TAG, "Publish valve positions...");
+        LOGD(TAG, "Publish valve positions...");
         mqtt_publish_valve_positions();
-        ESP_LOGD(TAG, "Publish state and fanspeed...");
+        LOGD(TAG, "Publish state and fanspeed...");
         mqtt_publish_state_and_fanspeed();
         vTaskDelay(pdMS_TO_TICKS(20000)); // publish every 10s
     }

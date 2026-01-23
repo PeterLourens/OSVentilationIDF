@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "logging.h"
 
 #include "driver/i2c_master.h"
 

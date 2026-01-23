@@ -51,22 +51,22 @@ bool is_day(void)
     current_minutes = temp_time.tm_hour * 60 + temp_time.tm_min;
 
     // Debug
-    ESP_LOGD(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
-    ESP_LOGD(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
-    ESP_LOGD(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
+    LOGD(TAG, "Weekday: day h start is %d and day start min is %d", weekday_day_hour_start, weekday_day_minute_start);
+    LOGD(TAG, "Weekend: day h start is %d and day start min is %d", weekend_day_hour_start, weekend_day_minute_start);
+    LOGD(TAG, "Actual time: %d - %d", temp_time.tm_hour, temp_time.tm_min);
 
     if (is_weekend())
     {
         int day_start = weekend_day_hour_start * 60 + weekend_day_minute_start;
         int night_start = weekend_night_hour_start * 60 + weekend_night_minute_start;
-        ESP_LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
     else
     {
         int day_start = weekday_day_hour_start * 60 + weekday_day_minute_start;
         int night_start = weekday_night_hour_start * 60 + weekday_night_minute_start;
-        ESP_LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
+        LOGD(TAG, "Current minutes is: %d, day start: %d, night_start: %d", current_minutes, day_start, night_start);
         return current_minutes >= day_start && current_minutes < night_start;
     }
 }
@@ -87,8 +87,8 @@ bool is_weekend(void)
     }
 
     // Debug
-    ESP_LOGD(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
-    ESP_LOGD(TAG, "Today is: %s", day_now);
+    LOGD(TAG, "Weekend days from settings are %s and %s", day_buffer1, day_buffer2);
+    LOGD(TAG, "Today is: %s", day_now);
 
     if (strcmp(day_now, day_buffer1) == 0 || strcmp(day_now, day_buffer2) == 0)
     {
@@ -120,11 +120,11 @@ bool cooking_times(void)
     strncpy(state_name, STATE_COOKING, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
-    ESP_LOGD(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
+    LOGD(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
 
     if (state_config_index < 0)
     {
-        ESP_LOGD(TAG, "Invalid state index (<0). Returning false.");
+        LOGD(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -141,21 +141,21 @@ bool cooking_times(void)
         }
     }
 
-    ESP_LOGD(TAG, "Config for '%s': start=%02d:%02d stop=%02d:%02d", state_name, start_hour, start_min, stop_hour, stop_min);
+    LOGD(TAG, "Config for '%s': start=%02d:%02d stop=%02d:%02d", state_name, start_hour, start_min, stop_hour, stop_min);
 
     if (temp_time.tm_hour == start_hour && temp_time.tm_min > start_min)
     {
-        ESP_LOGD(TAG, "Condition met: hour==start_hour && min>start_min -> cooking = true");
+        LOGD(TAG, "Condition met: hour==start_hour && min>start_min -> cooking = true");
         return true;
     }
     else if (temp_time.tm_hour == stop_hour && temp_time.tm_min >= stop_min)
     {
-        ESP_LOGD(TAG, "Condition met: hour==stop_hour && min>=stop_min -> cooking = false");
+        LOGD(TAG, "Condition met: hour==stop_hour && min>=stop_min -> cooking = false");
         return false;
     }
     else
     {
-        ESP_LOGD(TAG, "No conditions met -> cooking = false");
+        LOGD(TAG, "No conditions met -> cooking = false");
         return false;
     }
 }
@@ -278,11 +278,11 @@ bool valve_cycle_times_day(void)
     strncpy(state_name, STATE_CYCLINGDAY, sizeof(state_name));
     state_name[sizeof(state_name) - 1] = '\0';
     state_config_index = find_state_index_by_name_ci(state_name);
-    ESP_LOGD(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
+    LOGD(TAG, "State name is: %s, State index: %d", state_name, state_config_index);
 
     if (state_config_index < 0)
     {
-        ESP_LOGE(TAG, "Invalid state index (<0). Returning false.");
+        LOGE(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -313,7 +313,7 @@ bool valve_cycle_times_day(void)
         else
         {
             // Could not take mutex — be conservative and do not trigger cycling
-            ESP_LOGE(TAG, "Could not take state_config_mutex");
+            LOGE(TAG, "Could not take state_config_mutex");
             return false;
         }
     }
@@ -321,17 +321,17 @@ bool valve_cycle_times_day(void)
     else
     {
         // No mutex available — cannot safely read config
-        ESP_LOGE(TAG, "state_config_mutex == NULL");
+        LOGE(TAG, "state_config_mutex == NULL");
         return false;
     }
 
-    ESP_LOGD(TAG, "Config '%s': start=%02d:%02d stop=%02d:%02d, interval=%d min, duration=%d min", state_name, start_hour, start_min, stop_hour, stop_min, cycling_interval_min, duration_min);
-    ESP_LOGD(TAG, "General day/night config: WD day=%02d:%02d WD night=%02d:%02d | WE day=%02d:%02d WE night=%02d:%02d", wday_d_h, wday_d_m, wday_n_h, wday_n_m, wkend_d_h, wkend_d_m, wkend_n_h, wkend_n_m);
+    LOGD(TAG, "Config '%s': start=%02d:%02d stop=%02d:%02d, interval=%d min, duration=%d min", state_name, start_hour, start_min, stop_hour, stop_min, cycling_interval_min, duration_min);
+    LOGD(TAG, "General day/night config: WD day=%02d:%02d WD night=%02d:%02d | WE day=%02d:%02d WE night=%02d:%02d", wday_d_h, wday_d_m, wday_n_h, wday_n_m, wkend_d_h, wkend_d_m, wkend_n_h, wkend_n_m);
 
     // Enforce minimum interval of 30 minutes
     if (cycling_interval_min < 30)
     {
-        ESP_LOGD(TAG, "Invalid cycling interval (%d) <= 30. Returning false.", cycling_interval_min);
+        LOGD(TAG, "Invalid cycling interval (%d) <= 30. Returning false.", cycling_interval_min);
         return false;
         ;
     }
@@ -339,35 +339,35 @@ bool valve_cycle_times_day(void)
     // Validate duration
     if (duration_min <= 5)
     {
-        ESP_LOGD(TAG, "Invalid duration (%d) <= 5. Returning false.", duration_min);
+        LOGD(TAG, "Invalid duration (%d) <= 5. Returning false.", duration_min);
         return false;
     }
 
     int start = start_hour * 60 + start_min;
     int stop = stop_hour * 60 + stop_min;
     int current = temp_time.tm_hour * 60 + temp_time.tm_min;
-    ESP_LOGD(TAG, "Window minutes: start=%d stop=%d current=%d", start, stop, current);
+    LOGD(TAG, "Window minutes: start=%d stop=%d current=%d", start, stop, current);
 
     // If not in cycling window return false
     bool in_window = false;
     if (start == stop)
     {
         in_window = true;
-        ESP_LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
+        LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
     }
     else if (start < stop)
     {
         in_window = (current >= start && current < stop);
-        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
+        LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     else
     {
         in_window = (current >= start || current < stop);
-        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
+        LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     if (!in_window)
     {
-        ESP_LOGD(TAG, "Current time not in cycling window. Returning false.");
+        LOGD(TAG, "Current time not in cycling window. Returning false.");
         return false;
     }
 
@@ -377,52 +377,52 @@ bool valve_cycle_times_day(void)
     {
         day_start = wkend_d_h * 60 + wkend_d_m;
         day_stop = wkend_n_h * 60 + wkend_n_m;
-        ESP_LOGD(TAG, "Weekend: day window [%d, %d)", day_start, day_stop);
+        LOGD(TAG, "Weekend: day window [%d, %d)", day_start, day_stop);
     }
     else
     {
         day_start = wday_d_h * 60 + wday_d_m;
         day_stop = wday_n_h * 60 + wday_n_m;
-        ESP_LOGD(TAG, "Weekday: day window [%d, %d)", day_start, day_stop);
+        LOGD(TAG, "Weekday: day window [%d, %d)", day_start, day_stop);
     }
 
     int overlap_minutes = minutes_overlap(start, stop, day_start, day_stop);
-    ESP_LOGD(TAG, "Overlap between cycle window and day window: %d minutes", overlap_minutes);
+    LOGD(TAG, "Overlap between cycle window and day window: %d minutes", overlap_minutes);
 
     if (overlap_minutes <= 0)
     {
-        ESP_LOGD(TAG, "No overlap with day window. Returning false.");
+        LOGD(TAG, "No overlap with day window. Returning false.");
         return false;
     }
 
     // Compute maximum allowed cycles within overlap (ceil-like for first cycle at start)
     int max_cycles = (overlap_minutes <= 0) ? 0 : ((overlap_minutes - 1) / cycling_interval_min) + 1;
-    ESP_LOGD(TAG, "Max cycles within overlap: %d (interval=%d, overlap=%d)", max_cycles, cycling_interval_min, overlap_minutes);
+    LOGD(TAG, "Max cycles within overlap: %d (interval=%d, overlap=%d)", max_cycles, cycling_interval_min, overlap_minutes);
 
     if (max_cycles <= 0)
     {
-        ESP_LOGD(TAG, "max_cycles <= 0. Returning false.");
+        LOGD(TAG, "max_cycles <= 0. Returning false.");
         return false;
     }
 
     // Compute elapsed minutes since cycling start (wrap-aware)
     int elapsed = (current >= start) ? (current - start) : (current + 1440 - start);
-    ESP_LOGD(TAG, "Elapsed since start: %d minutes", elapsed);
+    LOGD(TAG, "Elapsed since start: %d minutes", elapsed);
 
     // Determine which cycle index we're in
     int cycle_index = elapsed / cycling_interval_min;
-    ESP_LOGD(TAG, "cycle_index=%d (elapsed=%d, interval=%d)", cycle_index, elapsed, cycling_interval_min);
+    LOGD(TAG, "cycle_index=%d (elapsed=%d, interval=%d)", cycle_index, elapsed, cycling_interval_min);
 
     if (cycle_index >= max_cycles)
     {
-        ESP_LOGD(TAG, "cycle_index >= max_cycles. Returning false.");
+        LOGD(TAG, "cycle_index >= max_cycles. Returning false.");
         return false;
     }
 
     int elapsed_mod = elapsed % cycling_interval_min;
     if (elapsed_mod < duration_min)
     {
-        ESP_LOGD(TAG, "elapsed_mod=%d, duration=%d", elapsed_mod, duration_min);
+        LOGD(TAG, "elapsed_mod=%d, duration=%d", elapsed_mod, duration_min);
         return true;
     }
 
@@ -458,7 +458,7 @@ bool valve_cycle_times_night(void)
 
     if (state_config_index < 0)
     {
-        ESP_LOGE(TAG, "Invalid state index (<0). Returning false.");
+        LOGE(TAG, "Invalid state index (<0). Returning false.");
         return false;
     }
 
@@ -489,59 +489,59 @@ bool valve_cycle_times_night(void)
         else
         {
             // Could not take mutex — be conservative and do not trigger cycling
-            ESP_LOGE(TAG, "Could not take state_config_mutex");
+            LOGE(TAG, "Could not take state_config_mutex");
             return false;
         }
     }
     else
     {
         // No mutex available — cannot safely read config
-        ESP_LOGE(TAG, "state_config_mutex == NULL");
+        LOGE(TAG, "state_config_mutex == NULL");
         return false;
     }
 
-    ESP_LOGD(TAG, "Config '%s': start=%02d:%02d stop=%02d:%02d, interval=%d min, duration=%d min", state_name, start_hour, start_min, stop_hour, stop_min, cycling_interval_min, duration_min);
-    ESP_LOGD(TAG, "General day/night config: WD day=%02d:%02d WD night=%02d:%02d | WE day=%02d:%02d WE night=%02d:%02d", wday_d_h, wday_d_m, wday_n_h, wday_n_m, wkend_d_h, wkend_d_m, wkend_n_h, wkend_n_m);
+    LOGD(TAG, "Config '%s': start=%02d:%02d stop=%02d:%02d, interval=%d min, duration=%d min", state_name, start_hour, start_min, stop_hour, stop_min, cycling_interval_min, duration_min);
+    LOGD(TAG, "General day/night config: WD day=%02d:%02d WD night=%02d:%02d | WE day=%02d:%02d WE night=%02d:%02d", wday_d_h, wday_d_m, wday_n_h, wday_n_m, wkend_d_h, wkend_d_m, wkend_n_h, wkend_n_m);
 
     // Enforce minimum interval of 30 minutes
     if (cycling_interval_min < 30)
     {
-        ESP_LOGD(TAG, "Invalid cycling interval (%d) <= 30. Returning false.", cycling_interval_min);
+        LOGD(TAG, "Invalid cycling interval (%d) <= 30. Returning false.", cycling_interval_min);
         return false;
     }
 
     // Validate duration
     if (duration_min <= 5)
     {
-        ESP_LOGD(TAG, "Invalid duration (%d) <= 5. Returning false.", duration_min);
+        LOGD(TAG, "Invalid duration (%d) <= 5. Returning false.", duration_min);
         return false;
     }
 
     int start = start_hour * 60 + start_min;
     int stop = stop_hour * 60 + stop_min;
     int current = temp_time.tm_hour * 60 + temp_time.tm_min;
-    ESP_LOGD(TAG, "Window minutes: start=%d stop=%d current=%d", start, stop, current);
+    LOGD(TAG, "Window minutes: start=%d stop=%d current=%d", start, stop, current);
 
     // If not in cycling window return false
     bool in_window = false;
     if (start == stop)
     {
-        ESP_LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
+        LOGD(TAG, "Start == stop -> window spans full day. in_window=true");
         in_window = true;
     }
     else if (start < stop)
     {
         in_window = (current >= start && current < stop);
-        ESP_LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
+        LOGD(TAG, "Non-wrapping window [%d, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     else
     {
         in_window = (current >= start || current < stop);
-        ESP_LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
+        LOGD(TAG, "Wrapping window [%d, 1440) U [0, %d): in_window=%s", start, stop, in_window ? "true" : "false");
     }
     if (!in_window)
     {
-        ESP_LOGD(TAG, "Current time not in cycling window. Returning false.");
+        LOGD(TAG, "Current time not in cycling window. Returning false.");
         return false;
     }
 
@@ -551,13 +551,13 @@ bool valve_cycle_times_night(void)
     {
         night_start = wkend_n_h * 60 + wkend_n_m;
         night_stop = wkend_d_h * 60 + wkend_d_m;
-        ESP_LOGD(TAG, "Weekend: night window [%d, %d)", night_start, night_stop);
+        LOGD(TAG, "Weekend: night window [%d, %d)", night_start, night_stop);
     }
     else
     {
         night_start = wday_n_h * 60 + wday_n_m;
         night_stop = wday_d_h * 60 + wday_d_m;
-        ESP_LOGD(TAG, "Weekday: night window [%d, %d)", night_start, night_stop);
+        LOGD(TAG, "Weekday: night window [%d, %d)", night_start, night_stop);
     }
 
     int overlap_minutes = minutes_overlap(start, stop, night_start, night_stop);
@@ -567,29 +567,29 @@ bool valve_cycle_times_night(void)
 
     // Compute maximum allowed cycles within overlap
     int max_cycles = (overlap_minutes <= 0) ? 0 : ((overlap_minutes - 1) / cycling_interval_min) + 1;
-    ESP_LOGD(TAG, "Max cycles within overlap: %d (interval=%d, overlap=%d)", max_cycles, cycling_interval_min, overlap_minutes);
+    LOGD(TAG, "Max cycles within overlap: %d (interval=%d, overlap=%d)", max_cycles, cycling_interval_min, overlap_minutes);
 
     if (max_cycles <= 0)
     {
-        ESP_LOGD(TAG, "max_cycles <= 0. Returning false.");
+        LOGD(TAG, "max_cycles <= 0. Returning false.");
         return false;
     }
 
     // Compute elapsed minutes since cycling start (wrap-aware)
     int elapsed = (current >= start) ? (current - start) : (current + 1440 - start);
-    ESP_LOGD(TAG, "Elapsed since start: %d minutes", elapsed);
+    LOGD(TAG, "Elapsed since start: %d minutes", elapsed);
 
     int cycle_index = elapsed / cycling_interval_min;
     if (cycle_index >= max_cycles)
     {
-        ESP_LOGD(TAG, "cycle_index >= max_cycles. Returning false.");
+        LOGD(TAG, "cycle_index >= max_cycles. Returning false.");
         return false;
     }
 
     int elapsed_mod = elapsed % cycling_interval_min;
     if (elapsed_mod < duration_min)
     {
-        ESP_LOGD(TAG, "elapsed_mod=%d, duration=%d", elapsed_mod, duration_min);
+        LOGD(TAG, "elapsed_mod=%d, duration=%d", elapsed_mod, duration_min);
         return true;
     }
 
@@ -613,7 +613,7 @@ void select_sensors(void)
 
     if (xQueuePeek(sensor_avg_queue, &sensor_data, 0) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to read from sensor_avg_queue");
+        LOGE(TAG, "Failed to read from sensor_avg_queue");
         return;
     }
 
@@ -644,7 +644,7 @@ void select_sensors(void)
             co2_sensors[j].valve = (char *)valve;
             co2_sensors[j].co2_reading = reading;
 
-            ESP_LOGI(TAG, "%s, CO2: %.2f", valve, reading);
+            LOGI(TAG, "%s, CO2: %.2f", valve, reading);
             j++;
         }
 
@@ -662,7 +662,7 @@ void select_sensors(void)
             co2_sensors[j].valve = (char *)valve;
             co2_sensors[j].co2_reading = reading;
 
-            ESP_LOGI(TAG, "%s, CO2: %.2f", valve, reading);
+            LOGI(TAG, "%s, CO2: %.2f", valve, reading);
             j++;
         }
 
@@ -680,7 +680,7 @@ void select_sensors(void)
             rh_sensors[k].valve = (char *)valve;
             rh_sensors[k].rh_reading = reading;
 
-            ESP_LOGI(TAG, "%s, RH: %.2f", valve, reading);
+            LOGI(TAG, "%s, RH: %.2f", valve, reading);
             k++;
         }
 
@@ -698,7 +698,7 @@ void select_sensors(void)
             rh_sensors[k].valve = (char *)valve;
             rh_sensors[k].rh_reading = reading;
 
-            ESP_LOGI(TAG, "%s, RH: %.2f", valve, reading);
+            LOGI(TAG, "%s, RH: %.2f", valve, reading);
             k++;
         }
     }
@@ -719,7 +719,7 @@ bool statemachine_consume_valve_move_request(void)
     }
     else
     {
-        ESP_LOGE(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
+        LOGE(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
         /* conservative: avoid triggering move if mutex cannot be taken */
         rv = false;
     }

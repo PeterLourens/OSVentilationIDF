@@ -5,6 +5,7 @@
 #include <esp_log.h>
 
 #include "globals.h"
+#include "logging.h"
 
 // Function declarations
 esp_err_t i2c_init_master0(void);

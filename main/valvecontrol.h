@@ -1,10 +1,11 @@
 #ifndef VALVECONTROL_H
 #define VALVECONTROL_H
 
+#include <driver/gpio.h>
+
 #include "globals.h"
 #include "general.h"
-
-#include "driver/gpio.h"
+#include "logging.h"
 
 // Function declarations
 esp_err_t gpio_setup_3pins(int, int, int);

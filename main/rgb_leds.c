@@ -113,7 +113,7 @@ esp_err_t init_rgb_led(void)
     led_strip_rmt_config_t rmt = {.resolution_hz = 10 * 1000 * 1000};
 
     esp_err_t err = led_strip_new_rmt_device(&cfg, &rmt, &rgb_leds);
-    ESP_LOGI(TAG, "LED strip initialized");
+    LOGI(TAG, "LED strip initialized");
     return err;
 }
 

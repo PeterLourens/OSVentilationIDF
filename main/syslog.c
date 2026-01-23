@@ -2,6 +2,9 @@
 
 const char *TAG = "syslog";
 
+// Enable syslog when wifi network is connected
+bool syslog_enabled = false;
+
 /* ---- Minimal UDP syslog sender (RFC3164-ish) ---- */
 void syslog_send_line(const char *line)
 {
@@ -42,8 +45,7 @@ void syslog_send_line(const char *line)
     }
 
     // Send message
-    int sent = sendto(sock, msg, strlen(msg), 0,
-                      (struct sockaddr *)&dest, sizeof(dest));
+    int sent = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
     if (sent < 0)
     {
         ESP_LOGE(TAG, "sendto failed: errno=%d", errno);
@@ -62,7 +64,9 @@ bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
 {
     if (!netif_key)
         netif_key = "WIFI_STA_DEF";
+
     int retries = 0;
+
     while (retries < max_retries)
     {
         esp_netif_ip_info_t ip;
@@ -79,4 +83,14 @@ bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
         retries++;
     }
     return false;
+}
+
+void syslog_enable(void)
+{
+    syslog_enabled = true;
+}
+
+void syslog_disable(void)
+{
+    syslog_enabled = false;
 }

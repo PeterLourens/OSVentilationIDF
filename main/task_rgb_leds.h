@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "rgb_leds.h"
+#include "logging.h"
 
 // Function declarations
 void start_task_rgb_leds(void);

@@ -5,6 +5,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "logging.h"
 
 // Sensor averaging helpers
 void sensor_data_average(void);

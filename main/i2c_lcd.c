@@ -33,7 +33,7 @@ esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &lcd_cfg, dev_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to add LCD device: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to add LCD device: %s", esp_err_to_name(err));
         return err;
     }
     return ESP_OK;
@@ -44,7 +44,7 @@ esp_err_t lcd_dev_write_byte(uint8_t data)
 {
     if (lcd_bus1_handle == NULL)
     {
-        ESP_LOGE(TAG, "LCD device not bound");
+        LOGE(TAG, "LCD device not bound");
         return ESP_ERR_INVALID_STATE;
     }
     return i2c_master_transmit(lcd_bus1_handle, &data, 1, LCD_I2C_TIMEOUT_TICKS);
@@ -102,7 +102,7 @@ esp_err_t i2c_lcd_init_device(void)
 {
     if (lcd_bus1_handle == NULL)
     {
-        ESP_LOGE(TAG, "No LCD device bound");
+        LOGE(TAG, "No LCD device bound");
         return ESP_ERR_INVALID_STATE;
     }
 
@@ -126,7 +126,7 @@ esp_err_t i2c_lcd_init_device(void)
     vTaskDelay(pdMS_TO_TICKS(2));
     lcd_command(0x06); // Entry mode set: increment, no shift
 
-    ESP_LOGD(TAG, "LCD initialized (device bound)");
+    LOGD(TAG, "LCD initialized (device bound)");
     return ESP_OK;
 }
 
@@ -301,7 +301,7 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
 
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
         buf[0] = '\0';
         return;
     }

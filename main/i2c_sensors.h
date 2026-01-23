@@ -5,6 +5,7 @@
 #include <esp_log.h>
 
 #include "globals.h"
+#include "logging.h"
 
 // Function declarations
 

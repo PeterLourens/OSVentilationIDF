@@ -630,6 +630,7 @@ void set_log_levels(void)
     esp_log_level_set("task_wifi", ESP_LOG_INFO);
     esp_log_level_set("valve_control", ESP_LOG_INFO);
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
+    esp_log_level_set("syslog", ESP_LOG_WARN);
 
     // Set all log levels
     // esp_log_level_set("*", ESP_LOG_ERROR);

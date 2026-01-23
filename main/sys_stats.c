@@ -31,14 +31,14 @@ static void sys_stats_init_temp_sensor(void)
     esp_err_t err = temperature_sensor_install(&config, &temp_sensor);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Temp sensor install failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "Temp sensor install failed: %s", esp_err_to_name(err));
         return;
     }
 
     err = temperature_sensor_enable(temp_sensor);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Temp sensor enable failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "Temp sensor enable failed: %s", esp_err_to_name(err));
         temperature_sensor_uninstall(temp_sensor);
         temp_sensor = NULL;
         return;
@@ -192,7 +192,9 @@ static void update_wifi_stats(void)
         sm_actuals.wifi_rssi = ap.rssi;
         sm_actuals.wifi_channel = ap.primary;
         sm_actuals.wifi_authmode = ap.authmode;
-        sm_actuals.wifi_phy = ap.phy_11b ? 1 : ap.phy_11g ? 2 : ap.phy_11n ? 3 : 0;
+        sm_actuals.wifi_phy = ap.phy_11b ? 1 : ap.phy_11g ? 2
+                                           : ap.phy_11n   ? 3
+                                                          : 0;
         sm_actuals.wifi_bandwidth = ap.second ? 40 : 20;
         snprintf(sm_actuals.wifi_bssid, sizeof(sm_actuals.wifi_bssid), "%02X:%02X:%02X:%02X:%02X:%02X", ap.bssid[0], ap.bssid[1], ap.bssid[2], ap.bssid[3], ap.bssid[4], ap.bssid[5]);
     }

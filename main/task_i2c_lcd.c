@@ -19,7 +19,7 @@ void task_i2c_lcd_code(void *pvParameters)
 
     float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
-    ESP_LOGI(TAG, "LCD task started...");
+    LOGI(TAG, "LCD task started...");
 
     // Initialize LCD device
     i2c_lcd_init_device();
@@ -28,7 +28,7 @@ void task_i2c_lcd_code(void *pvParameters)
 
     while (1)
     {
-        ESP_LOGI(TAG, "Update LCD...");
+        LOGI(TAG, "Update LCD...");
         i2c_lcd_backlight_set(true);
 
         /*----- Display 1 - General info -----*/
@@ -57,7 +57,7 @@ void task_i2c_lcd_code(void *pvParameters)
         /*----- Display 3 - Sensors -----*/
         if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to read avg sensor queue");
+            LOGE(TAG, "Failed to read avg sensor queue");
             continue;
         }
 

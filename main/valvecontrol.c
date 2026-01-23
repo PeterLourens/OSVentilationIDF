@@ -79,11 +79,11 @@ void read_valve_pos_in_valvecontrol(void)
 
     if (err != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to open NVS namespace 'valves': %s", esp_err_to_name(err));
+        LOGW(TAG, "Failed to open NVS namespace 'valves': %s", esp_err_to_name(err));
         return;
     }
 
-    ESP_LOGI(TAG, "Reading valve positions from NVS");
+    LOGI(TAG, "Reading valve positions from NVS");
 
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
     {
@@ -93,7 +93,7 @@ void read_valve_pos_in_valvecontrol(void)
 
         esp_err_t r = nvs_get_i32(nvs, key, &pos);
 
-        ESP_LOGD(TAG, "Key %s -> err=%s, value=%ld", key, esp_err_to_name(r), (long)pos);
+        LOGD(TAG, "Key %s -> err=%s, value=%ld", key, esp_err_to_name(r), (long)pos);
 
         if (r != ESP_OK)
         {
@@ -151,7 +151,7 @@ void control_valves(void)
         xSemaphoreGive(valve_control_data_mutex);
     }
 
-    ESP_LOGD(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
+    LOGD(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
 
     /* Ensure statemachine is in stopped mode before allowing manual valve moves */
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -168,7 +168,7 @@ void control_valves(void)
 
     if (valvecontrol_from_post == true && sm_state != STATE_NR_STOPPED)
     {
-        ESP_LOGW(TAG, "Statemachine not stopped (state=%d) — manual valve control aborted", sm_state);
+        LOGW(TAG, "Statemachine not stopped (state=%d) — manual valve control aborted", sm_state);
         return;
     }
 
@@ -177,7 +177,7 @@ void control_valves(void)
     esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
     if (err != ESP_OK)
     {
-        ESP_LOGW(TAG, "Failed to open NVS namespace 'valves' for read: %d", err);
+        LOGW(TAG, "Failed to open NVS namespace 'valves' for read: %d", err);
     }
 
     for (int i = 0; i < MAX_VALVE_COUNT; i++)
@@ -199,7 +199,7 @@ void control_valves(void)
             esp_err_t r = nvs_get_i32(nvs, key, &pos);
             if (r != ESP_OK)
             {
-                ESP_LOGW(TAG, "NVS read for %s failed: %d; assuming position 0", key, r);
+                LOGW(TAG, "NVS read for %s failed: %d; assuming position 0", key, r);
                 pos = 0;
             }
         }
@@ -235,7 +235,7 @@ void control_valves(void)
                 new_valve_position_change = (valve_position_change < available) ? valve_position_change : available;
                 new_valve_position = valve_pos + new_valve_position_change;
             }
-            ESP_LOGI(TAG, "Valve: %d, req.: %d, cur.: %d, move: %d, dir.: %s", valve_number, valve_position_change, valve_pos, new_valve_position_change, (direction == 0 ? "close" : "open"));
+            LOGI(TAG, "Valve: %d, req.: %d, cur.: %d, move: %d, dir.: %s", valve_number, valve_position_change, valve_pos, new_valve_position_change, (direction == 0 ? "close" : "open"));
             vc_ret = valvecontrol(direction, new_valve_position_change, valve_number, dataPin, clockPin, latchPin);
             moved = (vc_ret == ESP_OK && new_valve_position_change > 0);
         }
@@ -246,7 +246,7 @@ void control_valves(void)
         }
         else
         {
-            ESP_LOGE(TAG, "Position change outside valve range of 0 and 24");
+            LOGE(TAG, "Position change outside valve range of 0 and 24");
         }
 
         // If requested, write updated positions to NVS immediately after successful move
@@ -258,7 +258,7 @@ void control_valves(void)
             esp_err_t werr = nvs_open("valves", NVS_READWRITE, &nvsw);
             if (werr != ESP_OK)
             {
-                ESP_LOGE(TAG, "Failed to open NVS for write: %d", werr);
+                LOGE(TAG, "Failed to open NVS for write: %d", werr);
             }
             else
             {
@@ -276,7 +276,7 @@ void control_valves(void)
                 }
                 if (s != ESP_OK)
                 {
-                    ESP_LOGE(TAG, "Failed to write valve position %s after retries: %d", key, s);
+                    LOGE(TAG, "Failed to write valve position %s after retries: %d", key, s);
                 }
                 else
                 {
@@ -286,14 +286,14 @@ void control_valves(void)
                         valvecontroldata.actual_valve_position[i] = new_valve_position;
                         xSemaphoreGive(valve_control_data_mutex);
                     }
-                    ESP_LOGD(TAG, "Valve position valve%d stored successfully in NVS: %d", i, new_valve_position);
+                    LOGD(TAG, "Valve position valve%d stored successfully in NVS: %d", i, new_valve_position);
                 }
                 nvs_close(nvsw);
                 // Re-open readonly handle for further reads
                 err = nvs_open("valves", NVS_READONLY, &nvs);
                 if (err != ESP_OK)
                 {
-                    ESP_LOGW(TAG, "Failed to re-open NVS namespace 'valves' for read: %d", err);
+                    LOGW(TAG, "Failed to re-open NVS namespace 'valves' for read: %d", err);
                 }
             }
         }
@@ -314,14 +314,14 @@ void valve_position_statemachine(int state_config_index)
 
     if (state_config_index < 0)
     {
-        ESP_LOGE(TAG, "valve_position_statemachine: invalid state_config_index=%d", state_config_index);
+        LOGE(TAG, "valve_position_statemachine: invalid state_config_index=%d", state_config_index);
         return;
     }
 
     /* Read desired positions from the state config under state_config_mutex */
     if (state_config_mutex == NULL || xSemaphoreTake(state_config_mutex, (TickType_t)10) != pdTRUE)
     {
-        ESP_LOGW(TAG, "valve_position_statemachine: could not take state_config_mutex");
+        LOGW(TAG, "valve_position_statemachine: could not take state_config_mutex");
         return;
     }
 
@@ -338,7 +338,7 @@ void valve_position_statemachine(int state_config_index)
     // Protect with valve_control_data_mutex.
     if (valve_control_data_mutex == NULL || xSemaphoreTake(valve_control_data_mutex, (TickType_t)50) != pdTRUE)
     {
-        ESP_LOGW(TAG, "valve_position_statemachine: could not take valve_control_data_mutex");
+        LOGW(TAG, "valve_position_statemachine: could not take valve_control_data_mutex");
         return;
     }
 
@@ -350,7 +350,7 @@ void valve_position_statemachine(int state_config_index)
         current = valvecontroldata.actual_valve_position[v];
         desired = desired_positions[v];
 
-        ESP_LOGD(TAG, "Valve%d: %d", v, current);
+        LOGD(TAG, "Valve%d: %d", v, current);
 
         valvecontroldata.valve_number[v] = v;
 
@@ -371,7 +371,7 @@ void valve_position_statemachine(int state_config_index)
             valvecontroldata.direction[v] = 0; /* close/backward */
             sum_move = sum_move + valvecontroldata.position_change[v];
         }
-        ESP_LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
+        LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
     }
 
     if (sum_move > 0)
@@ -389,17 +389,17 @@ void valve_position_statemachine(int state_config_index)
     valvecontroldata.valve_move_request_from_post = false;
     xSemaphoreGive(valve_control_data_mutex);
 
-    ESP_LOGD(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
+    LOGD(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
 
     /* Invoke control_valves() to perform movements. It will check statemachine state internally. */
     if (sum_move > 0)
     {
-        ESP_LOGI(TAG, "sum_move is >0 (%d)", sum_move);
+        LOGI(TAG, "sum_move is >0 (%d)", sum_move);
         control_valves();
     }
     else
     {
-        ESP_LOGI(TAG, "Sum move is 0, no need to call control_valves function");
+        LOGI(TAG, "Sum move is 0, no need to call control_valves function");
     }
 }
 
@@ -419,12 +419,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     /* Validate direction and position_change like original */
     if (!(direction == 1 || direction == 0))
     {
-        ESP_LOGE(TAG, "Invalid direction: %d", direction);
+        LOGE(TAG, "Invalid direction: %d", direction);
         return ESP_ERR_INVALID_ARG;
     }
     if (position_change < 0 || position_change > 24)
     {
-        ESP_LOGE(TAG, "Error in valvecontrol. Requested position change is: %d. Position change should be between 0 and 24", position_change);
+        LOGE(TAG, "Error in valvecontrol. Requested position change is: %d. Position change should be between 0 and 24", position_change);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -494,7 +494,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         }
         break;
     default:
-        ESP_LOGE(TAG, "Invalid valve_number: %d", valve_number);
+        LOGE(TAG, "Invalid valve_number: %d", valve_number);
         /* Clear lock flag if set then return */
         if (statemachine_mutex)
         {
@@ -510,7 +510,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     /* Configure GPIO pins */
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
     {
-        ESP_LOGE(TAG, "GPIO config failed in valvecontrol");
+        LOGE(TAG, "GPIO config failed in valvecontrol");
         if (statemachine_mutex)
         {
             if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)

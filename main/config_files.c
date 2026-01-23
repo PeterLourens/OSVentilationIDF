@@ -9,24 +9,24 @@ esp_err_t load_sensor_config(const char *config_name)
 
     if (!config_name || strlen(config_name) > 48)
     {
-        ESP_LOGE(TAG, "Invalid config name");
+        LOGE(TAG, "Invalid config name");
         return ESP_ERR_INVALID_ARG;
     }
 
     snprintf(path, sizeof(path), "/data/json/%s.json", config_name);
-    ESP_LOGD(TAG, "Attempting to read config: %s", path);
+    LOGD(TAG, "Attempting to read config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        LOGE(TAG, "Failed to read config file: %s", path);
         free(buffer);
         return err;
     }
@@ -34,8 +34,8 @@ esp_err_t load_sensor_config(const char *config_name)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -52,7 +52,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
     else
     {
-        ESP_LOGE(TAG, "Unknown bus prefix in config name: %s", config_name);
+        LOGE(TAG, "Unknown bus prefix in config name: %s", config_name);
         cJSON_Delete(json);
         free(buffer);
         return ESP_ERR_INVALID_ARG;
@@ -64,7 +64,7 @@ esp_err_t load_sensor_config(const char *config_name)
     {
         if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire sensor config mutex");
+            LOGE(TAG, "Failed to acquire sensor config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -73,7 +73,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
     else
     {
-        ESP_LOGW(TAG, "sensor_cfg_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "sensor_cfg_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     for (int i = 0; i < CHANNELS_PER_BUS; i++)
@@ -92,15 +92,15 @@ esp_err_t load_sensor_config(const char *config_name)
         cJSON *co2 = cJSON_GetObjectItem(json, key_co2);
 
         if (!type)
-            ESP_LOGW(TAG, "Missing key: %s", key_type);
+            LOGW(TAG, "Missing key: %s", key_type);
         if (!valve)
-            ESP_LOGW(TAG, "Missing key: %s", key_valve);
+            LOGW(TAG, "Missing key: %s", key_valve);
         if (!location)
-            ESP_LOGW(TAG, "Missing key: %s", key_location);
+            LOGW(TAG, "Missing key: %s", key_location);
         if (!rh)
-            ESP_LOGW(TAG, "Missing key: %s", key_rh);
+            LOGW(TAG, "Missing key: %s", key_rh);
         if (!co2)
-            ESP_LOGW(TAG, "Missing key: %s", key_co2);
+            LOGW(TAG, "Missing key: %s", key_co2);
 
         bus_sensor_t *settings = (bus_index == 0) ? &bus0_sensor_settings[i] : &bus1_sensor_settings[i];
 
@@ -126,7 +126,7 @@ esp_err_t load_sensor_config(const char *config_name)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Bus%d sensor config loaded from %s", bus_index, path);
+    LOGI(TAG, "Bus%d sensor config loaded from %s", bus_index, path);
     return ESP_OK;
 }
 
@@ -135,19 +135,19 @@ esp_err_t load_network_config(void)
     char path[128] = "/data/json/network_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read network config: %s", path);
+    LOGD(TAG, "Attempting to read network config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        LOGE(TAG, "Failed to read config file: %s", path);
         free(buffer);
         return err;
     }
@@ -155,8 +155,8 @@ esp_err_t load_network_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -176,7 +176,7 @@ esp_err_t load_network_config(void)
     {
         if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire sensor config mutex");
+            LOGE(TAG, "Failed to acquire sensor config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -185,7 +185,7 @@ esp_err_t load_network_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "network_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "network_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -221,7 +221,7 @@ esp_err_t load_network_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Network config loaded from %s", path);
+    LOGI(TAG, "Network config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -231,19 +231,19 @@ esp_err_t load_time_config(void)
     char path[128] = "/data/json/time_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read time config: %s", path);
+    LOGD(TAG, "Attempting to read time config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        LOGE(TAG, "Failed to read config file: %s", path);
         free(buffer);
         return err;
     }
@@ -251,8 +251,8 @@ esp_err_t load_time_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -266,7 +266,7 @@ esp_err_t load_time_config(void)
     {
         if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire time config mutex");
+            LOGE(TAG, "Failed to acquire time config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -275,7 +275,7 @@ esp_err_t load_time_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "time_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "time_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(time_config.ntp_server, cJSON_IsString(ntp_server) ? ntp_server->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
@@ -293,7 +293,7 @@ esp_err_t load_time_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Network config loaded from %s", path);
+    LOGI(TAG, "Network config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -303,19 +303,19 @@ esp_err_t load_mqtt_config(void)
     char path[128] = "/data/json/mqtt_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read MQTT config: %s", path);
+    LOGD(TAG, "Attempting to read MQTT config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read config file: %s", path);
+        LOGE(TAG, "Failed to read config file: %s", path);
         free(buffer);
         return err;
     }
@@ -323,8 +323,8 @@ esp_err_t load_mqtt_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -340,7 +340,7 @@ esp_err_t load_mqtt_config(void)
     {
         if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -349,7 +349,7 @@ esp_err_t load_mqtt_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "mqtt_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "mqtt_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(mqtt_config.enable_mqtt, cJSON_IsString(enable_mqtt) ? enable_mqtt->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -373,7 +373,7 @@ esp_err_t load_mqtt_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "MQTT config loaded from %s", path);
+    LOGI(TAG, "MQTT config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -383,19 +383,19 @@ esp_err_t load_influxdb_config(void)
     char path[128] = "/data/json/influxdb_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read InfluxDB config: %s", path);
+    LOGD(TAG, "Attempting to read InfluxDB config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read InfluxDB config file: %s", path);
+        LOGE(TAG, "Failed to read InfluxDB config file: %s", path);
         free(buffer);
         return err;
     }
@@ -403,8 +403,8 @@ esp_err_t load_influxdb_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -421,7 +421,7 @@ esp_err_t load_influxdb_config(void)
     {
         if (xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -430,7 +430,7 @@ esp_err_t load_influxdb_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "influxdb_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "influxdb_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(influxdb_config.enable_influxdb, cJSON_IsString(enable_influxdb) ? enable_influxdb->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -456,7 +456,7 @@ esp_err_t load_influxdb_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "InfluxDB config loaded from %s", path);
+    LOGI(TAG, "InfluxDB config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -466,19 +466,19 @@ esp_err_t load_fan_config(void)
     char path[128] = "/data/json/fan_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read fan config: %s", path);
+    LOGD(TAG, "Attempting to read fan config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read fan config file: %s", path);
+        LOGE(TAG, "Failed to read fan config file: %s", path);
         free(buffer);
         return err;
     }
@@ -486,8 +486,8 @@ esp_err_t load_fan_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -506,7 +506,7 @@ esp_err_t load_fan_config(void)
     {
         if (xSemaphoreTake(fan_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire MQTT config mutex");
+            LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -515,7 +515,7 @@ esp_err_t load_fan_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "fan_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "fan_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(fan_config.fan_control_mode, cJSON_IsString(fan_control_mode) ? fan_control_mode->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -547,7 +547,7 @@ esp_err_t load_fan_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Fan config loaded from %s", path);
+    LOGI(TAG, "Fan config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -557,19 +557,19 @@ esp_err_t load_i2c_config(void)
     char path[128] = "/data/json/i2c_config.json";
     size_t bufferSize = XXLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read i2c config: %s", path);
+    LOGD(TAG, "Attempting to read i2c config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read i2c config file: %s", path);
+        LOGE(TAG, "Failed to read i2c config file: %s", path);
         free(buffer);
         return err;
     }
@@ -577,8 +577,8 @@ esp_err_t load_i2c_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -593,7 +593,7 @@ esp_err_t load_i2c_config(void)
     {
         if (xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire I2C config mutex");
+            LOGE(TAG, "Failed to acquire I2C config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -602,7 +602,7 @@ esp_err_t load_i2c_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "i2c_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "i2c_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(i2c_config.bus0_multiplexer_address, cJSON_IsString(bus0_multiplexer_address) ? bus0_multiplexer_address->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -625,7 +625,7 @@ esp_err_t load_i2c_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "I2C config loaded from %s", path);
+    LOGI(TAG, "I2C config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -635,19 +635,19 @@ esp_err_t load_syslog_config(void)
     char path[128] = "/data/json/syslog_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read syslog config: %s", path);
+    LOGD(TAG, "Attempting to read syslog config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read syslog config file: %s", path);
+        LOGE(TAG, "Failed to read syslog config file: %s", path);
         free(buffer);
         return err;
     }
@@ -655,8 +655,8 @@ esp_err_t load_syslog_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -671,7 +671,7 @@ esp_err_t load_syslog_config(void)
     {
         if (xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire syslog config mutex");
+            LOGE(TAG, "Failed to acquire syslog config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -680,7 +680,7 @@ esp_err_t load_syslog_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "syslog_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "syslog_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     strncpy(syslog_config.enable_syslog, cJSON_IsString(enable_syslog) ? enable_syslog->valuestring : "", SMALL_CONFIG_ITEM - 1);
@@ -700,7 +700,7 @@ esp_err_t load_syslog_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Syslog config loaded from %s", path);
+    LOGI(TAG, "Syslog config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -711,19 +711,19 @@ esp_err_t load_statemachine_general_config(void)
     char path[128] = "/data/json/sm_general_config.json";
     size_t bufferSize = XLARGE_CONFIG_ITEM;
 
-    ESP_LOGD(TAG, "Attempting to read general statemachine config: %s", path);
+    LOGD(TAG, "Attempting to read general statemachine config: %s", path);
 
     char *buffer = malloc(bufferSize);
     if (!buffer)
     {
-        ESP_LOGE(TAG, "Failed to allocate buffer");
+        LOGE(TAG, "Failed to allocate buffer");
         return ESP_ERR_NO_MEM;
     }
 
     esp_err_t err = read_file(path, buffer, bufferSize);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read statemachine general config file: %s", path);
+        LOGE(TAG, "Failed to read statemachine general config file: %s", path);
         free(buffer);
         return err;
     }
@@ -731,8 +731,8 @@ esp_err_t load_statemachine_general_config(void)
     cJSON *json = cJSON_Parse(buffer);
     if (!json)
     {
-        ESP_LOGE(TAG, "Invalid JSON format in %s", path);
-        ESP_LOGD(TAG, "Raw content: %s", buffer);
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
         free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
@@ -758,7 +758,7 @@ esp_err_t load_statemachine_general_config(void)
     {
         if (xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         {
-            ESP_LOGE(TAG, "Failed to acquire statemachine config mutex");
+            LOGE(TAG, "Failed to acquire statemachine config mutex");
             cJSON_Delete(json);
             free(buffer);
             return ESP_ERR_TIMEOUT;
@@ -767,7 +767,7 @@ esp_err_t load_statemachine_general_config(void)
     }
     else
     {
-        ESP_LOGW(TAG, "statemachine_config_mutex not initialized; proceeding without mutex (unsafe)");
+        LOGW(TAG, "statemachine_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
     if (cJSON_IsNumber(wday_d_h_start))
@@ -809,7 +809,7 @@ esp_err_t load_statemachine_general_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    ESP_LOGI(TAG, "Statemachine general config loaded from %s", path);
+    LOGI(TAG, "Statemachine general config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -999,7 +999,7 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
     DIR *dir = opendir(mount_point);
     if (!dir)
     {
-        ESP_LOGE(TAG, "Failed to open directory: %s", mount_point);
+        LOGE(TAG, "Failed to open directory: %s", mount_point);
         return ESP_FAIL;
     }
 
@@ -1105,8 +1105,8 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
 
     closedir(dir);
 
-    ESP_LOGI(TAG, "Processed %d file(s), loaded %u state(s).",
-             files_processed, (unsigned)(*out_states));
+    LOGI(TAG, "Processed %d file(s), loaded %u state(s).",
+         files_processed, (unsigned)(*out_states));
 
     return ESP_OK;
 }
@@ -1121,11 +1121,11 @@ esp_err_t load_state_config(void)
 
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to load state configs: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to load state configs: %s", esp_err_to_name(err));
         return err;
     }
 
-    ESP_LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
+    LOGI(TAG, "States loaded: %u", (unsigned)states_loaded);
 
     return err;
 }

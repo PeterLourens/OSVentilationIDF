@@ -18,20 +18,20 @@ void task_i2c_ds3231_code(void *pvParameters)
     err = i2c_ds3231_init(i2c_bus0_handle, &ds3231_bus0_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize DS3231 on bus 0: %s", esp_err_to_name(err));
         vTaskDelete(NULL);
         return;
     }
     else
     {
-        ESP_LOGD(TAG, "DS3231 initialized on bus 0");
+        LOGD(TAG, "DS3231 initialized on bus 0");
     }
 
     while (1)
     {
         if (!wifi_has_ip())
         {
-            ESP_LOGW(TAG, "Wi-Fi not ready, retrying...");
+            LOGW(TAG, "Wi-Fi not ready, retrying...");
             vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
         }
@@ -41,11 +41,11 @@ void task_i2c_ds3231_code(void *pvParameters)
         esp_err_t err = sync_system_and_ds3231_with_ntp(ds3231_bus0_handle);
         if (err == ESP_OK)
         {
-            ESP_LOGI(TAG, "DS3231 successfully synced with NTP");
+            LOGI(TAG, "DS3231 successfully synced with NTP");
         }
         else
         {
-            ESP_LOGW(TAG, "Sync attempt failed: %s", esp_err_to_name(err));
+            LOGW(TAG, "Sync attempt failed: %s", esp_err_to_name(err));
         }
 
         // Sleep for one hour before next sync

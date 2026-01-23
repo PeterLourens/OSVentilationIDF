@@ -8,6 +8,7 @@ void app_main(void)
 {
     esp_err_t err = ESP_OK;
 
+    // Set log levels for each TAG
     set_log_levels();
 
     // Create mutexes
@@ -184,7 +185,6 @@ void app_main(void)
 
     // Initialize sensors based on current configuration
     reload_and_init_sensors();
-
 
     esp_log_set_vprintf(uart_log_output);
     ESP_LOGI(TAG, "System startup, logs go to UART");

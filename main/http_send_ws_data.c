@@ -50,7 +50,7 @@ void send_index_html_ws(void)
     }
     else
     {
-        ESP_LOGE(TAG, "NVS open failed for send_index_html_ws: %d", err);
+        LOGE(TAG, "NVS open failed for send_index_html_ws: %d", err);
     }
 
     // --- Sensors ---
@@ -77,7 +77,7 @@ void send_index_html_ws(void)
     }
     else
     {
-        ESP_LOGE(TAG, "Sensor queue is NULL");
+        LOGE(TAG, "Sensor queue is NULL");
     }
 
     if (sensor_cfg_mutex)
@@ -113,7 +113,7 @@ void send_index_html_ws(void)
         }
         else
         {
-            ESP_LOGE(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
+            LOGE(TAG, "Failed to take sensor_cfg_mutex for sending index HTML WS data");
         }
 
         if (statemachine_mutex)
@@ -271,7 +271,7 @@ void send_config_json_ws(void)
 
     // Serialize to string
     char *out = cJSON_PrintUnformatted(root);
-    ESP_LOGD(TAG, "Config JSON: %s", out ? out : "null");
+    LOGD(TAG, "Config JSON: %s", out ? out : "null");
     cJSON_Delete(root);
 
     if (out)

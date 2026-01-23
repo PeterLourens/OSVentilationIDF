@@ -7,6 +7,7 @@
 #include "globals.h"
 #include "general.h"
 #include "statemachine_states.h"
+#include "logging.h"
 
 extern esp_mqtt_client_handle_t s_mqtt;
 

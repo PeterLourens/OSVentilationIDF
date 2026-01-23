@@ -3,6 +3,7 @@
 
 #include "globals.h"
 #include "influxdb.h"
+#include "logging.h"
 
 // Function definitions
 void start_task_influxdb(void);

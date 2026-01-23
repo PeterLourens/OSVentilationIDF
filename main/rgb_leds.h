@@ -6,6 +6,7 @@
 #include <led_strip.h>
 
 #include "globals.h"
+#include "logging.h"
 
 #define GPIO_RGB_LED 42           // The ESP32 pin GPIO10 connected to WS2812B
 #define RGB_LED_NUM 2             // The number of LEDs (pixels) on WS2812B LED strip

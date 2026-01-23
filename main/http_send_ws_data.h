@@ -4,6 +4,7 @@
 #include "globals.h"
 #include "general.h"
 #include "http_functions.h"
+#include "logging.h"
 
 // Function definitions
 void send_sensor_config_json_ws(void);

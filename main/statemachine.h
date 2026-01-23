@@ -4,6 +4,7 @@
 #include "statemachine_helper.h"
 #include "fancontrol.h"
 #include "statemachine_states.h"
+#include "logging.h"
 
 void init_statemachine(void);
 void run_statemachine(void);

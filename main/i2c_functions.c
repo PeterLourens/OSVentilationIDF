@@ -17,7 +17,7 @@ esp_err_t i2c_init_master0(void)
     err = i2c_new_master_bus(&i2c_bus0_cfg, &i2c_bus0_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize I2C master bus 0: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize I2C master bus 0: %s", esp_err_to_name(err));
     }
 
     return err;
@@ -38,7 +38,7 @@ esp_err_t i2c_init_master1(void)
     err = i2c_new_master_bus(&i2c_bus1_cfg, &i2c_bus1_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize I2C master bus 0: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize I2C master bus 0: %s", esp_err_to_name(err));
     }
     return err;
 }

@@ -10,6 +10,7 @@
 #include "http_post_functions.h"
 #include "valvecontrol.h"
 #include "i2c_sensors.h"
+#include "logging.h"
 
 #define LOG_BUF_SIZE 256
 

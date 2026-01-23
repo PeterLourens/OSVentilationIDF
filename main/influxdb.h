@@ -7,6 +7,7 @@
 #include "esp_http_client.h"
 #include "esp_log.h"
 #include "i2c_ds3231.h"
+#include "logging.h"
 
 // Function definitions
 void influxdb_get_config_snapshot(Influxdb_config_t *);

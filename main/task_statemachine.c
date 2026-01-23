@@ -23,11 +23,11 @@ void task_statemachine_code(void *pvParameters)
     for (;;)
     {
         // Run the state machine
-        ESP_LOGI(TAG, "Running statemachine...");
+        LOGI(TAG, "Running statemachine...");
         run_statemachine();
 
         // Update LEDs
-        ESP_LOGI(TAG, "Update LEDs...");
+        LOGI(TAG, "Update LEDs...");
         xTaskNotifyGive(task_rgb_leds);
 
         // Run every 30 secs

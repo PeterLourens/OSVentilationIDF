@@ -24,7 +24,7 @@ int64_t influxdb_get_timestamp(void)
         // Fallback: system time if RTC read fails
         time_t now;
         time(&now);
-        return (int64_t)now * 1000000000LL;         // Nanoseconds timestamp which is native to InfluxDB
+        return (int64_t)now * 1000000000LL; // Nanoseconds timestamp which is native to InfluxDB
     }
 
     // Convert struct tm (UTC) → Unix timestamp manually
@@ -167,7 +167,7 @@ void influxdb_build_payload_sensors(char *out, size_t out_size, float sensor[MAX
             }
 
             snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
-            ESP_LOGD(TAG, "type='%s' valve='%s' location='%s'", meta->type, meta->valve, meta->location);
+            LOGD(TAG, "type='%s' valve='%s' location='%s'", meta->type, meta->valve, meta->location);
 
             influxdb_append_line(out, out_size, line);
         }
@@ -197,7 +197,7 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
     esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
         return;
     }
 
@@ -222,7 +222,7 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
         // Build InfluxDB line
         snprintf(line, sizeof(line), "valve_positions,valve=%s position=%ld %lld\n", valve_name, pos, (long long)ts);
         influxdb_append_line(out, out_size, line);
-        ESP_LOGD(TAG, "Valve positions:\n%s", out);
+        LOGD(TAG, "Valve positions:\n%s", out);
     }
 
     nvs_close(nvs);
@@ -356,7 +356,7 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     esp_http_client_handle_t client = esp_http_client_init(&http_cfg);
     if (!client)
     {
-        ESP_LOGE(TAG, "Failed to init HTTP client");
+        LOGE(TAG, "Failed to init HTTP client");
         return;
     }
 
@@ -365,8 +365,8 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     esp_http_client_set_header(client, "Accept", "application/json");
 
     int payload_len = strlen(payload);
-    ESP_LOGD(TAG, "Payload strlen: %d", payload_len);
-    ESP_LOGD(TAG, "Sending payload:\n%s", payload);
+    LOGD(TAG, "Payload strlen: %d", payload_len);
+    LOGD(TAG, "Sending payload:\n%s", payload);
 
     esp_http_client_set_method(client, HTTP_METHOD_POST);
     esp_http_client_set_post_field(client, payload, payload_len);
@@ -376,29 +376,29 @@ void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg)
     if (err == ESP_OK)
     {
         int status = esp_http_client_get_status_code(client);
-        ESP_LOGD(TAG, "Influx write status: %d", status);
+        LOGD(TAG, "Influx write status: %d", status);
 
         // Read entire response body (JSON error or success)
         int rlen = esp_http_client_read_response(client, resp, sizeof(resp) - 1);
         if (rlen > 0)
         {
             resp[rlen] = '\0';
-            ESP_LOGD(TAG, "Influx response: %s", resp);
+            LOGD(TAG, "Influx response: %s", resp);
         }
         else
         {
-            ESP_LOGD(TAG, "Influx response: %d", rlen);
+            LOGD(TAG, "Influx response: %d", rlen);
         }
     }
     else
     {
-        ESP_LOGE(TAG, "HTTP error: %s", esp_err_to_name(err));
+        LOGE(TAG, "HTTP error: %s", esp_err_to_name(err));
     }
 
-    ESP_LOGD(TAG, "DEBUG URL: '%s'", url);
-    ESP_LOGD(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
-    ESP_LOGD(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
-    ESP_LOGD(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
+    LOGD(TAG, "DEBUG URL: '%s'", url);
+    LOGD(TAG, "DEBUG ORG: '%s'", cfg->influxdb_org);
+    LOGD(TAG, "DEBUG BUCKET: '%s'", cfg->influxdb_bucket);
+    LOGD(TAG, "DEBUG TOKEN: '%s'", cfg->influxdb_token);
 
     esp_http_client_cleanup(client);
 }
@@ -421,7 +421,7 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
 
     if (!sensor || !avg || !payload)
     {
-        ESP_LOGE(TAG, "Memory allocation failed");
+        LOGE(TAG, "Memory allocation failed");
         if (sensor)
             free(sensor);
         if (avg)

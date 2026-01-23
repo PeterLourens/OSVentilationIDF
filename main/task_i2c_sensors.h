@@ -6,6 +6,7 @@
 
 #include "i2c_sensors.h"
 #include "driver/i2c_master.h"
+#include "logging.h"
 
 // Function declarations
 void start_task_i2c_sensors(void);

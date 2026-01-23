@@ -8,7 +8,7 @@ esp_mqtt_client_handle_t s_mqtt = NULL;
 static MQTT_config_t s_last_cfg = {0};
 static bool s_mqtt_running = false; // client started (start() called)
 
-bool s_mqtt_connected = false;		// broker connection up (event based)
+bool s_mqtt_connected = false; // broker connection up (event based)
 
 // ---------------------------------------------------------------------------
 // Mutex-protected config snapshot
@@ -34,12 +34,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 	{
 	case MQTT_EVENT_CONNECTED:
 		s_mqtt_connected = true;
-		ESP_LOGI(TAG, "MQTT connected");
+		LOGI(TAG, "MQTT connected");
 		break;
 
 	case MQTT_EVENT_DISCONNECTED:
 		s_mqtt_connected = false;
-		ESP_LOGW(TAG, "MQTT disconnected");
+		LOGW(TAG, "MQTT disconnected");
 		break;
 
 	default:
@@ -61,7 +61,7 @@ void mqtt_apply_config_change(void)
 	{
 		if (s_mqtt_running)
 		{
-			ESP_LOGD(TAG, "MQTT disabled → stopping client");
+			LOGD(TAG, "MQTT disabled → stopping client");
 			esp_mqtt_client_stop(s_mqtt);
 			s_mqtt_running = false;
 			s_mqtt_connected = false;
@@ -77,7 +77,7 @@ void mqtt_apply_config_change(void)
 	// ---------------------------------------------------------
 	if (!s_mqtt_running)
 	{
-		ESP_LOGD(TAG, "MQTT enabled → starting client");
+		LOGD(TAG, "MQTT enabled → starting client");
 		if (mqtt_start_client() == ESP_OK)
 		{
 			s_mqtt_running = true;
@@ -95,7 +95,7 @@ void mqtt_apply_config_change(void)
 
 	if (server_changed || port_changed || base_changed)
 	{
-		ESP_LOGW(TAG, "MQTT config changed → restarting client");
+		LOGW(TAG, "MQTT config changed → restarting client");
 
 		esp_mqtt_client_stop(s_mqtt);
 		s_mqtt_running = false;
@@ -104,11 +104,11 @@ void mqtt_apply_config_change(void)
 		if (mqtt_start_client() == ESP_OK)
 		{
 			s_mqtt_running = true;
-			ESP_LOGI(TAG, "MQTT restarted successfully");
+			LOGI(TAG, "MQTT restarted successfully");
 		}
 		else
 		{
-			ESP_LOGE(TAG, "MQTT restart failed");
+			LOGE(TAG, "MQTT restart failed");
 		}
 
 		s_last_cfg = cfg;
@@ -134,7 +134,7 @@ esp_err_t mqtt_start_client(void)
 
 	if (strcmp(cfg.enable_mqtt, "On") != 0)
 	{
-		ESP_LOGW(TAG, "MQTT start requested, but MQTT is disabled");
+		LOGW(TAG, "MQTT start requested, but MQTT is disabled");
 		return ESP_OK;
 	}
 
@@ -155,7 +155,7 @@ esp_err_t mqtt_start_client(void)
 	s_mqtt = esp_mqtt_client_init(&mqtt_cfg);
 	if (!s_mqtt)
 	{
-		ESP_LOGE(TAG, "Failed to init MQTT client");
+		LOGE(TAG, "Failed to init MQTT client");
 		return ESP_FAIL;
 	}
 
@@ -164,7 +164,7 @@ esp_err_t mqtt_start_client(void)
 	esp_err_t err = esp_mqtt_client_start(s_mqtt);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));
+		LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));
 		esp_mqtt_client_destroy(s_mqtt);
 		s_mqtt = NULL;
 		return err;
@@ -173,7 +173,7 @@ esp_err_t mqtt_start_client(void)
 	s_mqtt_running = true;
 	s_last_cfg = cfg; // snapshot config used for this client
 
-	ESP_LOGI(TAG, "MQTT client started (uri=%s)", uri);
+	LOGI(TAG, "MQTT client started (uri=%s)", uri);
 	return ESP_OK;
 }
 
@@ -194,20 +194,20 @@ static inline void mqtt_pubs(const char *topic, const char *value)
 {
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs: MQTT not connected; skipping publish");
+		LOGW(TAG, "mqtt_pubs: MQTT not connected; skipping publish");
 		return;
 	}
 
 	if (!value)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs: NULL value for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs: NULL value for topic %s", topic);
 		return;
 	}
 
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, value, 0, 1, 0);
 	if (err < 0)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs: publish failed for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs: publish failed for topic %s", topic);
 	}
 }
 
@@ -218,7 +218,7 @@ static inline void mqtt_pubi(const char *topic, int value)
 {
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "mqtt_pubi: MQTT not connected; skipping publish");
+		LOGW(TAG, "mqtt_pubi: MQTT not connected; skipping publish");
 		return;
 	}
 
@@ -228,7 +228,7 @@ static inline void mqtt_pubi(const char *topic, int value)
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
 	if (err < 0)
 	{
-		ESP_LOGW(TAG, "mqtt_pubi: publish failed for topic %s", topic);
+		LOGW(TAG, "mqtt_pubi: publish failed for topic %s", topic);
 	}
 }
 
@@ -284,7 +284,7 @@ void mqtt_publish_sensor_values(void)
 
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "MQTT not connected; skipping publish");
+		LOGW(TAG, "MQTT not connected; skipping publish");
 		return;
 	}
 
@@ -293,13 +293,13 @@ void mqtt_publish_sensor_values(void)
 
 	if (xQueuePeek(sensor_queue, raw, 0) != pdTRUE)
 	{
-		ESP_LOGE(TAG, "Failed to read raw sensor queue");
+		LOGE(TAG, "Failed to read raw sensor queue");
 		return;
 	}
 
 	if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
 	{
-		ESP_LOGE(TAG, "Failed to read avg sensor queue");
+		LOGE(TAG, "Failed to read avg sensor queue");
 		return;
 	}
 
@@ -363,7 +363,7 @@ void mqtt_publish_valve_positions(void)
 
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "MQTT not connected; skipping valve publish");
+		LOGW(TAG, "MQTT not connected; skipping valve publish");
 		return;
 	}
 
@@ -372,8 +372,8 @@ void mqtt_publish_valve_positions(void)
 	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "Failed to open NVS for valve positions: %s",
-				 esp_err_to_name(err));
+		LOGE(TAG, "Failed to open NVS for valve positions: %s",
+			 esp_err_to_name(err));
 		return;
 	}
 
@@ -394,7 +394,7 @@ void mqtt_publish_valve_positions(void)
 		}
 		else if (r != ESP_OK)
 		{
-			ESP_LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+			LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
 			pos = 0;
 		}
 
@@ -402,8 +402,8 @@ void mqtt_publish_valve_positions(void)
 		snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
 		mqtt_pubi(topic, pos);
 
-		ESP_LOGD(TAG, "Publishing valve %d position: %d", id, pos);
-		ESP_LOGD(TAG, "Topic: %s", topic);
+		LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
+		LOGD(TAG, "Topic: %s", topic);
 	}
 
 	nvs_close(nvs);
@@ -431,7 +431,7 @@ void mqtt_publish_state_and_fanspeed(void)
 
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "MQTT not connected; skipping state/fanspeed publish");
+		LOGW(TAG, "MQTT not connected; skipping state/fanspeed publish");
 		return;
 	}
 
@@ -443,7 +443,7 @@ void mqtt_publish_state_and_fanspeed(void)
 	}
 	else
 	{
-		ESP_LOGW(TAG, "Failed to lock statemachine_mutex; skipping publish");
+		LOGW(TAG, "Failed to lock statemachine_mutex; skipping publish");
 		return;
 	}
 

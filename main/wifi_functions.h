@@ -8,6 +8,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "logging.h"
 
 #define MAXIMUM_RETRY 5
 

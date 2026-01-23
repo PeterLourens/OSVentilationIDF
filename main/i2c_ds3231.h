@@ -13,6 +13,7 @@
 #include <nvs_flash.h>
 
 #include "general.h"
+#include "logging.h"
 
 // Function declarations
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);

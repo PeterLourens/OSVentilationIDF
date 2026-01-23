@@ -48,7 +48,7 @@ esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_ha
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &tca9548_cfg, dev_handle);
     if (err != ESP_OK)
     {
-        ESP_LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
+        LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
     }
     return err;
 }
@@ -63,7 +63,7 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     esp_err_t err = i2c_master_transmit(dev_handle, &mask, 1, -1);
     if (err != ESP_OK)
     {
-        ESP_LOGE("TCA9548A", "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
+        LOGE("TCA9548A", "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
     }
     return err;
 }
@@ -260,7 +260,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     // Warm-up
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    ESP_LOGD(TAG, "SCD41 initialized successfully");
+    LOGD(TAG, "SCD41 initialized successfully");
     return ESP_OK;
 }
 
@@ -295,21 +295,21 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
     esp_err_t err = i2c_master_transmit(dev_handle, cmd, sizeof(cmd), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Transmit failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "Transmit failed: %s", esp_err_to_name(err));
         return err;
     }
 
     err = i2c_master_receive(dev_handle, response, sizeof(response), pdMS_TO_TICKS(100));
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Receive failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "Receive failed: %s", esp_err_to_name(err));
         return err;
     }
 
     uint8_t crc = scd41_crc8(response, 2);
     if (crc != response[2])
     {
-        ESP_LOGE(TAG, "CRC mismatch: got 0x%02X, expected 0x%02X", response[2], crc);
+        LOGE(TAG, "CRC mismatch: got 0x%02X, expected 0x%02X", response[2], crc);
         return ESP_ERR_INVALID_CRC;
     }
 
@@ -377,7 +377,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
             slots[ch].handle = NULL;
         }
         slots[ch].type = SENSOR_NONE;
-        ESP_LOGD(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
+        LOGD(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
         return ESP_OK;
     }
 
@@ -386,15 +386,15 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     {
         if (slots[ch].handle != NULL)
         {
-            ESP_LOGD(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
+            LOGD(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
             return ESP_OK;
         }
 
-        ESP_LOGD(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
+        LOGD(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
     }
     else
     {
-        ESP_LOGD(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
+        LOGD(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
                  bus_index, ch, old_type, new_type);
 
         if (slots[ch].handle != NULL)
@@ -409,7 +409,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to set channel %u: %s", ch, esp_err_to_name(err));
+        LOGE(TAG, "Failed to set channel %u: %s", ch, esp_err_to_name(err));
         return err;
     }
     vTaskDelay(pdMS_TO_TICKS(3));
@@ -433,7 +433,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize %s on channel %u: %s",
+        LOGE(TAG, "Failed to initialize %s on channel %u: %s",
                  type_str, ch, esp_err_to_name(err));
         return err;
     }
@@ -441,7 +441,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     slots[ch].handle = h;
     slots[ch].type = new_type;
 
-    ESP_LOGD(TAG, "%s initialized on channel %u", type_str, ch);
+    LOGD(TAG, "%s initialized on channel %u", type_str, ch);
     return ESP_OK;
 }
 
@@ -456,11 +456,11 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
-        ESP_LOGD(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
+        LOGD(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
         err = configure_bus_channel(bus0_sensors, 0, i2c_bus0_handle, tca9548_bus0_handle, ch, type_str);
         if (err != ESP_OK)
         {
-            ESP_LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
         }
     }
 
@@ -468,11 +468,11 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
-        ESP_LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
+        LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
         err = configure_bus_channel(bus1_sensors, 0, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
         if (err != ESP_OK)
         {
-            ESP_LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
         }
     }
 
@@ -562,7 +562,7 @@ void sensor_data_average(void)
 
     if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
     {
-        ESP_LOGW(TAG, "sensor_data_average: sensor_queue empty");
+        LOGW(TAG, "sensor_data_average: sensor_queue empty");
         return;
     }
 
@@ -585,7 +585,7 @@ void sensor_data_average(void)
     }
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-    ESP_LOGD(TAG, "sensor_data_average: wrote avg data to queue");
+    LOGD(TAG, "sensor_data_average: wrote avg data to queue");
 }
 
 void fifoPush(int bus, int slot, int measurement, float value, int pos)

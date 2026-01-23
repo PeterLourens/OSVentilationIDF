@@ -18,7 +18,7 @@ void task_rgb_leds_code(void *pvParameters)
     esp_err_t err = init_rgb_led();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialise RGB LEDs");
+        LOGE(TAG, "Failed to initialise RGB LEDs");
     }
 
     while (1)

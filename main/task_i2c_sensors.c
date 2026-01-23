@@ -28,34 +28,34 @@ void task_i2c_sensors_code(void *pvParameters)
 
     if (!sensor_queue)
     {
-        ESP_LOGE(TAG, "failed to create sensor_queue (%u bytes)", snapshot_bytes);
+        LOGE(TAG, "failed to create sensor_queue (%u bytes)", snapshot_bytes);
         vTaskDelete(NULL);
         return;
     }
-    ESP_LOGD(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
+    LOGD(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
 
     if (!sensor_avg_queue)
     {
-        ESP_LOGE(TAG, "failed to create sensor_avg_queue (%u bytes)", snapshot_bytes);
+        LOGE(TAG, "failed to create sensor_avg_queue (%u bytes)", snapshot_bytes);
         vTaskDelete(NULL);
         return;
     }
-    ESP_LOGD(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
+    LOGD(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
 
     // ------------------------------------------------------------
     // Initialize both TCA9548A multiplexers
     // ------------------------------------------------------------
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
     if (err != ESP_OK)
-        ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
     else
-        ESP_LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
+        LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
 
     err = i2c_init_tca9548(i2c_bus1_handle, &tca9548_bus1_handle);
     if (err != ESP_OK)
-        ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
     else
-        ESP_LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
+        LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
 
     // ------------------------------------------------------------
     // Main loop: read + average
@@ -66,7 +66,7 @@ void task_i2c_sensors_code(void *pvParameters)
         err = read_sensors_into_queue();
         if (err != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
+            LOGE(TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
         }
 
         sensor_data_average();

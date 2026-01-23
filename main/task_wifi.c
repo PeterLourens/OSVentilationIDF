@@ -15,7 +15,7 @@ void task_wifi_code(void *pvParameters)
     err = wifi_manager_init();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to initialize WiFi: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to initialize WiFi: %s", esp_err_to_name(err));
         vTaskDelete(NULL);
         return;
     }
@@ -24,7 +24,7 @@ void task_wifi_code(void *pvParameters)
     err = select_wifi_mode();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to start WiFi: %s", esp_err_to_name(err));
         vTaskDelete(NULL);
         return;
     }
@@ -37,16 +37,16 @@ void task_wifi_code(void *pvParameters)
             char ip[16];
             if (wifi_manager_get_ip_info(ip, sizeof(ip)) == ESP_OK)
             {
-                ESP_LOGI(TAG, "WiFi Status: Connected, IP: %s", ip);
+                LOGI(TAG, "WiFi Status: Connected, IP: %s", ip);
             }
         }
         else
         {
-            ESP_LOGW(TAG, "WiFi Status: Disconnected, attempting reconnect");
+            LOGW(TAG, "WiFi Status: Disconnected, attempting reconnect");
             err = select_wifi_mode();
             if (err != ESP_OK)
             {
-                ESP_LOGE(TAG, "Reconnection failed: %s", esp_err_to_name(err));
+                LOGE(TAG, "Reconnection failed: %s", esp_err_to_name(err));
             }
         }
 

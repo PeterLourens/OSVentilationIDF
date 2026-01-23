@@ -1,10 +1,11 @@
 #include "fancontrol.h"
 
-#include <esp_log.h>
 #include <esp_http_client.h>
 #include <esp_err.h>
 #include <string.h>
 #include <stdio.h>
+
+#include "logging.h"
 
 static const char *TAG = "Fan_control";
 
@@ -38,14 +39,14 @@ static int do_http_get(const char *url, char *out_buf, size_t out_buf_len)
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (client == NULL)
     {
-        ESP_LOGE(TAG, "Failed to init HTTP client for %s", url);
+        LOGE(TAG, "Failed to init HTTP client for %s", url);
         return -1;
     }
 
     esp_err_t err = esp_http_client_perform(client);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "HTTP GET request failed for %s: %s", url, esp_err_to_name(err));
+        LOGE(TAG, "HTTP GET request failed for %s: %s", url, esp_err_to_name(err));
         esp_http_client_cleanup(client);
         return -1;
     }
@@ -104,59 +105,59 @@ void set_fanspeed(int fanspeed)
         xSemaphoreGive(fan_config_mutex);
     }
 
-    ESP_LOGD(TAG, "Fanspeed %s", fanspeed_to_str(cur_speed));
+    LOGD(TAG, "Fanspeed %s", fanspeed_to_str(cur_speed));
 
     if (strcmp(fan_control_mode, "MQTT publish") == 0)
     {
-        ESP_LOGD(TAG, "Using MQTT to set fan speed");
+        LOGD(TAG, "Using MQTT to set fan speed");
         /* Not yet implemented: subscribe/publish to MQTT topic */
     }
     else if (strcmp(fan_control_mode, "HTTP API") == 0)
     {
-        ESP_LOGD(TAG, "Using HTTP API to set fan speed");
+        LOGD(TAG, "Using HTTP API to set fan speed");
 
         if (cur_speed == FANSPEED_LOW)
         {
-            ESP_LOGD(TAG, "Low speed selected");
+            LOGD(TAG, "Low speed selected");
             httpResponseCode = do_http_get(fan_control_url_low_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
-                ESP_LOGE(TAG, "HTTP request failed for Low speed (code %d)", httpResponseCode);
+                LOGE(TAG, "HTTP request failed for Low speed (code %d)", httpResponseCode);
             }
         }
         else if (cur_speed == FANSPEED_MEDIUM)
         {
-            ESP_LOGD(TAG, "Medium speed selected");
+            LOGD(TAG, "Medium speed selected");
             httpResponseCode = do_http_get(fan_control_url_medium_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
-                ESP_LOGE(TAG, "HTTP request failed for Medium speed (code %d)", httpResponseCode);
+                LOGE(TAG, "HTTP request failed for Medium speed (code %d)", httpResponseCode);
             }
         }
         else if (cur_speed == FANSPEED_HIGH)
         {
-            ESP_LOGD(TAG, "High speed selected");
+            LOGD(TAG, "High speed selected");
             httpResponseCode = do_http_get(fan_control_url_high_speed, http_payload, sizeof(http_payload));
             if (httpResponseCode > 0)
             {
-                ESP_LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
+                LOGD(TAG, "HTTP Response code: %d, HTTP payload: %s", httpResponseCode, http_payload);
             }
             else
             {
-                ESP_LOGE(TAG, "HTTP request failed for High speed (code %d)", httpResponseCode);
+                LOGE(TAG, "HTTP request failed for High speed (code %d)", httpResponseCode);
             }
         }
     }
     else
     {
-        ESP_LOGE(TAG, "No method to set fanspeed");
+        LOGE(TAG, "No method to set fanspeed");
     }
 }

@@ -5,6 +5,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "logging.h"
 
 // Function definitions
 const char *state_char_from_enum(eTaskState);
