@@ -209,6 +209,9 @@ typedef struct
     char enable_syslog[SMALL_CONFIG_ITEM];
     char syslog_ip[MEDIUM_CONFIG_ITEM];
     char syslog_port[SMALL_CONFIG_ITEM];
+    char syslog_hostname[MEDIUM_CONFIG_ITEM];
+    char syslog_appname[MEDIUM_CONFIG_ITEM];
+    char syslog_device_id[MEDIUM_CONFIG_ITEM];
 } Syslog_config_t;
 
 typedef struct

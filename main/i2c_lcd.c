@@ -208,7 +208,7 @@ esp_err_t lcd_write_backlight_state(void)
     return lcd_dev_write_byte(out);
 }
 
-//Set backlight on/off. Returns ESP_OK if the I2C write succeeded
+// Set backlight on/off. Returns ESP_OK if the I2C write succeeded
 esp_err_t i2c_lcd_backlight_set(bool on)
 {
     s_backlight = on;
@@ -296,7 +296,7 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
 void build_valve_positions_buffer(char *buf, size_t buf_size)
 {
     nvs_handle_t nvs;
-  
+
     esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
 
     if (err != ESP_OK)
@@ -370,7 +370,7 @@ void build_sm_actuals_buffer(char *buf, size_t buf_size)
 
     // --- Line 1: State ---
     const char *state_str = state_nr_to_str((state_nr_t)snap.state);
-    int w = snprintf(buf + used, buf_size - used, "STATE: %-12s\n", state_str);
+    int w = snprintf(buf + used, buf_size - used, "STATE:%-12s\n", state_str);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;

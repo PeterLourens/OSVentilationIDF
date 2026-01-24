@@ -315,6 +315,24 @@ cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
     else
         cJSON_AddStringToObject(obj, key, "");
 
+    snprintf(key, sizeof(key), "syslog_hostname");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "syslog_appname");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "syslog_device_id");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
     return obj;
 }
 

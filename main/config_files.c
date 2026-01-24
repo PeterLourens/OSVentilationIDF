@@ -664,6 +664,9 @@ esp_err_t load_syslog_config(void)
     cJSON *enable_syslog = cJSON_GetObjectItem(json, "enable_syslog");
     cJSON *syslog_ip = cJSON_GetObjectItem(json, "syslog_ip");
     cJSON *syslog_port = cJSON_GetObjectItem(json, "syslog_port");
+    cJSON *syslog_hostname = cJSON_GetObjectItem(json, "syslog_hostname");
+    cJSON *syslog_appname = cJSON_GetObjectItem(json, "syslog_appname");
+    cJSON *syslog_device_id = cJSON_GetObjectItem(json, "syslog_device_id");
 
     // Acquire mqtt config mutex before updating global settings
     bool taken = false;
@@ -691,6 +694,15 @@ esp_err_t load_syslog_config(void)
 
     strncpy(syslog_config.syslog_port, cJSON_IsString(syslog_port) ? syslog_port->valuestring : "", SMALL_CONFIG_ITEM - 1);
     syslog_config.syslog_port[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.syslog_hostname, cJSON_IsString(syslog_hostname) ? syslog_hostname->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    syslog_config.syslog_hostname[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.syslog_appname, cJSON_IsString(syslog_appname) ? syslog_appname->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    syslog_config.syslog_appname[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.syslog_device_id, cJSON_IsString(syslog_device_id) ? syslog_device_id->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    syslog_config.syslog_device_id[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     if (taken)
     {
