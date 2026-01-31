@@ -1,9 +1,16 @@
 #include "i2c_sensors.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
+#include "esp_timer.h"
+#include "esp_rom_sys.h"
+#include <string.h>
+
 static const char *TAG = "i2c_sensors";
 
 // FIFO buffer for sensor moving average calculation
-static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][3][MAX_FIFO_SIZE];
+static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][5][MAX_FIFO_SIZE];
 static float sum[SENSOR_AVG_SIZE] = {0};
 static float avg[SENSOR_AVG_SIZE] = {0};
 static int fifoSize[SENSOR_AVG_SIZE] = {0};
@@ -18,6 +25,7 @@ typedef enum
     SENSOR_AHT20,
     SENSOR_DHT20,
     SENSOR_SCD41,
+    SENSOR_BME680,
 } sensor_type_t;
 
 typedef struct
@@ -48,7 +56,7 @@ esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_ha
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &tca9548_cfg, dev_handle);
     if (err != ESP_OK)
     {
-        LOGE("TCA9548A", "Failed to add device: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to add device: %s", esp_err_to_name(err));
     }
     return err;
 }
@@ -63,7 +71,7 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     esp_err_t err = i2c_master_transmit(dev_handle, &mask, 1, -1);
     if (err != ESP_OK)
     {
-        LOGE("TCA9548A", "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
+        LOGE(TAG, "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
     }
     return err;
 }
@@ -86,17 +94,23 @@ bool is_dht20(const char *type)
     return (strcmp(type, "DHT20") == 0);
 }
 
+bool is_bme680(const char *type)
+{
+    return (strcmp(type, "BME680") == 0);
+}
+
 static sensor_type_t sensor_type_from_str(const char *type_str)
 {
     if (!type_str)
         return SENSOR_NONE;
-
     if (is_aht20(type_str))
         return SENSOR_AHT20;
     if (is_dht20(type_str))
         return SENSOR_DHT20;
     if (is_scd4x(type_str))
         return SENSOR_SCD41;
+    if (is_bme680(type_str))
+        return SENSOR_BME680;
     if (strcmp(type_str, "None") == 0)
         return SENSOR_NONE;
 
@@ -133,6 +147,7 @@ esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = AHT20_I2C_ADDR,
         .scl_speed_hz = 100000,
+        .scl_wait_us = 2000, /* 2 ms clock-stretch allowance */
     };
     return i2c_master_bus_add_device(bus_handle, &aht20_cfg, dev_handle);
 }
@@ -175,6 +190,7 @@ esp_err_t i2c_dht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = DHT20_I2C_ADDR,
         .scl_speed_hz = 100000,
+        .scl_wait_us = 50000,
     };
     return i2c_master_bus_add_device(bus_handle, &dht20_cfg, dev_handle);
 }
@@ -189,12 +205,12 @@ esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
 
     // Wake up sensor (dummy read)
     uint8_t dummy[1];
-    (void)i2c_master_receive(dev_handle, dummy, 1, -1);
+    (void)i2c_master_receive(dev_handle, dummy, 1, 50);
     vTaskDelay(pdMS_TO_TICKS(50));
 
     // Read status
     uint8_t status[1];
-    err = i2c_master_receive(dev_handle, status, 1, -1);
+    err = i2c_master_receive(dev_handle, status, 1, 50);
     if (err != ESP_OK)
         return err;
 
@@ -231,6 +247,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = SCD41_I2C_ADDR,
         .scl_speed_hz = 100000,
+        .scl_wait_us = 2000, /* 2 ms clock-stretch allowance */
     };
 
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &scd41_cfg, dev_handle);
@@ -395,7 +412,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     else
     {
         LOGD(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
-                 bus_index, ch, old_type, new_type);
+             bus_index, ch, old_type, new_type);
 
         if (slots[ch].handle != NULL)
         {
@@ -403,8 +420,6 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
             slots[ch].handle = NULL;
         }
     }
-
-    // From here on: single init path
 
     esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
     if (err != ESP_OK)
@@ -427,6 +442,26 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     case SENSOR_SCD41:
         err = i2c_init_scd41(bus_handle, &h);
         break;
+    case SENSOR_BME680:
+        /* Initialize BME680 on this channel and register handle */
+        err = i2c_master_bus_add_device(bus_handle, &(i2c_device_config_t){
+                                                        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+                                                        .device_address = BME680_I2C_ADDR,
+                                                        .scl_speed_hz = 100000,
+                                                    },
+                                        &h);
+        if (err == ESP_OK)
+        {
+            /* Initialize BME680 driver for this handle */
+            if (bme680_driver_init(h) != ESP_OK)
+            {
+                LOGE(TAG, "bme680_driver_init failed on channel %u", ch);
+                i2c_master_bus_rm_device(h);
+                h = NULL;
+                err = ESP_FAIL;
+            }
+        }
+        break;
     default:
         return ESP_ERR_INVALID_ARG;
     }
@@ -434,7 +469,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to initialize %s on channel %u: %s",
-                 type_str, ch, esp_err_to_name(err));
+             type_str, ch, esp_err_to_name(err));
         return err;
     }
 
@@ -450,6 +485,61 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 // -----------------------------------------------------------------------------
 esp_err_t init_sensors_on_mux_channels(void)
 {
+    esp_err_t err = ESP_OK;
+    esp_err_t ret = ESP_OK;
+
+    /* Run the BME680 profile test only once globally */
+    static bool bme680_test_scheduled = false;
+
+    /* --- Bus0 --- */
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        const char *type_str = bus0_sensor_settings[ch].type;
+        LOGD(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
+
+        err = configure_bus_channel(bus0_sensors, 0, i2c_bus0_handle, tca9548_bus0_handle, ch, type_str);
+        if (err != ESP_OK)
+        {
+            LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            ret = err;
+        }
+        else
+        {
+            if (strcmp(type_str, "BME680") == 0)
+            {
+                /* schedule internal profile sequence (already guarded inside) */
+                schedule_bme680_profile_once(i2c_bus0_handle, bus0_sensors[ch].handle, tca9548_bus0_handle, (int)ch);
+            }
+        }
+    }
+
+    /* --- Bus1 --- */
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        const char *type_str = bus1_sensor_settings[ch].type;
+        LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
+
+        /* pass bus index 1 for bus1 */
+        err = configure_bus_channel(bus1_sensors, 1, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
+        if (err != ESP_OK)
+        {
+            LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            ret = err;
+        }
+        else
+        {
+            if (strcmp(type_str, "BME680") == 0)
+            {
+                schedule_bme680_profile_once(i2c_bus1_handle, bus1_sensors[ch].handle, tca9548_bus1_handle, (int)ch);
+            }
+        }
+    }
+
+    return ret;
+}
+
+/*esp_err_t init_sensors_on_mux_channels(void)
+{
     esp_err_t err;
 
     // --- Bus0 ---
@@ -462,21 +552,106 @@ esp_err_t init_sensors_on_mux_channels(void)
         {
             LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
         }
-    }
-
-    // --- Bus1 ---
-    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
-    {
-        const char *type_str = bus1_sensor_settings[ch].type;
-        LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
-        err = configure_bus_channel(bus1_sensors, 0, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
-        if (err != ESP_OK)
+        else
         {
-            LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            // If this channel is a BME680, schedule the profile sequence once.
+            // and tca9548_bus0_handle is the mux device handle (i2c_master_dev_handle_t).
+            // If you don't use a mux, pass NULL and -1 for mux args.
+            if (strcmp(type_str, "BME680") == 0)
+            {
+                schedule_bme680_profile_once(i2c_bus0_handle, bus0_sensors[ch].handle, tca9548_bus0_handle, (int)ch);
+                start_bme680_profiles_test(i2c_bus0_handle, bus0_sensors[ch].handle, tca9548_bus0_handle, (int)ch, i2c_bus_mutex);
+            }
+        }
+
+        // --- Bus1 ---
+        for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+        {
+            const char *type_str = bus1_sensor_settings[ch].type;
+            LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
+            err = configure_bus_channel(bus1_sensors, 0, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
+            if (err != ESP_OK)
+            {
+                LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            }
+            else
+            {
+                if (strcmp(type_str, "BME680") == 0)
+                {
+                    schedule_bme680_profile_once(i2c_bus1_handle, bus1_sensors[ch].handle, tca9548_bus1_handle, (int)ch);
+                    start_bme680_profiles_test(i2c_bus1_handle, bus1_sensors[ch].handle, tca9548_bus1_handle, (int)ch, i2c_bus_mutex);
+                }
+            }
         }
     }
+    return err;
+}*/
 
-    return ESP_OK;
+// -----------------------------------------------------------------------------
+// BME680 read task and helpers
+// -----------------------------------------------------------------------------
+static void bme680_read_task(void *arg)
+{
+    // arg is a pointer to a struct containing bus index and channel, but for simplicity
+    // we will pass a packed integer: (bus_index << 8) | channel */
+    uintptr_t packed = (uintptr_t)arg;
+    int bus_index = (int)(packed >> 8);
+    int channel = (int)(packed & 0xFF);
+
+    sensor_slot_t *slots = (bus_index == 0) ? bus0_sensors : bus1_sensors;
+    i2c_master_dev_handle_t tca = (bus_index == 0) ? tca9548_bus0_handle : tca9548_bus1_handle;
+
+    while (1)
+    {
+        if (channel < 0 || channel >= CHANNELS_PER_BUS)
+        {
+            LOGW(TAG, "bme680_read_task: invalid channel %d", channel);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
+        }
+
+        sensor_slot_t *slot = &slots[channel];
+        if (slot->type != SENSOR_BME680 || slot->handle == NULL)
+        {
+            LOGW(TAG, "bme680_read_task: no BME680 on bus %d channel %d", bus_index, channel);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
+        }
+
+        /* Ensure mux channel selected before each transaction */
+        if (i2c_tca9548_set_channel(tca, channel) != ESP_OK)
+        {
+            LOGW(TAG, "bme680_read_task: failed to select mux channel %d", channel);
+            vTaskDelay(pdMS_TO_TICKS(2000));
+            continue;
+        }
+        vTaskDelay(pdMS_TO_TICKS(3)); // settle
+
+        float temp = 0, hum = 0, pres = 0, gas = 0;
+        if (bme680_forced_read(&temp, &hum, &pres, &gas) == ESP_OK)
+        {
+            LOGI(TAG, "BME680 bus=%d ch=%d T=%.2fC H=%.2f%% P=%.2fhPa Gas=%.0fΩ", bus_index, channel, temp, hum, pres, gas);
+        }
+        else
+        {
+            LOGW(TAG, "BME680 read failed on bus=%d ch=%d", bus_index, channel);
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(2000)); // read every 2s
+    }
+}
+
+/* Start a BME680 read task for a given bus/channel */
+esp_err_t i2c_sensors_start_bme680_task(int bus_index, uint8_t channel)
+{
+    if (channel >= CHANNELS_PER_BUS || (bus_index != 0 && bus_index != 1))
+        return ESP_ERR_INVALID_ARG;
+
+    /* Pack bus and channel into a single pointer-sized value for task arg */
+    uintptr_t packed = ((uintptr_t)bus_index << 8) | (uintptr_t)channel;
+
+    BaseType_t ok = xTaskCreatePinnedToCore(bme680_read_task, "bme680_read", 4096, (void *)packed, 5, NULL, tskNO_AFFINITY);
+    return (ok == pdPASS) ? ESP_OK : ESP_FAIL;
 }
 
 // -----------------------------------------------------------------------------
@@ -519,14 +694,50 @@ esp_err_t read_sensors_into_queue(void)
             {
             case SENSOR_AHT20:
                 ok = (aht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                // Not available so make 0
+                snapshot[bus][ch][IDX_CO2] = 0.0f;
+                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
+                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
                 break;
 
             case SENSOR_DHT20:
                 ok = (dht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                // Not available so make 0
+                snapshot[bus][ch][IDX_CO2] = 0.0f;
+                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
+                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
                 break;
 
             case SENSOR_SCD41:
                 ok = (scd41_read(slot->handle, &co2, &temp, &rh) == ESP_OK);
+                // Not available so make 0
+                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
+                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
+                break;
+
+            case SENSOR_BME680:
+                /* For BME680 we can call the driver directly (forced read) */
+                {
+                    float pres = 0.0f;
+                    float gas = 0.0f;
+
+                    if (bme680_forced_read(&temp, &rh, &pres, &gas) == ESP_OK)
+                    {
+                        ok = true;
+                        snapshot[bus][ch][IDX_CO2] = 0.0f; /* no CO2 from BME680 */
+                        snapshot[bus][ch][IDX_TEMP] = temp;
+                        snapshot[bus][ch][IDX_HUMIDITY] = rh;
+                        snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
+                        snapshot[bus][ch][IDX_VALID] = 1.0f;
+                        snapshot[bus][ch][IDX_PRESSURE] = pres;
+                        snapshot[bus][ch][IDX_GAS_RES] = gas;
+                        continue; /* already wrote snapshot */
+                    }
+                    else
+                    {
+                        ok = false;
+                    }
+                }
                 break;
 
             default:
@@ -553,8 +764,6 @@ esp_err_t read_sensors_into_queue(void)
 // -----------------------------------------------------------------------------
 // Averaging logic (unchanged except for using same snapshot layout)
 // -----------------------------------------------------------------------------
-void fifoPush(int bus, int slot, int measurement, float value, int pos);
-
 void sensor_data_average(void)
 {
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
@@ -566,21 +775,33 @@ void sensor_data_average(void)
         return;
     }
 
+    /* Measurement indices to average (compile-time array) */
+    static const int meas_indices[] = {
+        IDX_TEMP,
+        IDX_HUMIDITY,
+        IDX_CO2,
+        IDX_PRESSURE,
+        IDX_GAS_RES};
+    const int meas_count = (int)(sizeof(meas_indices) / sizeof(meas_indices[0]));
+
     int pos = 0;
 
     for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
         for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
-            for (int m = 0; m < 3; m++)
+            // Average the selected measurements and write averaged values back into the same snapshot indices (0,1,2,5,6)
+            for (int m = 0; m < meas_count; m++)
             {
-                fifoPush(bus, slot, m, sensor_data[bus][slot][m], pos);
-                sensor_avg_data[bus][slot][m] = avg[pos];
+                int field_idx = meas_indices[m];
+                fifoPush(bus, slot, m, sensor_data[bus][slot][field_idx], pos);
+                sensor_avg_data[bus][slot][field_idx] = avg[pos];
                 pos++;
             }
 
-            sensor_avg_data[bus][slot][3] = sensor_data[bus][slot][3];
-            sensor_avg_data[bus][slot][4] = sensor_data[bus][slot][4];
+            /* Preserve timestamp and valid flags (copied directly) */
+            sensor_avg_data[bus][slot][IDX_TIMESTAMP] = sensor_data[bus][slot][IDX_TIMESTAMP];
+            sensor_avg_data[bus][slot][IDX_VALID] = sensor_data[bus][slot][IDX_VALID];
         }
     }
 

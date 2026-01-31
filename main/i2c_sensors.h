@@ -3,9 +3,18 @@
 
 #include <driver/i2c_master.h>
 #include <esp_log.h>
+#include <string.h>
+#include <esp_rom_sys.h>
 
 #include "globals.h"
 #include "logging.h"
+
+/* add vendor header so struct bme68x_dev is complete */
+#include "bme68x.h" /* or the exact path your project uses */
+#include "bme68x_defs.h"
+#include "bsec_adapter.h" /* only if you need BSEC types here */
+#include "bme680_driver.h"
+// #include "bme680_test.h"
 
 // Function declarations
 
@@ -27,6 +36,10 @@ uint8_t scd41_crc8(const uint8_t *, size_t);
 esp_err_t scd41_data_ready(i2c_master_dev_handle_t, bool *);
 esp_err_t scd41_read(i2c_master_dev_handle_t, uint16_t *, float *, float *);
 
+// BME680 functions
+esp_err_t i2c_sensors_start_bme680_task(int bus_index, uint8_t channel);
+esp_err_t bme680_driver_init(i2c_master_dev_handle_t dev_handle);
+esp_err_t bme680_forced_read(float *temperature, float *humidity, float *pressure_hpa, float *gas_resistance);
 // sensor_type_t sensor_type_from_str(const char *type_str);
 
 // Functions to init and read sensors on mux channels based on config struct

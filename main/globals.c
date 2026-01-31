@@ -26,6 +26,8 @@ i2c_master_dev_handle_t dht20_bus0_handle = {0};
 i2c_master_dev_handle_t dht20_bus1_handle = {0};
 i2c_master_dev_handle_t scd41_bus0_handle = {0};
 i2c_master_dev_handle_t scd41_bus1_handle = {0};
+i2c_master_dev_handle_t bme680_bus0_handle = {0};
+i2c_master_dev_handle_t bme680_bus1_handle = {0};
 i2c_master_dev_handle_t ds3231_bus0_handle = {0};
 i2c_master_dev_handle_t lcd_bus1_handle = {0};
 
@@ -55,6 +57,7 @@ SemaphoreHandle_t sensor_cfg_mutex = NULL;
 SemaphoreHandle_t state_config_mutex = NULL;
 SemaphoreHandle_t statemachine_mutex = NULL;
 SemaphoreHandle_t valve_control_data_mutex = NULL;
+SemaphoreHandle_t i2c_bus_mutex = NULL;
 
 // Event group handles
 EventGroupHandle_t s_wifi_event_group = NULL;

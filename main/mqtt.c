@@ -329,6 +329,12 @@ void mqtt_publish_sensor_values(void)
 				mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
 			}
 
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "pressure");
+			mqtt_pubf(topic, raw[bus][slot][IDX_PRESSURE]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "gas_resistance");
+			mqtt_pubf(topic, raw[bus][slot][IDX_GAS_RES]);
+
 			// AVG
 			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
 			mqtt_pubf(topic, avg[bus][slot][IDX_TEMP]);
@@ -342,6 +348,12 @@ void mqtt_publish_sensor_values(void)
 				mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
 				mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
 			}
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "pressure");
+			mqtt_pubf(topic, avg[bus][slot][IDX_PRESSURE]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "gas_resistance");
+			mqtt_pubf(topic, avg[bus][slot][IDX_GAS_RES]);
 		}
 	}
 }

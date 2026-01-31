@@ -288,6 +288,13 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
+    i2c_bus_mutex = xSemaphoreCreateMutex();
+    if (i2c_bus_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to create i2c_bus_mutex");
+        ok = false;
+    }
+
     if (!ok)
     {
         // cleanup any created semaphores to avoid leaks and to keep state consistent
@@ -350,6 +357,11 @@ esp_err_t create_mutexes(void)
         {
             vSemaphoreDelete(valve_control_data_mutex);
             valve_control_data_mutex = NULL;
+        }
+        if (i2c_bus_mutex)
+        {
+            vSemaphoreDelete(i2c_bus_mutex);
+            i2c_bus_mutex = NULL;
         }
 
         ESP_LOGE(TAG, "One or more mutexes failed to create");
@@ -606,7 +618,7 @@ void set_log_levels(void)
     esp_log_level_set("Fan_control", ESP_LOG_INFO);
     esp_log_level_set("General", ESP_LOG_INFO);
     esp_log_level_set("HTTP_server", ESP_LOG_INFO);
-    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);
+    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);      // Nothing is logged now
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
     esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
     esp_log_level_set("i2c_functions", ESP_LOG_INFO);
@@ -631,9 +643,9 @@ void set_log_levels(void)
     esp_log_level_set("valve_control", ESP_LOG_INFO);
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
     esp_log_level_set("syslog", ESP_LOG_WARN);
+    esp_log_level_set("bme680_driver", ESP_LOG_DEBUG);
 
-    // Set all log levels
-    // esp_log_level_set("*", ESP_LOG_ERROR);
+    // esp_log_level_set("*", ESP_LOG_ERROR);       // Set all log levels
 }
 
 void print_html_file(const char *filepath)

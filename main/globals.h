@@ -22,6 +22,7 @@
 #define AHT20_I2C_ADDR 0x38   // Default address
 #define DHT20_I2C_ADDR 0x38   // Default address
 #define SCD41_I2C_ADDR 0x62   // Default address
+#define BME680_I2C_ADDR 0x77  // Default address
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
 
@@ -44,12 +45,14 @@
 // I2C Sensor config including average calculation
 #define MAX_I2C_BUSES 2
 #define CHANNELS_PER_BUS 8
-#define DATA_FIELDS 5 // 0=temp, 1=humidity, 2=CO2, 3=timestamp, 4=valid
+#define DATA_FIELDS 7 // 0=temp, 1=humidity, 2=CO2, 3=timestamp, 4=valid, 5=pressure, 6=gas resistance
 #define IDX_TEMP 0
 #define IDX_HUMIDITY 1
 #define IDX_CO2 2
 #define IDX_TIMESTAMP 3
 #define IDX_VALID 4
+#define IDX_PRESSURE 5
+#define IDX_GAS_RES 6
 #define MAX_FIFO_SIZE 25
 
 // Valves config
@@ -72,7 +75,7 @@
 
 // Number of samples for moving average calculation
 // #define SENSOR_AVG_SIZE 48
-#define SENSOR_AVG_SIZE (MAX_I2C_BUSES * CHANNELS_PER_BUS * 3) // only 3 averaged fields
+#define SENSOR_AVG_SIZE (MAX_I2C_BUSES * CHANNELS_PER_BUS * 5) // 5 averaged fields
 
 extern const char *STATE_ERROR;
 extern const char *STATE_INIT;
@@ -100,6 +103,8 @@ extern i2c_master_dev_handle_t dht20_bus0_handle;
 extern i2c_master_dev_handle_t dht20_bus1_handle;
 extern i2c_master_dev_handle_t scd41_bus0_handle;
 extern i2c_master_dev_handle_t scd41_bus1_handle;
+extern i2c_master_dev_handle_t bme680_bus0_handle;
+extern i2c_master_dev_handle_t bme680_bus1_handle;
 extern i2c_master_dev_handle_t ds3231_bus0_handle;
 extern i2c_master_dev_handle_t lcd_bus1_handle;
 
@@ -133,6 +138,7 @@ extern SemaphoreHandle_t sensor_cfg_mutex;
 extern SemaphoreHandle_t state_config_mutex;
 extern SemaphoreHandle_t statemachine_mutex;
 extern SemaphoreHandle_t valve_control_data_mutex;
+extern SemaphoreHandle_t i2c_bus_mutex;
 
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;

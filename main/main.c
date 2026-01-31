@@ -209,6 +209,7 @@ void app_main(void)
                 ESP_LOGW("watchdog", "gateway unreachable — consider reconnecting Wi‑Fi");
             }
         }
+
         vTaskDelay(pdMS_TO_TICKS(600000));
     }
 }

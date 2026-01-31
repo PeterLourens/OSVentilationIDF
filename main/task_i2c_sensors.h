@@ -2,8 +2,8 @@
 #define TASK_I2C_SENSORS_H
 
 #include <esp_log.h>
-#include <globals.h>
 
+#include "globals.h"
 #include "i2c_sensors.h"
 #include "driver/i2c_master.h"
 #include "logging.h"

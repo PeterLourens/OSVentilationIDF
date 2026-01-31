@@ -4,7 +4,7 @@
     "b0_s0_location": "Toilet",
     "b0_s0_rh": "On",
     "b0_s0_co2": "Off",
-    "b0_s1_type": "None",
+    "b0_s1_type": "BME680",
     "b0_s1_valve": "None",
     "b0_s1_location": "",
     "b0_s1_rh": "Off",

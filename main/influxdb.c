@@ -233,7 +233,7 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
 // ---------------------------------------------------------------------------
 void influxdb_build_payload_actuals(char *out, size_t out_size)
 {
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) != pdTRUE)
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         return;
 
     char line[768];
