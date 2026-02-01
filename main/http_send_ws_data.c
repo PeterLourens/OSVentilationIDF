@@ -198,6 +198,7 @@ void send_config_json_ws(void)
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         cJSON_AddStringToObject(root, "enable_dhcp", network_config.enable_dhcp);
+        cJSON_AddStringToObject(root, "hostname", network_config.hostname);
         cJSON_AddStringToObject(root, "ssid", network_config.ssid);
         cJSON_AddStringToObject(root, "wifi_password", network_config.wifi_password);
         cJSON_AddStringToObject(root, "ip_address", network_config.ip_address);

@@ -1,11 +1,26 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "task_i2c_lcd.h"
 
 static const char *TAG = "task_i2c_LCD";
+static StackType_t i2c_lcd_stack[4096];  // stack buffer
+static StaticTask_t i2c_lcd_tcb;         // TCB buffer
+static size_t i2c_lcd_stack_size = 4096; // 4096 words = 16 KB
 
 void start_task_i2c_lcd(void)
 {
     // Create LCD task
-    xTaskCreate(task_i2c_lcd_code, "i2c_lcd", 4096, NULL, 6, &task_i2c_lcd);
+    // xTaskCreate(task_i2c_lcd_code, "i2c_lcd", 4096, NULL, 6, &task_i2c_lcd);
+    task_i2c_lcd = xTaskCreateStatic(task_i2c_lcd_code, "i2c_lcd", i2c_lcd_stack_size, NULL, 6, i2c_lcd_stack, &i2c_lcd_tcb);
+
+    if (task_i2c_lcd == NULL)
+    {
+        LOGE(TAG, "I2C LCD task creation failed");
+    }
 }
 
 void task_i2c_lcd_code(void *pvParameters)

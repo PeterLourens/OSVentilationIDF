@@ -1,15 +1,19 @@
 #include "task_mqtt.h"
 
 static const char *TAG = "task_MQTT";
+static StackType_t mqtt_stack[6144];  // stack buffer
+static StaticTask_t mqtt_tcb;         // TCB buffer
+static size_t mqtt_stack_size = 6144; // 4096 words = 16 KB
 
 void start_task_mqtt(void)
 {
-    // Create LCD task
-    BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 6144, NULL, 6, &task_mqtt);
+    // Create MQTT task
+    // BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 6144, NULL, 6, &task_mqtt);
+    task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
 
-    if (created != pdPASS)
+    if (task_mqtt == NULL)
     {
-        LOGE(TAG, "Failed to create MQTT task");
+        LOGE(TAG, "MQTT task creation failed");
     }
 }
 

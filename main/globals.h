@@ -159,6 +159,7 @@ typedef struct
 typedef struct
 {
     char enable_dhcp[SMALL_CONFIG_ITEM];
+    char hostname[MEDIUM_CONFIG_ITEM];
     char ssid[MEDIUM_CONFIG_ITEM];
     char wifi_password[LARGE_CONFIG_ITEM]; // WPA3 has max 63 characters
     char ip_address[MEDIUM_CONFIG_ITEM];

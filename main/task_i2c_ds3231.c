@@ -1,14 +1,25 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "task_i2c_ds3231.h"
 
 static const char *TAG = "task_DS3231_sync";
+static StackType_t i2c_ds3231_stack[4096];  // stack buffer
+static StaticTask_t i2c_ds3231_tcb;         // TCB buffer
+static size_t i2c_ds3231_stack_size = 4096; // 4096 words = 16 KB
 
 void start_task_i2c_ds3231(void)
 {
-    // Register Wi‑Fi event handler
-    // esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &on_got_ip, NULL);
+    // xTaskCreate(task_i2c_ds3231_code, "i2c_ds3231", 4096, NULL, 8, &task_i2c_ds3231);
+    task_i2c_ds3231 = xTaskCreateStatic(task_i2c_ds3231_code, "i2c_ds3231", i2c_ds3231_stack_size, NULL, 8, i2c_ds3231_stack, &i2c_ds3231_tcb);
 
-    // Create DS3231 sync task
-    xTaskCreate(task_i2c_ds3231_code, "i2c_ds3231", 4096, NULL, 8, &task_i2c_ds3231);
+    if (task_i2c_ds3231 == NULL)
+    {
+        LOGE(TAG, "I2C DS3231 task creation failed");
+    }
 }
 
 void task_i2c_ds3231_code(void *pvParameters)

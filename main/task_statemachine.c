@@ -1,12 +1,21 @@
 #include "task_statemachine.h"
 
 static const char *TAG = "task_SM";
+static StackType_t sm_stack[8192];  // stack buffer
+static StaticTask_t sm_tcb;         // TCB buffer
+static size_t sm_stack_size = 8192; // 4096 words = 16 KB
 
 // Functions for the task statemachine would go here
 void start_task_statemachine(void)
 {
     // Create statemachine task
-    xTaskCreate(task_statemachine_code, "statemach", 8192, NULL, 6, &task_statemachine);
+    // xTaskCreate(task_statemachine_code, "statemach", 8192, NULL, 6, &task_statemachine);
+    task_statemachine = xTaskCreateStatic(task_statemachine_code, "statemach", sm_stack_size, NULL, 12, sm_stack, &sm_tcb);
+
+    if (task_statemachine == NULL)
+    {
+        LOGE(TAG, "Statemachine task creation failed");
+    }
 }
 
 void task_statemachine_code(void *pvParameters)

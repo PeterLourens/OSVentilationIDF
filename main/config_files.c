@@ -162,6 +162,7 @@ esp_err_t load_network_config(void)
     }
 
     cJSON *enable_dhcp = cJSON_GetObjectItem(json, "enable_dhcp");
+    cJSON *hostname = cJSON_GetObjectItem(json, "hostname");
     cJSON *ssid = cJSON_GetObjectItem(json, "ssid");
     cJSON *wifi_password = cJSON_GetObjectItem(json, "wifi_password");
     cJSON *ip_address = cJSON_GetObjectItem(json, "ip_address");
@@ -190,6 +191,9 @@ esp_err_t load_network_config(void)
 
     strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
     network_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(network_config.hostname, cJSON_IsString(hostname) ? hostname->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    network_config.hostname[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     strncpy(network_config.ssid, cJSON_IsString(ssid) ? ssid->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     network_config.ssid[MEDIUM_CONFIG_ITEM - 1] = '\0';

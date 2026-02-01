@@ -71,6 +71,12 @@ cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
     else
         cJSON_AddStringToObject(obj, key, "None");
 
+    snprintf(key, sizeof(key), "hostname");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
     snprintf(key, sizeof(key), "ssid");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);

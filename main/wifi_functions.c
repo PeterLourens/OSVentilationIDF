@@ -3,9 +3,10 @@
 static const char *TAG = "wifi_functions";
 static int s_retry_num = 0;
 
+char hostname[MEDIUM_CONFIG_ITEM] = {};
+
 esp_err_t wifi_manager_init(void)
 {
-
     // Create event group
     s_wifi_event_group = xEventGroupCreate();
     if (s_wifi_event_group == NULL)
@@ -20,7 +21,18 @@ esp_err_t wifi_manager_init(void)
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
     // Create default WiFi station interface
-    esp_netif_create_default_wifi_sta();
+    esp_netif_t *netif = esp_netif_create_default_wifi_sta();
+
+    // Set hostname BEFORE starting WiFi
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, 10) == pdTRUE)
+    {
+        strncpy(hostname, network_config.hostname, sizeof(hostname));
+        xSemaphoreGive(network_config_mutex);
+    }
+    ESP_ERROR_CHECK(esp_netif_set_hostname(netif, "OSVentilationIDFdev"));
+
+    // Create default WiFi station interface
+    // esp_netif_create_default_wifi_sta();
 
     // Initialize WiFi
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();

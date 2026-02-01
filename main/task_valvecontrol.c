@@ -1,8 +1,19 @@
 #include "task_valvecontrol.h"
 
+static const char *TAG = "task_valvectrl";
+static StackType_t valvectrl_stack[4096];  // stack buffer
+static StaticTask_t valvectrl_tcb;         // TCB buffer
+static size_t valvectrl_stack_size = 4096; // 4096 words = 16 KB
+
 void start_task_valvecontrol(void)
 {
-    xTaskCreate(task_valvecontrol_code, "task_valvectrl", 4096, NULL, 8, &task_valvectrl);
+    // xTaskCreate(task_valvecontrol_code, "task_valvectrl", 4096, NULL, 8, &task_valvectrl);
+    task_valvectrl = xTaskCreateStatic(task_valvecontrol_code, "task_valvectrl", valvectrl_stack_size, NULL, 12, valvectrl_stack, &valvectrl_tcb);
+
+    if (task_valvectrl == NULL)
+    {
+        LOGE(TAG, "Valvecontrol task creation failed");
+    }
 }
 
 void task_valvecontrol_code(void *pvParameters)

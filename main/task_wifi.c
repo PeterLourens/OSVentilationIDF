@@ -1,10 +1,19 @@
 #include "task_wifi.h"
 
 static const char *TAG = "task_wifi";
+static StackType_t wifi_stack[6144];  // stack buffer
+static StaticTask_t wifi_tcb;         // TCB buffer
+static size_t wifi_stack_size = 6144; // 4096 words = 16 KB
 
 void start_task_wifi(void)
 {
-    xTaskCreate(task_wifi_code, "task_wifi", 6144, NULL, 5, &task_wifi);
+    // xTaskCreate(task_wifi_code, "task_wifi", 6144, NULL, 5, &task_wifi);
+    task_wifi = xTaskCreateStatic(task_wifi_code, "task_wifi", wifi_stack_size, NULL, 9, wifi_stack, &wifi_tcb);
+
+    if (task_wifi == NULL)
+    {
+        LOGE(TAG, "Wifi task creation failed");
+    }
 }
 
 void task_wifi_code(void *pvParameters)

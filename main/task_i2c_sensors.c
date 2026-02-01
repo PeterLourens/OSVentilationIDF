@@ -1,16 +1,20 @@
 /*
     This file is part of the OSVentilationIDF project.
 
-    Copyright (C) 2023-2025 Peter Lourens
+    Copyright (C) 2023-2026 Peter Lourens
 */
 
 #include "task_i2c_sensors.h"
 
 static const char *TAG = "task_i2c_sensors";
+static StackType_t i2c_sensors_stack[4096];  // stack buffer
+static StaticTask_t i2c_sensors_tcb;         // TCB buffer
+static size_t i2c_sensors_stack_size = 4096; // 4096 words = 16 KB
 
 void start_task_i2c_sensors(void)
 {
-    xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 4096, NULL, 10, &task_i2c_sensors);
+    // xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 4096, NULL, 10, &task_i2c_sensors);
+    task_i2c_sensors = xTaskCreateStatic(task_i2c_sensors_code, "i2c_sensors", i2c_sensors_stack_size, NULL, 6, i2c_sensors_stack, &i2c_sensors_tcb);
 }
 
 void task_i2c_sensors_code(void *pvParameters)

@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "general.h"
 #include "esp_log_level.h"
 
@@ -624,7 +630,7 @@ void set_log_levels(void)
     esp_log_level_set("i2c_functions", ESP_LOG_INFO);
     esp_log_level_set("i2c_LCD", ESP_LOG_INFO);
     esp_log_level_set("i2c_sensors", ESP_LOG_INFO);
-    esp_log_level_set("Influxdb", ESP_LOG_DEBUG);
+    esp_log_level_set("Influxdb", ESP_LOG_INFO);
     esp_log_level_set("main", ESP_LOG_INFO);
     esp_log_level_set("MQTT", ESP_LOG_INFO);
     esp_log_level_set("RGB_LED", ESP_LOG_INFO);
@@ -643,6 +649,7 @@ void set_log_levels(void)
     esp_log_level_set("valve_control", ESP_LOG_INFO);
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
     esp_log_level_set("syslog", ESP_LOG_WARN);
+    esp_log_level_set("control_valves", ESP_LOG_INFO);
 
     // esp_log_level_set("*", ESP_LOG_ERROR);       // Set all log levels
 }
