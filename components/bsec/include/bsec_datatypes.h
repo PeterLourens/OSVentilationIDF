@@ -85,8 +85,8 @@ extern "C"
 
 #define BSEC_MAX_WORKBUFFER_SIZE     (4096)    /*!< Maximum size (in bytes) of the work buffer */
 #define BSEC_MAX_PHYSICAL_SENSOR     (8)         /*!< Number of physical sensors that need allocated space before calling bsec_update_subscription() */
-#define BSEC_MAX_PROPERTY_BLOB_SIZE  (1943)     /*!< Maximum size (in bytes) of the data blobs returned by bsec_get_configuration() */
-#define BSEC_MAX_STATE_BLOB_SIZE     (238)        /*!< Maximum size (in bytes) of the data blobs returned by bsec_get_state()*/
+#define BSEC_MAX_PROPERTY_BLOB_SIZE  (492)     /*!< Maximum size (in bytes) of the data blobs returned by bsec_get_configuration() */
+#define BSEC_MAX_STATE_BLOB_SIZE     (180)        /*!< Maximum size (in bytes) of the data blobs returned by bsec_get_state()*/
 #define BSEC_SAMPLE_RATE_DISABLED    (65535.0f)      /*!< Sample rate of a disabled sensor */
 #define BSEC_SAMPLE_RATE_ULP         (0.0033333f)           /*!< Sample rate in case of Ultra Low Power Mode */
 #define BSEC_SAMPLE_RATE_CONT        (1.0f)          /*!< Sample rate in case of Continuous Mode */
@@ -99,8 +99,8 @@ extern "C"
 #define BSEC_PROCESS_HUMIDITY       (1 << (BSEC_INPUT_HUMIDITY-1))  /*!< process_data bitfield constant for humidity @sa bsec_bme_settings_t */
 #define BSEC_PROCESS_GAS            (1 << (BSEC_INPUT_GASRESISTOR-1)) /*!< process_data bitfield constant for gas sensor @sa bsec_bme_settings_t */
 #define BSEC_PROCESS_PROFILE_PART	(1 << (BSEC_INPUT_PROFILE_PART-1)) /*!< process_data bitfield constant for gas sensor @sa bsec_bme_settings_t */
-#define BSEC_NUMBER_OUTPUTS         (23)         /*!< Number of outputs, depending on solution */
-#define BSEC_OUTPUT_INCLUDED        (1072855535)             /*!< bitfield that indicates which outputs are included in the solution */
+#define BSEC_NUMBER_OUTPUTS         (14)         /*!< Number of outputs, depending on solution */
+#define BSEC_OUTPUT_INCLUDED        (1210863)             /*!< bitfield that indicates which outputs are included in the solution */
 
 /*!
  * @brief Enumeration for input (physical) sensors.
@@ -295,29 +295,8 @@ typedef enum
     BSEC_OUTPUT_COMPENSATED_GAS = 18,
 	BSEC_OUTPUT_GAS_PERCENTAGE = 21,                        /*!< Percentage of min and max filtered gas value [%] */
 	
-    /**
-     * @brief Gas estimate output channel 1 [0-1]
-     * 
-     * The gas scan result is given in probability for each of the used gases.  
-     * In standard scan mode, the probability of H2S and non-H2S is provided by the variables BSEC_OUTPUT_GAS_ESTIMATE_1 & BSEC_OUTPUT_GAS_ESTIMATE_2 respectively. A maximum of 4 classes can be used by configuring using BME AI-studio.
-     */	
-    BSEC_OUTPUT_GAS_ESTIMATE_1 = 22,                        
-	BSEC_OUTPUT_GAS_ESTIMATE_2 = 23,                        /*!< Gas estimate output channel 2 [0-1] */
-	BSEC_OUTPUT_GAS_ESTIMATE_3 = 24,                        /*!< Gas estimate output channel 3 [0-1] */
-	BSEC_OUTPUT_GAS_ESTIMATE_4 = 25,                        /*!< Gas estimate output channel 4 [0-1] */
 
-    BSEC_OUTPUT_RAW_GAS_INDEX = 26,      /*!< Gas index cyclically running from 0 to heater_profile_length-1, range of heater profile length is from 1 to 10, default being 10 */      
 	
-	/**
-     * @brief Regression estimate output channel 1 
-     * 
-     * The regression estimate gives the quantitative measurement of the gases used.  
-     * In standard scan mode, quantification of the gas is provided by the variables BSEC_OUTPUT_REGRESSION_ESTIMATE_1. A maximum of 4 gas targets can be used by configuring using BME AI-studio.
-     */
-	BSEC_OUTPUT_REGRESSION_ESTIMATE_1 = 27,                        
-	BSEC_OUTPUT_REGRESSION_ESTIMATE_2 = 28,                  /*!< Regression estimate output channel 2  */
-	BSEC_OUTPUT_REGRESSION_ESTIMATE_3 = 29,                  /*!< Regression estimate output channel 3  */
-	BSEC_OUTPUT_REGRESSION_ESTIMATE_4 = 30                   /*!< Regression estimate output channel 4  */
 } bsec_virtual_sensor_t;
 
 /*!

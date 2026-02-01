@@ -8,5 +8,13 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
 set(PROJECT_PARTITION_CSV ${CMAKE_SOURCE_DIR}/partitions.csv)
 
+# Import the prebuilt static library for Bosch BSEC
+#add_library(libalgobsec STATIC IMPORTED)
+
+# Path to the .a file relative to the project root (adjust if different)
+#set_target_properties(libalgobsec PROPERTIES
+#    IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/components/bsec/lib/libalgobsec.a"
+#)
+
 project(OSVentilationIDF)
 
