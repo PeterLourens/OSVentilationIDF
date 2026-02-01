@@ -607,7 +607,13 @@ void sensor_data_average(void)
             for (int m = 0; m < meas_count; m++)
             {
                 int field_idx = meas_indices[m];
-                fifoPush(bus, slot, m, sensor_data[bus][slot][field_idx], pos);
+
+                // Only average valid measurements
+                if (sensor_data[bus][slot][IDX_VALID])
+                {
+                    fifoPush(bus, slot, m, sensor_data[bus][slot][field_idx], pos);
+                }
+
                 sensor_avg_data[bus][slot][field_idx] = avg[pos];
                 pos++;
             }
@@ -640,5 +646,6 @@ void fifoPush(int bus, int slot, int measurement, float value, int pos)
         fifoHead[pos] = (fifoHead[pos] + 1) % MAX_FIFO_SIZE;
     }
 
-    avg[pos] = sum[pos] / fifoSize[pos];
+    if (fifoSize[pos] > 0)
+        avg[pos] = sum[pos] / fifoSize[pos];
 }

@@ -103,14 +103,18 @@ void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg
 void influxdb_append_line(char *out, size_t out_size, const char *line)
 {
     size_t used = strlen(out);
-    size_t free = out_size - used - 1;
+    size_t out_free = out_size - used - 1;
 
-    if (free == 0)
+    if (out_free == 0)
         return;
 
     size_t len = strlen(line);
-    if (len > free)
-        len = free;
+
+    if (len > out_free)
+    {
+        LOGE(TAG, "Influx payload overflow: line needs %u bytes, free %d", (unsigned)len, (unsigned)out_free);
+        len = out_free; // truncate safely
+    }
 
     memcpy(out + used, line, len);
     out[used + len] = '\0';
@@ -233,13 +237,13 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
 // ---------------------------------------------------------------------------
 void influxdb_build_payload_actuals(char *out, size_t out_size)
 {
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
         return;
 
-    char line[768];
+    char line[1024];
     memset(line, 0, sizeof(line));
 
-    int64_t ts = influxdb_get_timestamp();            // seconds (precision=s)
+    int64_t ts = influxdb_get_timestamp();            // seconds (precision=ns)
     uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
 
     snprintf(line, sizeof(line),
@@ -318,6 +322,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
 
     xSemaphoreGive(statemachine_mutex);
 
+    LOGD(TAG, "Valve positions:\n%s", line);
     influxdb_append_line(out, out_size, line);
 }
 
@@ -417,7 +422,7 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
     // Allocate on heap
     float (*sensor)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
     float (*avg)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
-    char *payload = malloc(4096);
+    char *payload = malloc(8192);
 
     if (!sensor || !avg || !payload)
     {
