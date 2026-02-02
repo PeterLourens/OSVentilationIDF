@@ -110,6 +110,58 @@ static sensor_type_t sensor_type_from_str(const char *type_str)
 }
 
 // -----------------------------------------------------------------------------
+// Helpers for checking output aht20 and dht20 sensors
+// -----------------------------------------------------------------------------
+static uint8_t xht20_crc8(const uint8_t *data, size_t len)
+{
+    uint8_t crc = 0xFF;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        crc ^= data[i];
+        for (int b = 0; b < 8; b++)
+        {
+            if (crc & 0x80)
+                crc = (crc << 1) ^ 0x31;
+            else
+                crc <<= 1;
+        }
+    }
+
+    return crc;
+}
+
+static esp_err_t xht20_validate(const uint8_t *data)
+{
+    // Check busy flag
+    if (data[0] & 0x80)
+        return ESP_ERR_INVALID_STATE;
+
+    // CRC check: compute over bytes 0–5
+    uint8_t crc = xht20_crc8(data, 6);
+    if (crc != data[6])
+        return ESP_ERR_INVALID_CRC;
+
+    // Extract raw values
+    uint32_t raw_h = ((uint32_t)data[1] << 12) |
+                     ((uint32_t)data[2] << 4) |
+                     (data[3] >> 4);
+
+    uint32_t raw_t = (((uint32_t)data[3] & 0x0F) << 16) |
+                     ((uint32_t)data[4] << 8) |
+                     data[5];
+
+    // Basic sanity checks
+    if (raw_h == 0 || raw_h >= 0x100000)
+        return ESP_ERR_INVALID_RESPONSE;
+
+    if (raw_t == 0 || raw_t >= 0x100000)
+        return ESP_ERR_INVALID_RESPONSE;
+
+    return ESP_OK;
+}
+
+// -----------------------------------------------------------------------------
 // Pre-load sensor type so sensors only once
 // -----------------------------------------------------------------------------
 void preload_sensor_types_from_config(void)
@@ -161,6 +213,10 @@ esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
 
     uint8_t data[7];
     err = i2c_master_receive(dev_handle, data, sizeof(data), -1);
+    if (err != ESP_OK)
+        return err;
+
+    err = xht20_validate(data);
     if (err != ESP_OK)
         return err;
 
@@ -218,8 +274,9 @@ esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
     if (err != ESP_OK)
         return err;
 
-    if (data[0] & 0x80)
-        return ESP_ERR_INVALID_STATE; // still busy
+    err = xht20_validate(data);
+    if (err != ESP_OK)
+        return err;
 
     uint32_t raw_humidity = ((uint32_t)data[1] << 12) | ((uint32_t)data[2] << 4) | (data[3] >> 4);
     uint32_t raw_temperature = (((uint32_t)data[3] & 0x0F) << 16) | ((uint32_t)data[4] << 8) | data[5];

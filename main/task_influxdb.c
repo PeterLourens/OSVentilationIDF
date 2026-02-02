@@ -26,6 +26,6 @@ void task_influxdb_code(void *pvParameters)
     {
         LOGI(TAG, "Update InfluxDB...");
         influxdb_process(sensor_queue, sensor_avg_queue);
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        vTaskDelay(pdMS_TO_TICKS(20000));
     }
 }

@@ -102,8 +102,8 @@ static struct bme68x_data sensor_data[3];
 uint8_t dev_addr = BME68X_I2C_ADDR_LOW;
 
 /* State change and temporary data place holders */
-uint8_t lastOpMode[NUM_OF_SENS] = { BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE,
-									BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE };
+uint8_t lastOpMode[NUM_OF_SENS] = {BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE,
+                                   BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE, BME68X_SLEEP_MODE};
 
 float extTempOffset = 0.0f;
 uint8_t opMode[NUM_OF_SENS];
@@ -117,21 +117,21 @@ uint8_t nFields, iFields;
  *               Please call this function before processing of data using bsec_do_steps function
  *
  * @param[in]    sample_rate         mode to be used (either BSEC_SAMPLE_RATE_ULP or BSEC_SAMPLE_RATE_LP)
- *  
+ *
  * @return       subscription result, zero when successful
  */
 static bsec_library_return_t bme68x_bsec_update_subscription(float sample_rate, uint8_t sens_no)
 {
     bsec_sensor_configuration_t requested_virtual_sensors[NUM_USED_OUTPUTS];
     uint8_t n_requested_virtual_sensors = NUM_USED_OUTPUTS;
-    
+
     bsec_sensor_configuration_t required_sensor_settings[BSEC_MAX_PHYSICAL_SENSOR];
     uint8_t n_required_sensor_settings = BSEC_MAX_PHYSICAL_SENSOR;
-    
+
     bsec_library_return_t status = BSEC_OK;
-    
+
     /* note: Virtual sensors as desired to be added here */
-	requested_virtual_sensors[0].sensor_id = BSEC_OUTPUT_RAW_PRESSURE;
+    requested_virtual_sensors[0].sensor_id = BSEC_OUTPUT_RAW_PRESSURE;
     requested_virtual_sensors[0].sample_rate = sample_rate;
     requested_virtual_sensors[1].sensor_id = BSEC_OUTPUT_RAW_TEMPERATURE;
     requested_virtual_sensors[1].sample_rate = sample_rate;
@@ -162,7 +162,7 @@ static bsec_library_return_t bme68x_bsec_update_subscription(float sample_rate, 
     requested_virtual_sensors[8].sensor_id = BSEC_OUTPUT_RAW_GAS_INDEX;
     requested_virtual_sensors[8].sample_rate = sample_rate;
 #elif (OUTPUT_MODE == IAQ)
-	requested_virtual_sensors[4].sensor_id = BSEC_OUTPUT_IAQ;
+    requested_virtual_sensors[4].sensor_id = BSEC_OUTPUT_IAQ;
     requested_virtual_sensors[4].sample_rate = sample_rate;
     requested_virtual_sensors[5].sensor_id = BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE;
     requested_virtual_sensors[5].sample_rate = sample_rate;
@@ -183,11 +183,11 @@ static bsec_library_return_t bme68x_bsec_update_subscription(float sample_rate, 
     requested_virtual_sensors[13].sensor_id = BSEC_OUTPUT_COMPENSATED_GAS;
     requested_virtual_sensors[13].sample_rate = sample_rate;
 #endif
-    
+
     /* Call bsec_update_subscription() to enable/disable the requested virtual sensors */
     status = bsec_update_subscription_m(bsecInstance[sens_no], requested_virtual_sensors, n_requested_virtual_sensors, required_sensor_settings,
-        &n_required_sensor_settings);
-    
+                                        &n_required_sensor_settings);
+
     return status;
 }
 
@@ -201,12 +201,12 @@ static bsec_library_return_t bme68x_bsec_update_subscription(float sample_rate, 
  * @param[in]   sleep               pointer to the system specific sleep function
  * @param[in]   state_load          pointer to the system-specific state load function
  * @param[in]   config_load         pointer to the system-specific config load function
- * @param[in]   dev         		pointer to the sensor communication and inventory details strucuture	
+ * @param[in]   dev         		pointer to the sensor communication and inventory details strucuture
  *
  * @return      zero if successful, negative otherwise
  */
-return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bme68x_write_fptr_t bus_write, 
-                    bme68x_read_fptr_t bus_read, sleep_fct sleep, state_load_fct state_load, config_load_fct config_load,  struct bme68x_dev dev, uint8_t sens_no)
+return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bme68x_write_fptr_t bus_write,
+                                 bme68x_read_fptr_t bus_read, sleep_fct sleep, state_load_fct state_load, config_load_fct config_load, struct bme68x_dev dev, uint8_t sens_no)
 {
     return_values_init ret = {BME68X_OK, BSEC_OK};
 
@@ -223,56 +223,56 @@ return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bm
     {
         return ret;
     }
-    
+
     /* Initialize BSEC library */
     ret.bsec_status = bsec_init_m(bsecInstance[sens_no]);
     if (ret.bsec_status != BSEC_OK)
     {
         return ret;
     }
-    
+
     /* Load library config, if available */
     bsec_config_len = config_load(bsec_config, sizeof(bsec_config));
     if (bsec_config_len != 0)
-    {       
+    {
         ret.bsec_status = bsec_set_configuration_m(bsecInstance[sens_no], bsec_config, bsec_config_len, work_buffer, sizeof(work_buffer));
         if (ret.bsec_status != BSEC_OK)
         {
             return ret;
         }
     }
-    
+
     /* Load previous library state, if available */
     bsec_state_len = state_load(bsec_state, sizeof(bsec_state));
     if (bsec_state_len != 0)
-    {       
-        ret.bsec_status = bsec_set_state_m(bsecInstance[sens_no], bsec_state, bsec_state_len, work_buffer, sizeof(work_buffer));     
+    {
+        ret.bsec_status = bsec_set_state_m(bsecInstance[sens_no], bsec_state, bsec_state_len, work_buffer, sizeof(work_buffer));
         if (ret.bsec_status != BSEC_OK)
         {
             return ret;
         }
     }
-	
-	/*
-	 *	The default offset provided has been determined by testing the sensor in LP and ULP mode on application board 3.0
-	 *	Please update the offset value after testing this on your product 
-	 */
-	if (sample_rate == BSEC_SAMPLE_RATE_ULP)
-	{
-		extTempOffset = TEMP_OFFSET_ULP;
-	}
-	else if (sample_rate == BSEC_SAMPLE_RATE_LP)
-	{
-		extTempOffset = TEMP_OFFSET_LP;
-	}
-    
+
+    /*
+     *	The default offset provided has been determined by testing the sensor in LP and ULP mode on application board 3.0
+     *	Please update the offset value after testing this on your product
+     */
+    if (sample_rate == BSEC_SAMPLE_RATE_ULP)
+    {
+        extTempOffset = TEMP_OFFSET_ULP;
+    }
+    else if (sample_rate == BSEC_SAMPLE_RATE_LP)
+    {
+        extTempOffset = TEMP_OFFSET_LP;
+    }
+
     /* Call to the function which sets the library with subscription information */
     ret.bsec_status = bme68x_bsec_update_subscription(sample_rate, sens_no);
     if (ret.bsec_status != BSEC_OK)
     {
         return ret;
     }
-    
+
     return ret;
 }
 
@@ -283,7 +283,7 @@ return_values_init bsec_iot_init(float sample_rate, float temperature_offset, bm
  * @param[in]   num_bsec_inputs     number of inputs to be passed to do_steps
  * @param[in]   output_ready        pointer to the function processing obtained BSEC outputs
  *
- * @return      library function return codes, zero when successful 
+ * @return      library function return codes, zero when successful
  */
 static bsec_library_return_t bme68x_bsec_process_data(bsec_input_t *bsec_inputs, uint8_t num_bsec_inputs, output_ready_fct output_ready, uint8_t sens_no)
 {
@@ -294,16 +294,16 @@ static bsec_library_return_t bme68x_bsec_process_data(bsec_input_t *bsec_inputs,
 
     bsec_library_return_t bsec_status = BSEC_OK;
 
-	output_t output = {0};
-    
+    output_t output = {0};
+
     /* Check if something should be processed by BSEC */
     if (num_bsec_inputs > 0)
     {
         /* Set number of outputs to the size of the allocated buffer */
         /* BSEC_NUMBER_OUTPUTS to be defined */
         num_bsec_outputs = BSEC_NUMBER_OUTPUTS;
-        
-        /* Perform processing of the data by BSEC 
+
+        /* Perform processing of the data by BSEC
            Note:
            * The number of outputs you get depends on what you asked for during bsec_update_subscription(). This is
              handled under bme68x_bsec_update_subscription() function in this example file.
@@ -314,99 +314,99 @@ static bsec_library_return_t bme68x_bsec_process_data(bsec_input_t *bsec_inputs,
         {
             switch (bsec_outputs[index].sensor_id)
             {
-                case BSEC_OUTPUT_GAS_ESTIMATE_1:
-                    output.gas_estimate_1 = bsec_outputs[index].signal;
-					output.gas_accuracy_1 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_GAS_ESTIMATE_2:
-                    output.gas_estimate_2 = bsec_outputs[index].signal;
-					output.gas_accuracy_2 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_GAS_ESTIMATE_3:
-                    output.gas_estimate_3 = bsec_outputs[index].signal;
-					output.gas_accuracy_3 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_GAS_ESTIMATE_4:
-                    output.gas_estimate_4 = bsec_outputs[index].signal;
-					output.gas_accuracy_4 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_RAW_PRESSURE:
-                    output.raw_pressure = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_RAW_TEMPERATURE:
-                    output.raw_temp = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_RAW_HUMIDITY:
-                    output.raw_humidity = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_RAW_GAS:
-                    output.raw_gas = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_RAW_GAS_INDEX:
-                    output.raw_gas_index = (uint8_t)bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_REGRESSION_ESTIMATE_1:
-                    output.gas_estimate_1 = bsec_outputs[index].signal;
-					output.gas_accuracy_1 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_REGRESSION_ESTIMATE_2:
-                    output.gas_estimate_2 = bsec_outputs[index].signal;
-					output.gas_accuracy_2 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_REGRESSION_ESTIMATE_3:
-                    output.gas_estimate_3 = bsec_outputs[index].signal;
-					output.gas_accuracy_3 = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_REGRESSION_ESTIMATE_4:
-                    output.gas_estimate_4 = bsec_outputs[index].signal;
-					output.gas_accuracy_4 = bsec_outputs[index].accuracy;
-                    break;
-				case BSEC_OUTPUT_IAQ:
-                    output.iaq = bsec_outputs[index].signal;
-                    output.iaq_accuracy = bsec_outputs[index].accuracy;
-                    break;
-                case BSEC_OUTPUT_STATIC_IAQ:
-                    output.static_iaq = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_CO2_EQUIVALENT:
-                    output.co2_equivalent = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_BREATH_VOC_EQUIVALENT:
-                    output.breath_voc_equivalent = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE:
-                    output.temperature = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY:
-                    output.humidity = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_STABILIZATION_STATUS:
-                    output.stabStatus = bsec_outputs[index].signal;
-                    break;
-				case BSEC_OUTPUT_RUN_IN_STATUS:
-                    output.runInStatus = bsec_outputs[index].signal;
-                    break;
-                case BSEC_OUTPUT_GAS_PERCENTAGE:
-                    output.gas_percentage = bsec_outputs[index].signal;
-                    break;
-                 case BSEC_OUTPUT_COMPENSATED_GAS:
-                    output.compensated_gas = bsec_outputs[index].signal;
-                    break;
-                default:
-                    continue;
+            case BSEC_OUTPUT_GAS_ESTIMATE_1:
+                output.gas_estimate_1 = bsec_outputs[index].signal;
+                output.gas_accuracy_1 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_GAS_ESTIMATE_2:
+                output.gas_estimate_2 = bsec_outputs[index].signal;
+                output.gas_accuracy_2 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_GAS_ESTIMATE_3:
+                output.gas_estimate_3 = bsec_outputs[index].signal;
+                output.gas_accuracy_3 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_GAS_ESTIMATE_4:
+                output.gas_estimate_4 = bsec_outputs[index].signal;
+                output.gas_accuracy_4 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_RAW_PRESSURE:
+                output.raw_pressure = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_RAW_TEMPERATURE:
+                output.raw_temp = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_RAW_HUMIDITY:
+                output.raw_humidity = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_RAW_GAS:
+                output.raw_gas = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_RAW_GAS_INDEX:
+                output.raw_gas_index = (uint8_t)bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_REGRESSION_ESTIMATE_1:
+                output.gas_estimate_1 = bsec_outputs[index].signal;
+                output.gas_accuracy_1 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_REGRESSION_ESTIMATE_2:
+                output.gas_estimate_2 = bsec_outputs[index].signal;
+                output.gas_accuracy_2 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_REGRESSION_ESTIMATE_3:
+                output.gas_estimate_3 = bsec_outputs[index].signal;
+                output.gas_accuracy_3 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_REGRESSION_ESTIMATE_4:
+                output.gas_estimate_4 = bsec_outputs[index].signal;
+                output.gas_accuracy_4 = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_IAQ:
+                output.iaq = bsec_outputs[index].signal;
+                output.iaq_accuracy = bsec_outputs[index].accuracy;
+                break;
+            case BSEC_OUTPUT_STATIC_IAQ:
+                output.static_iaq = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_CO2_EQUIVALENT:
+                output.co2_equivalent = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_BREATH_VOC_EQUIVALENT:
+                output.breath_voc_equivalent = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE:
+                output.temperature = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY:
+                output.humidity = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_STABILIZATION_STATUS:
+                output.stabStatus = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_RUN_IN_STATUS:
+                output.runInStatus = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_GAS_PERCENTAGE:
+                output.gas_percentage = bsec_outputs[index].signal;
+                break;
+            case BSEC_OUTPUT_COMPENSATED_GAS:
+                output.compensated_gas = bsec_outputs[index].signal;
+                break;
+            default:
+                continue;
             }
-            
+
             /* Assume that all the returned timestamps are the same */
             output.timestamp = bsec_outputs[index].time_stamp;
         }
 
-		output.sens_no = sens_no;
-        
+        output.sens_no = sens_no;
+
         /* Pass the extracted outputs to the user provided output_ready() function. */
-		if (num_bsec_outputs != 0)
-			output_ready(&output, bsec_status);
-	}
-	return bsec_status;
+        if (num_bsec_outputs != 0)
+            output_ready(&output, bsec_status);
+    }
+    return bsec_status;
 }
 
 /*!
@@ -422,7 +422,7 @@ static bsec_library_return_t bme68x_bsec_process_data(bsec_input_t *bsec_inputs,
 uint8_t processData(int64_t currTimeNs, struct bme68x_data data, int32_t bsec_process_data, output_ready_fct output_ready, uint8_t sens_no)
 {
     bsec_input_t inputs[BSEC_MAX_PHYSICAL_SENSOR]; /* Temp, Pres, Hum & Gas */
-	bsec_library_return_t bsec_status = BSEC_OK;
+    bsec_library_return_t bsec_status = BSEC_OK;
     uint8_t nInputs = 0;
     /* Checks all the required sensor inputs, required for the BSEC library for the requested outputs */
     if (BSEC_CHECK_INPUT(bsec_process_data, BSEC_INPUT_HEATSOURCE))
@@ -462,7 +462,7 @@ uint8_t processData(int64_t currTimeNs, struct bme68x_data data, int32_t bsec_pr
         nInputs++;
     }
     if (BSEC_CHECK_INPUT(bsec_process_data, BSEC_INPUT_GASRESISTOR) &&
-            (data.status & BME68X_GASM_VALID_MSK))
+        (data.status & BME68X_GASM_VALID_MSK))
     {
         inputs[nInputs].sensor_id = BSEC_INPUT_GASRESISTOR;
         inputs[nInputs].signal = data.gas_resistance;
@@ -470,7 +470,7 @@ uint8_t processData(int64_t currTimeNs, struct bme68x_data data, int32_t bsec_pr
         nInputs++;
     }
     if (BSEC_CHECK_INPUT(bsec_process_data, BSEC_INPUT_PROFILE_PART) &&
-            (data.status & BME68X_GASM_VALID_MSK))
+        (data.status & BME68X_GASM_VALID_MSK))
     {
         inputs[nInputs].sensor_id = BSEC_INPUT_PROFILE_PART;
         inputs[nInputs].signal = (opMode[sens_no] == BME68X_FORCED_MODE) ? 0 : data.gas_index;
@@ -481,7 +481,7 @@ uint8_t processData(int64_t currTimeNs, struct bme68x_data data, int32_t bsec_pr
     if (nInputs > 0)
     {
         /* Processing of the input signals and returning of output samples is performed by bsec_do_steps() */
-		bsec_status = bme68x_bsec_process_data(inputs, nInputs, output_ready, sens_no);
+        bsec_status = bme68x_bsec_process_data(inputs, nInputs, output_ready, sens_no);
 
         if (bsec_status != BSEC_OK)
             return 0;
@@ -498,10 +498,10 @@ uint8_t processData(int64_t currTimeNs, struct bme68x_data data, int32_t bsec_pr
  */
 uint32_t getMeasDur(uint8_t mode, uint8_t sens_no)
 {
-	if (mode == BME68X_SLEEP_MODE)
-		mode = lastOpMode[sens_no];
+    if (mode == BME68X_SLEEP_MODE)
+        mode = lastOpMode[sens_no];
 
-	return bme68x_get_meas_dur(mode, &conf, &bme68x_g[sens_no]);
+    return bme68x_get_meas_dur(mode, &conf, &bme68x_g[sens_no]);
 }
 
 /**
@@ -514,36 +514,35 @@ uint32_t getMeasDur(uint8_t mode, uint8_t sens_no)
 void setBme68xConfigParallel(bsec_bme_settings_t *sensor_settings, uint8_t sens_no)
 {
     uint16_t sharedHeaterDur = 0;
-	int8_t status;
-    
-	/* Set the filter, odr, temperature, pressure and humidity settings */
-	status = bme68x_get_conf(&conf, &bme68x_g[sens_no]);
-	if (status != BME68X_OK)
-		return;
+    int8_t status;
 
-	conf.os_hum = sensor_settings->humidity_oversampling;
-	conf.os_temp = sensor_settings->temperature_oversampling;
-	conf.os_pres = sensor_settings->pressure_oversampling;
-	status = bme68x_set_conf(&conf, &bme68x_g[sens_no]);
+    /* Set the filter, odr, temperature, pressure and humidity settings */
+    status = bme68x_get_conf(&conf, &bme68x_g[sens_no]);
     if (status != BME68X_OK)
-		return;
-        
+        return;
+
+    conf.os_hum = sensor_settings->humidity_oversampling;
+    conf.os_temp = sensor_settings->temperature_oversampling;
+    conf.os_pres = sensor_settings->pressure_oversampling;
+    status = bme68x_set_conf(&conf, &bme68x_g[sens_no]);
+    if (status != BME68X_OK)
+        return;
 
     sharedHeaterDur = BSEC_TOTAL_HEAT_DUR - (getMeasDur(BME68X_PARALLEL_MODE, sens_no) / INT64_C(1000));
-	heatr_conf.enable = BME68X_ENABLE;
-	heatr_conf.heatr_temp_prof = sensor_settings->heater_temperature_profile;
-	heatr_conf.heatr_dur_prof = sensor_settings->heater_duration_profile;
-	heatr_conf.shared_heatr_dur = sharedHeaterDur;
-	heatr_conf.profile_len = sensor_settings->heater_profile_len;
+    heatr_conf.enable = BME68X_ENABLE;
+    heatr_conf.heatr_temp_prof = sensor_settings->heater_temperature_profile;
+    heatr_conf.heatr_dur_prof = sensor_settings->heater_duration_profile;
+    heatr_conf.shared_heatr_dur = sharedHeaterDur;
+    heatr_conf.profile_len = sensor_settings->heater_profile_len;
     status = bme68x_set_heatr_conf(BME68X_PARALLEL_MODE, &heatr_conf, &bme68x_g[sens_no]);
     if (status != BME68X_OK)
-		return;
+        return;
 
     status = bme68x_set_op_mode(BME68X_PARALLEL_MODE, &bme68x_g[sens_no]);
-	if (status != BME68X_OK)
-		return;
-		
-	lastOpMode[sens_no] = BME68X_PARALLEL_MODE;
+    if (status != BME68X_OK)
+        return;
+
+    lastOpMode[sens_no] = BME68X_PARALLEL_MODE;
     opMode[sens_no] = BME68X_PARALLEL_MODE;
 }
 
@@ -556,32 +555,32 @@ void setBme68xConfigParallel(bsec_bme_settings_t *sensor_settings, uint8_t sens_
  */
 void setBme68xConfigForced(bsec_bme_settings_t *sensor_settings, uint8_t sens_no)
 {
-	int8_t status;
-	
+    int8_t status;
+
     /* Set the filter, odr, temperature, pressure and humidity settings */
-	status = bme68x_get_conf(&conf, &bme68x_g[sens_no]);
+    status = bme68x_get_conf(&conf, &bme68x_g[sens_no]);
     if (status != BME68X_OK)
-		return;
-	
-	conf.os_hum = sensor_settings->humidity_oversampling;
-	conf.os_temp = sensor_settings->temperature_oversampling;
-	conf.os_pres = sensor_settings->pressure_oversampling;
-	status = bme68x_set_conf(&conf, &bme68x_g[sens_no]);
+        return;
+
+    conf.os_hum = sensor_settings->humidity_oversampling;
+    conf.os_temp = sensor_settings->temperature_oversampling;
+    conf.os_pres = sensor_settings->pressure_oversampling;
+    status = bme68x_set_conf(&conf, &bme68x_g[sens_no]);
     if (status != BME68X_OK)
-		return;
+        return;
 
     heatr_conf.enable = BME68X_ENABLE;
-	heatr_conf.heatr_temp = sensor_settings->heater_temperature;
-	heatr_conf.heatr_dur = sensor_settings->heater_duration;
-	status = bme68x_set_heatr_conf(BME68X_FORCED_MODE, &heatr_conf, &bme68x_g[sens_no]);
+    heatr_conf.heatr_temp = sensor_settings->heater_temperature;
+    heatr_conf.heatr_dur = sensor_settings->heater_duration;
+    status = bme68x_set_heatr_conf(BME68X_FORCED_MODE, &heatr_conf, &bme68x_g[sens_no]);
     if (status != BME68X_OK)
-		return;
+        return;
 
     status = bme68x_set_op_mode(BME68X_FORCED_MODE, &bme68x_g[sens_no]);
-	if (status != BME68X_OK)
-		return;
-	
-	lastOpMode[sens_no] = BME68X_FORCED_MODE;
+    if (status != BME68X_OK)
+        return;
+
+    lastOpMode[sens_no] = BME68X_FORCED_MODE;
     opMode[sens_no] = BME68X_FORCED_MODE;
 }
 
@@ -595,35 +594,36 @@ void setBme68xConfigForced(bsec_bme_settings_t *sensor_settings, uint8_t sens_no
  * @param[in]   data                  	input structure that contains the gas sensor raw data collected
  *
  * @return      number of fields to process, zero when nothing to process
- */ 
+ */
 uint8_t getData(struct bme68x_data *data, uint8_t sens_no)
 {
-	if (lastOpMode[sens_no] == BME68X_FORCED_MODE)
-	{
-		*data = sensor_data[0];
-	} else
-	{
-		if (nFields)
-		{
-			/* iFields spans from 0-2 while nFields spans from
-			 * 0-3, where 0 means that there is no new data
-			 */
-			*data = sensor_data[iFields];
-			iFields++;
+    if (lastOpMode[sens_no] == BME68X_FORCED_MODE)
+    {
+        *data = sensor_data[0];
+    }
+    else
+    {
+        if (nFields)
+        {
+            /* iFields spans from 0-2 while nFields spans from
+             * 0-3, where 0 means that there is no new data
+             */
+            *data = sensor_data[iFields];
+            iFields++;
 
-			/* Limit reading continuously to the last fields read */
-			if (iFields >= nFields)
-			{
-				iFields = nFields - 1;
-				return 0;
-			}
+            /* Limit reading continuously to the last fields read */
+            if (iFields >= nFields)
+            {
+                iFields = nFields - 1;
+                return 0;
+            }
 
-			/* Indicate if there is something left to read */
-			return nFields - iFields;
-		}
-	}
+            /* Indicate if there is something left to read */
+            return nFields - iFields;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 /*!
@@ -638,116 +638,118 @@ uint8_t getData(struct bme68x_data *data, uint8_t sens_no)
  * @return      none
  */
 void bsec_iot_loop(sleep_fct sleep, get_timestamp_us_fct get_timestamp_us, output_ready_fct output_ready,
-                    state_save_fct state_save, uint32_t save_intvl)
+                   state_save_fct state_save, uint32_t save_intvl)
 {
     /* Timestamp variables */
     int64_t time_stamp = 0;
-    
+
     /* BSEC sensor settings struct */
     bsec_bme_settings_t sensor_settings[NUM_OF_SENS];
 
-	for (uint8_t i = 0; i < NUM_OF_SENS; i++) {
-		memset(&sensor_settings[i], 0, sizeof(sensor_settings[i]));
-		opMode[i] = sensor_settings[i].op_mode;
-		sensor_settings[i].next_call = 0;
-	}
-	
-	/* BSEC sensor data */
-	struct bme68x_data data;
-    
+    for (uint8_t i = 0; i < NUM_OF_SENS; i++)
+    {
+        memset(&sensor_settings[i], 0, sizeof(sensor_settings[i]));
+        opMode[i] = sensor_settings[i].op_mode;
+        sensor_settings[i].next_call = 0;
+    }
+
+    /* BSEC sensor data */
+    struct bme68x_data data;
+
     /* Save state variables */
     uint8_t bsec_state[BSEC_MAX_STATE_BLOB_SIZE];
     uint8_t work_buffer[BSEC_MAX_WORKBUFFER_SIZE];
-	uint8_t nFieldsLeft = 0;
+    uint8_t nFieldsLeft = 0;
     uint32_t bsec_state_len = 0;
     uint32_t n_samples = 0;
-	int8_t ret_val;
-	
+    int8_t ret_val;
+
     bsec_library_return_t bsec_status = BSEC_OK;
-	
+
     while (1)
     {
-		for (uint8_t sens_no = 0; sens_no < NUM_OF_SENS; sens_no++) { 
-		
-			/* get the timestamp in nanoseconds before calling bsec_sensor_control() */
-			time_stamp = get_timestamp_us() * 1000;
-			if (time_stamp >= sensor_settings[sens_no].next_call)
-			{
-				/* Retrieve sensor settings to be used in this time instant by calling bsec_sensor_control */
-				bsec_status = bsec_sensor_control_m(bsecInstance[sens_no], time_stamp, &sensor_settings[sens_no]);
-				if (bsec_status != BSEC_OK)
-				{
-					if (bsec_status < BSEC_OK)
-					{
-						printf("ERROR: bsec_sensor_control: %d\n", bsec_status);
-						break;
-					}
-					else
-					{
-						printf("WARNING: bsec_sensor_control: %d\n", bsec_status);
-					}
-				}
-				switch (sensor_settings[sens_no].op_mode)
-				{
-					case BME68X_FORCED_MODE:
-						setBme68xConfigForced(&sensor_settings[sens_no], sens_no);
-						break;
-					case BME68X_PARALLEL_MODE:
-						if (opMode[sens_no] != sensor_settings[sens_no].op_mode)
-						{
-							setBme68xConfigParallel(&sensor_settings[sens_no], sens_no);
-						}
-						break;
-					case BME68X_SLEEP_MODE:
-						if (opMode[sens_no] != sensor_settings[sens_no].op_mode)
-						{
-							ret_val = bme68x_set_op_mode(BME68X_SLEEP_MODE, &bme68x_g[sens_no]);
-							if ((ret_val == BME68X_OK) && (opMode[sens_no] != BME68X_SLEEP_MODE))
-							{
-								opMode[sens_no] = BME68X_SLEEP_MODE;
-							}
-						}
-						break;
-				}
-				
-				if (sensor_settings[sens_no].trigger_measurement && sensor_settings[sens_no].op_mode != BME68X_SLEEP_MODE)
-				{
-					nFields = 0;
-					bme68x_get_data(lastOpMode[sens_no], &sensor_data[0], &nFields, &bme68x_g[sens_no]);
-					iFields = 0;
-					if(nFields)
-					{
-						do
-						{
-							nFieldsLeft = getData(&data, sens_no);
-							/* check for valid gas data */
-							if (data.status & BME68X_GASM_VALID_MSK)
-							{
-								if (!processData(time_stamp, data, sensor_settings[sens_no].process_data, output_ready, sens_no))
-								{
-									return;
-								}
-							}
-						}while(nFieldsLeft);
-					}
-				}
-				
-				/* Increment sample counter */
-				n_samples++;
-				
-				/* Retrieve and store state if the passed save_intvl */
-				if (n_samples >= save_intvl)
-				{
-					bsec_status = bsec_get_state_m(bsecInstance[sens_no], 0, bsec_state, sizeof(bsec_state), work_buffer, sizeof(work_buffer), &bsec_state_len);
-					if (bsec_status == BSEC_OK)
-					{
-						state_save(bsec_state, bsec_state_len);
-					}
-					n_samples = 0;
-				}
-			}
-		}
-	}
+        for (uint8_t sens_no = 0; sens_no < NUM_OF_SENS; sens_no++)
+        {
+
+            /* get the timestamp in nanoseconds before calling bsec_sensor_control() */
+            time_stamp = get_timestamp_us() * 1000;
+            if (time_stamp >= sensor_settings[sens_no].next_call)
+            {
+                /* Retrieve sensor settings to be used in this time instant by calling bsec_sensor_control */
+                bsec_status = bsec_sensor_control_m(bsecInstance[sens_no], time_stamp, &sensor_settings[sens_no]);
+                if (bsec_status != BSEC_OK)
+                {
+                    if (bsec_status < BSEC_OK)
+                    {
+                        printf("ERROR: bsec_sensor_control: %d\n", bsec_status);
+                        break;
+                    }
+                    else
+                    {
+                        printf("WARNING: bsec_sensor_control: %d\n", bsec_status);
+                    }
+                }
+                switch (sensor_settings[sens_no].op_mode)
+                {
+                case BME68X_FORCED_MODE:
+                    setBme68xConfigForced(&sensor_settings[sens_no], sens_no);
+                    break;
+                case BME68X_PARALLEL_MODE:
+                    if (opMode[sens_no] != sensor_settings[sens_no].op_mode)
+                    {
+                        setBme68xConfigParallel(&sensor_settings[sens_no], sens_no);
+                    }
+                    break;
+                case BME68X_SLEEP_MODE:
+                    if (opMode[sens_no] != sensor_settings[sens_no].op_mode)
+                    {
+                        ret_val = bme68x_set_op_mode(BME68X_SLEEP_MODE, &bme68x_g[sens_no]);
+                        if ((ret_val == BME68X_OK) && (opMode[sens_no] != BME68X_SLEEP_MODE))
+                        {
+                            opMode[sens_no] = BME68X_SLEEP_MODE;
+                        }
+                    }
+                    break;
+                }
+
+                if (sensor_settings[sens_no].trigger_measurement && sensor_settings[sens_no].op_mode != BME68X_SLEEP_MODE)
+                {
+                    nFields = 0;
+                    bme68x_get_data(lastOpMode[sens_no], &sensor_data[0], &nFields, &bme68x_g[sens_no]);
+                    iFields = 0;
+                    if (nFields)
+                    {
+                        do
+                        {
+                            nFieldsLeft = getData(&data, sens_no);
+                            /* check for valid gas data */
+                            if (data.status & BME68X_GASM_VALID_MSK)
+                            {
+                                if (!processData(time_stamp, data, sensor_settings[sens_no].process_data, output_ready, sens_no))
+                                {
+                                    return;
+                                }
+                            }
+                        } while (nFieldsLeft);
+                    }
+                }
+
+                /* Increment sample counter */
+                n_samples++;
+
+                /* Retrieve and store state if the passed save_intvl */
+                if (n_samples >= save_intvl)
+                {
+                    bsec_status = bsec_get_state_m(bsecInstance[sens_no], 0, bsec_state, sizeof(bsec_state), work_buffer, sizeof(work_buffer), &bsec_state_len);
+                    if (bsec_status == BSEC_OK)
+                    {
+                        state_save(bsec_state, bsec_state_len);
+                    }
+                    n_samples = 0;
+                }
+            }
+        }
+    }
 }
 
 /**

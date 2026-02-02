@@ -9,9 +9,11 @@
 #include "globals.h"
 #include "logging.h"
 
-/* add vendor header so struct bme68x_dev is complete */
-// #include "bme68x.h" /* or the exact path your project uses */
-// #include "bme68x_defs.h"
+// BME680 driver
+#include "bme68x.h"
+#include "bme68x_defs.h"
+
+// BSEC includes
 // #include "bsec_adapter.h" /* only if you need BSEC types here */
 // #include "bme680_driver.h"
 //  #include "bme680_test.h"

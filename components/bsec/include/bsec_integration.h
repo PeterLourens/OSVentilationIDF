@@ -86,6 +86,7 @@ extern "C"
 /* BSEC header files are available in the inc/ folder of the release package */
 #include "bsec_interface_multi.h"
 #include "bsec_datatypes.h"
+#include <string.h>
 
 #define BSEC_CHECK_INPUT(x, shift) (x & (1 << (shift - 1)))
 #define BSEC_TOTAL_HEAT_DUR UINT16_C(140)
