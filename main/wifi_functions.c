@@ -29,7 +29,8 @@ esp_err_t wifi_manager_init(void)
         strncpy(hostname, network_config.hostname, sizeof(hostname));
         xSemaphoreGive(network_config_mutex);
     }
-    ESP_ERROR_CHECK(esp_netif_set_hostname(netif, "OSVentilationIDFdev"));
+    LOGI(TAG, "Setting WiFi hostname to: %s", hostname);
+    ESP_ERROR_CHECK(esp_netif_set_hostname(netif, hostname));
 
     // Create default WiFi station interface
     // esp_netif_create_default_wifi_sta();
