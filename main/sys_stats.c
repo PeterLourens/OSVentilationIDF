@@ -229,12 +229,20 @@ static void update_network_info(void)
         esp_ip4addr_ntoa(&ip.gw, sm_actuals.gateway, sizeof(sm_actuals.gateway));
     }
 
+    // DNS
     esp_netif_dns_info_t dns;
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.dns1, sizeof(sm_actuals.dns1));
 
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.dns2, sizeof(sm_actuals.dns2));
+
+    // Hostname
+    const char *hostname = NULL;
+    if (esp_netif_get_hostname(netif, &hostname) == ESP_OK && hostname)
+        snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hostname);
+    else
+        strcpy(sm_actuals.hostname, "<unknown>");
 
     sm_actuals.dhcp_enabled = esp_netif_is_netif_up(netif);
 }
@@ -335,8 +343,8 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                 sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
 
     SAFE_APPEND("Network Settings:\n"
-                "IP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
-                sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway,
+                "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
+                sm_actuals.hostname, sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway,
                 sm_actuals.dns1, sm_actuals.dns2,
                 sm_actuals.dhcp_enabled ? "enabled" : "static");
 
