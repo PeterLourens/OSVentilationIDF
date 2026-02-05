@@ -20,9 +20,76 @@ static void mqtt_get_config_snapshot(MQTT_config_t *out)
 	xSemaphoreGive(mqtt_config_mutex);
 }
 
+// ---------------------------------------------------------------------------
+// Set manual high speed mode (mutex-protected write to sm_config)
+// ---------------------------------------------------------------------------
+static void statemachine_set_speed(const char *payload, size_t len)
+{
+	// Normalize payload
+	bool is_on = (len == 2 && strncasecmp(payload, "on", 2) == 0);
+	bool is_off = (len == 3 && strncasecmp(payload, "off", 3) == 0);
+
+	if (!is_on && !is_off)
+	{
+		LOGW("STATEMACHINE", "Unknown MQTT payload: %.*s", (int)len, payload);
+		return;
+	}
+
+	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+	{
+		LOGW("STATEMACHINE", "Could not lock mutex for MQTT manual control");
+		return;
+	}
+
+	if (sm_actuals.valve_lock != 0)
+	{
+		LOGW(TAG, "MQTT command ignored: valve_locked=%d", sm_actuals.valve_lock);
+		xSemaphoreGive(statemachine_mutex);
+		return;
+	}
+
+	if (is_off)
+	{
+		sm_actuals.state = is_day() ? STATE_NR_DAY : STATE_NR_NIGHT;
+		LOGI(TAG, "MQTT: MANUAL HIGH SPEED deactivated, returned to %s", is_day() ? "DAY" : "NIGHT");
+	}
+	else
+	{
+		sm_actuals.state = STATE_NR_MANUALHS;
+		LOGI(TAG, "MQTT: MANUAL HIGH SPEED activated");
+	}
+
+	xSemaphoreGive(statemachine_mutex);
+}
+
+// ---------------------------------------------------------------------------
+// Check if MQTT is enabled helper
+// ---------------------------------------------------------------------------
 static inline bool mqtt_is_enabled(const MQTT_config_t *cfg)
 {
 	return strcmp(cfg->enable_mqtt, "On") == 0;
+}
+
+// ---------------------------------------------------------------------------
+// Subscribe to topic helper
+// ---------------------------------------------------------------------------
+void mqtt_subscribe(const char *topic, int qos)
+{
+	if (!s_mqtt)
+	{
+		LOGE("MQTT", "Client not initialized");
+		return;
+	}
+
+	int msg_id = esp_mqtt_client_subscribe(s_mqtt, topic, qos);
+	if (msg_id < 0)
+	{
+		LOGE("MQTT", "Failed to subscribe to %s", topic);
+	}
+	else
+	{
+		LOGI("MQTT", "Subscribed to %s (msg_id=%d, qos=%d)", topic, msg_id, qos);
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -30,11 +97,15 @@ static inline bool mqtt_is_enabled(const MQTT_config_t *cfg)
 // ---------------------------------------------------------------------------
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
+	esp_mqtt_event_handle_t event = event_data;
+
 	switch (event_id)
 	{
 	case MQTT_EVENT_CONNECTED:
 		s_mqtt_connected = true;
 		LOGI(TAG, "MQTT connected");
+
+		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;
 
 	case MQTT_EVENT_DISCONNECTED:
@@ -42,6 +113,23 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		LOGW(TAG, "MQTT disconnected");
 		break;
 
+	case MQTT_EVENT_DATA:
+	{
+		LOGI(TAG, "MQTT message received");
+		const char *topic = event->topic;
+		const char *payload = event->data;
+		int len = event->data_len;
+
+		LOGD(TAG, "Topic (%d): %.*s", event->topic_len, event->topic_len, topic);
+		LOGD(TAG, "Payload (%d): %.*s", len, len, payload);
+
+		if (event->topic_len == strlen("zigbee2mqtt/Ventilation/action") && strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
+		{
+			statemachine_set_speed(payload, len);
+		}
+
+		break;
+	}
 	default:
 		break;
 	}

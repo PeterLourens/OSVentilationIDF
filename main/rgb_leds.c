@@ -70,13 +70,13 @@ ColorName_t state_to_color(int state)
     case 10:
         return COLOR_HOT_PINK; // Cycling night
     case 11:
-        return COLOR_TEAL; // Manual fan high speed
+        return COLOR_INDIGO; // Manual fan high speed
     case 12:
         return COLOR_MEDIUM_SLATE_BLUE; // Stopped
     case 13:
-        return COLOR_INDIGO; // Temp
+        return COLOR_WHITE; // Temp
     case 14:
-        return COLOR_WHITE; // Not used
+        return COLOR_TEAL; // Not used
     case 15:
         return COLOR_MAGENTA; // Not used
     default:

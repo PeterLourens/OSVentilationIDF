@@ -1642,4 +1642,58 @@ void valve_cycle_night_transitions(void)
     }
 }
 
-void manual_high_speed_transitions(void) {}
+void manual_high_speed_transitions(void)
+{
+    int state = STATE_NR_MANUALHS;
+    int new_time = 0;
+    int state_config_index = 0;
+    int state_fanspeed = FAN_SPEED_HIGH;
+    int minimum_state_time = 600;
+    int new_state = 0;
+
+    char state_name[MEDIUM_CONFIG_ITEM] = {};
+
+    // Copy state_name
+    strncpy(state_name, STATE_MANUALHS, sizeof(state_name));
+    state_name[sizeof(state_name) - 1] = '\0';
+    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    {
+        sm_actuals.fanspeed = FAN_SPEED_HIGH; // Set fanspeed as defined in state settings
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    set_fanspeed(state_fanspeed);
+
+    new_time = (esp_timer_get_time()) / 1000000;
+    if (new_time > old_time)
+    {
+        elapsed_time += new_time - old_time;
+        old_time = new_time;
+    }
+
+    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
+
+    if (elapsed_time >= minimum_state_time && is_day() == true) // Day with no high CO2 readings
+    {
+        LOGI(TAG, "Transit to day.");
+        new_state = STATE_NR_DAY;
+    }
+    if (elapsed_time >= minimum_state_time && is_day() == false) // Day with no high CO2 readings
+    {
+        LOGI(TAG, "Transit to night.");
+        new_state = STATE_NR_NIGHT;
+    }
+    else
+    {
+        LOGI(TAG, "Remain in manual high speed state.");
+        new_state = STATE_NR_MANUALHS;
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    {
+        sm_actuals.state = new_state;
+        xSemaphoreGive(statemachine_mutex);
+    }
+}
