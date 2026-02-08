@@ -7,6 +7,7 @@
 #include "task_i2c_lcd.h"
 
 static const char *TAG = "task_i2c_LCD";
+
 static StackType_t i2c_lcd_stack[4096];  // stack buffer
 static StaticTask_t i2c_lcd_tcb;         // TCB buffer
 static size_t i2c_lcd_stack_size = 4096; // 4096 words = 16 KB
