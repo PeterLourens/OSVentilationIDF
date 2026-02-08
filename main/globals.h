@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef GLOBALS_H
 #define GLOBALS_H
 

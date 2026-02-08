@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "globals.h"
 
 const char *STATE_ERROR = "error";                // state_nr = 0

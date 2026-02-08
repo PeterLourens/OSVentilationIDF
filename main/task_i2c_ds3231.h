@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef TASK_I2C_DS3231_H
 #define TASK_I2C_DS3231_H
 

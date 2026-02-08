@@ -122,6 +122,36 @@ cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+void lcd_apply_config_change(void)
+{
+    static I2C_config_t last_cfg = {0};
+    I2C_config_t cfg;
+
+    // Take snapshot
+    xSemaphoreTake(i2c_config_mutex, portMAX_DELAY);
+    memcpy(&cfg, &i2c_config, sizeof(cfg));
+    xSemaphoreGive(i2c_config_mutex);
+
+    bool now_on = strcmp(cfg.enable_lcd, "On") == 0;
+    bool prev_on = strcmp(last_cfg.enable_lcd, "On") == 0;
+
+    // OFF → ON
+    if (!prev_on && now_on)
+    {
+        LOGI("LCD", "LCD enabled → starting LCD task");
+        start_task_i2c_lcd();
+    }
+
+    // ON → OFF
+    if (prev_on && !now_on)
+    {
+        LOGI("LCD", "LCD disabled → stopping LCD task");
+        stop_task_i2c_lcd();
+    }
+
+    last_cfg = cfg;
+}
+
 cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)

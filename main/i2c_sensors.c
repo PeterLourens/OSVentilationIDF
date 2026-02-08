@@ -1,11 +1,10 @@
-#include "i2c_sensors.h"
+/*
+    This file is part of the OSVentilationIDF project.
 
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include "esp_timer.h"
-#include "esp_rom_sys.h"
-#include <string.h>
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
+#include "i2c_sensors.h"
 
 static const char *TAG = "i2c_sensors";
 

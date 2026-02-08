@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -20,5 +26,7 @@
 #include "task_valvecontrol.h"
 #include "task_influxdb.h"
 #include "task_mqtt.h"
+
+#define PROJECT_LOG_LEVEL ESP_LOG_INFO
 
 #endif

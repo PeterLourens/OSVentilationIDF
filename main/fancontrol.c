@@ -1,11 +1,10 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "fancontrol.h"
-
-#include <esp_http_client.h>
-#include <esp_err.h>
-#include <string.h>
-#include <stdio.h>
-
-#include "logging.h"
 
 static const char *TAG = "Fan_control";
 

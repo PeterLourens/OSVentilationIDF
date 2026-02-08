@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef MQTT_H
 #define MQTT_H
 
@@ -7,9 +13,8 @@
 #include "globals.h"
 #include "general.h"
 #include "statemachine_states.h"
-#include "logging.h"
-#include "statemachine_states.h"
 #include "statemachine_helper.h"
+#include "logging.h"
 
 extern esp_mqtt_client_handle_t s_mqtt;
 

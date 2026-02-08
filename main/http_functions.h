@@ -1,7 +1,14 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef HTTP_FUNCTIONS_H
 #define HTTP_FUNCTIONS_H
 
 #include <esp_http_server.h>
+#include <stdint.h>
 
 #include "globals.h"
 #include "config_files.h"
@@ -11,6 +18,7 @@
 #include "valvecontrol.h"
 #include "i2c_sensors.h"
 #include "logging.h"
+#include "statemachine.h"
 
 #define LOG_BUF_SIZE 256
 

@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef HTTP_SEND_WS_DATA_H
 #define HTTP_SEND_WS_DATA_H
 

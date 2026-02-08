@@ -1,7 +1,13 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef I2C_LCD_H
 #define I2C_LCD_H
 
-#include "driver/i2c_master.h"
+#include <driver/i2c_master.h>
 
 #include "globals.h"
 #include "general.h"
@@ -10,7 +16,6 @@
 
 // Function definitions
 esp_err_t i2c_lcd_init(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);
-// esp_err_t i2c_lcd_bind_device(i2c_master_dev_handle_t);
 esp_err_t i2c_lcd_init_device(void);
 esp_err_t lcd_dev_write_byte(uint8_t);
 esp_err_t lcd_pulse_enable(uint8_t);

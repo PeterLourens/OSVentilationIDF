@@ -1,4 +1,10 @@
-#ifndef TASK_VALVECONTROL_H // To make sure you don't declare the function more than once by including the header multiple times.
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
+#ifndef TASK_VALVECONTROL_H
 #define TASK_VALVECONTROL_H
 
 #include "globals.h"

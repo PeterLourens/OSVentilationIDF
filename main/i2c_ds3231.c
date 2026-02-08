@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "i2c_ds3231.h"
 
 static const char *TAG = "I2C_DS3231";
@@ -260,7 +266,7 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
     }
     else
     {
-         LOGD(TAG, "Oscillator running normally");
+        LOGD(TAG, "Oscillator running normally");
     }
 
     snprintf(buf, bufsize, "OSF=%d Busy=%d\nAl1=%d Al2=%d", osf, busy, alarm1, alarm2);

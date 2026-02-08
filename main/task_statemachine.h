@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef TASK_STATEMACHINE_H
 #define TASK_STATEMACHINE_H
 

@@ -1,6 +1,10 @@
-#include "main.h"
+/*
+    This file is part of the OSVentilationIDF project.
 
-#define PROJECT_LOG_LEVEL ESP_LOG_INFO
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
+#include "main.h"
 
 static const char *TAG = "main";
 

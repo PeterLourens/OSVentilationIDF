@@ -1,6 +1,10 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "statemachine_helper.h"
-#include "statemachine.h"
-#include "globals.h"
 
 static const char *TAG = "SM_helpers";
 

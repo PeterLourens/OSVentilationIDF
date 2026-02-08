@@ -1,5 +1,10 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "statemachine.h"
-#include "statemachine_states.h"
 
 static const char *TAG = "SM";
 

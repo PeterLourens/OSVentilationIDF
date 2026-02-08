@@ -6,12 +6,14 @@
 
 #include "cJSON.h"
 #include "driver/i2c_master.h"
+#include "task_i2c_lcd.h"
 
 #define LOG_BUF_SIZE 256
 
 // Function declarations
 cJSON *build_bus_config_from_body_urlencoded(const char *, size_t, const char *);
 cJSON *build_network_config_from_body_urlencoded(const char *, size_t);
+void lcd_apply_config_change(void);
 cJSON *build_i2c_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_mqtt_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_influxdb_config_from_body_urlencoded(const char *, size_t);

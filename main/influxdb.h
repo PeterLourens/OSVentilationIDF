@@ -1,11 +1,17 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef INFLUXDB_H
 #define INFLUXDB_H
 
 #include <time.h>
+#include <esp_log.h>
+#include <esp_http_client.h>
 
 #include "globals.h"
-#include "esp_http_client.h"
-#include "esp_log.h"
 #include "i2c_ds3231.h"
 #include "logging.h"
 

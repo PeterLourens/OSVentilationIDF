@@ -1,9 +1,17 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef VALVECONTROL_H
 #define VALVECONTROL_H
 
 #include <driver/gpio.h>
+#include <esp_err.h>
 
 #include "globals.h"
+#include "statemachine.h"
 #include "general.h"
 #include "logging.h"
 

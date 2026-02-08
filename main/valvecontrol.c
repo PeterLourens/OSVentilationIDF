@@ -1,6 +1,10 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "valvecontrol.h"
-#include "statemachine.h"
-#include "esp_err.h"
 
 static const char *TAG = "valve_control";
 

@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef STATEMACHINE_HELPER_H
 #define STATEMACHINE_HELPER_H
 
@@ -5,6 +11,7 @@
 
 #include "globals.h"
 #include "general.h"
+#include "statemachine.h"
 #include "logging.h"
 
 // Sensor averaging helpers

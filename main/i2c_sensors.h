@@ -1,10 +1,19 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #ifndef I2C_SENSORS_H
 #define I2C_SENSORS_H
 
 #include <driver/i2c_master.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <esp_log.h>
 #include <string.h>
 #include <esp_rom_sys.h>
+#include <esp_timer.h>
 
 #include "globals.h"
 #include "logging.h"

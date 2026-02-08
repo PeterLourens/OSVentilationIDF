@@ -1,6 +1,10 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "http_functions.h"
-#include "statemachine.h"
-#include <stdint.h>
 
 static const char *TAG = "HTTP_server";
 
@@ -477,6 +481,8 @@ esp_err_t i2c_config_post_handler(httpd_req_t *req)
     {
         LOGE(TAG, "Failed to reload i2c config after write");
     }
+
+    lcd_apply_config_change();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
