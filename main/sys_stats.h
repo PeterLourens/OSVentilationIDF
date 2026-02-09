@@ -17,5 +17,6 @@
 const char *state_char_from_enum(eTaskState);
 const char *reset_reason_str(esp_reset_reason_t);
 void show_system_and_task_stats(void);
+void sys_stats_update_actuals(void);
 
 #endif

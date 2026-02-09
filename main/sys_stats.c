@@ -367,7 +367,7 @@ void show_system_and_task_stats(void)
 
     size_t used = 0;
 
-    sys_stats_update_actuals();
+    // sys_stats_update_actuals();
 
     used = append_header(out, used, buf_size);
     used = append_task_table(out, used, buf_size);

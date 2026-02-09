@@ -162,6 +162,12 @@ void app_main(void)
     // Read valve positions from NVS into valvecontrol struct
     read_valve_pos_in_valvecontrol();
 
+    // Iinit influxdb sender task and queue
+    if (!influxdb_init_sender())
+    {
+        ESP_LOGW("main", "InfluxDB sender init failed; Influx disabled for this boot");
+    }
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();
@@ -198,19 +204,21 @@ void app_main(void)
         char uptime_str[64] = {};
 
         formatted_uptime(uptime_str, sizeof(uptime_str));
-
         ESP_LOGI(TAG, "System uptime: %s", uptime_str);
+
+        sys_stats_update_actuals();
+        ESP_LOGI(TAG, "Updated system stats");
 
         // Ensure connected and have IP before pinging (check esp_netif_get_ip_info)
         if (!wifi_has_ip())
         {
             if (ping_gateway())
             {
-                ESP_LOGI("watchdog", "gateway OK");
+                ESP_LOGI(TAG, "gateway OK");
             }
             else
             {
-                ESP_LOGW("watchdog", "gateway unreachable — consider reconnecting Wi‑Fi");
+                ESP_LOGW(TAG, "gateway unreachable — consider reconnecting Wi‑Fi");
             }
         }
 

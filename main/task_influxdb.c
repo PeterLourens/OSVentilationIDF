@@ -25,8 +25,16 @@ void start_task_influxdb(void)
 
 void task_influxdb_code(void *pvParameters)
 {
-    // Some delay a boot
-    vTaskDelay(pdMS_TO_TICKS(10000));
+    vTaskDelay(pdMS_TO_TICKS(10000)); // boot settle
+
+    if (!influxdb_wait_ready(pdMS_TO_TICKS(2000)))
+    {
+        LOGW(TAG, "Influx sender not ready after wait; enqueues will be skipped until ready");
+    }
+    else
+    {
+        LOGI(TAG, "Influx sender ready (queue=%p)", (void *)influx_queue);
+    }
 
     while (true)
     {

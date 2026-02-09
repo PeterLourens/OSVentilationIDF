@@ -10,19 +10,29 @@
 #include <time.h>
 #include <esp_log.h>
 #include <esp_http_client.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
 #include "globals.h"
 #include "i2c_ds3231.h"
 #include "logging.h"
 
+extern QueueHandle_t influx_queue;
+extern TaskHandle_t influx_sender_task_handle;
+
 // Function definitions
-void influxdb_get_config_snapshot(Influxdb_config_t *);
-int64_t influxdb_get_timestamp(void);
-void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg);
-void influxdb_format_line(char *out, size_t out_size, int bus, int ch, float raw0, float raw1, float raw2, float avg0, float avg1, float avg2, int64_t ts);
-void influxdb_append_line(char *, size_t, const char *);
-void influxdb_build_payload(char *out, size_t out_size, float sensor[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]);
-void influxdb_send_payload(const char *payload, const Influxdb_config_t *cfg);
+bool influxdb_wait_ready(TickType_t);
+void influxdb_test_direct(void);
+bool influxdb_init_sender(void);
+bool influxdb_enqueue_payload(const char *payload, size_t len);
 void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q);
+void influxdb_get_config_snapshot(Influxdb_config_t *out);
+void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg);
+void influxdb_build_payload_actuals(char *out, size_t out_size);
+void influxdb_build_payload_valves(char *, size_t);
+void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float sensor[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], int bus);
 
 #endif
