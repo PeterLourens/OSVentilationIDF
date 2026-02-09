@@ -355,7 +355,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     if (err == ESP_OK)
     {
         status = esp_http_client_get_status_code(client);
-        LOGI(TAG, "HTTP status: %d", status);
+        LOGD(TAG, "HTTP status: %d", status);
 
         int rlen = esp_http_client_read_response(client, resp, sizeof(resp) - 1);
         if (rlen > 0)
@@ -522,7 +522,7 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
         return false;
     }
 
-    LOGI(TAG, "Enqueued Influx payload len=%u", (unsigned)len);
+    LOGD(TAG, "Enqueued Influx payload len=%u", (unsigned)len);
     return true;
 }
 
