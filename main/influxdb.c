@@ -316,7 +316,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
 {
     if (!payload || !cfg)
     {
-        ESP_LOGW(TAG, "send_internal: invalid args");
+        LOGW(TAG, "send_internal: invalid args");
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -332,7 +332,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     esp_http_client_handle_t client = esp_http_client_init(&http_cfg);
     if (!client)
     {
-        ESP_LOGE(TAG, "send_internal: esp_http_client_init failed");
+        LOGE(TAG, "send_internal: esp_http_client_init failed");
         return ESP_FAIL;
     }
 
@@ -343,8 +343,8 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     esp_http_client_set_header(client, "Content-Type", "text/plain; charset=utf-8");
     esp_http_client_set_header(client, "Accept", "application/json");
 
-    ESP_LOGI(TAG, "HTTP POST to: %s", url);
-    ESP_LOGD(TAG, "HTTP payload preview: %.256s", payload);
+    LOGD(TAG, "HTTP POST to: %s", url);
+    LOGD(TAG, "HTTP payload preview: %.256s", payload);
 
     esp_http_client_set_post_field(client, payload, (int)strlen(payload));
 
@@ -355,22 +355,22 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     if (err == ESP_OK)
     {
         status = esp_http_client_get_status_code(client);
-        ESP_LOGI(TAG, "HTTP status: %d", status);
+        LOGI(TAG, "HTTP status: %d", status);
 
         int rlen = esp_http_client_read_response(client, resp, sizeof(resp) - 1);
         if (rlen > 0)
         {
             resp[rlen] = '\0';
-            ESP_LOGI(TAG, "Influx response: %s", resp);
+            LOGI(TAG, "Influx response: %s", resp);
         }
         else
         {
-            ESP_LOGD(TAG, "No response body (rlen=%d)", rlen);
+            LOGD(TAG, "No response body (rlen=%d)", rlen);
         }
     }
     else
     {
-        ESP_LOGW(TAG, "HTTP perform error: %s", esp_err_to_name(err));
+        LOGW(TAG, "HTTP perform error: %s", esp_err_to_name(err));
     }
 
     esp_http_client_cleanup(client);
@@ -382,7 +382,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
 
     if (status < 200 || status >= 300)
     {
-        ESP_LOGW(TAG, "Influx write returned non-2xx status: %d", status);
+        LOGW(TAG, "Influx write returned non-2xx status: %d", status);
         return ESP_FAIL;
     }
 
@@ -456,27 +456,27 @@ bool influxdb_init_sender(void)
 {
     if (influx_queue != NULL)
     {
-        ESP_LOGI(TAG, "influxdb_init_sender: already initialized (queue=%p)", (void *)influx_queue);
+        LOGI(TAG, "influxdb_init_sender: already initialized (queue=%p)", (void *)influx_queue);
         return true;
     }
 
     influx_queue = xQueueCreate(INFLUX_QUEUE_LEN, sizeof(influx_job_t));
     if (!influx_queue)
     {
-        ESP_LOGE(TAG, "influxdb_init_sender: failed to create queue");
+        LOGE(TAG, "influxdb_init_sender: failed to create queue");
         return false;
     }
 
     BaseType_t r = xTaskCreate(influx_sender_task, "influx_sender", INFLUX_SENDER_STACK, NULL, INFLUX_SENDER_PRIO, &influx_sender_task_handle);
     if (r != pdTRUE)
     {
-        ESP_LOGE(TAG, "influxdb_init_sender: failed to create sender task");
+        LOGE(TAG, "influxdb_init_sender: failed to create sender task");
         vQueueDelete(influx_queue);
         influx_queue = NULL;
         return false;
     }
 
-    ESP_LOGI(TAG, "influxdb_init_sender: initialized (queue=%p, task=%p)", (void *)influx_queue, (void *)influx_sender_task_handle);
+    LOGI(TAG, "influxdb_init_sender: initialized (queue=%p, task=%p)", (void *)influx_queue, (void *)influx_sender_task_handle);
     return true;
 }
 
@@ -487,26 +487,26 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 {
     if (!payload || len == 0)
     {
-        ESP_LOGW(TAG, "enqueue: empty payload");
+        LOGW(TAG, "enqueue: empty payload");
         return false;
     }
 
     if (!influx_queue)
     {
-        ESP_LOGW(TAG, "enqueue: influx queue not initialized");
+        LOGW(TAG, "enqueue: influx queue not initialized");
         return false;
     }
 
     if (len > INFLUX_MAX_PAYLOAD)
     {
-        ESP_LOGW(TAG, "enqueue: payload too large (%u), truncating to %u", (unsigned)len, (unsigned)INFLUX_MAX_PAYLOAD);
+        LOGW(TAG, "enqueue: payload too large (%u), truncating to %u", (unsigned)len, (unsigned)INFLUX_MAX_PAYLOAD);
         len = INFLUX_MAX_PAYLOAD;
     }
 
     char *copy = malloc(len + 1);
     if (!copy)
     {
-        ESP_LOGE(TAG, "enqueue: malloc failed for %u bytes", (unsigned)len);
+        LOGE(TAG, "enqueue: malloc failed for %u bytes", (unsigned)len);
         return false;
     }
 
@@ -517,12 +517,12 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 
     if (xQueueSend(influx_queue, &job, pdMS_TO_TICKS(100)) != pdTRUE)
     {
-        ESP_LOGW(TAG, "enqueue: queue full, dropping payload len=%u", (unsigned)len);
+        LOGW(TAG, "enqueue: queue full, dropping payload len=%u", (unsigned)len);
         free(copy);
         return false;
     }
 
-    ESP_LOGI(TAG, "Enqueued Influx payload len=%u", (unsigned)len);
+    LOGI(TAG, "Enqueued Influx payload len=%u", (unsigned)len);
     return true;
 }
 
