@@ -16,12 +16,12 @@
 #define I2C_MASTER_FREQ_HZ 100000
 
 // I2C Bus0 configuration
-#define I2C_MASTER_BUS0_SDA_IO 39
-#define I2C_MASTER_BUS0_SCL_IO 38
+#define I2C_MASTER_BUS0_SDA_IO 18
+#define I2C_MASTER_BUS0_SCL_IO 17
 
 // I2C Bus1 configuration
-#define I2C_MASTER_BUS1_SDA_IO 41
-#define I2C_MASTER_BUS1_SCL_IO 40
+#define I2C_MASTER_BUS1_SDA_IO 5
+#define I2C_MASTER_BUS1_SCL_IO 4
 
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address
@@ -33,9 +33,9 @@
 #define LCD_I2C_ADDR 0x27     // Default address
 
 // Define I/O for 74595 chips
-#define CLOCKPIN1 11
-#define LATCHPIN1 12
-#define DATAPIN1 13
+#define CLOCKPIN1 1
+#define LATCHPIN1 2
+#define DATAPIN1 3
 
 #define CLOCKPIN2 15
 #define LATCHPIN2 16
