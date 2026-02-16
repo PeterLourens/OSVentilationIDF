@@ -32,6 +32,21 @@
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
 
+// SPI configuration for W5500 Ethernet
+#define W5500_MISO_GPIO 13
+#define W5500_MOSI_GPIO 11
+#define W5500_SCLK_GPIO 12
+#define W5500_CS_GPIO 10
+
+// Interrupt pin (optional)
+#define W5500_INT_GPIO 9
+
+// Reset pin (optional, -1 if unused)
+#define W5500_RST_GPIO 8
+
+// SPI host (VSPI_HOST or HSPI_HOST)
+#define W5500_SPI_HOST SPI2_HOST // or SPI3_HOST depending on your wiring
+
 // Define I/O for 74595 chips
 #define CLOCKPIN1 1
 #define LATCHPIN1 2
@@ -69,6 +84,7 @@
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 #define AP_STARTED_BIT BIT2
+#define MAINTENANCE_AP_TIMEOUT_MS (10 * 60 * 1000) // 10 minutes
 
 // statemachine settings
 #define MAX_NR_STATES 15
@@ -164,6 +180,7 @@ typedef struct
 
 typedef struct
 {
+    char enable_wifi[SMALL_CONFIG_ITEM];
     char enable_dhcp[SMALL_CONFIG_ITEM];
     char hostname[MEDIUM_CONFIG_ITEM];
     char ssid[MEDIUM_CONFIG_ITEM];
@@ -174,6 +191,17 @@ typedef struct
     char primary_dns[MEDIUM_CONFIG_ITEM];
     char secondary_dns[MEDIUM_CONFIG_ITEM];
 } Network_config_t;
+
+typedef struct
+{
+    char enable_ethernet[SMALL_CONFIG_ITEM];
+    char enable_dhcp[SMALL_CONFIG_ITEM];
+    char ip_address[MEDIUM_CONFIG_ITEM];
+    char subnet_mask[MEDIUM_CONFIG_ITEM];
+    char gateway[MEDIUM_CONFIG_ITEM];
+    char primary_dns[MEDIUM_CONFIG_ITEM];
+    char secondary_dns[MEDIUM_CONFIG_ITEM];
+} Ethernet_config_t;
 
 typedef struct
 {
@@ -330,6 +358,7 @@ typedef struct
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
 extern Network_config_t network_config;
+extern Ethernet_config_t ethernet_config;
 extern Time_config_t time_config;
 extern MQTT_config_t mqtt_config;
 extern Influxdb_config_t influxdb_config;

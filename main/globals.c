@@ -84,6 +84,7 @@ struct tm timeinfo = {0};
 
 // Structs for settings
 Network_config_t network_config = {0};
+Ethernet_config_t ethernet_config = {0};
 Time_config_t time_config = {0};
 MQTT_config_t mqtt_config = {0};
 Influxdb_config_t influxdb_config = {0};

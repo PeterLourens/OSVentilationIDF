@@ -168,9 +168,14 @@ void app_main(void)
         ESP_LOGW("main", "InfluxDB sender init failed; Influx disabled for this boot");
     }
 
+    // TCP/IP stack and default event loop (do once)
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
     start_task_wifi();
+    start_task_eth();
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();

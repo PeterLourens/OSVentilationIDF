@@ -27,6 +27,7 @@
 #include "task_influxdb.h"
 #include "task_mqtt.h"
 #include "sys_stats.h"
+#include "task_eth.h"
 
 #define PROJECT_LOG_LEVEL ESP_LOG_INFO
 
