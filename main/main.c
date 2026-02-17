@@ -85,10 +85,10 @@ void app_main(void)
     }
 
     // Load network (wifi) configuration
-    err = load_network_config();
+    err = load_wifi_config();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to load network configuration");
+        ESP_LOGE(TAG, "Failed to load wifi configuration");
         return;
     }
 

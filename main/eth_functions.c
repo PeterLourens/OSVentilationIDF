@@ -52,7 +52,7 @@ void eth_init(void)
         return;
     }
 
-    /* SPI bus configuration (only initialize the bus; the W5500 driver will create its own SPI device) */
+    /* ----------------- SPI bus init ----------------- */
     spi_bus_config_t buscfg = {
         .miso_io_num = W5500_MISO_GPIO,
         .mosi_io_num = W5500_MOSI_GPIO,
@@ -61,7 +61,6 @@ void eth_init(void)
         .quadhd_io_num = -1,
     };
 
-    /* Initialize SPI bus. If already initialized, SPI returns ESP_ERR_INVALID_STATE; treat as OK. */
     err = spi_bus_initialize(W5500_SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -69,27 +68,76 @@ void eth_init(void)
         return;
     }
 
-    // Prepare W5500-specific config expected by esp_eth_mac_new_w5500. Note: the driver expects eth_w5500_config_t (not a spi_device_handle_t).
-    eth_w5500_config_t w5500_cfg = {
-        .spi_host_id = W5500_SPI_HOST,
-        //. = W5500_CS_GPIO,
-        .int_gpio_num = W5500_INT_GPIO,
-        //.reset_gpio_num = W5500_RST_GPIO,
+    /* ----------------- SPI device config (kept alive) -----------------
+       Some IDF variants expect a pointer to spi_device_interface_config_t
+       inside eth_w5500_config_t (spi_devcfg). Create a static instance
+       so the pointer remains valid for the lifetime of the driver.
+    */
+    static spi_device_interface_config_t w5500_spi_devcfg = {
+        .mode = 0,
+        .clock_speed_hz = 20 * 1000 * 1000, /* 20 MHz */
+        .spics_io_num = W5500_CS_GPIO,
+        .queue_size = 20,
     };
 
-    // MAC and PHY configuration
+    /* ----------------- MAC / PHY config ----------------- */
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
 
-    // Create MAC instance for W5500 (API: esp_eth_mac_new_w5500(const eth_w5500_config_t*, const eth_mac_config_t*)) */
+    /* If your PHY requires a reset GPIO, set it here (some variants use reset_gpio_num) */
+#ifdef W5500_RST_GPIO
+    phy_config.reset_gpio_num = W5500_RST_GPIO;
+#endif
+    phy_config.phy_addr = 0;
+
+    /* ----------------- W5500 driver config -----------------
+       Zero-init the struct and set the fields your local IDF expects.
+       Common fields: spi_host_id, spi_devcfg (pointer), int_gpio_num, reset_gpio_num.
+       If your local eth_w5500_config_t uses different member names, adjust accordingly.
+    */
+    eth_w5500_config_t w5500_cfg;
+    memset(&w5500_cfg, 0, sizeof(w5500_cfg));
+
+    /* SPI host id (most IDF variants use spi_host_id) */
+    w5500_cfg.spi_host_id = W5500_SPI_HOST;
+
+    /* Provide pointer to the spi_device_interface_config_t we created above.
+       Some IDF variants name this member spi_devcfg or spi_dev_config; use the
+       exact member name from your local header. */
+    w5500_cfg.spi_devcfg = &w5500_spi_devcfg;
+
+    /* Optional interrupt GPIO */
+#ifdef W5500_INT_GPIO
+    if (W5500_INT_GPIO >= 0)
+    {
+        w5500_cfg.int_gpio_num = W5500_INT_GPIO;
+    }
+#endif
+
+    /* Optional reset GPIO (if present in the struct) */
+    // #ifdef W5500_RST_GPIO
+    //     if (W5500_RST_GPIO >= 0)
+    //{
+        /* Some headers expect reset_gpio_num in the w5500 config as well */
+        //        w5500_cfg.reset_gpio_num = W5500_RST_GPIO;
+    //}
+    // #endif
+
+    /* Debug: log what we're passing to the driver */
+    //    LOGD(TAG, "W5500 config: spi_host_id=%d spics=%d int=%d",
+    ///        w5500_cfg.spi_host_id,
+    //       w5500_spi_devcfg.spics_io_num,
+    //       w5500_cfg.int_gpio_num;
+    // w5500_cfg.reset_gpio_num);
+
+    /* ----------------- Create MAC and PHY instances ----------------- */
     esp_eth_mac_t *mac = esp_eth_mac_new_w5500(&w5500_cfg, &mac_config);
     if (mac == NULL)
     {
-        LOGE(TAG, "esp_eth_mac_new_w5500 returned NULL");
+        LOGE(TAG, "esp_eth_mac_new_w5500 returned NULL — check W5500 config and GPIO defines");
         return;
     }
 
-    // Create PHY instance for W5500
     esp_eth_phy_t *phy = esp_eth_phy_new_w5500(&phy_config);
     if (phy == NULL)
     {
@@ -97,7 +145,7 @@ void eth_init(void)
         return;
     }
 
-    // Install Ethernet driver
+    /* ----------------- Install Ethernet driver ----------------- */
     esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
     err = esp_eth_driver_install(&eth_config, &eth_handle);
     if (err != ESP_OK)
@@ -106,7 +154,7 @@ void eth_init(void)
         return;
     }
 
-    // Attach the driver to the netif
+    /* ----------------- Attach driver to netif ----------------- */
     esp_eth_netif_glue_handle_t glue = esp_eth_new_netif_glue(eth_handle);
     if (glue == NULL)
     {

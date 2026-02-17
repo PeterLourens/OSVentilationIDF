@@ -190,7 +190,7 @@ typedef struct
     char gateway[MEDIUM_CONFIG_ITEM];
     char primary_dns[MEDIUM_CONFIG_ITEM];
     char secondary_dns[MEDIUM_CONFIG_ITEM];
-} Network_config_t;
+} Wifi_config_t;
 
 typedef struct
 {
@@ -357,7 +357,7 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
-extern Network_config_t network_config;
+extern Wifi_config_t network_config;
 extern Ethernet_config_t ethernet_config;
 extern Time_config_t time_config;
 extern MQTT_config_t mqtt_config;

@@ -136,9 +136,9 @@ esp_err_t load_sensor_config(const char *config_name)
     return ESP_OK;
 }
 
-esp_err_t load_network_config(void)
+esp_err_t load_wifi_config(void)
 {
-    char path[128] = "/data/json/network_config.json";
+    char path[128] = "/data/json/wifi_config.json";
     size_t bufferSize = XXXLARGE_CONFIG_ITEM;
 
     LOGD(TAG, "Attempting to read network config: %s", path);

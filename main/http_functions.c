@@ -419,7 +419,7 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     if (!arr)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
 
-    const char *path = "/data/json/network_config.json";
+    const char *path = "/data/json/wifi_config.json";
     if (!write_json_atomic_fs(path, arr))
     {
         cJSON_Delete(arr);
@@ -427,10 +427,10 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(arr);
 
-    // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_network_config() != ESP_OK)
+    // reload into runtime globals (uses mutex inside load_wifi_config)
+    if (load_wifi_config() != ESP_OK)
     {
-        LOGE(TAG, "Failed to reload network config after write");
+        LOGE(TAG, "Failed to reload wifi config after write");
     }
 
     // return the page body (original config.html)

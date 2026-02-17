@@ -24,7 +24,15 @@ esp_err_t wifi_manager_init(void)
 
     // Initialize TCP/IP stack
     ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // ESP_ERROR_CHECK(esp_event_loop_create_default());
+
+    // Create default event loop if not created in main
+    esp_err_t err = esp_event_loop_create_default();
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
+    {
+        LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
+        return err;
+    }
 
     // Create default WiFi station interface
     esp_netif_t *netif = esp_netif_create_default_wifi_sta();
@@ -144,7 +152,14 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
                 sm_actuals.wifi_error = false;
                 xSemaphoreGive(statemachine_mutex);
             }
-            xTaskNotifyGive(task_rgb_leds);
+            if (task_rgb_leds != NULL)
+            {
+                xTaskNotifyGive(task_rgb_leds);
+            }
+            else
+            {
+                LOGW(TAG, "task_rgb_leds is NULL; cannot notify of WiFi disconnect");
+            }
             esp_wifi_connect();
             break;
 
@@ -157,7 +172,14 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
                     sm_actuals.wifi_error = true;
                     xSemaphoreGive(statemachine_mutex);
                 }
-                xTaskNotifyGive(task_rgb_leds);
+                if (task_rgb_leds != NULL)
+                {
+                    xTaskNotifyGive(task_rgb_leds);
+                }
+                else
+                {
+                    LOGW(TAG, "task_rgb_leds is NULL; cannot notify of WiFi disconnect");
+                }
                 esp_wifi_connect();
                 s_retry_num++;
                 LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
@@ -181,7 +203,14 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
                 sm_actuals.wifi_ap_mode = true;
                 xSemaphoreGive(statemachine_mutex);
             }
-            xTaskNotifyGive(task_rgb_leds);
+            if (task_rgb_leds != NULL)
+            {
+                xTaskNotifyGive(task_rgb_leds);
+            }
+            else
+            {
+                LOGW(TAG, "task_rgb_leds is NULL; cannot notify of WiFi disconnect");
+            }
             break;
 
         case WIFI_EVENT_AP_STACONNECTED:
@@ -213,15 +242,22 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
             sm_actuals.wifi_ap_mode = false;
             xSemaphoreGive(statemachine_mutex);
         }
-        xTaskNotifyGive(task_rgb_leds);
+        if (task_rgb_leds != NULL)
+        {
+            xTaskNotifyGive(task_rgb_leds);
+        }
+        else
+        {
+            LOGW(TAG, "task_rgb_leds is NULL; cannot notify of WiFi disconnect");
+        }
     }
 }
 
-esp_err_t wifi_manager_connect(Network_config_t *settings)
+esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 {
     if (!settings)
     {
-        LOGE(TAG, "Network settings pointer is NULL");
+        LOGE(TAG, "WiFi settings pointer is NULL");
         return ESP_ERR_INVALID_ARG;
     }
 

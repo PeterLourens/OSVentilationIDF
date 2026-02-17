@@ -17,7 +17,8 @@
 
 // Function definitions
 esp_err_t load_sensor_config(const char *);
-esp_err_t load_network_config(void);
+esp_err_t load_wifi_config(void);
+esp_err_t load_ethernet_config(void);
 esp_err_t load_time_config(void);
 esp_err_t load_mqtt_config(void);
 esp_err_t load_influxdb_config(void);
