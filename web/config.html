@@ -40,7 +40,9 @@
             <div class="content">
                 <p>On this page the the system can be configured. For the network settings there are two choices: Wifi or Ethernet. One can choose either one of them or both. 
                     If no interface is set (both off) or when ethernet is down, then an wifi AP will be launched for a period of 10 minutes to prevent the controller is unreachable 
-                    permanently. The hostname can be set in the Wifi section but is actually also used for the Ethernet interface and for the syslog messages.
+                    permanently. The hostname can be set in the Wifi section but is actually also used for the Ethernet interface and for the syslog messages. DNS servers are also set
+                    globally. The last interface to come up will set the DNS servers. In future releases, the hostname and the DNS servers will move to a new general network settings
+                    section and not included in the interface settings.
                 </p>
                 <form method="POST" action="/restart_esp">
                     <input type="submit" value="Restart ESP32" class="pure-button-primary button-xsmall pure-button">

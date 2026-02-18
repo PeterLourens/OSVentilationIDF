@@ -463,12 +463,16 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     {
     case ETHERNET_EVENT_CONNECTED:
         LOGI(TAG, "ETH_EVENT: connected");
-        eth_connected = true;
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        {
+            sm_actuals.eth_connected = true;
+            xSemaphoreGive(statemachine_mutex);
+        }
         stop_maintenance_ap();
 
         if (!wifi_forced_on)
         {
-            LOGI(TAG, "Stopping Wi‑Fi (Ethernet active)");
+            LOGI(TAG, "Stopping WiFi (Ethernet active)");
             esp_err_t err = esp_wifi_stop();
             if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT)
             {
@@ -477,22 +481,26 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         }
         else
         {
-            LOGI(TAG, "Wi‑Fi forced ON; leaving Wi‑Fi running");
+            LOGI(TAG, "WiFi forced ON; leaving WiFi running");
         }
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETH_EVENT: disconnected");
-        eth_connected = false;
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        {
+            sm_actuals.eth_connected = false;
+            xSemaphoreGive(statemachine_mutex);
+        }
 
         if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
         {
-            LOGI(TAG, "Starting Wi‑Fi fallback (config allows or forced)");
+            LOGI(TAG, "Starting WiFi fallback (config allows or forced)");
             select_wifi_mode();
         }
         else
         {
-            LOGI(TAG, "Wi‑Fi disabled in config; starting temporary maintenance AP");
+            LOGI(TAG, "WiFi disabled in config; starting temporary maintenance AP");
             start_maintenance_ap();
         }
         break;
@@ -547,26 +555,26 @@ void eth_manager_start(void)
     {
         if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
         {
-            LOGW(TAG, "Ethernet not connected at boot; starting Wi‑Fi fallback");
+            LOGW(TAG, "Ethernet not connected at boot; starting WiFi fallback");
             select_wifi_mode();
         }
         else if (ethernet_and_wifi_both_disabled())
         {
-            LOGW(TAG, "Both Ethernet and Wi‑Fi disabled in config; starting maintenance AP");
+            LOGW(TAG, "Both Ethernet and WiFi disabled in config; starting maintenance AP");
             start_maintenance_ap();
         }
         else
         {
-            LOGI(TAG, "Ethernet not connected at boot; no Wi‑Fi started by policy");
+            LOGI(TAG, "Ethernet not connected at boot; no WiFi started by policy");
         }
     }
     else
     {
-        LOGI(TAG, "Ethernet connected at boot; Wi‑Fi will remain stopped unless forced");
+        LOGI(TAG, "Ethernet connected at boot; WiFi will remain stopped unless forced");
     }
 }
 
-// ---------- Wi‑Fi forced override ----------
+// ---------- WiFi forced override ----------
 
 void eth_set_wifi_forced(bool forced)
 {
