@@ -5,6 +5,7 @@
 */
 
 #include "task_eth.h"
+#include "globals.h"
 
 static const char *TAG = "task_eth";
 
@@ -13,31 +14,30 @@ static StackType_t eth_stack[4096];
 static StaticTask_t eth_tcb;
 static size_t eth_stack_size = 4096;
 
-//static TaskHandle_t task_eth_handle = NULL;
-
 static volatile bool eth_connected = false;
 static volatile bool wifi_forced_on = false;
-//static esp_timer_handle_t maintenance_ap_timer = NULL;
 
-static void task_eth_code(void *pvParameters)
+void start_task_eth(void)
+{
+    task_ethernet = xTaskCreateStatic(task_eth_code, "task_eth", eth_stack_size, NULL, 9, eth_stack, &eth_tcb);
+
+    if(task_ethernet == NULL)
+    {
+        LOGE(TAG, "Failed to create Ethernet task");
+    }
+}
+
+void task_eth_code(void *pvParameters)
 {
     (void)pvParameters;
     LOGI(TAG, "Ethernet task starting");
 
-    /* All heavy lifting is in eth_manager_start() */
+    // All heavy lifting is in eth_manager_start()
     eth_manager_start();
 
-    /* Keep the task alive for diagnostics; event handlers do the work */
+    // Keep the task alive for diagnostics; event handlers do the work
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(10000));
-    }
-}
-
-void start_task_eth(void)
-{
-    if (xTaskCreateStatic(task_eth_code, "task_eth", eth_stack_size, NULL, 9, eth_stack, &eth_tcb) == NULL)
-    {
-        LOGE(TAG, "Failed to create Ethernet task");
     }
 }

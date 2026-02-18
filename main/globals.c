@@ -41,6 +41,7 @@ i2c_master_dev_handle_t lcd_bus1_handle = {0};
 TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
+TaskHandle_t task_ethernet = NULL;
 TaskHandle_t task_i2c_lcd = NULL;
 TaskHandle_t task_rgb_leds = NULL;
 TaskHandle_t task_statemachine = NULL;

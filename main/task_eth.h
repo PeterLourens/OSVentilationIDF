@@ -17,6 +17,6 @@
 
 // Function declaraions
 void start_task_eth(void);
-void task_eth_set_wifi_forced(bool forced);
+void task_eth_code(void *pvParameters);
 
 #endif

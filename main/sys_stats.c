@@ -5,6 +5,7 @@
 */
 
 #include "sys_stats.h"
+#include "globals.h"
 
 static const char *TAG = "Sys_stats";
 
@@ -182,6 +183,7 @@ static void update_stack_watermarks(void)
     sm_actuals.stack_i2c_sensors = uxTaskGetStackHighWaterMark(task_i2c_sensors);
     sm_actuals.stack_i2c_ds3231 = uxTaskGetStackHighWaterMark(task_i2c_ds3231);
     sm_actuals.stack_wifi = uxTaskGetStackHighWaterMark(task_wifi);
+    sm_actuals.stack_eth = uxTaskGetStackHighWaterMark(task_ethernet);
     sm_actuals.stack_i2c_lcd = uxTaskGetStackHighWaterMark(task_i2c_lcd);
     sm_actuals.stack_rgb_leds = uxTaskGetStackHighWaterMark(task_rgb_leds);
     sm_actuals.stack_statemachine = uxTaskGetStackHighWaterMark(task_statemachine);
@@ -221,7 +223,7 @@ static void update_wifi_stats(void)
         strcpy(sm_actuals.wifi_ssid, "<unknown>");
 }
 
-static void update_network_info(void)
+static void update_wifi_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (!netif)
@@ -253,6 +255,31 @@ static void update_network_info(void)
     sm_actuals.dhcp_enabled = esp_netif_is_netif_up(netif);
 }
 
+static void update_ethernet_info(void)
+{
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!netif)
+        return;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
+    {
+        esp_ip4addr_ntoa(&ip.ip, sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr));
+        esp_ip4addr_ntoa(&ip.netmask, sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask));
+        esp_ip4addr_ntoa(&ip.gw, sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway));
+    }
+
+    // DNS
+    esp_netif_dns_info_t dns;
+    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1));
+
+    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2));
+
+    sm_actuals.eth_dhcp_enabled = esp_netif_is_netif_up(netif);
+}
+
 void sys_stats_update_actuals(void)
 {
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) != pdTRUE)
@@ -262,7 +289,8 @@ void sys_stats_update_actuals(void)
     update_heap_stats();
     update_stack_watermarks();
     update_wifi_stats();
-    update_network_info();
+    update_wifi_info();
+    update_ethernet_info();
 
     xSemaphoreGive(statemachine_mutex);
 }
@@ -348,11 +376,18 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                 sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
                 sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
 
-    SAFE_APPEND("Network Settings:\n"
-                "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
-                sm_actuals.hostname, sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway,
-                sm_actuals.dns1, sm_actuals.dns2,
+    SAFE_APPEND("WiFi Settings:\n"
+                "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: "
+                "%s\nDNS2: %s\nDHCP: %s\n\n",
+                sm_actuals.hostname, sm_actuals.ip_addr, sm_actuals.netmask,
+                sm_actuals.gateway, sm_actuals.dns1, sm_actuals.dns2,
                 sm_actuals.dhcp_enabled ? "enabled" : "static");
+
+    SAFE_APPEND("Ethernet Settings:\n"
+                "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
+                sm_actuals.hostname, sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway,
+                sm_actuals.eth_dns1, sm_actuals.eth_dns2,
+                sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
 
     xSemaphoreGive(statemachine_mutex);
     return used;

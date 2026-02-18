@@ -134,6 +134,7 @@ extern i2c_master_dev_handle_t lcd_bus1_handle;
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_ds3231;
 extern TaskHandle_t task_wifi;
+extern TaskHandle_t task_ethernet;
 extern TaskHandle_t task_i2c_lcd;
 extern TaskHandle_t task_rgb_leds;
 extern TaskHandle_t task_statemachine;
@@ -325,6 +326,15 @@ typedef struct
     char dns1[SMALL_CONFIG_ITEM];
     char dns2[SMALL_CONFIG_ITEM];
     bool dhcp_enabled;
+    bool wifi_enabled;
+
+    char eth_ip_addr[SMALL_CONFIG_ITEM];
+    char eth_netmask[SMALL_CONFIG_ITEM];
+    char eth_gateway[SMALL_CONFIG_ITEM];
+    char eth_dns1[SMALL_CONFIG_ITEM];
+    char eth_dns2[SMALL_CONFIG_ITEM];
+    bool eth_dhcp_enabled;
+    bool ethernet_enabled;
 
     int cpu_temp;
 
@@ -334,6 +344,7 @@ typedef struct
     uint32_t stack_i2c_sensors;
     uint32_t stack_i2c_ds3231;
     uint32_t stack_wifi;
+    uint32_t stack_eth;
     uint32_t stack_i2c_lcd;
     uint32_t stack_rgb_leds;
     uint32_t stack_statemachine;
