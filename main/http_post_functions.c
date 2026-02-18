@@ -54,7 +54,7 @@ cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const
     return obj;
 }
 
-cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
+cJSON *build_wifi_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
         return NULL;
@@ -64,6 +64,12 @@ cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
         return NULL;
 
     char key[64], val[256];
+
+    snprintf(key, sizeof(key), "enable_wifi");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "None");
 
     snprintf(key, sizeof(key), "enable_dhcp");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
@@ -114,6 +120,62 @@ cJSON *build_network_config_from_body_urlencoded(const char *body, size_t len)
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "secondary_dns");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    return obj;
+}
+
+cJSON *build_ethernet_config_from_body_urlencoded(const char *body, size_t len)
+{
+    if (!body)
+        return NULL;
+
+    cJSON *obj = cJSON_CreateObject();
+    if (!obj)
+        return NULL;
+
+    char key[64], val[256];
+
+    snprintf(key, sizeof(key), "enable_ethernet");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "None");
+
+    snprintf(key, sizeof(key), "eth_enable_dhcp");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "None");
+
+    snprintf(key, sizeof(key), "eth_ip_address");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "eth_subnet_mask");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "eth_gateway");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "eth_primary_dns");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, val);
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
+    snprintf(key, sizeof(key), "eth_secondary_dns");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
     else

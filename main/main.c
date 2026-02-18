@@ -84,11 +84,19 @@ void app_main(void)
         return;
     }
 
-    // Load network (wifi) configuration
+    // Load wifi configuration
     err = load_wifi_config();
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to load wifi configuration");
+        return;
+    }
+
+    // Load ethernet configuration
+    err = load_ethernet_config();
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to load ethernet configuration");
         return;
     }
 

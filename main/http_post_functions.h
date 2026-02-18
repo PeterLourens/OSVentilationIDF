@@ -12,7 +12,8 @@
 
 // Function declarations
 cJSON *build_bus_config_from_body_urlencoded(const char *, size_t, const char *);
-cJSON *build_network_config_from_body_urlencoded(const char *, size_t);
+cJSON *build_wifi_config_from_body_urlencoded(const char *, size_t);
+cJSON *build_ethernet_config_from_body_urlencoded(const char *, size_t);
 void lcd_apply_config_change(void);
 cJSON *build_i2c_config_from_body_urlencoded(const char *, size_t);
 cJSON *build_mqtt_config_from_body_urlencoded(const char *, size_t);

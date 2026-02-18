@@ -390,8 +390,8 @@ esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-// POST handler: save network configuration to flash
-esp_err_t network_config_post_handler(httpd_req_t *req)
+// POST handler: save wifi configuration to flash
+esp_err_t wifi_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -414,7 +414,7 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     }
     buf[len] = '\0';
 
-    cJSON *arr = build_network_config_from_body_urlencoded(buf, len);
+    cJSON *arr = build_wifi_config_from_body_urlencoded(buf, len);
     free(buf);
     if (!arr)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
@@ -431,6 +431,55 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     if (load_wifi_config() != ESP_OK)
     {
         LOGE(TAG, "Failed to reload wifi config after write");
+    }
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save ethernet configuration to flash
+esp_err_t ethernet_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_ethernet_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/ethernet_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_ethernet_config)
+    if (load_ethernet_config() != ESP_OK)
+    {
+        LOGE(TAG, "Failed to reload ethernet config after write");
     }
 
     // return the page body (original config.html)
@@ -863,8 +912,7 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
         // still return the page so UI stays consistent
     }
 
-    // Update actual valve positions struct after writing all zeros to NVS
-    // otherwise the statemachine will still have old values
+    // Update actual valve positions struct after writing all zeros to NVS, otherwise the statemachine will still have old values
     read_valve_pos_in_valvecontrol();
 
     // Return the original valvecontrol.html page
@@ -1224,13 +1272,21 @@ httpd_handle_t start_webserver(void)
     };
     httpd_register_uri_handler(http_server, &sensorconfig2_delete_post_uri);
 
-    httpd_uri_t network_config_post_uri = {
-        .uri = "/network_config",
+    httpd_uri_t wifi_config_post_uri = {
+        .uri = "/wifi_config",
         .method = HTTP_POST,
-        .handler = network_config_post_handler,
+        .handler = wifi_config_post_handler,
         .user_ctx = NULL,
     };
-    httpd_register_uri_handler(http_server, &network_config_post_uri);
+    httpd_register_uri_handler(http_server, &wifi_config_post_uri);
+
+    httpd_uri_t ethernet_config_post_uri = {
+        .uri = "/ethernet_config",
+        .method = HTTP_POST,
+        .handler = ethernet_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &ethernet_config_post_uri);
 
     httpd_uri_t i2c_config_post_uri = {
         .uri = "/i2c_config",

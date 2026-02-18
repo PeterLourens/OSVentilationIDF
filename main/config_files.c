@@ -167,6 +167,7 @@ esp_err_t load_wifi_config(void)
         return ESP_ERR_INVALID_RESPONSE;
     }
 
+    cJSON *enable_wifi = cJSON_GetObjectItem(json, "enable_wifi");
     cJSON *enable_dhcp = cJSON_GetObjectItem(json, "enable_dhcp");
     cJSON *hostname = cJSON_GetObjectItem(json, "hostname");
     cJSON *ssid = cJSON_GetObjectItem(json, "ssid");
@@ -195,32 +196,127 @@ esp_err_t load_wifi_config(void)
         LOGW(TAG, "network_config_mutex not initialized; proceeding without mutex (unsafe)");
     }
 
-    strncpy(network_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
-    network_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.enable_wifi, cJSON_IsString(enable_wifi) ? enable_wifi->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    wifi_config.enable_wifi[SMALL_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.hostname, cJSON_IsString(hostname) ? hostname->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.hostname[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    wifi_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.ssid, cJSON_IsString(ssid) ? ssid->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.ssid[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.hostname, cJSON_IsString(hostname) ? hostname->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.hostname[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.wifi_password, cJSON_IsString(wifi_password) ? wifi_password->valuestring : "", LARGE_CONFIG_ITEM - 1);
-    network_config.wifi_password[LARGE_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.ssid, cJSON_IsString(ssid) ? ssid->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.ssid[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.ip_address[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.wifi_password, cJSON_IsString(wifi_password) ? wifi_password->valuestring : "", LARGE_CONFIG_ITEM - 1);
+    wifi_config.wifi_password[LARGE_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.subnet_mask[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.ip_address[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.gateway[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.subnet_mask[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.primary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.gateway[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
-    strncpy(network_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
-    network_config.secondary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
+    strncpy(wifi_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.primary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(wifi_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    wifi_config.secondary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    // Release sensor config mutex after updates
+    if (taken)
+    {
+        xSemaphoreGive(network_config_mutex);
+    }
+
+    cJSON_Delete(json);
+    free(buffer);
+
+    LOGI(TAG, "Network config loaded from %s", path);
+
+    return ESP_OK;
+}
+
+esp_err_t load_ethernet_config(void)
+{
+    char path[128] = "/data/json/ethernet_config.json";
+    size_t bufferSize = XXXLARGE_CONFIG_ITEM;
+
+    LOGD(TAG, "Attempting to read network config: %s", path);
+
+    char *buffer = malloc(bufferSize);
+    if (!buffer)
+    {
+        LOGE(TAG, "Failed to allocate buffer");
+        return ESP_ERR_NO_MEM;
+    }
+
+    esp_err_t err = read_file(path, buffer, bufferSize);
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "Failed to read config file: %s", path);
+        free(buffer);
+        return err;
+    }
+
+    cJSON *json = cJSON_Parse(buffer);
+    if (!json)
+    {
+        LOGE(TAG, "Invalid JSON format in %s", path);
+        LOGD(TAG, "Raw content: %s", buffer);
+        free(buffer);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    cJSON *enable_ethernet = cJSON_GetObjectItem(json, "enable_ethernet");
+    cJSON *enable_dhcp = cJSON_GetObjectItem(json, "eth_enable_dhcp");
+    cJSON *ip_address = cJSON_GetObjectItem(json, "eth_ip_address");
+    cJSON *subnet_mask = cJSON_GetObjectItem(json, "eth_subnet_mask");
+    cJSON *gateway = cJSON_GetObjectItem(json, "eth_gateway");
+    cJSON *primary_dns = cJSON_GetObjectItem(json, "eth_primary_dns");
+    cJSON *secondary_dns = cJSON_GetObjectItem(json, "eth_secondary_dns");
+
+    // Acquire network config mutex before updating global settings
+    bool taken = false;
+    if (network_config_mutex)
+    {
+        if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        {
+            LOGE(TAG, "Failed to acquire sensor config mutex");
+            cJSON_Delete(json);
+            free(buffer);
+            return ESP_ERR_TIMEOUT;
+        }
+        taken = true;
+    }
+    else
+    {
+        LOGW(TAG, "network_config_mutex not initialized; proceeding without mutex (unsafe)");
+    }
+
+    strncpy(ethernet_config.enable_ethernet, cJSON_IsString(enable_ethernet) ? enable_ethernet->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    ethernet_config.enable_ethernet[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.enable_dhcp, cJSON_IsString(enable_dhcp) ? enable_dhcp->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    ethernet_config.enable_dhcp[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.ip_address, cJSON_IsString(ip_address) ? ip_address->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    ethernet_config.ip_address[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.subnet_mask, cJSON_IsString(subnet_mask) ? subnet_mask->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    ethernet_config.subnet_mask[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.gateway, cJSON_IsString(gateway) ? gateway->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    ethernet_config.gateway[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.primary_dns, cJSON_IsString(primary_dns) ? primary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    ethernet_config.primary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(ethernet_config.secondary_dns, cJSON_IsString(secondary_dns) ? secondary_dns->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
+    ethernet_config.secondary_dns[MEDIUM_CONFIG_ITEM - 1] = '\0';
 
     // Release sensor config mutex after updates
     if (taken)

@@ -26,7 +26,7 @@
 
 #include "eth_functions.h"
 
-static const char *TAG = "eth_func";
+static const char *TAG = "Eth_func";
 
 esp_netif_t *eth_netif = NULL;
 esp_eth_handle_t eth_handle = NULL;
@@ -52,7 +52,7 @@ void eth_init(void)
         return;
     }
 
-    /* ----------------- SPI bus init ----------------- */
+    // ----------------- SPI bus init -----------------
     spi_bus_config_t buscfg = {
         .miso_io_num = W5500_MISO_GPIO,
         .mosi_io_num = W5500_MOSI_GPIO,
@@ -68,11 +68,8 @@ void eth_init(void)
         return;
     }
 
-    /* ----------------- SPI device config (kept alive) -----------------
-       Some IDF variants expect a pointer to spi_device_interface_config_t
-       inside eth_w5500_config_t (spi_devcfg). Create a static instance
-       so the pointer remains valid for the lifetime of the driver.
-    */
+    // ----------------- SPI device config (kept alive) -----------------
+    // Some IDF variants expect a pointer to spi_device_interface_config_t inside eth_w5500_config_t (spi_devcfg). Create a static instance so the pointer remains valid for the lifetime of the driver.
     static spi_device_interface_config_t w5500_spi_devcfg = {
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000, /* 20 MHz */
@@ -90,23 +87,18 @@ void eth_init(void)
 #endif
     phy_config.phy_addr = 0;
 
-    /* ----------------- W5500 driver config -----------------
-       Zero-init the struct and set the fields your local IDF expects.
-       Common fields: spi_host_id, spi_devcfg (pointer), int_gpio_num, reset_gpio_num.
-       If your local eth_w5500_config_t uses different member names, adjust accordingly.
-    */
+    // ----------------- W5500 driver config -----------------
+    //   Zero-init the struct and set the fields your local IDF expects. Common fields: spi_host_id, spi_devcfg (pointer), int_gpio_num, reset_gpio_num. If your local eth_w5500_config_t uses different member names, adjust accordingly.
     eth_w5500_config_t w5500_cfg;
     memset(&w5500_cfg, 0, sizeof(w5500_cfg));
 
-    /* SPI host id (most IDF variants use spi_host_id) */
+    // SPI host id (most IDF variants use spi_host_id)
     w5500_cfg.spi_host_id = W5500_SPI_HOST;
 
-    /* Provide pointer to the spi_device_interface_config_t we created above.
-       Some IDF variants name this member spi_devcfg or spi_dev_config; use the
-       exact member name from your local header. */
+    // Provide pointer to the spi_device_interface_config_t we created above. Some IDF variants name this member spi_devcfg or spi_dev_config; use the exact member name from your local header.
     w5500_cfg.spi_devcfg = &w5500_spi_devcfg;
 
-    /* Optional interrupt GPIO */
+    // Optional interrupt GPIO
 #ifdef W5500_INT_GPIO
     if (W5500_INT_GPIO >= 0)
     {
@@ -130,7 +122,7 @@ void eth_init(void)
     //       w5500_cfg.int_gpio_num;
     // w5500_cfg.reset_gpio_num);
 
-    /* ----------------- Create MAC and PHY instances ----------------- */
+    // ----------------- Create MAC and PHY instances ----------------- 
     esp_eth_mac_t *mac = esp_eth_mac_new_w5500(&w5500_cfg, &mac_config);
     if (mac == NULL)
     {
@@ -145,7 +137,7 @@ void eth_init(void)
         return;
     }
 
-    /* ----------------- Install Ethernet driver ----------------- */
+    // ----------------- Install Ethernet driver -----------------
     esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
     err = esp_eth_driver_install(&eth_config, &eth_handle);
     if (err != ESP_OK)
@@ -154,7 +146,7 @@ void eth_init(void)
         return;
     }
 
-    /* ----------------- Attach driver to netif ----------------- */
+    // ----------------- Attach driver to netif -----------------
     esp_eth_netif_glue_handle_t glue = esp_eth_new_netif_glue(eth_handle);
     if (glue == NULL)
     {
@@ -208,8 +200,7 @@ void eth_stop(void)
     }
 }
 
-/* ---------- Config helpers (read config under mutex) ---------- */
-
+// ---------- Config helpers (read config under mutex) ----------
 static bool cfg_str_is_on(const char *s)
 {
     return (s && strcmp(s, "On") == 0);
@@ -235,7 +226,7 @@ bool ethernet_config_is_dhcp_enabled(void)
     bool dhcp = true;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        dhcp = cfg_str_is_on(network_config.enable_dhcp);
+        dhcp = cfg_str_is_on(ethernet_config.enable_dhcp);
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -253,7 +244,7 @@ bool ethernet_and_wifi_both_disabled(void)
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         eth_off = (strcmp(ethernet_config.enable_ethernet, "Off") == 0);
-        wifi_off = (strcmp(network_config.enable_wifi, "Off") == 0);
+        wifi_off = (strcmp(wifi_config.enable_wifi, "Off") == 0);
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -265,8 +256,7 @@ bool ethernet_and_wifi_both_disabled(void)
     return (eth_off && wifi_off);
 }
 
-/* ---------- Maintenance AP ---------- */
-
+// ---------- Maintenance AP ----------
 static void maintenance_ap_timer_cb(void *arg)
 {
     (void)arg;
@@ -319,7 +309,7 @@ void stop_maintenance_ap(void)
     bool wifi_allowed = false;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        wifi_allowed = cfg_str_is_on(network_config.enable_wifi);
+        wifi_allowed = cfg_str_is_on(wifi_config.enable_wifi);
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -368,7 +358,7 @@ esp_err_t ethernet_config_apply(void)
     Ethernet_config_t local;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        memcpy(&local, &network_config, sizeof(Ethernet_config_t));
+        memcpy(&local, &wifi_config, sizeof(Ethernet_config_t));
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -495,7 +485,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         LOGW(TAG, "ETH_EVENT: disconnected");
         eth_connected = false;
 
-        if (wifi_forced_on || cfg_str_is_on(network_config.enable_wifi))
+        if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
         {
             LOGI(TAG, "Starting Wi‑Fi fallback (config allows or forced)");
             select_wifi_mode();
@@ -555,7 +545,7 @@ void eth_manager_start(void)
     // Boot-time fallback: if both disabled, start maintenance AP; if ethernet down and wifi allowed, start wifi
     if (!eth_connected)
     {
-        if (wifi_forced_on || cfg_str_is_on(network_config.enable_wifi))
+        if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
         {
             LOGW(TAG, "Ethernet not connected at boot; starting Wi‑Fi fallback");
             select_wifi_mode();
@@ -600,7 +590,7 @@ void eth_set_wifi_forced(bool forced)
     else
     {
         LOGI(TAG, "WiFi forced OFF");
-        if (eth_connected && !cfg_str_is_on(network_config.enable_wifi))
+        if (eth_connected && !cfg_str_is_on(wifi_config.enable_wifi))
         {
             esp_err_t err = esp_wifi_stop();
             if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT)

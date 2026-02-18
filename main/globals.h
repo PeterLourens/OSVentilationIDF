@@ -357,7 +357,7 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
-extern Wifi_config_t network_config;
+extern Wifi_config_t wifi_config;
 extern Ethernet_config_t ethernet_config;
 extern Time_config_t time_config;
 extern MQTT_config_t mqtt_config;

@@ -203,15 +203,26 @@ void send_config_json_ws(void)
     // --- Network ---
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        cJSON_AddStringToObject(root, "enable_dhcp", network_config.enable_dhcp);
-        cJSON_AddStringToObject(root, "hostname", network_config.hostname);
-        cJSON_AddStringToObject(root, "ssid", network_config.ssid);
-        cJSON_AddStringToObject(root, "wifi_password", network_config.wifi_password);
-        cJSON_AddStringToObject(root, "ip_address", network_config.ip_address);
-        cJSON_AddStringToObject(root, "subnet_mask", network_config.subnet_mask);
-        cJSON_AddStringToObject(root, "gateway", network_config.gateway);
-        cJSON_AddStringToObject(root, "primary_dns", network_config.primary_dns);
-        cJSON_AddStringToObject(root, "secondary_dns", network_config.secondary_dns);
+        // WiFi configuration
+        cJSON_AddStringToObject(root, "enable_wifi", wifi_config.enable_wifi);
+        cJSON_AddStringToObject(root, "enable_dhcp", wifi_config.enable_dhcp);
+        cJSON_AddStringToObject(root, "hostname", wifi_config.hostname);
+        cJSON_AddStringToObject(root, "ssid", wifi_config.ssid);
+        cJSON_AddStringToObject(root, "wifi_password", wifi_config.wifi_password);
+        cJSON_AddStringToObject(root, "ip_address", wifi_config.ip_address);
+        cJSON_AddStringToObject(root, "subnet_mask", wifi_config.subnet_mask);
+        cJSON_AddStringToObject(root, "gateway", wifi_config.gateway);
+        cJSON_AddStringToObject(root, "primary_dns", wifi_config.primary_dns);
+        cJSON_AddStringToObject(root, "secondary_dns", wifi_config.secondary_dns);
+
+        // Ethernet configuration
+        cJSON_AddStringToObject(root, "enable_ethernet", ethernet_config.enable_ethernet);
+        cJSON_AddStringToObject(root, "eth_enable_dhcp", ethernet_config.enable_dhcp);
+        cJSON_AddStringToObject(root, "eth_ip_address", ethernet_config.ip_address);
+        cJSON_AddStringToObject(root, "eth_subnet_mask", ethernet_config.subnet_mask);
+        cJSON_AddStringToObject(root, "eth_gateway", ethernet_config.gateway);
+        cJSON_AddStringToObject(root, "eth_primary_dns", ethernet_config.primary_dns);
+        cJSON_AddStringToObject(root, "eth_secondary_dns", ethernet_config.secondary_dns);
         xSemaphoreGive(network_config_mutex);
     }
 

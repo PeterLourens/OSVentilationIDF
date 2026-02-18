@@ -6,18 +6,18 @@
 
 #include "task_eth.h"
 
-static const char *TAG = "NET_MGR";
+static const char *TAG = "task_eth";
 
 /* Task storage for static creation */
 static StackType_t eth_stack[4096];
 static StaticTask_t eth_tcb;
 static size_t eth_stack_size = 4096;
 
-static TaskHandle_t task_eth_handle = NULL;
+//static TaskHandle_t task_eth_handle = NULL;
 
 static volatile bool eth_connected = false;
 static volatile bool wifi_forced_on = false;
-static esp_timer_handle_t maintenance_ap_timer = NULL;
+//static esp_timer_handle_t maintenance_ap_timer = NULL;
 
 static void task_eth_code(void *pvParameters)
 {

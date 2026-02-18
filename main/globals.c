@@ -83,7 +83,7 @@ httpd_handle_t http_server = NULL;
 struct tm timeinfo = {0};
 
 // Structs for settings
-Wifi_config_t network_config = {0};
+Wifi_config_t wifi_config = {0};
 Ethernet_config_t ethernet_config = {0};
 Time_config_t time_config = {0};
 MQTT_config_t mqtt_config = {0};

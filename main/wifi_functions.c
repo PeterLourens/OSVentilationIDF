@@ -40,7 +40,7 @@ esp_err_t wifi_manager_init(void)
     // Set hostname BEFORE starting WiFi
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, 10) == pdTRUE)
     {
-        strncpy(hostname, network_config.hostname, sizeof(hostname));
+        strncpy(hostname, wifi_config.hostname, sizeof(hostname));
         xSemaphoreGive(network_config_mutex);
     }
     LOGI(TAG, "Setting WiFi hostname to: %s", hostname);
@@ -67,13 +67,13 @@ esp_err_t select_wifi_mode(void)
     esp_err_t err = ESP_OK;
 
     // Check if DHCP is enabled
-    if (strcmp(network_config.enable_dhcp, "On") == 0)
+    if (strcmp(wifi_config.enable_dhcp, "On") == 0)
     {
         // Verify SSID and password for station mode
-        if (strlen(network_config.ssid) > 0 && strlen(network_config.wifi_password) > 0)
+        if (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0)
         {
             LOGI(TAG, "Attempting station mode with DHCP");
-            err = wifi_manager_connect(&network_config);
+            err = wifi_manager_connect(&wifi_config);
             if (err == ESP_OK)
             {
                 return ESP_OK;
@@ -90,38 +90,38 @@ esp_err_t select_wifi_mode(void)
         // DHCP disabled - validate static IP configuration
         bool valid_config = true;
 
-        if (!is_valid_ip_address(network_config.ip_address))
+        if (!is_valid_ip_address(wifi_config.ip_address))
         {
-            LOGE(TAG, "Invalid IP address: %s", network_config.ip_address);
+            LOGE(TAG, "Invalid IP address: %s", wifi_config.ip_address);
             valid_config = false;
         }
-        if (!is_valid_ip_address(network_config.subnet_mask))
+        if (!is_valid_ip_address(wifi_config.subnet_mask))
         {
-            LOGE(TAG, "Invalid subnet mask: %s", network_config.subnet_mask);
+            LOGE(TAG, "Invalid subnet mask: %s", wifi_config.subnet_mask);
             valid_config = false;
         }
-        if (!is_valid_ip_address(network_config.gateway))
+        if (!is_valid_ip_address(wifi_config.gateway))
         {
-            LOGE(TAG, "Invalid gateway: %s", network_config.gateway);
+            LOGE(TAG, "Invalid gateway: %s", wifi_config.gateway);
             valid_config = false;
         }
-        if (!is_valid_ip_address(network_config.primary_dns))
+        if (!is_valid_ip_address(wifi_config.primary_dns))
         {
-            LOGE(TAG, "Invalid primary DNS: %s", network_config.primary_dns);
+            LOGE(TAG, "Invalid primary DNS: %s", wifi_config.primary_dns);
             valid_config = false;
         }
-        if (strlen(network_config.secondary_dns) > 0 &&
-            !is_valid_ip_address(network_config.secondary_dns))
+        if (strlen(wifi_config.secondary_dns) > 0 &&
+            !is_valid_ip_address(wifi_config.secondary_dns))
         {
-            LOGE(TAG, "Invalid secondary DNS: %s", network_config.secondary_dns);
+            LOGE(TAG, "Invalid secondary DNS: %s", wifi_config.secondary_dns);
             valid_config = false;
         }
 
-        if (valid_config && strlen(network_config.ssid) > 0 &&
-            strlen(network_config.wifi_password) > 0)
+        if (valid_config && strlen(wifi_config.ssid) > 0 &&
+            strlen(wifi_config.wifi_password) > 0)
         {
             LOGI(TAG, "Attempting station mode with static IP");
-            err = wifi_manager_connect(&network_config);
+            err = wifi_manager_connect(&wifi_config);
             if (err == ESP_OK)
             {
                 return ESP_OK;

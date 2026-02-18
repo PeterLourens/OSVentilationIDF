@@ -621,6 +621,7 @@ void set_log_levels(void)
 
     // Custom TAG sttings
     esp_log_level_set("Config", ESP_LOG_INFO);
+    esp_log_level_set("Eth_func", ESP_LOG_INFO);
     esp_log_level_set("Fan_control", ESP_LOG_INFO);
     esp_log_level_set("General", ESP_LOG_INFO);
     esp_log_level_set("HTTP_server", ESP_LOG_INFO);
@@ -639,6 +640,7 @@ void set_log_levels(void)
     esp_log_level_set("Sys_stats", ESP_LOG_INFO);
     esp_log_level_set("Syslog", ESP_LOG_INFO);
     esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
+    esp_log_level_set("task_eth", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
     esp_log_level_set("task_influxdb", ESP_LOG_INFO);
