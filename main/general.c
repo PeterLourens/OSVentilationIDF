@@ -594,6 +594,9 @@ void formatted_day(char *buf, size_t bufsize)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
+    esp_log_level_set("bus_lock", ESP_LOG_NONE);
+    esp_log_level_set("spi", ESP_LOG_NONE);
+    esp_log_level_set("spi_master", ESP_LOG_NONE);
     esp_log_level_set("scd4x", ESP_LOG_ERROR);
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);
@@ -620,8 +623,6 @@ void set_log_levels(void)
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
     esp_log_level_set("w5500.mac", ESP_LOG_NONE);
     esp_log_level_set("esp_eth", ESP_LOG_NONE);
-    esp_log_level_set("bus_lock", ESP_LOG_NONE);
-    esp_log_level_set("spi_master", ESP_LOG_NONE);
     esp_log_level_set("gdma", ESP_LOG_NONE);
 
     // Custom TAG sttings
