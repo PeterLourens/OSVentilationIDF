@@ -618,6 +618,11 @@ void set_log_levels(void)
     esp_log_level_set("outbox", ESP_LOG_ERROR);
     esp_log_level_set("esp-tls", ESP_LOG_ERROR);
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
+    esp_log_level_set("w5500.mac", ESP_LOG_NONE);
+    esp_log_level_set("esp_eth", ESP_LOG_NONE);
+    esp_log_level_set("bus_lock", ESP_LOG_NONE);
+    esp_log_level_set("spi_master", ESP_LOG_NONE);
+    esp_log_level_set("gdma", ESP_LOG_NONE);
 
     // Custom TAG sttings
     esp_log_level_set("Config", ESP_LOG_INFO);
@@ -652,6 +657,8 @@ void set_log_levels(void)
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
     esp_log_level_set("syslog", ESP_LOG_WARN);
     esp_log_level_set("control_valves", ESP_LOG_INFO);
+    esp_log_level_set("Eth_func", ESP_LOG_INFO);
+    esp_log_level_set("task_eth", ESP_LOG_INFO);
 
     // esp_log_level_set("*", ESP_LOG_ERROR);       // Set all log levels
 }
