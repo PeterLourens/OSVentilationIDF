@@ -40,13 +40,14 @@ esp_err_t wifi_manager_init(void)
     // Set hostname BEFORE starting WiFi
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, 10) == pdTRUE)
     {
+        LOGI(TAG, "Wifi_enable: %s, enable_dhcp: %s, hostname: %s, SSID: %s", wifi_config.enable_wifi, wifi_config.enable_dhcp, wifi_config.hostname, wifi_config.ssid);
         strncpy(hostname, wifi_config.hostname, sizeof(hostname));
         xSemaphoreGive(network_config_mutex);
     }
     LOGI(TAG, "Setting WiFi hostname to: %s", hostname);
     ESP_ERROR_CHECK(esp_netif_set_hostname(netif, hostname));
 
-    // Create default WiFi station interface
+    // Create default WiFi station interface - Declared globally
     // esp_netif_create_default_wifi_sta();
 
     // Initialize WiFi

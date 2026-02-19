@@ -4,26 +4,6 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
-/*
- * eth_functions.c
- *
- * Centralized Ethernet manager and configuration application.
- *
- * Responsibilities moved here so task_eth.c contains only minimal orchestration:
- *  - eth_init / eth_start / eth_stop
- *  - register ETH/IP event handlers
- *  - apply Ethernet config (DHCP/static)
- *  - maintenance AP logic when both interfaces disabled
- *  - wifi forced override
- *
- * Assumptions:
- *  - globals.h defines Ethernet_config_t network_config and Network_config_t network_config (wifi_enable)
- *  - network_config_mutex exists and protects the shared config
- *  - wifi_functions.h provides select_wifi_mode() and wifi_manager_start_ap()
- *  - NVS, esp_netif_init(), and default event loop are created elsewhere
- *  - LOGI/LOGW/LOGE macros are available
- */
-
 #include "eth_functions.h"
 
 static const char *TAG = "Eth_func";
@@ -33,9 +13,9 @@ esp_eth_handle_t eth_handle = NULL;
 
 // Internal state
 static volatile bool eth_connected = false;
-static volatile bool wifi_forced_on = false;
-static esp_timer_handle_t maintenance_ap_timer = NULL;
-static volatile bool maintenance_ap_running = false;
+//static volatile bool wifi_forced_on = false;
+//static esp_timer_handle_t maintenance_ap_timer = NULL;
+//static volatile bool maintenance_ap_running = false;
 
 void eth_init(void)
 {
@@ -236,7 +216,7 @@ bool ethernet_config_is_dhcp_enabled(void)
     return dhcp;
 }
 
-bool ethernet_and_wifi_both_disabled(void)
+/*bool ethernet_and_wifi_both_disabled(void)
 {
     bool eth_off = false;
     bool wifi_off = false;
@@ -254,17 +234,17 @@ bool ethernet_and_wifi_both_disabled(void)
     }
 
     return (eth_off && wifi_off);
-}
+}*/
 
 // ---------- Maintenance AP ----------
-static void maintenance_ap_timer_cb(void *arg)
+/*static void maintenance_ap_timer_cb(void *arg)
 {
     (void)arg;
     LOGI(TAG, "Maintenance AP timeout expired; stopping maintenance AP");
     stop_maintenance_ap();
-}
+}*/
 
-void start_maintenance_ap(void)
+/*void start_maintenance_ap(void)
 {
     LOGI(TAG, "Starting temporary maintenance AP (timeout %d ms)", MAINTENANCE_AP_TIMEOUT_MS);
 
@@ -297,9 +277,9 @@ void start_maintenance_ap(void)
     }
 
     maintenance_ap_running = true;
-}
+}*/
 
-void stop_maintenance_ap(void)
+/*void stop_maintenance_ap(void)
 {
     if (maintenance_ap_timer)
     {
@@ -335,7 +315,7 @@ void stop_maintenance_ap(void)
     {
         LOGI(TAG, "Wi‑Fi allowed by config; leaving AP running");
     }
-}
+}*/
 
 /* ---------- Apply Ethernet configuration (DHCP/static) ---------- */
 
@@ -345,7 +325,7 @@ static bool validate_ipv4_string(const char *s)
         return false;
     struct in_addr a;
     return inet_pton(AF_INET, s, &a) == 1;
-}
+}   
 
 esp_err_t ethernet_config_apply(void)
 {
@@ -358,7 +338,8 @@ esp_err_t ethernet_config_apply(void)
     Ethernet_config_t local;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        memcpy(&local, &wifi_config, sizeof(Ethernet_config_t));
+        LOGI(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
+        memcpy(&local, &ethernet_config, sizeof(Ethernet_config_t));
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -468,9 +449,9 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
         }
-        stop_maintenance_ap();
+        //stop_maintenance_ap();
 
-        if (!wifi_forced_on)
+        /*if (!wifi_forced_on)
         {
             LOGI(TAG, "Stopping WiFi (Ethernet active)");
             esp_err_t err = esp_wifi_stop();
@@ -482,7 +463,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         else
         {
             LOGI(TAG, "WiFi forced ON; leaving WiFi running");
-        }
+        }*/
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
@@ -493,7 +474,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
             xSemaphoreGive(statemachine_mutex);
         }
 
-        if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
+        /*if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
         {
             LOGI(TAG, "Starting WiFi fallback (config allows or forced)");
             select_wifi_mode();
@@ -502,7 +483,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         {
             LOGI(TAG, "WiFi disabled in config; starting temporary maintenance AP");
             start_maintenance_ap();
-        }
+        }*/
         break;
 
     case ETHERNET_EVENT_START:
@@ -527,11 +508,11 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base, int32_t eve
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         LOGI(TAG, "ETH got IP: " IPSTR, IP2STR(&event->ip_info.ip));
     }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
-    {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        LOGI(TAG, "WIFI got IP: " IPSTR, IP2STR(&event->ip_info.ip));
-    }
+    //else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    //{
+    //    ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+    //    LOGI(TAG, "WIFI got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+    //}
 }
 
 void eth_manager_start(void)
@@ -553,30 +534,32 @@ void eth_manager_start(void)
     // Boot-time fallback: if both disabled, start maintenance AP; if ethernet down and wifi allowed, start wifi
     if (!eth_connected)
     {
-        if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
-        {
-            LOGW(TAG, "Ethernet not connected at boot; starting WiFi fallback");
-            select_wifi_mode();
-        }
-        else if (ethernet_and_wifi_both_disabled())
-        {
-            LOGW(TAG, "Both Ethernet and WiFi disabled in config; starting maintenance AP");
-            start_maintenance_ap();
-        }
-        else
-        {
-            LOGI(TAG, "Ethernet not connected at boot; no WiFi started by policy");
-        }
+        //if (wifi_forced_on || cfg_str_is_on(wifi_config.enable_wifi))
+        //{
+            //LOGW(TAG, "Ethernet not connected at boot; starting WiFi fallback");
+            //select_wifi_mode();
+        //}
+        //else if (ethernet_and_wifi_both_disabled())
+        //{
+            //LOGW(TAG, "Both Ethernet and WiFi disabled in config; starting maintenance AP");
+            //start_maintenance_ap();
+        //}
+        //else
+        //{
+        //LOGI(TAG, "Ethernet not connected at boot; no WiFi started by policy");
+        LOGI(TAG, "Ethernet not connected at boot.");
+        //}
     }
     else
     {
-        LOGI(TAG, "Ethernet connected at boot; WiFi will remain stopped unless forced");
+        //LOGI(TAG, "Ethernet connected at boot; WiFi will remain stopped unless forced");
+        LOGI(TAG, "Ethernet connected at boot.");
     }
 }
 
 // ---------- WiFi forced override ----------
 
-void eth_set_wifi_forced(bool forced)
+/*void eth_set_wifi_forced(bool forced)
 {
     wifi_forced_on = forced;
     if (wifi_forced_on)
@@ -607,4 +590,5 @@ void eth_set_wifi_forced(bool forced)
             }
         }
     }
-}
+}*/
+
