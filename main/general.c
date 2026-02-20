@@ -594,6 +594,8 @@ void formatted_day(char *buf, size_t bufsize)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
+    esp_log_level_set("*", ESP_LOG_INFO);
+
     esp_log_level_set("bus_lock", ESP_LOG_NONE);
     esp_log_level_set("spi", ESP_LOG_NONE);
     esp_log_level_set("spi_master", ESP_LOG_NONE);
@@ -661,7 +663,7 @@ void set_log_levels(void)
     esp_log_level_set("Eth_func", ESP_LOG_INFO);
     esp_log_level_set("task_eth", ESP_LOG_INFO);
 
-    // esp_log_level_set("*", ESP_LOG_ERROR);       // Set all log levels
+    // esp_log_level_set("*", ESP_LOG_INFO);       // Set all log levels
 }
 
 void print_html_file(const char *filepath)
