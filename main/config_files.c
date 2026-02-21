@@ -235,7 +235,7 @@ esp_err_t load_wifi_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    LOGI(TAG, "Network config loaded from %s", path);
+    LOGI(TAG, "Wifi config loaded from %s", path);
 
     return ESP_OK;
 }
@@ -272,12 +272,12 @@ esp_err_t load_ethernet_config(void)
     }
 
     cJSON *enable_ethernet = cJSON_GetObjectItem(json, "enable_ethernet");
-    cJSON *enable_dhcp = cJSON_GetObjectItem(json, "eth_enable_dhcp");
-    cJSON *ip_address = cJSON_GetObjectItem(json, "eth_ip_address");
-    cJSON *subnet_mask = cJSON_GetObjectItem(json, "eth_subnet_mask");
-    cJSON *gateway = cJSON_GetObjectItem(json, "eth_gateway");
-    cJSON *primary_dns = cJSON_GetObjectItem(json, "eth_primary_dns");
-    cJSON *secondary_dns = cJSON_GetObjectItem(json, "eth_secondary_dns");
+    cJSON *enable_dhcp = cJSON_GetObjectItem(json, "enable_dhcp");
+    cJSON *ip_address = cJSON_GetObjectItem(json, "ip_address");
+    cJSON *subnet_mask = cJSON_GetObjectItem(json, "subnet_mask");
+    cJSON *gateway = cJSON_GetObjectItem(json, "gateway");
+    cJSON *primary_dns = cJSON_GetObjectItem(json, "primary_dns");
+    cJSON *secondary_dns = cJSON_GetObjectItem(json, "secondary_dns");
 
     // Acquire network config mutex before updating global settings
     bool taken = false;
@@ -327,7 +327,13 @@ esp_err_t load_ethernet_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    LOGI(TAG, "Network config loaded from %s", path);
+    LOGI(TAG, "Ethernet config loaded from %s", path);
+
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        LOGD(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
+        xSemaphoreGive(network_config_mutex);
+    }
 
     return ESP_OK;
 }
@@ -399,7 +405,7 @@ esp_err_t load_time_config(void)
     cJSON_Delete(json);
     free(buffer);
 
-    LOGI(TAG, "Network config loaded from %s", path);
+    LOGI(TAG, "Time config loaded from %s", path);
 
     return ESP_OK;
 }

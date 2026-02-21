@@ -15,6 +15,9 @@ void app_main(void)
     // Set log levels for each TAG
     set_log_levels();
 
+    // Install GPIO ISR service (required for W5500 interrupt pin, even if not used)
+    ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
+
     // Create mutexes
     err = create_mutexes();
     if (err != ESP_OK)
