@@ -18,7 +18,7 @@
 
 #include "logging.h"
 #include "globals.h"
-//#include "wifi_functions.h"
+// #include "wifi_functions.h"
 
 extern esp_netif_t *eth_netif;
 extern esp_eth_handle_t eth_handle;
@@ -27,6 +27,8 @@ extern esp_eth_handle_t eth_handle;
 void eth_init(void);
 void eth_start(void);
 void eth_stop(void);
+
+bool eth_is_connected(void);
 
 // High level manager: initialize, register handlers, start driver, apply config,
 // and perform boot-time fallback decisions (Wi‑Fi or maintenance AP).

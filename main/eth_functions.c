@@ -213,6 +213,12 @@ bool ethernet_config_is_dhcp_enabled(void)
     return dhcp;
 }
 
+// Helper to check if Ethernet is currently connected (based on event handler updates)
+bool eth_is_connected(void)
+{
+    return eth_connected; // updated in event handler
+}
+
 /* ---------- Apply Ethernet configuration (DHCP/static) ---------- */
 static bool validate_ipv4_string(const char *s)
 {
