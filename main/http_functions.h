@@ -54,7 +54,9 @@ esp_err_t state_gen_config_post_handler(httpd_req_t *);
 esp_err_t state_config_post_handler(httpd_req_t *);
 
 void ws_async_send(char *, size_t);
-httpd_handle_t start_webserver(void);
+esp_err_t http_server_start(void);
+// httpd_handle_t start_webserver(void);
+void register_http_handlers(httpd_handle_t server);
 esp_err_t http_server_stop(void);
 
 #endif

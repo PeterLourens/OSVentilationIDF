@@ -350,6 +350,8 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
         }
+        http_server_stop();
+        http_server_start();
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:

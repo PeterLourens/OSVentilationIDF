@@ -172,26 +172,32 @@ void syslog_send_line(const char *line)
 /* Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key) */
 bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
 {
-    if (!netif_key)
-        netif_key = "WIFI_STA_DEF";
-
     int retries = 0;
+    esp_netif_ip_info_t ip;
 
     while (retries < max_retries)
     {
-        esp_netif_ip_info_t ip;
-        if (esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey(netif_key), &ip) == ESP_OK)
+        esp_netif_t *netif = get_active_netif();
+
+        if (netif)
         {
-            if (ip.ip.addr != 0)
+            if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
             {
-                ESP_LOGD(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
-                return true;
+                if (ip.ip.addr != 0)
+                {
+                    ESP_LOGI(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
+                    return true;
+                }
             }
         }
-        ESP_LOGW(TAG, "Waiting for IP on %s... (%d/%d)", netif_key, retries + 1, max_retries);
+
+        ESP_LOGW(TAG, "Waiting for IP on active interface... (%d/%d)",
+                 retries + 1, max_retries);
+
         vTaskDelay(pdMS_TO_TICKS(delay_ms));
         retries++;
     }
+
     return false;
 }
 

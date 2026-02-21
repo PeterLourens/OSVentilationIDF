@@ -202,6 +202,34 @@ bool wifi_has_ip(void)
     return ip_info.ip.addr != 0;
 }
 
+// Function to check which network interface is active and return its handle, or NULL if none
+esp_netif_t *get_active_netif(void)
+{
+    // 1. Prefer Ethernet if connected
+    if (eth_is_connected())
+        return eth_netif;
+
+    // 2. Fall back to Wi-Fi if connected
+    if (wifi_manager_is_connected())
+        return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+
+    // 3. No network available
+    return NULL;
+}
+
+bool network_has_ip(void)
+{
+    esp_netif_t *netif = get_active_netif();
+    if (!netif)
+        return false;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(netif, &ip) != ESP_OK)
+        return false;
+
+    return ip.ip.addr != 0;
+}
+
 esp_err_t create_mutexes(void)
 {
     bool ok = true;

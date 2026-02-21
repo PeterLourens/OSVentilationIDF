@@ -12,10 +12,12 @@
 #include <nvs_flash.h>
 #include <ping/ping_sock.h>
 #include <sys/socket.h>
+#include <esp_netif.h>
 
 #include "i2c_ds3231.h"
 #include "http_functions.h"
 #include "statemachine_states.h"
+#include "eth_functions.h"
 
 // Function declarations
 esp_err_t init_nvs(void);
@@ -25,6 +27,8 @@ esp_err_t create_mutexes(void);
 
 bool is_valid_ip_address(const char *);
 bool wifi_has_ip(void);
+esp_netif_t *get_active_netif(void);
+bool network_has_ip(void);
 bool ping_gateway(void);
 void formatted_uptime(char *, size_t);
 void init_timezone(void);

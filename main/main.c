@@ -202,11 +202,21 @@ void app_main(void)
     {
         ESP_LOGI(TAG, "Wi-Fi init done, starting webserver, influxdb and mqtt tasks...");
         vTaskDelay(pdMS_TO_TICKS(3000));
-        start_webserver();
+        // start_webserver();
         start_task_statemachine();
         start_task_influxdb();
         start_task_mqtt();
         syslog_send_line("Boot complete, system running");
+    }
+
+    void start_network_services(void)
+    {
+        while (http_server_start() != ESP_OK)
+        {
+            vTaskDelay(pdMS_TO_TICKS(2000));
+        }
+
+        // Start MQTT, InfluxDB, etc. AFTER HTTP server
     }
 
     // Initialize sensors based on current configuration

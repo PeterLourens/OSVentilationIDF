@@ -1098,14 +1098,51 @@ void ws_async_send(char *buf, size_t len)
     }
 }
 
-// Start webserver
-httpd_handle_t start_webserver(void)
+esp_err_t http_server_start(void)
 {
+    esp_netif_t *netif = get_active_netif();
+    if (!netif)
+    {
+        LOGW(TAG, "No active network interface, delaying HTTP server start");
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(netif, &ip) != ESP_OK || ip.ip.addr == 0)
+    {
+        LOGW(TAG, "Active interface has no IP yet, delaying HTTP server start");
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    LOGI(TAG, "Starting HTTP server on IP: " IPSTR, IP2STR(&ip.ip));
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.server_port = 80;
     config.max_uri_handlers = 50;                 // increase from default 8 to 50
     config.stack_size = 6144;                     // increase stack size for websocket handling
     config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
-    ESP_ERROR_CHECK(httpd_start(&http_server, &config));
+
+    esp_err_t err = httpd_start(&http_server, &config);
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    register_http_handlers(http_server);
+    LOGI(TAG, "HTTP server started successfully");
+    return ESP_OK;
+}
+
+// Start webserver
+// httpd_handle_t start_webserver(void)
+void register_http_handlers(httpd_handle_t server)
+{
+    // httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    // config.max_uri_handlers = 50;                 // increase from default 8 to 50
+    // config.stack_size = 6144;                     // increase stack size for websocket handling
+    // config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
+    // ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
         .uri = "/pure_min.css",
@@ -1424,7 +1461,7 @@ httpd_handle_t start_webserver(void)
     };
     httpd_register_uri_handler(http_server, &state9_config_post_uri);
 
-    return http_server;
+    // return http_server;
 }
 
 esp_err_t http_server_stop(void)
