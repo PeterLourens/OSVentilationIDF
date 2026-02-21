@@ -4,7 +4,7 @@
     "b1_s0_location": "",
     "b1_s0_rh": "Off",
     "b1_s0_co2": "Off",
-    "b1_s1_type": "None",
+    "b1_s1_type": "DHT20",
     "b1_s1_valve": "None",
     "b1_s1_location": "",
     "b1_s1_rh": "Off",

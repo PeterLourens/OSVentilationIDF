@@ -1,8 +1,8 @@
 {
-    "b0_s0_type": "None",
+    "b0_s0_type": "DHT20",
     "b0_s0_valve": "None",
     "b0_s0_location": "",
-    "b0_s0_rh": "Off",
+    "b0_s0_rh": "DHT20",
     "b0_s0_co2": "Off",
     "b0_s1_type": "None",
     "b0_s1_valve": "None",
