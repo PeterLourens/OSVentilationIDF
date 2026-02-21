@@ -14,9 +14,6 @@ static StackType_t eth_stack[4096];
 static StaticTask_t eth_tcb;
 static size_t eth_stack_size = 4096;
 
-// static volatile bool eth_connected = false;
-static volatile bool wifi_forced_on = false;
-
 void start_task_eth(void)
 {
     task_ethernet = xTaskCreateStatic(task_eth_code, "task_eth", eth_stack_size, NULL, 9, eth_stack, &eth_tcb);

@@ -344,6 +344,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     {
     case ETHERNET_EVENT_CONNECTED:
         LOGI(TAG, "ETH_EVENT: connected");
+        eth_connected = true; // ← add this
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
@@ -353,6 +354,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
 
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETH_EVENT: disconnected");
+        eth_connected = false; // ← add this
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = false;
