@@ -26,6 +26,19 @@ void task_wifi_code(void *pvParameters)
 {
     esp_err_t err;
 
+    // Check config first
+    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        if (strcmp(wifi_config.enable_wifi, "Off") == 0)
+        {
+            xSemaphoreGive(network_config_mutex);
+            LOGW(TAG, "WiFi disabled in config; skipping WiFi initialization");
+            vTaskDelete(NULL); // stop WiFi task completely
+            return;
+        }
+        xSemaphoreGive(network_config_mutex);
+    }
+
     // Initialize WiFi
     err = wifi_manager_init();
     if (err != ESP_OK)

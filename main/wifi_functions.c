@@ -67,6 +67,12 @@ esp_err_t select_wifi_mode(void)
     const char *TAG = "WiFi";
     esp_err_t err = ESP_OK;
 
+    if (strcmp(wifi_config.enable_wifi, "Off") == 0)
+    {
+        LOGW(TAG, "WiFi disabled in config; not starting STA or AP");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     // Check if DHCP is enabled
     if (strcmp(wifi_config.enable_dhcp, "On") == 0)
     {
