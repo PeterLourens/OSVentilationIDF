@@ -8,6 +8,20 @@
 
 static const char *TAG = "main";
 
+static void start_network_services(void)
+{
+    while (http_server_start() != ESP_OK)
+    {
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+
+    start_task_statemachine();
+
+    // Start MQTT, InfluxDB, etc. AFTER HTTP server
+
+    syslog_send_line("Boot complete, system running");
+}
+
 void app_main(void)
 {
     esp_err_t err = ESP_OK;
@@ -200,24 +214,17 @@ void app_main(void)
     }
     else
     {
-        ESP_LOGI(TAG, "Wi-Fi init done, starting webserver, influxdb and mqtt tasks...");
+        ESP_LOGI(TAG, "Wi-Fi init done, influxdb and mqtt tasks...");
         vTaskDelay(pdMS_TO_TICKS(3000));
         // start_webserver();
-        start_task_statemachine();
+        // start_task_statemachine();
         start_task_influxdb();
         start_task_mqtt();
-        syslog_send_line("Boot complete, system running");
+        // syslog_send_line("Boot complete, system running");
     }
 
-    void start_network_services(void)
-    {
-        while (http_server_start() != ESP_OK)
-        {
-            vTaskDelay(pdMS_TO_TICKS(2000));
-        }
-
-        // Start MQTT, InfluxDB, etc. AFTER HTTP server
-    }
+    // Start network services in a separate task so we can retry if no network at startup
+    start_network_services();
 
     // Initialize sensors based on current configuration
     reload_and_init_sensors();
