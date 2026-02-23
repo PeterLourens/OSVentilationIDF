@@ -1,5 +1,5 @@
 {
-    "enable_ethernet": "On",
+    "enable_ethernet": "Off",
     "enable_dhcp": "On",
     "ip_address": "",
     "subnet_mask": "",

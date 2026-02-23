@@ -16,7 +16,8 @@ static void start_network_services(void)
     }
 
     start_task_statemachine();
-
+    start_task_mqtt();
+    start_task_influxdb();
     // Start MQTT, InfluxDB, etc. AFTER HTTP server
 
     syslog_send_line("Boot complete, system running");
@@ -208,20 +209,20 @@ void app_main(void)
     start_task_valvecontrol();
 
     // Bring up Wi‑Fi and wait for IP
-    if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
-    {
-        ESP_LOGE(TAG, "Network not available after retries");
-    }
-    else
-    {
-        ESP_LOGI(TAG, "Wi-Fi init done, influxdb and mqtt tasks...");
-        vTaskDelay(pdMS_TO_TICKS(3000));
-        // start_webserver();
-        // start_task_statemachine();
-        start_task_influxdb();
-        start_task_mqtt();
-        // syslog_send_line("Boot complete, system running");
-    }
+    // if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
+    //{
+    //  ESP_LOGE(TAG, "Network not available after retries");
+    //}
+    // else
+    //{
+    //  ESP_LOGI(TAG, "Wi-Fi init done, influxdb and mqtt tasks...");
+    // vTaskDelay(pdMS_TO_TICKS(3000));
+    // start_webserver();
+    // start_task_statemachine();
+    // start_task_influxdb();
+    // start_task_mqtt();
+    //  syslog_send_line("Boot complete, system running");
+    //}
 
     // Start network services in a separate task so we can retry if no network at startup
     start_network_services();

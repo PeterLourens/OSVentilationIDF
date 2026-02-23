@@ -167,7 +167,6 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              "wifi_authmode=%d,"
              "wifi_phy=%d,"
              "wifi_bandwidth=%d,"
-             "dhcp_enabled=%s,"
              "cpu_temp=%d,"
              "uptime=%llu,"
              "heap_free=%u,"
@@ -195,7 +194,6 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              sm_actuals.wifi_authmode,
              sm_actuals.wifi_phy,
              sm_actuals.wifi_bandwidth,
-             sm_actuals.dhcp_enabled ? "true" : "false",
              sm_actuals.cpu_temp,
              (unsigned long long)uptime,
              (unsigned)sm_actuals.heap_free,
@@ -314,6 +312,13 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
 // ---------------------------------------------------------------------------
 static esp_err_t influxdb_send_payload_internal(const char *payload, const Influxdb_config_t *cfg)
 {
+    // Abort if no network interface has an IP
+    if (!network_has_ip())
+    {
+        LOGW(TAG, "InfluxDB: Cannot send, no active network interface");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     if (!payload || !cfg)
     {
         LOGW(TAG, "send_internal: invalid args");
@@ -425,6 +430,13 @@ static void influx_sender_task(void *pv)
     Influxdb_config_t cfg;
     influxdb_get_config_snapshot(&cfg);
 
+    // Wait for network availability
+    while (!network_has_ip())
+    {
+        LOGW(TAG, "InfluxDB: No network available, waiting...");
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+
     for (;;)
     {
         influx_job_t job;
@@ -436,6 +448,14 @@ static void influx_sender_task(void *pv)
             // Refresh config snapshot before each send
             influxdb_get_config_snapshot(&cfg);
 
+            // Wait for network before sending
+            while (!network_has_ip())
+            {
+                LOGW(TAG, "InfluxDB: No network available, waiting...");
+                vTaskDelay(pdMS_TO_TICKS(2000));
+            }
+
+            // Check if InfluxDB is enabled
             if (strcmp(cfg.enable_influxdb, "On") != 0)
             {
                 LOGW(TAG, "InfluxDB disabled; dropping payload");

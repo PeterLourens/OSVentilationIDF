@@ -205,15 +205,12 @@ bool wifi_has_ip(void)
 // Function to check which network interface is active and return its handle, or NULL if none
 esp_netif_t *get_active_netif(void)
 {
-    // 1. Prefer Ethernet if connected
     if (eth_is_connected())
         return eth_netif;
 
-    // 2. Fall back to Wi-Fi if connected
     if (wifi_manager_is_connected())
         return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 
-    // 3. No network available
     return NULL;
 }
 
@@ -470,11 +467,19 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
 bool ping_gateway(void)
 {
     // Ensure station netif exists
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    // esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    // if (!netif)
+    //{
+    //    ESP_LOGE(TAG, "No station netif found");
+    //    return false;
+    //}
+
+    esp_netif_t *netif = get_active_netif();
     if (!netif)
     {
-        ESP_LOGE(TAG, "No station netif found");
-        return false;
+        // Optional: one generic log, not “Wi‑Fi STA not found”
+        LOGW(TAG, "No active network interface");
+        return false; // or keep waiting
     }
 
     esp_netif_ip_info_t ip_info;
@@ -622,7 +627,7 @@ void formatted_day(char *buf, size_t bufsize)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
-    esp_log_level_set("*", ESP_LOG_INFO);
+    // esp_log_level_set("*", ESP_LOG_INFO);
 
     esp_log_level_set("bus_lock", ESP_LOG_NONE);
     esp_log_level_set("spi", ESP_LOG_NONE);
@@ -664,9 +669,9 @@ void set_log_levels(void)
     // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);      // Nothing is logged now
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
     esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
-    esp_log_level_set("i2c_functions", ESP_LOG_INFO);
+    esp_log_level_set("i2c_functions", ESP_LOG_DEBUG);
     esp_log_level_set("i2c_LCD", ESP_LOG_INFO);
-    esp_log_level_set("i2c_sensors", ESP_LOG_INFO);
+    esp_log_level_set("i2c_sensors", ESP_LOG_DEBUG);
     esp_log_level_set("Influxdb", ESP_LOG_INFO);
     esp_log_level_set("main", ESP_LOG_INFO);
     esp_log_level_set("MQTT", ESP_LOG_INFO);
@@ -678,7 +683,7 @@ void set_log_levels(void)
     esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
     esp_log_level_set("task_eth", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
-    esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
+    esp_log_level_set("task_i2c_sensors", ESP_LOG_DEBUG);
     esp_log_level_set("task_influxdb", ESP_LOG_INFO);
     esp_log_level_set("task_MQTT", ESP_LOG_INFO);
     esp_log_level_set("task_rgb_leds", ESP_LOG_INFO);

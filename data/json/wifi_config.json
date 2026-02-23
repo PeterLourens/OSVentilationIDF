@@ -1,5 +1,5 @@
 {
-    "enable_wifi": "Off",
+    "enable_wifi": "On",
     "enable_dhcp": "On",
     "hostname": "OSVentilationIDFdev2",
     "ssid": "DIRK3",

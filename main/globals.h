@@ -20,8 +20,8 @@
 #define I2C_MASTER_BUS0_SCL_IO 17
 
 // I2C Bus1 configuration
-#define I2C_MASTER_BUS1_SDA_IO 5
-#define I2C_MASTER_BUS1_SCL_IO 4
+#define I2C_MASTER_BUS1_SDA_IO 7
+#define I2C_MASTER_BUS1_SCL_IO 6
 
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address

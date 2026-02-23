@@ -627,6 +627,7 @@ esp_err_t read_sensors_into_queue(void)
     }
 
     xQueueOverwrite(sensor_queue, snapshot);
+    LOGD(TAG, "Bus1 Sensor 1: temp=%.2f, rh=%.2f, timestmp=%.0f valid=%.1f", snapshot[1][1][IDX_TEMP], snapshot[1][1][IDX_HUMIDITY], snapshot[1][1][IDX_TIMESTAMP], snapshot[1][1][IDX_VALID]);
     return ESP_OK;
 }
 
