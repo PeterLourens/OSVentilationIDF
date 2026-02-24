@@ -403,12 +403,19 @@ void eth_manager_start(void)
     ESP_ERROR_CHECK(esp_event_handler_register(
         IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
 
-    // 3. Start Ethernet driver ONCE
-    LOGI(TAG, "Starting Ethernet driver...");
-    eth_start();
-
-    // 4. Apply DHCP/static configuration
-    ethernet_config_apply();
+    // 3. Start Ethernet driver ONLY if enabled
+    if (ethernet_config_is_enabled())
+    {
+        LOGI(TAG, "Starting Ethernet driver...");
+        eth_start();
+        // 4. Apply DHCP/static configuration
+        ethernet_config_apply();
+    }
+    else
+    {
+        LOGI(TAG, "Ethernet disabled in config; not starting driver");
+        eth_stop();
+    }
 
     // 5. Do NOT check link status here — link events are asynchronous and will be logged by the event handlers. The manager should remain running to handle these events and apply config changes on the fly.
     LOGI(TAG, "Ethernet manager initialized; waiting for link events.");

@@ -370,23 +370,36 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 
     SAFE_APPEND("\nHardware Stats:\nCPU Temp: %d C\n", sm_actuals.cpu_temp);
 
-    SAFE_APPEND("\nWiFi Stats:\n"
-                "SSID: %s\nBSSID: %s\nRSSI: %d dBm\nChannel: %d\nPHY: %s\nBandwidth: %d MHz\nAuthmode: %s\n\n",
-                sm_actuals.wifi_ssid, sm_actuals.wifi_bssid, sm_actuals.wifi_rssi,
-                sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
-                sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
+    // Wi-Fi section (only if enabled or connected)
+    if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
+    {
+        SAFE_APPEND("\nWiFi Stats:\n"
+                    "SSID: %s\nBSSID: %s\nRSSI: %d dBm\nChannel: %d\nPHY: %s\nBandwidth: %d MHz\nAuthmode: %s\n",
+                    sm_actuals.wifi_ssid, sm_actuals.wifi_bssid, sm_actuals.wifi_rssi,
+                    sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
+                    sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
 
-    SAFE_APPEND("Network Info:\n"
-                "Hostname: %s\nDNS1: %s\nDNS2: %s\n\n",
-                sm_actuals.hostname, sm_actuals.dns1, sm_actuals.dns2);
+        SAFE_APPEND("WiFi Network Info:\n"
+                    "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
+                    sm_actuals.hostname, sm_actuals.dns1, sm_actuals.dns2);
 
-    SAFE_APPEND("WiFi Settings:\n"
-                "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
-                sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway, sm_actuals.dhcp_enabled ? "enabled" : "static");
+        SAFE_APPEND("WiFi Settings:\n"
+                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
+                    sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway, sm_actuals.dhcp_enabled ? "enabled" : "static");
+    }
 
-    SAFE_APPEND("Ethernet Settings:\n"
-                "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
-                sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
+    // Ethernet section (only if enabled or connected)
+    if (sm_actuals.ethernet_enabled || sm_actuals.eth_connected)
+    {
+        SAFE_APPEND("Ethernet Stats:\n");
+        SAFE_APPEND("Ethernet Network Info:\n"
+                    "DNS1: %s\nDNS2: %s\n",
+                    sm_actuals.eth_dns1, sm_actuals.eth_dns2);
+
+        SAFE_APPEND("Ethernet Settings:\n"
+                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
+                    sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
+    }
 
     xSemaphoreGive(statemachine_mutex);
     return used;

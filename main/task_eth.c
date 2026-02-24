@@ -35,6 +35,13 @@ void task_eth_code(void *pvParameters)
     // Keep the task alive for diagnostics; event handlers do the work
     while (1)
     {
+        if (!ethernet_config_is_enabled())
+        {
+            LOGI(TAG, "Ethernet disabled in config; skipping checks and stopping driver");
+            eth_stop();
+            vTaskDelay(pdMS_TO_TICKS(30000));
+            continue;
+        }
         if (eth_is_connected())
         {
             esp_netif_ip_info_t ip;
@@ -52,7 +59,6 @@ void task_eth_code(void *pvParameters)
                 LOGE(TAG, "Ethernet restart failed: %s", esp_err_to_name(err));
             }
         }
-
         vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }

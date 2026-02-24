@@ -627,7 +627,7 @@ void formatted_day(char *buf, size_t bufsize)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
-    // esp_log_level_set("*", ESP_LOG_INFO);
+    esp_log_level_set("*", ESP_LOG_INFO);
 
     esp_log_level_set("bus_lock", ESP_LOG_NONE);
     esp_log_level_set("spi", ESP_LOG_NONE);
@@ -669,9 +669,9 @@ void set_log_levels(void)
     // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);      // Nothing is logged now
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
     esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
-    esp_log_level_set("i2c_functions", ESP_LOG_DEBUG);
+    esp_log_level_set("i2c_functions", ESP_LOG_INFO);
     esp_log_level_set("i2c_LCD", ESP_LOG_INFO);
-    esp_log_level_set("i2c_sensors", ESP_LOG_DEBUG);
+    esp_log_level_set("i2c_sensors", ESP_LOG_INFO);
     esp_log_level_set("Influxdb", ESP_LOG_INFO);
     esp_log_level_set("main", ESP_LOG_INFO);
     esp_log_level_set("MQTT", ESP_LOG_INFO);
@@ -683,7 +683,7 @@ void set_log_levels(void)
     esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
     esp_log_level_set("task_eth", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
-    esp_log_level_set("task_i2c_sensors", ESP_LOG_DEBUG);
+    esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
     esp_log_level_set("task_influxdb", ESP_LOG_INFO);
     esp_log_level_set("task_MQTT", ESP_LOG_INFO);
     esp_log_level_set("task_rgb_leds", ESP_LOG_INFO);
