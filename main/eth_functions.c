@@ -10,6 +10,7 @@ static const char *TAG = "Eth_func";
 
 esp_netif_t *eth_netif = NULL;
 esp_eth_handle_t eth_handle = NULL;
+static bool eth_started = false;
 
 // Internal state
 static volatile bool eth_connected = false;
@@ -148,6 +149,11 @@ void eth_start(void)
         LOGE(TAG, "eth_start: eth_handle is NULL, call eth_init() first");
         return;
     }
+    if (eth_started)
+    {
+        LOGI(TAG, "Ethernet already started");
+        return;
+    }
     esp_err_t err = esp_eth_start(eth_handle);
     if (err != ESP_OK)
     {
@@ -155,6 +161,7 @@ void eth_start(void)
     }
     else
     {
+        eth_started = true;
         LOGI(TAG, "Ethernet driver started");
     }
 }
@@ -166,6 +173,11 @@ void eth_stop(void)
         LOGW(TAG, "eth_stop: eth_handle is NULL");
         return;
     }
+    if (!eth_started)
+    {
+        LOGI(TAG, "Ethernet already stopped");
+        return;
+    }
     esp_err_t err = esp_eth_stop(eth_handle);
     if (err != ESP_OK)
     {
@@ -173,6 +185,7 @@ void eth_stop(void)
     }
     else
     {
+        eth_started = false;
         LOGI(TAG, "Ethernet driver stopped");
     }
 }
@@ -403,12 +416,12 @@ void eth_manager_start(void)
     ESP_ERROR_CHECK(esp_event_handler_register(
         IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
 
-    // 3. Start Ethernet driver ONLY if enabled
+    // Start Ethernet driver ONLY if enabled
     if (ethernet_config_is_enabled())
     {
         LOGI(TAG, "Starting Ethernet driver...");
         eth_start();
-        // 4. Apply DHCP/static configuration
+        // Apply DHCP/static configuration
         ethernet_config_apply();
     }
     else
