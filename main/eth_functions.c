@@ -269,8 +269,8 @@ esp_err_t ethernet_config_apply(void)
         return ESP_OK;
     }
 
-    LOGI(TAG, "Ethernet enabled in config; starting driver");
-    // eth_start();
+    LOGI(TAG, "Ethernet enabled in config; starting driver if needed");
+    eth_start();
 
     if (strcmp(local.enable_dhcp, "On") == 0)
     {
@@ -398,6 +398,8 @@ static void ip_event_handler(void *arg, esp_event_base_t event_base, int32_t eve
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         LOGI(TAG, "ETH got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        http_server_stop();
+        http_server_start();
     }
 }
 
