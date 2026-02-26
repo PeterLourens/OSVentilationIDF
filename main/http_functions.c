@@ -1112,6 +1112,12 @@ void ws_async_send(char *buf, size_t len)
 
 esp_err_t http_server_start(void)
 {
+    if (http_server)
+    {
+        LOGW(TAG, "HTTP server already running, skipping start");
+        return ESP_OK;
+    }
+
     esp_netif_t *netif = get_active_netif();
     if (!netif)
     {
@@ -1130,9 +1136,9 @@ esp_err_t http_server_start(void)
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = 80;
-    config.max_uri_handlers = 50;                 // increase from default 8 to 50
-    config.stack_size = 6144;                     // increase stack size for websocket handling
-    config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
+    config.max_uri_handlers = 50;
+    config.stack_size = 6144;
+    config.task_priority = tskIDLE_PRIORITY + 20;
 
     esp_err_t err = httpd_start(&http_server, &config);
     if (err != ESP_OK)
@@ -1485,6 +1491,10 @@ esp_err_t http_server_stop(void)
     if (http_server)
     {
         ret = httpd_stop(http_server);
+        if (ret == ESP_OK)
+        {
+            http_server = NULL;
+        }
     }
     else
     {

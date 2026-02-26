@@ -205,9 +205,11 @@ bool wifi_has_ip(void)
 // Function to check which network interface is active and return its handle, or NULL if none
 esp_netif_t *get_active_netif(void)
 {
+    // Ethernet always has priority
     if (eth_is_connected())
         return eth_netif;
 
+    // Only use Wi-Fi if Ethernet is not connected
     if (wifi_manager_is_connected())
         return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 
