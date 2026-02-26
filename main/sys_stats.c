@@ -258,8 +258,12 @@ static void update_wifi_info(void)
 static void update_ethernet_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
-    if (!netif)
+    sm_actuals.ethernet_enabled = eth_is_connected();
+    if (!netif || !sm_actuals.ethernet_enabled)
         return;
+
+    // if (!netif)
+    //     return;
 
     esp_netif_ip_info_t ip;
     if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
@@ -390,7 +394,7 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
     {
         SAFE_APPEND("\nWiFi Settings:\n"
-                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
+                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n",
                     sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway, sm_actuals.dhcp_enabled ? "enabled" : "static");
     }
 
