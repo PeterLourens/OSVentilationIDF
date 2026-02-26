@@ -59,7 +59,7 @@ function onMessage(event) {
 
     const page = document.getElementById("page_name");
 
-    console.log(event.data);
+    //console.log(event.data);
 
     if (page && page.innerHTML === "stats") {
 

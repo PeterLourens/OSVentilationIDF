@@ -379,11 +379,11 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                     sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
                     sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
 
-        SAFE_APPEND("WiFi Network Info:\n"
+        SAFE_APPEND("\nNetwork Info:\n"
                     "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
                     sm_actuals.hostname, sm_actuals.dns1, sm_actuals.dns2);
 
-        SAFE_APPEND("WiFi Settings:\n"
+        SAFE_APPEND("\nWiFi Settings:\n"
                     "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
                     sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway, sm_actuals.dhcp_enabled ? "enabled" : "static");
     }
@@ -391,7 +391,7 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     // Ethernet section (only if enabled or connected)
     if (sm_actuals.ethernet_enabled || sm_actuals.eth_connected)
     {
-        SAFE_APPEND("Ethernet Stats:\n");
+        SAFE_APPEND("\nEthernet Stats:\n");
         SAFE_APPEND("Ethernet Network Info:\n"
                     "DNS1: %s\nDNS2: %s\n",
                     sm_actuals.eth_dns1, sm_actuals.eth_dns2);
@@ -407,7 +407,7 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 
 void show_system_and_task_stats(void)
 {
-    const size_t buf_size = 64 * 1024;
+    const size_t buf_size = 8 * 1024;
     char *out = malloc(buf_size);
     if (!out)
         return;
@@ -421,6 +421,7 @@ void show_system_and_task_stats(void)
     used = append_heap_stats(out, used, buf_size);
     used = append_system_stats(out, used, buf_size);
 
+    ESP_LOGD(TAG, "Sending sys_stats over websocket, %zu bytes", used);
     ws_async_send(out, used);
     free(out);
 }

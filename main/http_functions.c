@@ -189,44 +189,42 @@ esp_err_t websocket_handler(httpd_req_t *req)
             return ret;
         }
 
-        if (strncmp((char *)ws_pkt.payload, "Start", 5) == 0)
+        if (strcmp((char *)ws_pkt.payload, "Start") == 0)
         {
-            // Redirect log output to the custom function
             esp_log_set_vprintf(websocket_log_output);
             LOGD(TAG, "Redirecting console to websocket");
         }
 
-        if (strncmp((char *)ws_pkt.payload, "Stop", 4) == 0)
+        if (strcmp((char *)ws_pkt.payload, "Stop") == 0)
         {
-            // Redirect log output to the custom function
             LOGD(TAG, "Stopped redirecting console to websocket");
             esp_log_set_vprintf(uart_log_output);
         }
 
-        if (strncmp((char *)ws_pkt.payload, "stats", 8) == 0)
+        if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
             LOGD(TAG, "Stats requested via WebSocket");
             show_system_and_task_stats();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "index", 9) == 0)
+        if (strcmp((char *)ws_pkt.payload, "index") == 0)
         {
             LOGD(TAG, "Index data requested via WebSocket");
             send_index_html_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "sensor_config", 17) == 0)
+        if (strcmp((char *)ws_pkt.payload, "sensor_config") == 0)
         {
             LOGD(TAG, "Sensor config requested via WebSocket");
             send_sensor_config_json_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "config", 10) == 0)
+        if (strcmp((char *)ws_pkt.payload, "config") == 0)
         {
             LOGD(TAG, "Config requested via WebSocket");
             send_config_json_ws();
         }
-        if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
+        if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
         {
             LOGD(TAG, "Statemachine config requested via WebSocket");
             send_statemachine_config_json_ws();
@@ -1065,8 +1063,13 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 
 void ws_async_send(char *buf, size_t len)
 {
+
+    ESP_LOGD(TAG, "ws_async_send: called with %zu bytes", len);
     if (http_server == NULL)
+    {
+        ESP_LOGW(TAG, "ws_async_send: http_server is NULL, not sending");
         return;
+    }
 
     httpd_ws_frame_t ws_pkt;
 
@@ -1082,19 +1085,28 @@ void ws_async_send(char *buf, size_t len)
     int client_fds[max_clients];
 
     esp_err_t ret = httpd_get_client_list(http_server, &fds, client_fds);
-
+    ESP_LOGD(TAG, "ws_async_send: httpd_get_client_list found %zu clients, ret=%d", fds, ret);
     if (ret != ESP_OK)
     {
+        ESP_LOGW(TAG, "ws_async_send: httpd_get_client_list failed");
         return;
     }
 
+    int sent = 0;
     for (int i = 0; i < fds; i++)
     {
         int client_info = httpd_ws_get_fd_info(http_server, client_fds[i]);
+        ESP_LOGD(TAG, "ws_async_send: client_fd[%d]=%d info=%d", i, client_fds[i], client_info);
         if (client_info == HTTPD_WS_CLIENT_WEBSOCKET)
         {
-            httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
+            esp_err_t sret = httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
+            ESP_LOGD(TAG, "ws_async_send: sent to client_fd[%d]=%d, sret=%d", i, client_fds[i], sret);
+            sent++;
         }
+    }
+    if (sent == 0)
+    {
+        ESP_LOGW(TAG, "ws_async_send: No WebSocket clients to send to");
     }
 }
 
