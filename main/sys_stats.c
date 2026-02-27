@@ -226,24 +226,24 @@ static void update_wifi_stats(void)
 static void update_wifi_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (!netif)
-        return;
+    // if (!netif)
+    //   return;
 
     esp_netif_ip_info_t ip;
     if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
     {
-        esp_ip4addr_ntoa(&ip.ip, sm_actuals.ip_addr, sizeof(sm_actuals.ip_addr));
-        esp_ip4addr_ntoa(&ip.netmask, sm_actuals.netmask, sizeof(sm_actuals.netmask));
-        esp_ip4addr_ntoa(&ip.gw, sm_actuals.gateway, sizeof(sm_actuals.gateway));
+        esp_ip4addr_ntoa(&ip.ip, sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr));
+        esp_ip4addr_ntoa(&ip.netmask, sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask));
+        esp_ip4addr_ntoa(&ip.gw, sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway));
     }
 
     // DNS
     esp_netif_dns_info_t dns;
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
-        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.dns1, sizeof(sm_actuals.dns1));
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1));
 
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
-        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.dns2, sizeof(sm_actuals.dns2));
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2));
 
     // Hostname
     const char *hostname = NULL;
@@ -252,15 +252,15 @@ static void update_wifi_info(void)
     else
         strcpy(sm_actuals.hostname, "<unknown>");
 
-    sm_actuals.dhcp_enabled = esp_netif_is_netif_up(netif);
+    sm_actuals.wifi_dhcp_enabled = esp_netif_is_netif_up(netif);
 }
 
 static void update_ethernet_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
-    sm_actuals.ethernet_enabled = eth_is_connected();
-    if (!netif || !sm_actuals.ethernet_enabled)
-        return;
+    // sm_actuals.ethernet_enabled = eth_is_connected();
+    // if (!netif || !sm_actuals.ethernet_enabled)
+    // return;
 
     // if (!netif)
     //     return;
@@ -388,14 +388,14 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     {
         SAFE_APPEND("\nNetwork Info:\n"
                     "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
-                    sm_actuals.hostname, sm_actuals.dns1, sm_actuals.dns2);
+                    sm_actuals.hostname, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2);
     }
 
     if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
     {
         SAFE_APPEND("\nWiFi Settings:\n"
                     "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n",
-                    sm_actuals.ip_addr, sm_actuals.netmask, sm_actuals.gateway, sm_actuals.dhcp_enabled ? "enabled" : "static");
+                    sm_actuals.wifi_ip_addr, sm_actuals.wifi_netmask, sm_actuals.wifi_gateway, sm_actuals.wifi_dhcp_enabled ? "enabled" : "static");
     }
 
     // Ethernet section (only if enabled or connected)
@@ -419,6 +419,7 @@ void show_system_and_task_stats(void)
 
     size_t used = 0;
 
+    // Update is done globally
     // sys_stats_update_actuals();
 
     used = append_header(out, used, buf_size);

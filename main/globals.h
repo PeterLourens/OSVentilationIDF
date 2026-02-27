@@ -324,12 +324,12 @@ typedef struct
     char wifi_ssid[LARGE_CONFIG_ITEM];
     char hostname[MEDIUM_CONFIG_ITEM];
 
-    char ip_addr[SMALL_CONFIG_ITEM];
-    char netmask[SMALL_CONFIG_ITEM];
-    char gateway[SMALL_CONFIG_ITEM];
-    char dns1[SMALL_CONFIG_ITEM];
-    char dns2[SMALL_CONFIG_ITEM];
-    bool dhcp_enabled;
+    char wifi_ip_addr[SMALL_CONFIG_ITEM];
+    char wifi_netmask[SMALL_CONFIG_ITEM];
+    char wifi_gateway[SMALL_CONFIG_ITEM];
+    char wifi_dns1[SMALL_CONFIG_ITEM];
+    char wifi_dns2[SMALL_CONFIG_ITEM];
+    bool wifi_dhcp_enabled;
     bool wifi_enabled;
 
     char eth_ip_addr[SMALL_CONFIG_ITEM];

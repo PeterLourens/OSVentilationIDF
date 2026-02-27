@@ -18,7 +18,7 @@
 
 #include "logging.h"
 #include "globals.h"
-// #include "wifi_functions.h"
+#include "sys_stats.h"
 
 extern esp_netif_t *eth_netif;
 extern esp_eth_handle_t eth_handle;

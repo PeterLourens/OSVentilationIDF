@@ -365,6 +365,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         }
         http_server_stop();
         http_server_start();
+        sys_stats_update_actuals();
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
