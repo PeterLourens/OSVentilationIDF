@@ -339,6 +339,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
     if (bits & WIFI_CONNECTED_BIT)
     {
         LOGI(TAG, "Connected to SSID: %s", settings->ssid);
+        // update_hostname();
         return ESP_OK;
     }
     else if (bits & WIFI_FAIL_BIT)

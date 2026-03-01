@@ -243,6 +243,8 @@ static bool validate_ipv4_string(const char *s)
 
 esp_err_t ethernet_config_apply(void)
 {
+    char hostname[32] = {0};
+
     if (!eth_netif)
     {
         LOGW(TAG, "eth_netif is NULL; call eth_init() before applying config");
@@ -254,6 +256,7 @@ esp_err_t ethernet_config_apply(void)
     {
         LOGI(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
         memcpy(&local, &ethernet_config, sizeof(Ethernet_config_t));
+        strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -267,6 +270,13 @@ esp_err_t ethernet_config_apply(void)
         LOGI(TAG, "Ethernet disabled in config; stopping driver");
         eth_stop();
         return ESP_OK;
+    }
+
+    LOGI(TAG, "Setting Ethernet hostname to: %s", hostname);
+    esp_err_t herr = esp_netif_set_hostname(eth_netif, hostname);
+    if (herr != ESP_OK)
+    {
+        LOGW(TAG, "Failed to set Ethernet hostname: %s", esp_err_to_name(herr));
     }
 
     LOGI(TAG, "Ethernet enabled in config; starting driver if needed");
@@ -357,7 +367,7 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     {
     case ETHERNET_EVENT_CONNECTED:
         LOGI(TAG, "ETH_EVENT: connected");
-        eth_connected = true; // ← add this
+        eth_connected = true;
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
@@ -366,11 +376,12 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
         http_server_stop();
         http_server_start();
         sys_stats_update_actuals();
+        // update_hostname();
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETH_EVENT: disconnected");
-        eth_connected = false; // ← add this
+        eth_connected = false;
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = false;

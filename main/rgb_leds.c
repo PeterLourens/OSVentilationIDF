@@ -200,12 +200,14 @@ void leds_update(const Statemachine_actuals_t *sm)
     // --- LED1: Network status at startup, fanspeed with periodic blink when running ---
     static bool startup_mode = true;
     static bool blink_override = false;
-    static bool net_toggle = false;
+    // static bool net_toggle = false;
+    static bool net_phase = false; // false = ETH color, true = WIFI color
 
     static int startup_counter = 0;
 
     static uint32_t blink_start_ms = 0;
     static uint32_t last_blink_ms = 0;
+    static uint32_t net_last_switch_ms = 0;
 
     // Detect end of startup: after 5 seconds or both network interfaces checked
     if (startup_mode)
@@ -219,13 +221,20 @@ void leds_update(const Statemachine_actuals_t *sm)
 
     uint32_t now = (uint32_t)(esp_timer_get_time() / 1000); // ms
 
-    ColorName_t net_color;
+    ColorName_t net_color = COLOR_RED;
 
     if (sm_snap.eth_connected && sm_snap.wifi_connected)
     {
-        // Alternate between Ethernet and WiFi color
-        net_toggle = !net_toggle;
-        net_color = net_toggle ? COLOR_MAGENTA : COLOR_BLUE;
+        // Alternate colors with delay
+        uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+
+        if (now_ms - net_last_switch_ms > 500) // 500 ms delay between colors
+        {
+            net_phase = !net_phase;
+            net_last_switch_ms = now_ms;
+        }
+
+        net_color = net_phase ? COLOR_BLUE : COLOR_MAGENTA;
     }
     else if (sm_snap.eth_connected)
     {

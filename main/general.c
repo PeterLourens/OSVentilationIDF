@@ -216,6 +216,41 @@ esp_netif_t *get_active_netif(void)
     return NULL;
 }
 
+void update_hostname(void)
+{
+    const char *hostname = NULL;
+
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        LOGW(TAG, "Could not take statemachine_mutex to update hostname");
+        return;
+    }
+
+    esp_netif_t *netif = NULL;
+
+    // Prefer Ethernet
+    if (sm_actuals.eth_connected)
+    {
+        netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    }
+    // Fall back to Wi-Fi
+    else if (sm_actuals.wifi_connected)
+    {
+        netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    }
+
+    if (netif && esp_netif_get_hostname(netif, &hostname) == ESP_OK && hostname)
+    {
+        snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hostname);
+    }
+    else
+    {
+        strcpy(sm_actuals.hostname, "<unknown>");
+    }
+
+    xSemaphoreGive(statemachine_mutex);
+}
+
 bool network_has_ip(void)
 {
     esp_netif_t *netif = get_active_netif();

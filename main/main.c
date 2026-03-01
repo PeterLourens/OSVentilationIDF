@@ -241,6 +241,7 @@ void app_main(void)
         ESP_LOGI(TAG, "System uptime: %s", uptime_str);
 
         sys_stats_update_actuals();
+        update_hostname();
         ESP_LOGI(TAG, "Updated system stats");
 
         // Ensure connected and have IP before pinging (check esp_netif_get_ip_info)

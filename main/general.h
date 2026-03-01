@@ -25,6 +25,7 @@ esp_err_t init_littlefs(void);
 esp_err_t read_file(const char *, char *, size_t);
 esp_err_t create_mutexes(void);
 
+void update_hostname(void);
 bool is_valid_ip_address(const char *);
 bool wifi_has_ip(void);
 esp_netif_t *get_active_netif(void);
