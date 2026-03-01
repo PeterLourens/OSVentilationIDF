@@ -366,27 +366,37 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
     switch (event_id)
     {
     case ETHERNET_EVENT_CONNECTED:
+
         LOGI(TAG, "ETH_EVENT: connected");
+
         eth_connected = true;
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
         }
+
         http_server_stop();
         http_server_start();
+        update_syslog_state();
         sys_stats_update_actuals();
-        // update_hostname();
+        update_hostname();
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
+
         LOGW(TAG, "ETH_EVENT: disconnected");
+
         eth_connected = false;
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
         {
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
+
+        update_syslog_state();
         break;
 
     case ETHERNET_EVENT_START:

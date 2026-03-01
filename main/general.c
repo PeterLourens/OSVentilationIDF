@@ -251,6 +251,41 @@ void update_hostname(void)
     xSemaphoreGive(statemachine_mutex);
 }
 
+// Helper function to enable or disable syslog based on current network state
+void update_syslog_state(void)
+{
+    bool wifi, eth;
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
+    {
+        wifi = sm_actuals.wifi_connected;
+        eth = sm_actuals.eth_connected;
+        xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW("SYSLOG", "Could not take statemachine_mutex");
+        return;
+    }
+
+    static bool syslog_running = false;
+
+    bool should_run = wifi || eth;
+
+    if (should_run && !syslog_running)
+    {
+        syslog_enable();
+        syslog_running = true;
+        LOGI("SYSLOG", "Syslog enabled");
+    }
+    else if (!should_run && syslog_running)
+    {
+        syslog_disable();
+        syslog_running = false;
+        LOGI("SYSLOG", "Syslog disabled");
+    }
+}
+
 bool network_has_ip(void)
 {
     esp_netif_t *netif = get_active_netif();

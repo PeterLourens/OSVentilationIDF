@@ -197,9 +197,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
                 LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
             }
 
-            // Disable syslog
-            syslog_disable();
-
+            update_syslog_state();
             break;
 
         case WIFI_EVENT_AP_START:
@@ -236,8 +234,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
         LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
 
-        // Safe to enable syslog
-        syslog_enable();
+        update_syslog_state();
 
         s_retry_num = 0;
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
