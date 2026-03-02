@@ -264,7 +264,7 @@ void update_syslog_state(void)
     }
     else
     {
-        LOGW("SYSLOG", "Could not take statemachine_mutex");
+        LOGW(TAG, "Could not take statemachine_mutex");
         return;
     }
 
@@ -276,13 +276,13 @@ void update_syslog_state(void)
     {
         syslog_enable();
         syslog_running = true;
-        LOGI("SYSLOG", "Syslog enabled");
+        LOGI(TAG, "Syslog enabled");
     }
     else if (!should_run && syslog_running)
     {
         syslog_disable();
         syslog_running = false;
-        LOGI("SYSLOG", "Syslog disabled");
+        LOGI(TAG, "Syslog disabled");
     }
 }
 

@@ -1,7 +1,7 @@
 {
     "enable_wifi": "Off",
     "enable_dhcp": "On",
-    "hostname": "OSVentilationIDFdev2",
+    "hostname": "OSVentilationIDFdev",
     "ssid": "DIRK3",
     "wifi_password": "095679706460482465742852",
     "ip_address": "192.168.0.199",

@@ -216,6 +216,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
             {
                 LOGW(TAG, "task_rgb_leds is NULL; cannot notify of WiFi disconnect");
             }
+            update_syslog_state();
             break;
 
         case WIFI_EVENT_AP_STACONNECTED:
