@@ -244,26 +244,16 @@ static void update_wifi_info(void)
 
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2));
-
-    // Hostname
-    // const char *hostname = NULL;
-    // if (esp_netif_get_hostname(netif, &hostname) == ESP_OK && hostname)
-    //    snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hostname);
-    // else
-    //    strcpy(sm_actuals.hostname, "<unknown>");
-
-    // sm_actuals.wifi_dhcp_enabled = esp_netif_is_netif_up(netif);
 }
 
 static void update_ethernet_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
-    // sm_actuals.ethernet_enabled = eth_is_connected();
-    // if (!netif || !sm_actuals.ethernet_enabled)
-    // return;
-
-    // if (!netif)
-    //     return;
+    if (!netif)
+    {
+        LOGW(TAG, "ETH_DEF netif not found");
+        return;
+    }
 
     esp_netif_ip_info_t ip;
     if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
@@ -272,15 +262,29 @@ static void update_ethernet_info(void)
         esp_ip4addr_ntoa(&ip.netmask, sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask));
         esp_ip4addr_ntoa(&ip.gw, sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway));
     }
+    else
+    {
+        // Assign defaults when no IP yet
+        strcpy(sm_actuals.eth_ip_addr, "0.0.0.0");
+        strcpy(sm_actuals.eth_netmask, "0.0.0.0");
+        strcpy(sm_actuals.eth_gateway, "0.0.0.0");
+    }
+
+    LOGI(TAG, "Update actuals: Ethernet IP: %s", sm_actuals.eth_ip_addr);
 
     // DNS
     esp_netif_dns_info_t dns;
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1));
+    else
+        strcpy(sm_actuals.eth_dns1, "0.0.0.0");
 
     if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2));
+    else
+        strcpy(sm_actuals.eth_dns2, "0.0.0.0");
 
+    // DHCP state (true = interface UP)
     sm_actuals.eth_dhcp_enabled = esp_netif_is_netif_up(netif);
 }
 
@@ -384,35 +388,35 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                     sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
     }
 
-    if (sm_actuals.wifi_connected || !sm_actuals.eth_connected)
-    {
-        SAFE_APPEND("\nNetwork Info:\n"
-                    "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
-                    sm_actuals.hostname, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2);
-    }
+    // if (sm_actuals.wifi_connected || !sm_actuals.eth_connected)
+    //{
+    //     SAFE_APPEND("\nNetwork Info:\n"
+    //                 "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
+    //                 sm_actuals.hostname, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2);
+    // }
 
     // Ethernet section (only if enabled or connected)
-    if (sm_actuals.eth_connected)
-    {
-        SAFE_APPEND("\nNetwork Info:\n"
-                    "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
-                    sm_actuals.hostname, sm_actuals.eth_dns1, sm_actuals.eth_dns2);
-    }
+    // if (sm_actuals.eth_connected)
+    //{
+    //    SAFE_APPEND("\nNetwork Info:\n"
+    //                "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
+    //                sm_actuals.hostname, sm_actuals.eth_dns1, sm_actuals.eth_dns2);
+    //}
 
     // Wi-Fi network info (only if enabled or connected)
     if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
     {
         SAFE_APPEND("\nWiFi Settings:\n"
-                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n",
-                    sm_actuals.wifi_ip_addr, sm_actuals.wifi_netmask, sm_actuals.wifi_gateway, sm_actuals.wifi_dhcp_enabled ? "enabled" : "static");
+                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n",
+                    sm_actuals.hostname, sm_actuals.wifi_ip_addr, sm_actuals.wifi_netmask, sm_actuals.wifi_gateway, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2, sm_actuals.wifi_dhcp_enabled ? "enabled" : "static");
     }
 
     // Ethernet section (only if enabled or connected)
     if (sm_actuals.ethernet_enabled || sm_actuals.eth_connected)
     {
         SAFE_APPEND("\nEthernet Settings:\n"
-                    "IP: %s\nNetmask: %s\nGateway: %s\nDHCP: %s\n\n",
-                    sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
+                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
+                    sm_actuals.hostname, sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.eth_dns1, sm_actuals.eth_dns2, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
     }
 
     xSemaphoreGive(statemachine_mutex);
