@@ -278,6 +278,20 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
         escape_tag(valve_esc, sizeof(valve_esc), meta->valve);
         escape_tag(loc_esc, sizeof(loc_esc), meta->location);
 
+        // If any of the fields are empty, set to "unknown" or "none" to avoid Influx tag parsing issues
+        if (type_esc[0] == '\0')
+        {
+            strcpy(type_esc, "None");
+        }
+        if (loc_esc[0] == '\0')
+        {
+            strcpy(loc_esc, "None");
+        }
+        if (valve_esc[0] == '\0')
+        {
+            strcpy(valve_esc, "None");
+        }
+
         char sensor_id[32];
         snprintf(sensor_id, sizeof(sensor_id), "bus%d_ch%d", bus, ch);
 
