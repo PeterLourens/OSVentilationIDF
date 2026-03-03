@@ -162,6 +162,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              "wifi_error=%s,"
              "wifi_connected=%s,"
              "wifi_ap_mode=%s,"
+             "ethernet_connected=%s,"
+             "ethernet_enabled=%s,"
              "wifi_rssi=%d,"
              "wifi_channel=%d,"
              "wifi_authmode=%d,"
@@ -189,6 +191,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              sm_actuals.wifi_error ? "true" : "false",
              sm_actuals.wifi_connected ? "true" : "false",
              sm_actuals.wifi_ap_mode ? "true" : "false",
+             sm_actuals.eth_connected ? "true" : "false",
+             sm_actuals.ethernet_enabled ? "true" : "false",
              sm_actuals.wifi_rssi,
              sm_actuals.wifi_channel,
              sm_actuals.wifi_authmode,

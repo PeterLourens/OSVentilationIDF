@@ -312,8 +312,6 @@ typedef struct
     bool wifi_connected;
     bool wifi_ap_mode;
 
-    bool eth_connected;
-
     // System stats
     int wifi_rssi;
     int wifi_channel;
@@ -339,6 +337,7 @@ typedef struct
     char eth_dns2[SMALL_CONFIG_ITEM];
     bool eth_dhcp_enabled;
     bool ethernet_enabled;
+    bool eth_connected;
 
     int cpu_temp;
 

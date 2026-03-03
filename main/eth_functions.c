@@ -6,7 +6,7 @@
 
 #include "eth_functions.h"
 
-static const char *TAG = "Eth_func";
+static const char *TAG = "eth_func";
 
 esp_netif_t *eth_netif = NULL;
 esp_eth_handle_t eth_handle = NULL;

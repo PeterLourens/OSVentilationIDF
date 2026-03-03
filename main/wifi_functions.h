@@ -13,8 +13,8 @@
 #include <sys/socket.h>
 
 #include "globals.h"
-#include "general.h"
 #include "logging.h"
+#include "network_functions.h"
 
 #define MAXIMUM_RETRY 5
 
