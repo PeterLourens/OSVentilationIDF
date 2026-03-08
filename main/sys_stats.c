@@ -182,14 +182,13 @@ static void update_stack_watermarks(void)
 {
     sm_actuals.stack_i2c_sensors = uxTaskGetStackHighWaterMark(task_i2c_sensors);
     sm_actuals.stack_i2c_ds3231 = uxTaskGetStackHighWaterMark(task_i2c_ds3231);
-    sm_actuals.stack_wifi = uxTaskGetStackHighWaterMark(task_wifi);
-    sm_actuals.stack_eth = uxTaskGetStackHighWaterMark(task_ethernet);
     sm_actuals.stack_i2c_lcd = uxTaskGetStackHighWaterMark(task_i2c_lcd);
     sm_actuals.stack_rgb_leds = uxTaskGetStackHighWaterMark(task_rgb_leds);
     sm_actuals.stack_statemachine = uxTaskGetStackHighWaterMark(task_statemachine);
     sm_actuals.stack_valvectrl = uxTaskGetStackHighWaterMark(task_valvectrl);
     sm_actuals.stack_mqtt = uxTaskGetStackHighWaterMark(task_mqtt);
     sm_actuals.stack_influxdb = uxTaskGetStackHighWaterMark(task_influxdb);
+    sm_actuals.stack_network_manager = uxTaskGetStackHighWaterMark(network_manager_task_handle);
 }
 
 static void update_wifi_stats(void)
@@ -213,21 +212,24 @@ static void update_wifi_stats(void)
         sm_actuals.wifi_authmode = -1;
         sm_actuals.wifi_phy = 0;
         sm_actuals.wifi_bandwidth = 0;
-        strcpy(sm_actuals.wifi_bssid, "00:00:00:00:00:00");
+        snprintf(sm_actuals.wifi_ssid, sizeof(sm_actuals.wifi_ssid), "%s", "00:00:00:00:00:00");
     }
 
     wifi_config_t cfg;
     if (esp_wifi_get_config(WIFI_IF_STA, &cfg) == ESP_OK)
         snprintf(sm_actuals.wifi_ssid, sizeof(sm_actuals.wifi_ssid), "%s", (char *)cfg.sta.ssid);
     else
-        strcpy(sm_actuals.wifi_ssid, "<unknown>");
+        snprintf(sm_actuals.wifi_ssid, sizeof(sm_actuals.wifi_ssid), "%s", "<unknown>");
 }
 
 static void update_wifi_info(void)
 {
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    // if (!netif)
-    //   return;
+    if (!netif)
+    {
+        LOGW(TAG, "WIFI_STA_DEF netif not found");
+        return;
+    }
 
     esp_netif_ip_info_t ip;
     if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
@@ -248,44 +250,130 @@ static void update_wifi_info(void)
 
 static void update_ethernet_info(void)
 {
+    /* Local scratch buffers to avoid holding mutex while calling esp-netif APIs */
+    char ipbuf[16] = "0.0.0.0";
+    char nm[16] = "0.0.0.0";
+    char gw[16] = "0.0.0.0";
+    char dns1[16] = "0.0.0.0";
+    char dns2[16] = "0.0.0.0";
+    bool dhcp = false;
+
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (!netif)
     {
-        LOGW(TAG, "ETH_DEF netif not found");
-        return;
-    }
-
-    esp_netif_ip_info_t ip;
-    if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
-    {
-        esp_ip4addr_ntoa(&ip.ip, sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr));
-        esp_ip4addr_ntoa(&ip.netmask, sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask));
-        esp_ip4addr_ntoa(&ip.gw, sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway));
+        LOGW(TAG, "ETH_DEF netif not found; will write defaults into actuals");
+        /* fall through to update sm_actuals with defaults below */
     }
     else
     {
-        // Assign defaults when no IP yet
-        strcpy(sm_actuals.eth_ip_addr, "0.0.0.0");
-        strcpy(sm_actuals.eth_netmask, "0.0.0.0");
-        strcpy(sm_actuals.eth_gateway, "0.0.0.0");
+        LOGI(TAG, "ETH_DEF netif handle: %p", (void *)netif);
+
+        /* Query IP info once */
+        esp_netif_ip_info_t ip;
+        esp_err_t err = esp_netif_get_ip_info(netif, &ip);
+        if (err == ESP_OK && ip.ip.addr != 0)
+        {
+            esp_ip4addr_ntoa(&ip.ip, ipbuf, sizeof(ipbuf));
+            esp_ip4addr_ntoa(&ip.netmask, nm, sizeof(nm));
+            esp_ip4addr_ntoa(&ip.gw, gw, sizeof(gw));
+            LOGI(TAG, "Got ETH IP: %s netmask: %s gw: %s", ipbuf, nm, gw);
+        }
+        else
+        {
+            LOGW(TAG, "esp_netif_get_ip_info failed or no IP assigned: %s (0x%08X)",
+                 esp_err_to_name(err), err);
+            /* ipbuf/nm/gw remain "0.0.0.0" */
+        }
+
+        /* DNS main */
+        esp_netif_dns_info_t dns;
+        err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns);
+        if (err == ESP_OK)
+        {
+            esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, dns1, sizeof(dns1));
+            LOGI(TAG, "ETH DNS1: %s", dns1);
+        }
+        else
+        {
+            LOGW(TAG, "esp_netif_get_dns_info (MAIN) failed: %s (0x%08X)", esp_err_to_name(err), err);
+        }
+
+        /* DNS backup */
+        err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns);
+        if (err == ESP_OK)
+        {
+            esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, dns2, sizeof(dns2));
+            LOGI(TAG, "ETH DNS2: %s", dns2);
+        }
+        else
+        {
+            LOGW(TAG, "esp_netif_get_dns_info (BACKUP) failed: %s (0x%08X)", esp_err_to_name(err), err);
+        }
+
+        /* DHCP state (helper may take its own mutex) */
+        dhcp = ethernet_config_is_dhcp_enabled();
     }
 
-    LOGI(TAG, "Update actuals: Ethernet IP: %s", sm_actuals.eth_ip_addr);
+    /* Now update the global actuals under the statemachine mutex in one shot.
+       Try a few times with short delays so we don't silently skip the update and leave empty strings. */
+    const TickType_t try_delay = pdMS_TO_TICKS(20);
+    const int max_attempts = 5;
+    int attempt;
+    bool updated = false;
 
-    // DNS
-    esp_netif_dns_info_t dns;
-    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
-        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1));
-    else
-        strcpy(sm_actuals.eth_dns1, "0.0.0.0");
+    for (attempt = 0; attempt < max_attempts; ++attempt)
+    {
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 0) == pdTRUE)
+        {
+            /* Copy the local scratch buffers into the global actuals */
+            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", ipbuf);
+            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", nm);
+            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", gw);
+            snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", dns1);
+            snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", dns2);
+            sm_actuals.eth_dhcp_enabled = dhcp;
+            xSemaphoreGive(statemachine_mutex);
+            updated = true;
+            break;
+        }
 
-    if (esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
-        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2));
-    else
-        strcpy(sm_actuals.eth_dns2, "0.0.0.0");
+        /* If we couldn't take the mutex immediately, wait a bit and retry */
+        vTaskDelay(try_delay);
+    }
 
-    // DHCP state (true = interface UP)
-    sm_actuals.eth_dhcp_enabled = esp_netif_is_netif_up(netif);
+    if (!updated)
+    {
+        /* Last-ditch attempt with a blocking take (short timeout) to avoid leaving empty fields */
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) == pdTRUE)
+        {
+            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", ipbuf);
+            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", nm);
+            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", gw);
+            snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", dns1);
+            snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", dns2);
+            sm_actuals.eth_dhcp_enabled = dhcp;
+            xSemaphoreGive(statemachine_mutex);
+            updated = true;
+        }
+    }
+
+    if (!updated)
+    {
+        LOGW(TAG, "update_ethernet_info: failed to take statemachine_mutex to update actuals (will retry later)");
+    }
+
+    /* Extra debug: if netif exists, check whether it reports an IP (useful if esp_netif_get_ip_info succeeded but IP==0) */
+    if (netif)
+    {
+        esp_netif_ip_info_t ip_check;
+        if (esp_netif_get_ip_info(netif, &ip_check) == ESP_OK && ip_check.ip.addr == 0)
+        {
+            LOGW(TAG, "ETH netif has no IP assigned (ip.addr == 0)");
+        }
+    }
+
+    LOGI(TAG, "Update actuals: Ethernet IP: %s, DNS1: %s, DNS2: %s, DHCP: %s",
+         sm_actuals.eth_ip_addr, sm_actuals.eth_dns1, sm_actuals.eth_dns2, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
 }
 
 void sys_stats_update_actuals(void)
@@ -296,9 +384,49 @@ void sys_stats_update_actuals(void)
     update_cpu_temp();
     update_heap_stats();
     update_stack_watermarks();
-    update_wifi_stats();
-    update_wifi_info();
-    update_ethernet_info();
+    // update_wifi_stats();
+    // update_wifi_info();
+    // update_ethernet_info();
+
+    if (sm_actuals.wifi_connected)
+    {
+        update_wifi_stats();
+        update_wifi_info();
+    }
+    else
+    {
+        // Wi-Fi enabled but not connected → clear stats
+        sm_actuals.wifi_rssi = -127;
+        sm_actuals.wifi_channel = -1;
+        sm_actuals.wifi_authmode = -1;
+        sm_actuals.wifi_phy = 0;
+        sm_actuals.wifi_bandwidth = 0;
+
+        snprintf(sm_actuals.wifi_ssid, sizeof(sm_actuals.wifi_ssid), "%s", "00:00:00:00:00:00");
+        snprintf(sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr), "%s", "0.0.0.0");
+        snprintf(sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask), "%s", "0.0.0.0");
+        snprintf(sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway), "%s", "0.0.0.0");
+        snprintf(sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1), "%s", "0.0.0.0");
+        snprintf(sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2), "%s", "0.0.0.0");
+    }
+
+    bool eth_connected_now = eth_is_connected();
+    // bool eth_has_ip_now = network_has_ip();
+
+    if (eth_connected_now)
+    {
+        // If the link is up, attempt to refresh the ethernet info (update_ethernet_info will handle missing IPs and write defaults).
+        update_ethernet_info();
+    }
+    else
+    {
+        /* only clear when interface is definitely down / no IP */
+        snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", "0.0.0.0");
+        snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", "0.0.0.0");
+        snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", "0.0.0.0");
+        snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", "0.0.0.0");
+        snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", "0.0.0.0");
+    }
 
     xSemaphoreGive(statemachine_mutex);
 }
@@ -371,10 +499,17 @@ static size_t append_heap_stats(char *out, size_t used, size_t buf_size)
     return used;
 }
 
-static size_t append_system_stats(char *out, size_t used, size_t buf_size)
+/*static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 {
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
         return used;
+
+    // Log the deciding flags and a quick snapshot
+    LOGI(TAG, "append_system_stats: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d",
+         sm_actuals.wifi_enabled, sm_actuals.wifi_connected, sm_actuals.ethernet_enabled, sm_actuals.eth_connected);
+
+    LOGI(TAG, "append_system_stats snapshot: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
+         sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.wifi_ip_addr);
 
     SAFE_APPEND("\nHardware Stats:\nCPU Temp: %d C\n", sm_actuals.cpu_temp);
 
@@ -387,21 +522,6 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                     sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
                     sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
     }
-
-    // if (sm_actuals.wifi_connected || !sm_actuals.eth_connected)
-    //{
-    //     SAFE_APPEND("\nNetwork Info:\n"
-    //                 "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
-    //                 sm_actuals.hostname, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2);
-    // }
-
-    // Ethernet section (only if enabled or connected)
-    // if (sm_actuals.eth_connected)
-    //{
-    //    SAFE_APPEND("\nNetwork Info:\n"
-    //                "Hostname: %s\nDNS1: %s\nDNS2: %s\n",
-    //                sm_actuals.hostname, sm_actuals.eth_dns1, sm_actuals.eth_dns2);
-    //}
 
     // Wi-Fi network info (only if enabled or connected)
     if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
@@ -421,11 +541,64 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 
     xSemaphoreGive(statemachine_mutex);
     return used;
+}*/
+
+static size_t append_system_stats(char *out, size_t used, size_t buf_size)
+{
+    Statemachine_actuals_t snapshot;
+
+    // Take a short-lived lock and copy the global actuals into a local snapshot
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+        return used;
+
+    snapshot = sm_actuals; // shallow copy; ensure sm_actuals_t contains no pointers
+    xSemaphoreGive(statemachine_mutex);
+
+    // Debug: log the snapshot we will print
+    LOGI(TAG, "append_system_stats snapshot: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d\n",
+         snapshot.wifi_enabled, snapshot.wifi_connected, snapshot.ethernet_enabled, snapshot.eth_connected);
+    LOGI(TAG, "append_system_stats snapshot values: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
+         snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway, snapshot.wifi_ip_addr);
+
+    // Now format using the snapshot (no mutex held)
+    SAFE_APPEND("\nHardware Stats:\nCPU Temp: %d C\n", snapshot.cpu_temp);
+
+    if (snapshot.wifi_enabled || snapshot.wifi_connected)
+    {
+        SAFE_APPEND("\nWiFi Stats:\n"
+                    "SSID: %s\nBSSID: %s\nRSSI: %d dBm\nChannel: %d\nPHY: %s\nBandwidth: %d MHz\nAuthmode: %s\n",
+                    snapshot.wifi_ssid, snapshot.wifi_bssid, snapshot.wifi_rssi,
+                    snapshot.wifi_channel, wifi_phy_to_str(snapshot.wifi_phy),
+                    snapshot.wifi_bandwidth, wifi_authmode_to_str(snapshot.wifi_authmode));
+    }
+
+    if (snapshot.wifi_enabled || snapshot.wifi_connected)
+    {
+        SAFE_APPEND("\nWiFi Settings:\n"
+                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n",
+                    snapshot.hostname, snapshot.wifi_ip_addr, snapshot.wifi_netmask, snapshot.wifi_gateway,
+                    snapshot.wifi_dns1, snapshot.wifi_dns2, snapshot.wifi_dhcp_enabled ? "enabled" : "static");
+    }
+
+    if (snapshot.ethernet_enabled || snapshot.eth_connected)
+    {
+        SAFE_APPEND("\nEthernet Settings:\n"
+                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
+                    snapshot.hostname, snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway,
+                    snapshot.eth_dns1, snapshot.eth_dns2, snapshot.eth_dhcp_enabled ? "enabled" : "static");
+    }
+    else
+    {
+        LOGD(TAG, "Skipping Ethernet Settings in output: ethernet_enabled=%d eth_connected=%d",
+             snapshot.ethernet_enabled, snapshot.eth_connected);
+    }
+
+    return used;
 }
 
 void show_system_and_task_stats(void)
 {
-    const size_t buf_size = 8 * 1024;
+    const size_t buf_size = 16 * 1024;
     char *out = malloc(buf_size);
     if (!out)
         return;

@@ -11,8 +11,46 @@ const char *TAG = "syslog";
 // Enable syslog when wifi network is connected
 bool syslog_enabled = false;
 
+static bool syslog_network_ready(void)
+{
+    // Ethernet preferred
+    if (eth_is_connected())
+    {
+        esp_netif_t *n = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (!n)
+            return false;
+
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(n, &ip) != ESP_OK)
+            return false;
+
+        return ip.ip.addr != 0; // Only true after DHCP completed
+    }
+
+    // WiFi fallback
+    if (wifi_manager_is_connected())
+    {
+        esp_netif_t *n = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (!n)
+            return false;
+
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(n, &ip) != ESP_OK)
+            return false;
+
+        return ip.ip.addr != 0;
+    }
+
+    return false;
+}
+
 void syslog_send_line(const char *line)
 {
+    if (!syslog_network_ready())
+    {
+        return;
+    }
+
     if (!line || !*line)
     {
         ESP_LOGW(TAG, "Empty line, nothing to send");
@@ -63,13 +101,13 @@ void syslog_send_line(const char *line)
     }
 
     if (strlen(hostname) == 0)
-        strcpy(hostname, "set hostame");
+        snprintf(hostname, sizeof(hostname), "%s", "set hostname");
 
     if (strlen(appname) == 0)
-        strcpy(appname, "set app name");
+        snprintf(appname, sizeof(appname), "%s", "set app name");
 
     if (strlen(device_id) == 0)
-        strcpy(appname, "set device ID");
+        snprintf(device_id, sizeof(device_id), "%s", "set device ID");
 
     /* ---- Build syslog message ---- */
     char *msg = NULL;
@@ -114,60 +152,6 @@ void syslog_send_line(const char *line)
     close(sock);
     free(msg);
 }
-
-/* ---- Minimal UDP syslog sender (RFC3164-ish) ---- */
-/*void syslog_send_line(const char *line)
-{
-    if (!line || !*line)
-    {
-        ESP_LOGW(TAG, "Empty line, nothing to send");
-        return;
-    }
-
-    // Format syslog message: <PRI>TAG: message\n
-    char *msg = NULL;
-    int n = asprintf(&msg, "<13>esp32: %s\n", line);
-    if (n < 0 || !msg)
-    {
-        ESP_LOGE(TAG, "asprintf failed");
-        return;
-    }
-
-    // Create UDP socket
-    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock < 0)
-    {
-        ESP_LOGE(TAG, "socket() failed: errno=%d", errno);
-        free(msg);
-        return;
-    }
-
-    struct sockaddr_in dest;
-    memset(&dest, 0, sizeof(dest));
-    dest.sin_family = AF_INET;
-    dest.sin_port = htons(SYSLOG_SERVER_PORT);
-    if (!inet_aton(SYSLOG_SERVER_IP, &dest.sin_addr))
-    {
-        ESP_LOGE(TAG, "inet_aton failed for %s", SYSLOG_SERVER_IP);
-        close(sock);
-        free(msg);
-        return;
-    }
-
-    // Send message
-    int sent = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
-    if (sent < 0)
-    {
-        ESP_LOGE(TAG, "sendto failed: errno=%d", errno);
-    }
-    else
-    {
-        ESP_LOGD(TAG, "Sent %d bytes to syslog-ng", sent);
-    }
-
-    close(sock);
-    free(msg);
-}*/
 
 /* Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key) */
 bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)

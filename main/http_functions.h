@@ -19,6 +19,7 @@
 #include "i2c_sensors.h"
 #include "logging.h"
 #include "statemachine.h"
+#include "network_manager.h"
 
 #define LOG_BUF_SIZE 256
 

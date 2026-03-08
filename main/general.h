@@ -24,7 +24,6 @@ esp_err_t init_littlefs(void);
 esp_err_t read_file(const char *, char *, size_t);
 esp_err_t create_mutexes(void);
 
-void update_syslog_state(void);
 void formatted_uptime(char *, size_t);
 void init_timezone(void);
 void formatted_daydatetime(char *, size_t);

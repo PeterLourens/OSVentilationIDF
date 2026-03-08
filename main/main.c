@@ -200,29 +200,14 @@ void app_main(void)
 
     // Start tasks
     ESP_LOGI(TAG, "Starting system tasks...");
-    start_task_wifi();
-    start_task_eth();
+    // start_task_wifi();
+    // start_task_eth();
+    network_manager_start(); // starts network manager task which starts Wi‑Fi and Ethernet as needed
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();
     start_task_rgb_leds();
     start_task_valvecontrol();
-
-    // Bring up Wi‑Fi and wait for IP
-    // if (!network_wait_for_ip(30, 1000, "WIFI_STA_DEF"))
-    //{
-    //  ESP_LOGE(TAG, "Network not available after retries");
-    //}
-    // else
-    //{
-    //  ESP_LOGI(TAG, "Wi-Fi init done, influxdb and mqtt tasks...");
-    // vTaskDelay(pdMS_TO_TICKS(3000));
-    // start_webserver();
-    // start_task_statemachine();
-    // start_task_influxdb();
-    // start_task_mqtt();
-    //  syslog_send_line("Boot complete, system running");
-    //}
 
     // Start network services in a separate task so we can retry if no network at startup
     start_network_services();
@@ -240,7 +225,7 @@ void app_main(void)
         formatted_uptime(uptime_str, sizeof(uptime_str));
         ESP_LOGI(TAG, "System uptime: %s", uptime_str);
 
-        sys_stats_update_actuals();
+        // sys_stats_update_actuals();
         update_hostname();
         ESP_LOGI(TAG, "Updated system stats");
 

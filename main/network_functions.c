@@ -8,6 +8,27 @@
 
 static const char *TAG = "network_func";
 
+// Helper function to enable or disable syslog based on current network state
+void update_syslog_state(void)
+{
+    static bool syslog_running = false;
+
+    bool ready = network_has_ip(); // Only true after DHCP/static IP is applied
+
+    if (ready && !syslog_running)
+    {
+        syslog_enable();
+        syslog_running = true;
+        LOGI("syslog", "Syslog enabled");
+    }
+    else if (!ready && syslog_running)
+    {
+        syslog_disable();
+        syslog_running = false;
+        LOGI("syslog", "Syslog disabled");
+    }
+}
+
 bool is_valid_ip_address(const char *ip_address)
 {
     if (!ip_address || strlen(ip_address) == 0)
@@ -36,16 +57,23 @@ bool wifi_has_ip(void)
     return ip_info.ip.addr != 0;
 }
 
-// Function to check which network interface is active and return its handle, or NULL if none
+/* Prefer Ethernet, then WiFi STA */
 esp_netif_t *get_active_netif(void)
 {
-    // Ethernet always has priority
+    /* If eth connected, prefer eth_netif */
     if (eth_is_connected())
-        return eth_netif;
+    {
+        if (eth_netif)
+            return eth_netif;
+    }
 
-    // Only use Wi-Fi if Ethernet is not connected
+    /* WiFi STA */
     if (wifi_manager_is_connected())
-        return esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    {
+        esp_netif_t *w = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (w)
+            return w;
+    }
 
     return NULL;
 }
@@ -53,36 +81,22 @@ esp_netif_t *get_active_netif(void)
 void update_hostname(void)
 {
     const char *hostname = NULL;
-
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
-    {
-        LOGW(TAG, "Could not take statemachine_mutex to update hostname");
-        return;
-    }
-
     esp_netif_t *netif = NULL;
 
-    // Prefer Ethernet
-    if (sm_actuals.eth_connected)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
-        netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
-    }
-    // Fall back to Wi-Fi
-    else if (sm_actuals.wifi_connected)
-    {
-        netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    }
+        if (sm_actuals.eth_connected)
+            netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        else if (sm_actuals.wifi_connected)
+            netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 
-    if (netif && esp_netif_get_hostname(netif, &hostname) == ESP_OK && hostname)
-    {
-        snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hostname);
-    }
-    else
-    {
-        strcpy(sm_actuals.hostname, "<unknown>");
-    }
+        if (netif && esp_netif_get_hostname(netif, &hostname) == ESP_OK && hostname)
+            snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hostname);
+        else
+            snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", "<unknown>");
 
-    xSemaphoreGive(statemachine_mutex);
+        xSemaphoreGive(statemachine_mutex);
+    }
 }
 
 bool network_has_ip(void)
@@ -228,3 +242,22 @@ bool ping_gateway(void)
     // Success = at least one reply
     return g_ping_summary.success;
 }
+
+/*bool network_functions_get_interface_counters(const char *ifkey, uint64_t *rx_bytes, uint64_t *tx_bytes)
+{
+    if (!ifkey || !rx_bytes || !tx_bytes)
+        return false;
+
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey(ifkey);
+    if (!netif)
+        return false;
+
+    struct netif *lw = esp_netif_get_netif_impl(netif);
+    if (!lw)
+        return false;
+
+    // mib2_counters are 32-bit on some builds; cast to 64-bit to be safe
+    *rx_bytes = (uint64_t)lw->mib2_counters.ifin_octets;
+    *tx_bytes = (uint64_t)lw->mib2_counters.ifout_octets;
+    return true;
+}*/

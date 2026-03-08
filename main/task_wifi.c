@@ -60,6 +60,25 @@ void task_wifi_code(void *pvParameters)
     // Main task loop
     while (1)
     {
+        // Wait for either timeout or a config-change notification
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(30000));
+
+        bool enabled = false;
+
+        if (network_config_mutex &&
+            xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            enabled = strcmp(wifi_config.enable_wifi, "On") == 0;
+            xSemaphoreGive(network_config_mutex);
+        }
+
+        if (!enabled)
+        {
+            LOGI(TAG, "WiFi disabled in config; stopping driver");
+            wifi_manager_stop();
+            continue;
+        }
+
         if (wifi_manager_is_connected())
         {
             char ip[16];
@@ -71,14 +90,7 @@ void task_wifi_code(void *pvParameters)
         else
         {
             LOGW(TAG, "WiFi Status: Disconnected, attempting reconnect");
-            err = select_wifi_mode();
-            if (err != ESP_OK)
-            {
-                LOGE(TAG, "Reconnection failed: %s", esp_err_to_name(err));
-            }
+            select_wifi_mode();
         }
-
-        // Check status every 30 seconds
-        vTaskDelay(pdMS_TO_TICKS(30000));
     }
 }

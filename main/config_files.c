@@ -237,6 +237,11 @@ esp_err_t load_wifi_config(void)
 
     LOGI(TAG, "Wifi config loaded from %s", path);
 
+    // if (task_wifi != NULL)
+    //{
+    // xTaskNotifyGive(task_wifi);
+    //}
+
     return ESP_OK;
 }
 

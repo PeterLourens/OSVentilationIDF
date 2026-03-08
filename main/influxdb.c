@@ -175,7 +175,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              "heap_min_ever=%u,"
              "stack_i2c_sensors=%lu,"
              "stack_i2c_ds3231=%lu,"
-             "stack_wifi=%lu,"
+             //"stack_wifi=%lu,"
+             "stack_network_manager=%lu,"
              "stack_i2c_lcd=%lu,"
              "stack_rgb_leds=%lu,"
              "stack_statemachine=%lu,"
@@ -204,7 +205,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              (unsigned)sm_actuals.heap_min_ever,
              sm_actuals.stack_i2c_sensors,
              sm_actuals.stack_i2c_ds3231,
-             sm_actuals.stack_wifi,
+             // sm_actuals.stack_wifi,
+             sm_actuals.stack_network_manager,
              sm_actuals.stack_i2c_lcd,
              sm_actuals.stack_rgb_leds,
              sm_actuals.stack_statemachine,

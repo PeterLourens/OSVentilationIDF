@@ -8,9 +8,9 @@
 
 static const char *TAG = "task_i2c_LCD";
 
-static StackType_t i2c_lcd_stack[4096];  // stack buffer
+static StackType_t i2c_lcd_stack[5120];  // stack buffer
 static StaticTask_t i2c_lcd_tcb;         // TCB buffer
-static size_t i2c_lcd_stack_size = 4096; // 4096 words = 16 KB
+static size_t i2c_lcd_stack_size = 5120; // 5120 words = 20 KB
 
 void stop_task_i2c_lcd(void)
 {
@@ -117,11 +117,11 @@ void task_i2c_lcd_code(void *pvParameters)
 
         if (ping_gateway())
         {
-            strcpy(ping_result, "Gateway OK");
+            snprintf(ping_result, sizeof(ping_result), "Gateway OK");
         }
         else
         {
-            strcpy(ping_result, "Gateway unreachable");
+            snprintf(ping_result, sizeof(ping_result), "Gateway unreachable");
         }
 
         snprintf(buf, sizeof(buf), "Wifi:%s\nEth:%s\n%s", wifi_ip, eth_ip, ping_result);

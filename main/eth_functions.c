@@ -10,24 +10,65 @@ static const char *TAG = "eth_func";
 
 esp_netif_t *eth_netif = NULL;
 esp_eth_handle_t eth_handle = NULL;
-static bool eth_started = false;
 
-// Internal state
+static bool eth_started = false;
+static volatile bool eth_link_up = false;
+static volatile bool eth_has_ip = false;
+
+/* Internal state */
 static volatile bool eth_connected = false;
+
+/* Keep track whether the heavy init completed successfully */
+static bool s_eth_initialized = false;
 
 void eth_init(void)
 {
+    if (s_eth_initialized)
+    {
+        ESP_LOGD(TAG, "eth_init: already initialized");
+        /* Ensure eth_netif points to an existing netif if possible */
+        if (eth_netif == NULL)
+        {
+            esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (existing)
+            {
+                eth_netif = existing;
+                ESP_LOGI(TAG, "eth_init: recovered existing ETH_DEF netif handle %p", (void *)eth_netif);
+            }
+        }
+        return;
+    }
+
     esp_err_t err;
 
     LOGI(TAG, "eth_init: initializing W5500 Ethernet");
 
-    /* Create Ethernet netif (do not call esp_netif_init() here) */
-    esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
-    eth_netif = esp_netif_new(&cfg);
-    if (eth_netif == NULL)
+    /* Defensive: ensure esp-netif is initialized. Prefer calling esp_netif_init() once from app_main(),
+       but tolerate calling it here and accept ESP_ERR_INVALID_STATE as OK. */
+    err = esp_netif_init();
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
-        LOGE(TAG, "esp_netif_new(ESP_NETIF_DEFAULT_ETH) returned NULL");
+        LOGE(TAG, "esp_netif_init failed: %s", esp_err_to_name(err));
         return;
+    }
+
+    /* If a netif with key "ETH_DEF" already exists, reuse it instead of creating a duplicate */
+    esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (existing != NULL)
+    {
+        LOGI(TAG, "eth_init: ETH_DEF netif already exists, reusing handle %p", (void *)existing);
+        eth_netif = existing;
+    }
+    else
+    {
+        /* Create Ethernet netif */
+        esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
+        eth_netif = esp_netif_new(&cfg);
+        if (eth_netif == NULL)
+        {
+            LOGE(TAG, "esp_netif_new(ESP_NETIF_DEFAULT_ETH) returned NULL");
+            return;
+        }
     }
 
     // ----------------- SPI bus init -----------------
@@ -47,7 +88,6 @@ void eth_init(void)
     }
 
     // ----------------- SPI device config (kept alive) -----------------
-    // Some IDF variants expect a pointer to spi_device_interface_config_t inside eth_w5500_config_t (spi_devcfg). Create a static instance so the pointer remains valid for the lifetime of the driver.
     static spi_device_interface_config_t w5500_spi_devcfg = {
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000, /* 20 MHz */
@@ -59,46 +99,22 @@ void eth_init(void)
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
 
-    /* If your PHY requires a reset GPIO, set it here (some variants use reset_gpio_num) */
 #ifdef W5500_RST_GPIO
     phy_config.reset_gpio_num = W5500_RST_GPIO;
 #endif
     phy_config.phy_addr = 0;
 
     // ----------------- W5500 driver config -----------------
-    //   Zero-init the struct and set the fields your local IDF expects. Common fields: spi_host_id, spi_devcfg (pointer), int_gpio_num, reset_gpio_num. If your local eth_w5500_config_t uses different member names, adjust accordingly.
     eth_w5500_config_t w5500_cfg;
     memset(&w5500_cfg, 0, sizeof(w5500_cfg));
-
-    // SPI host id (most IDF variants use spi_host_id)
     w5500_cfg.spi_host_id = W5500_SPI_HOST;
-
-    // Provide pointer to the spi_device_interface_config_t we created above. Some IDF variants name this member spi_devcfg or spi_dev_config; use the exact member name from your local header.
     w5500_cfg.spi_devcfg = &w5500_spi_devcfg;
-
-    // Optional interrupt GPIO
 #ifdef W5500_INT_GPIO
     if (W5500_INT_GPIO >= 0)
     {
         w5500_cfg.int_gpio_num = W5500_INT_GPIO;
     }
 #endif
-
-    /* Optional reset GPIO (if present in the struct) */
-    // #ifdef W5500_RST_GPIO
-    //     if (W5500_RST_GPIO >= 0)
-    //{
-    /* Some headers expect reset_gpio_num in the w5500 config as well */
-    //        w5500_cfg.reset_gpio_num = W5500_RST_GPIO;
-    //}
-    // #endif
-
-    /* Debug: log what we're passing to the driver */
-    //    LOGD(TAG, "W5500 config: spi_host_id=%d spics=%d int=%d",
-    ///        w5500_cfg.spi_host_id,
-    //       w5500_spi_devcfg.spics_io_num,
-    //       w5500_cfg.int_gpio_num;
-    // w5500_cfg.reset_gpio_num);
 
     // ----------------- Create MAC and PHY instances -----------------
     esp_eth_mac_t *mac = esp_eth_mac_new_w5500(&w5500_cfg, &mac_config);
@@ -140,6 +156,9 @@ void eth_init(void)
     }
 
     LOGI(TAG, "W5500 initialized and attached to netif");
+
+    /* Mark initialization successful so subsequent calls are no-ops */
+    s_eth_initialized = true;
 }
 
 void eth_start(void)
@@ -190,7 +209,7 @@ void eth_stop(void)
     }
 }
 
-// ---------- Config helpers (read config under mutex) ----------
+/* ---------- Config helpers (read config under mutex) ---------- */
 static bool cfg_str_is_on(const char *s)
 {
     return (s && strcmp(s, "On") == 0);
@@ -226,7 +245,7 @@ bool ethernet_config_is_dhcp_enabled(void)
     return dhcp;
 }
 
-// Helper to check if Ethernet is currently connected (based on event handler updates)
+/* Helper to check if Ethernet is currently connected (based on event handler updates) */
 bool eth_is_connected(void)
 {
     return eth_connected; // updated in event handler
@@ -356,56 +375,37 @@ esp_err_t ethernet_config_apply(void)
     return ESP_OK;
 }
 
-// ---------- Event handlers and manager ----------
 static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    (void)arg;
-    (void)event_base;
-    (void)event_data;
-
     switch (event_id)
     {
     case ETHERNET_EVENT_CONNECTED:
-
         LOGI(TAG, "ETH_EVENT: connected");
-
+        eth_link_up = true;
         eth_connected = true;
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
         }
 
-        http_server_stop();
-        http_server_start();
-        update_syslog_state();
-        sys_stats_update_actuals();
-        update_hostname();
+        // Do NOT update actuals or syslog here
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
-
         LOGW(TAG, "ETH_EVENT: disconnected");
-
+        eth_link_up = false;
+        eth_has_ip = false;
         eth_connected = false;
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
         {
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
 
-        update_syslog_state();
-        break;
-
-    case ETHERNET_EVENT_START:
-        LOGI(TAG, "ETH_EVENT: start");
-        break;
-
-    case ETHERNET_EVENT_STOP:
-        LOGI(TAG, "ETH_EVENT: stop");
-        eth_connected = false;
+        update_syslog_state(); // safe to disable
         break;
 
     default:
@@ -415,13 +415,23 @@ static void eth_event_handler(void *arg, esp_event_base_t event_base, int32_t ev
 
 static void ip_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    (void)arg;
     if (event_base == IP_EVENT && event_id == IP_EVENT_ETH_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
+
         LOGI(TAG, "ETH got IP: " IPSTR, IP2STR(&event->ip_info.ip));
+
+        eth_has_ip = true;
+
+        // Update actuals now that IP is valid
+        // sys_stats_update_actuals();
+
+        // Restart HTTP server only now
         http_server_stop();
         http_server_start();
+
+        // Enable syslog now that network is usable
+        update_syslog_state();
     }
 }
 
@@ -429,31 +439,11 @@ void eth_manager_start(void)
 {
     LOGI(TAG, "Starting Ethernet manager...");
 
-    // 1. Initialize hardware + netif + driver
+    /* Initialize hardware + netif + driver (idempotent) */
     eth_init();
 
-    // 2. Register event handlers BEFORE starting driver
-    ESP_ERROR_CHECK(esp_event_handler_register(
-        ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(
-        IP_EVENT, IP_EVENT_ETH_GOT_IP, &ip_event_handler, NULL));
-    ESP_ERROR_CHECK(esp_event_handler_register(
-        IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
-
-    // Start Ethernet driver ONLY if enabled
-    if (ethernet_config_is_enabled())
-    {
-        LOGI(TAG, "Starting Ethernet driver...");
-        eth_start();
-        // Apply DHCP/static configuration
-        ethernet_config_apply();
-    }
-    else
-    {
-        LOGI(TAG, "Ethernet disabled in config; not starting driver");
-        eth_stop();
-    }
-
-    // 5. Do NOT check link status here — link events are asynchronous and will be logged by the event handlers. The manager should remain running to handle these events and apply config changes on the fly.
-    LOGI(TAG, "Ethernet manager initialized; waiting for link events.");
+    /* Register event handlers BEFORE starting driver (registering multiple times is harmless if you guard elsewhere) */
+    ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ESP_EVENT_ANY_ID, &eth_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &ip_event_handler, NULL));
+    ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &ip_event_handler, NULL));
 }

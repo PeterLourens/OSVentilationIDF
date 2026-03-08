@@ -7,14 +7,13 @@
 #include "task_mqtt.h"
 
 static const char *TAG = "task_MQTT";
-static StackType_t mqtt_stack[6144];  // stack buffer
+static StackType_t mqtt_stack[7168];  // stack buffer
 static StaticTask_t mqtt_tcb;         // TCB buffer
-static size_t mqtt_stack_size = 6144; // 4096 words = 16 KB
+static size_t mqtt_stack_size = 7168; // 7168 words = 28.672 KB
 
 void start_task_mqtt(void)
 {
-    // Create MQTT task
-    // BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 6144, NULL, 6, &task_mqtt);
+    // Create staticMQTT task
     task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
 
     if (task_mqtt == NULL)
@@ -56,18 +55,3 @@ void task_mqtt_code(void *pvParameters)
         vTaskDelay(pdMS_TO_TICKS(20000));
     }
 }
-
-/*void task_mqtt_code(void *pvParameters)
-{
-    vTaskDelay(pdMS_TO_TICKS(10000));
-    mqtt_start_client();
-
-    while (true)
-    {
-        mqtt_apply_config_change();
-        mqtt_publish_sensor_values();
-        mqtt_publish_valve_positions();
-        mqtt_publish_state_and_fanspeed();
-        vTaskDelay(pdMS_TO_TICKS(20000));
-    }
-}*/

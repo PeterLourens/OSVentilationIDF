@@ -431,6 +431,8 @@ esp_err_t wifi_config_post_handler(httpd_req_t *req)
         LOGE(TAG, "Failed to reload wifi config after write");
     }
 
+    network_manager_notify_config_change();
+
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
     len = config_html_end - config_html_start;
@@ -479,6 +481,8 @@ esp_err_t ethernet_config_post_handler(httpd_req_t *req)
     {
         LOGE(TAG, "Failed to reload ethernet config after write");
     }
+
+    network_manager_notify_config_change();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");

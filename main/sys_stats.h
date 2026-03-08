@@ -13,6 +13,7 @@
 #include "general.h"
 #include "logging.h"
 #include "http_functions.h"
+#include "wifi_functions.h"
 
 // Function definitions
 const char *state_char_from_enum(eTaskState);

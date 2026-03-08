@@ -174,41 +174,6 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
     return ESP_OK;
 }
 
-// Helper function to enable or disable syslog based on current network state
-void update_syslog_state(void)
-{
-    bool wifi, eth;
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
-    {
-        wifi = sm_actuals.wifi_connected;
-        eth = sm_actuals.eth_connected;
-        xSemaphoreGive(statemachine_mutex);
-    }
-    else
-    {
-        LOGW(TAG, "Could not take statemachine_mutex");
-        return;
-    }
-
-    static bool syslog_running = false;
-
-    bool should_run = wifi || eth;
-
-    if (should_run && !syslog_running)
-    {
-        syslog_enable();
-        syslog_running = true;
-        LOGI(TAG, "Syslog enabled");
-    }
-    else if (!should_run && syslog_running)
-    {
-        syslog_disable();
-        syslog_running = false;
-        LOGI(TAG, "Syslog disabled");
-    }
-}
-
 esp_err_t create_mutexes(void)
 {
     bool ok = true;

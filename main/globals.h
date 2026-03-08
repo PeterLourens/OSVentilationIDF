@@ -141,6 +141,7 @@ extern TaskHandle_t task_statemachine;
 extern TaskHandle_t task_valvectrl;
 extern TaskHandle_t task_mqtt;
 extern TaskHandle_t task_influxdb;
+extern TaskHandle_t network_manager_task_handle;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -346,14 +347,15 @@ typedef struct
 
     uint32_t stack_i2c_sensors;
     uint32_t stack_i2c_ds3231;
-    uint32_t stack_wifi;
-    uint32_t stack_eth;
+    // uint32_t stack_wifi;
+    // uint32_t stack_eth;
     uint32_t stack_i2c_lcd;
     uint32_t stack_rgb_leds;
     uint32_t stack_statemachine;
     uint32_t stack_valvectrl;
     uint32_t stack_mqtt;
     uint32_t stack_influxdb;
+    uint32_t stack_network_manager;
 
 } Statemachine_actuals_t;
 
