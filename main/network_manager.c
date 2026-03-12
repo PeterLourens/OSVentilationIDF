@@ -12,7 +12,7 @@ static const char *TAG = "net_mgr";
 
 /* Task handle and stack */
 // static TaskHandle_t network_manager_task_handle = NULL;
-static StackType_t network_manager_stack[8192];
+static StackType_t network_manager_stack[5120];
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
@@ -48,7 +48,6 @@ bool network_manager_start(void)
     }
 
     manager_running = true;
-    // sys_stats_update_actuals();
     LOGI(TAG, "network_manager_start: started (task=%p)", (void *)network_manager_task_handle);
     return true;
 }
@@ -91,7 +90,7 @@ bool network_manager_sample_transfer_rate(const char *ifkey, uint32_t *rx_bps, u
     uint64_t drx = (rx2 >= rx1) ? (rx2 - rx1) : 0;
     uint64_t dtx = (tx2 >= tx1) ? (tx2 - tx1) : 0;
 
-    /* bytes per second (sample_ms rounded to seconds) */
+    // bytes per second (sample_ms rounded to seconds)
     uint32_t secs = (uint32_t)((sample_ms + 500) / 1000);
     if (secs == 0)
         secs = 1;
@@ -101,8 +100,7 @@ bool network_manager_sample_transfer_rate(const char *ifkey, uint32_t *rx_bps, u
     return true;
 }
 
-/* -------------------- Internal implementation -------------------- */
-
+// -------------------- Internal implementation --------------------
 static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
@@ -187,7 +185,6 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
         update_syslog_state();
-        // network_manager_request_actuals_update();
         break;
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
@@ -245,7 +242,7 @@ static void evaluate_config_and_apply(void)
         return;
     }
 
-    /* Update statemachine actuals for enabled flags under statemachine_mutex */
+    // Update statemachine actuals for enabled flags under statemachine_mutex
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         sm_actuals.wifi_enabled = wifi_enabled;
@@ -259,7 +256,7 @@ static void evaluate_config_and_apply(void)
         ESP_LOGW(TAG, "evaluate_config_and_apply: could not take statemachine_mutex to update actuals");
     }
 
-    /* Apply hostname to both netifs if present */
+    // Apply hostname to both netifs if present
     if (hostname[0] != '\0')
     {
         esp_netif_t *n;
@@ -271,7 +268,7 @@ static void evaluate_config_and_apply(void)
             esp_netif_set_hostname(n, hostname);
     }
 
-    /* ---------- WiFi ---------- */
+    // ---------- WiFi ----------
     if (wifi_enabled)
     {
         if (wifi_manager_init() == ESP_OK)
@@ -313,7 +310,7 @@ static void evaluate_config_and_apply(void)
         wifi_manager_stop();
     }
 
-    /* ---------- Ethernet ---------- */
+    // ---------- Ethernet ----------
     if (eth_enabled)
     {
         eth_manager_start(); // only init + handlers, no start
@@ -334,35 +331,35 @@ static void network_manager_task(void *pvParameters)
     (void)pvParameters;
     ESP_LOGI(TAG, "Network manager starting");
 
-    /* Register event handlers */
+    // Register event handlers before initializing netif to ensure we catch all events
     register_event_handlers();
 
-    /* Ensure TCP/IP stack initialized */
+    // Ensure TCP/IP stack initialized
     ESP_ERROR_CHECK(esp_netif_init());
 
-    /* Initialize both managers (safe to call multiple times) */
+    // Initialize both managers (safe to call multiple times)
     eth_manager_start();
     wifi_manager_init();
 
     manager_running = true;
 
-    /* Initial evaluation and authoritative actuals update */
+    // Initial evaluation and authoritative actuals update
     evaluate_config_and_apply();
     sys_stats_update_actuals();
 
     for (;;)
     {
-        /* Wait for notification or timeout */
+        // Wait for notification or timeout
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(30000));
 
-        /* Re-evaluate config and apply changes */
+        // Re-evaluate config and apply changes
         evaluate_config_and_apply();
 
-        /* Ask sys_stats (the authoritative source) to refresh global actuals */
+        // Ask sys_stats (the authoritative source) to refresh global actuals
         sys_stats_update_actuals();
     }
 
-    /* Cleanup (never reached) */
+    // Cleanup (never reached)
     unregister_event_handlers();
     manager_running = false;
     vTaskDelete(NULL);
