@@ -45,12 +45,12 @@ static void ensure_mqtt_connected_sem(void)
 	}
 }
 
-/* Internal helper to delete the semaphore */
+// Internal helper to delete the semaphore
 static void cleanup_mqtt_connected_sem(void)
 {
 	if (mqtt_connected_sem)
 	{
-		/* drain then delete */
+		// drain then delete
 		xSemaphoreTake(mqtt_connected_sem, 0);
 		vSemaphoreDelete(mqtt_connected_sem);
 		mqtt_connected_sem = NULL;
