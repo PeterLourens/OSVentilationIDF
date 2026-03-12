@@ -23,6 +23,12 @@ static SemaphoreHandle_t mqtt_connected_sem = NULL;
 // Public helper: wait for MQTT connection (returns true if connected within timeout)
 bool mqtt_wait_for_connection(TickType_t ticks_to_wait)
 {
+	// Fast path: already connected
+	if (s_mqtt_connected)
+	{
+		return true;
+	}
+
 	if (mqtt_connected_sem == NULL)
 		return false;
 
@@ -32,7 +38,7 @@ bool mqtt_wait_for_connection(TickType_t ticks_to_wait)
 	return false;
 }
 
-/* Internal helper to create the semaphore if needed */
+// Internal helper to create the semaphore if needed
 static void ensure_mqtt_connected_sem(void)
 {
 	if (mqtt_connected_sem == NULL)
@@ -155,12 +161,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		s_mqtt_connected = true;
 		LOGI(TAG, "MQTT connected");
 
-		/* Signal any waiters that the client is connected */
+		// Signal any waiters that the client is connected (task context)
 		if (mqtt_connected_sem)
 		{
-			BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-			xSemaphoreGiveFromISR(mqtt_connected_sem, &xHigherPriorityTaskWoken);
-			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+			xSemaphoreGive(mqtt_connected_sem);
 		}
 
 		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
@@ -170,7 +174,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		s_mqtt_connected = false;
 		LOGW(TAG, "MQTT disconnected");
 
-		/* Drain the semaphore so waiters will block until next connect */
 		if (mqtt_connected_sem)
 		{
 			xSemaphoreTake(mqtt_connected_sem, 0);
@@ -317,6 +320,9 @@ esp_err_t mqtt_start_client(void)
 
 	esp_mqtt_client_register_event(s_mqtt, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
 
+	/* Create connection semaphore if not present */
+	ensure_mqtt_connected_sem();
+
 	esp_err_t err = esp_mqtt_client_start(s_mqtt);
 	if (err != ESP_OK)
 	{
@@ -325,9 +331,6 @@ esp_err_t mqtt_start_client(void)
 		s_mqtt = NULL;
 		return err;
 	}
-
-	/* Create connection semaphore if not present */
-	ensure_mqtt_connected_sem();
 
 	s_mqtt_running = true;
 	s_last_cfg = cfg; // snapshot config used for this client
