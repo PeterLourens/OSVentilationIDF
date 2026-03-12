@@ -13,6 +13,9 @@ static const char *TAG = "Sys_stats";
 static temperature_sensor_handle_t temp_sensor = NULL;
 static bool temp_sensor_initialized = false;
 
+// Structure to hold ethernet snapshot
+static EthSnapshot_t eth_snapshot = {0};
+
 // Safe append macro
 #define SAFE_APPEND(fmt, ...)                                               \
     do                                                                      \
@@ -248,132 +251,117 @@ static void update_wifi_info(void)
         esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2));
 }
 
-static void update_ethernet_info(void)
+// Helper: copy snapshot into global sm_actuals. MUST be called while holding statemachine_mutex.
+static void copy_eth_actuals_into_sm(const EthSnapshot_t *snap)
 {
-    /* Local scratch buffers to avoid holding mutex while calling esp-netif APIs */
-    char ipbuf[16] = "0.0.0.0";
-    char nm[16] = "0.0.0.0";
-    char gw[16] = "0.0.0.0";
-    char dns1[16] = "0.0.0.0";
-    char dns2[16] = "0.0.0.0";
-    bool dhcp = false;
+    if (!snap)
+        return;
+
+    snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", snap->ip);
+    snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", snap->netmask);
+    snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", snap->gw);
+    snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", snap->dns1);
+    snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", snap->dns2);
+    sm_actuals.eth_dhcp_enabled = snap->dhcp;
+}
+
+// Core gather function: queries esp-netif and fills snapshot. This function does NOT take statemachine_mutex.
+static void gather_ethernet_snapshot(EthSnapshot_t *out)
+{
+    if (!out)
+        return;
+
+    // Initialize defaults
+    strncpy(out->ip, "0.0.0.0", sizeof(out->ip));
+    strncpy(out->netmask, "0.0.0.0", sizeof(out->netmask));
+    strncpy(out->gw, "0.0.0.0", sizeof(out->gw));
+    strncpy(out->dns1, "0.0.0.0", sizeof(out->dns1));
+    strncpy(out->dns2, "0.0.0.0", sizeof(out->dns2));
+    out->dhcp = false;
 
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (!netif)
     {
-        LOGW(TAG, "ETH_DEF netif not found; will write defaults into actuals");
-        /* fall through to update sm_actuals with defaults below */
+        LOGW(TAG, "gather_ethernet_snapshot: ETH_DEF netif not found; using defaults");
+        return;
+    }
+
+    LOGI(TAG, "gather_ethernet_snapshot: ETH_DEF netif handle: %p", (void *)netif);
+
+    esp_netif_ip_info_t ip;
+    esp_err_t err = esp_netif_get_ip_info(netif, &ip);
+    if (err == ESP_OK && ip.ip.addr != 0)
+    {
+        esp_ip4addr_ntoa(&ip.ip, out->ip, sizeof(out->ip));
+        esp_ip4addr_ntoa(&ip.netmask, out->netmask, sizeof(out->netmask));
+        esp_ip4addr_ntoa(&ip.gw, out->gw, sizeof(out->gw));
+        LOGI(TAG, "Got ETH IP: %s netmask: %s gw: %s", out->ip, out->netmask, out->gw);
     }
     else
     {
-        LOGI(TAG, "ETH_DEF netif handle: %p", (void *)netif);
-
-        /* Query IP info once */
-        esp_netif_ip_info_t ip;
-        esp_err_t err = esp_netif_get_ip_info(netif, &ip);
-        if (err == ESP_OK && ip.ip.addr != 0)
-        {
-            esp_ip4addr_ntoa(&ip.ip, ipbuf, sizeof(ipbuf));
-            esp_ip4addr_ntoa(&ip.netmask, nm, sizeof(nm));
-            esp_ip4addr_ntoa(&ip.gw, gw, sizeof(gw));
-            LOGI(TAG, "Got ETH IP: %s netmask: %s gw: %s", ipbuf, nm, gw);
-        }
-        else
-        {
-            LOGW(TAG, "esp_netif_get_ip_info failed or no IP assigned: %s (0x%08X)",
-                 esp_err_to_name(err), err);
-            /* ipbuf/nm/gw remain "0.0.0.0" */
-        }
-
-        /* DNS main */
-        esp_netif_dns_info_t dns;
-        err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns);
-        if (err == ESP_OK)
-        {
-            esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, dns1, sizeof(dns1));
-            LOGI(TAG, "ETH DNS1: %s", dns1);
-        }
-        else
-        {
-            LOGW(TAG, "esp_netif_get_dns_info (MAIN) failed: %s (0x%08X)", esp_err_to_name(err), err);
-        }
-
-        /* DNS backup */
-        err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns);
-        if (err == ESP_OK)
-        {
-            esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, dns2, sizeof(dns2));
-            LOGI(TAG, "ETH DNS2: %s", dns2);
-        }
-        else
-        {
-            LOGW(TAG, "esp_netif_get_dns_info (BACKUP) failed: %s (0x%08X)", esp_err_to_name(err), err);
-        }
-
-        /* DHCP state (helper may take its own mutex) */
-        dhcp = ethernet_config_is_dhcp_enabled();
+        LOGW(TAG, "gather_ethernet_snapshot: esp_netif_get_ip_info failed or no IP assigned: %s (0x%08X)",
+             esp_err_to_name(err), err);
     }
 
-    /* Now update the global actuals under the statemachine mutex in one shot.
-       Try a few times with short delays so we don't silently skip the update and leave empty strings. */
-    const TickType_t try_delay = pdMS_TO_TICKS(20);
-    const int max_attempts = 5;
-    int attempt;
-    bool updated = false;
-
-    for (attempt = 0; attempt < max_attempts; ++attempt)
+    esp_netif_dns_info_t dns;
+    err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_MAIN, &dns);
+    if (err == ESP_OK)
     {
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 0) == pdTRUE)
-        {
-            /* Copy the local scratch buffers into the global actuals */
-            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", ipbuf);
-            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", nm);
-            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", gw);
-            snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", dns1);
-            snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", dns2);
-            sm_actuals.eth_dhcp_enabled = dhcp;
-            xSemaphoreGive(statemachine_mutex);
-            updated = true;
-            break;
-        }
-
-        /* If we couldn't take the mutex immediately, wait a bit and retry */
-        vTaskDelay(try_delay);
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, out->dns1, sizeof(out->dns1));
+        LOGD(TAG, "ETH DNS1: %s", out->dns1);
     }
-
-    if (!updated)
+    else
     {
-        /* Last-ditch attempt with a blocking take (short timeout) to avoid leaving empty fields */
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) == pdTRUE)
-        {
-            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", ipbuf);
-            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", nm);
-            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", gw);
-            snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), "%s", dns1);
-            snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), "%s", dns2);
-            sm_actuals.eth_dhcp_enabled = dhcp;
-            xSemaphoreGive(statemachine_mutex);
-            updated = true;
-        }
+        LOGW(TAG, "gather_ethernet_snapshot: esp_netif_get_dns_info (MAIN) failed: %s (0x%08X)", esp_err_to_name(err), err);
     }
 
-    if (!updated)
+    err = esp_netif_get_dns_info(netif, ESP_NETIF_DNS_BACKUP, &dns);
+    if (err == ESP_OK)
     {
-        LOGW(TAG, "update_ethernet_info: failed to take statemachine_mutex to update actuals (will retry later)");
+        esp_ip4addr_ntoa(&dns.ip.u_addr.ip4, out->dns2, sizeof(out->dns2));
+        LOGD(TAG, "ETH DNS2: %s", out->dns2);
     }
-
-    /* Extra debug: if netif exists, check whether it reports an IP (useful if esp_netif_get_ip_info succeeded but IP==0) */
-    if (netif)
+    else
     {
-        esp_netif_ip_info_t ip_check;
-        if (esp_netif_get_ip_info(netif, &ip_check) == ESP_OK && ip_check.ip.addr == 0)
-        {
-            LOGW(TAG, "ETH netif has no IP assigned (ip.addr == 0)");
-        }
+        LOGD(TAG, "gather_ethernet_snapshot: esp_netif_get_dns_info (BACKUP) failed: %s (0x%08X)", esp_err_to_name(err), err);
     }
 
-    LOGI(TAG, "Update actuals: Ethernet IP: %s, DNS1: %s, DNS2: %s, DHCP: %s",
-         sm_actuals.eth_ip_addr, sm_actuals.eth_dns1, sm_actuals.eth_dns2, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
+    out->dhcp = ethernet_config_is_dhcp_enabled();
+}
+
+/* Public: update_ethernet_info that takes the mutex itself.
+   This is safe to call from contexts that do NOT already hold the mutex. */
+static void update_ethernet_info(void)
+{
+    EthSnapshot_t snap;
+    gather_ethernet_snapshot(&snap);
+
+    /* Try to take the mutex and copy snapshot into sm_actuals */
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) == pdTRUE)
+    {
+        copy_eth_actuals_into_sm(&snap);
+        xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "update_ethernet_info: failed to take statemachine_mutex to update actuals");
+    }
+
+    LOGD(TAG, "update_ethernet_info: snapshot IP=%s DNS1=%s DNS2=%s DHCP=%s",
+         snap.ip, snap.dns1, snap.dns2, snap.dhcp ? "enabled" : "static");
+}
+
+// Public: variant to call when the caller already holds statemachine_mutex. This avoids nested mutex attempts.
+static void update_ethernet_info_nolock(void)
+{
+    EthSnapshot_t snap;
+    gather_ethernet_snapshot(&snap);
+
+    /* Caller must hold statemachine_mutex */
+    copy_eth_actuals_into_sm(&snap);
+
+    LOGD(TAG, "update_ethernet_info_nolock: snapshot IP=%s DNS1=%s DNS2=%s DHCP=%s",
+         snap.ip, snap.dns1, snap.dns2, snap.dhcp ? "enabled" : "static");
 }
 
 void sys_stats_update_actuals(void)
@@ -384,9 +372,6 @@ void sys_stats_update_actuals(void)
     update_cpu_temp();
     update_heap_stats();
     update_stack_watermarks();
-    // update_wifi_stats();
-    // update_wifi_info();
-    // update_ethernet_info();
 
     if (sm_actuals.wifi_connected)
     {
@@ -416,11 +401,11 @@ void sys_stats_update_actuals(void)
     if (eth_connected_now)
     {
         // If the link is up, attempt to refresh the ethernet info (update_ethernet_info will handle missing IPs and write defaults).
-        update_ethernet_info();
+        update_ethernet_info_nolock(); // we already hold the mutex, so use the nolock variant
     }
     else
     {
-        /* only clear when interface is definitely down / no IP */
+        // only clear when interface is definitely down / no IP
         snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), "%s", "0.0.0.0");
         snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), "%s", "0.0.0.0");
         snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), "%s", "0.0.0.0");
@@ -492,56 +477,13 @@ static size_t append_heap_stats(char *out, size_t used, size_t buf_size)
     size_t free_heap = esp_get_free_heap_size();
     size_t min_free = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
     size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT);
+
     float frag = free_heap ? 100.0f * (1.0f - ((float)largest / free_heap)) : 0.0f;
 
     SAFE_APPEND("\nHeap metrics:\nfree_heap: %u\nmin_ever_free: %u\nlargest_free_block: %u\nHeap fragmentation estimate: %.1f%%\n", (unsigned)free_heap, (unsigned)min_free, (unsigned)largest, frag);
 
     return used;
 }
-
-/*static size_t append_system_stats(char *out, size_t used, size_t buf_size)
-{
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
-        return used;
-
-    // Log the deciding flags and a quick snapshot
-    LOGI(TAG, "append_system_stats: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d",
-         sm_actuals.wifi_enabled, sm_actuals.wifi_connected, sm_actuals.ethernet_enabled, sm_actuals.eth_connected);
-
-    LOGI(TAG, "append_system_stats snapshot: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
-         sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.wifi_ip_addr);
-
-    SAFE_APPEND("\nHardware Stats:\nCPU Temp: %d C\n", sm_actuals.cpu_temp);
-
-    // Wi-Fi section (only if enabled or connected)
-    if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
-    {
-        SAFE_APPEND("\nWiFi Stats:\n"
-                    "SSID: %s\nBSSID: %s\nRSSI: %d dBm\nChannel: %d\nPHY: %s\nBandwidth: %d MHz\nAuthmode: %s\n",
-                    sm_actuals.wifi_ssid, sm_actuals.wifi_bssid, sm_actuals.wifi_rssi,
-                    sm_actuals.wifi_channel, wifi_phy_to_str(sm_actuals.wifi_phy),
-                    sm_actuals.wifi_bandwidth, wifi_authmode_to_str(sm_actuals.wifi_authmode));
-    }
-
-    // Wi-Fi network info (only if enabled or connected)
-    if (sm_actuals.wifi_enabled || sm_actuals.wifi_connected)
-    {
-        SAFE_APPEND("\nWiFi Settings:\n"
-                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n",
-                    sm_actuals.hostname, sm_actuals.wifi_ip_addr, sm_actuals.wifi_netmask, sm_actuals.wifi_gateway, sm_actuals.wifi_dns1, sm_actuals.wifi_dns2, sm_actuals.wifi_dhcp_enabled ? "enabled" : "static");
-    }
-
-    // Ethernet section (only if enabled or connected)
-    if (sm_actuals.ethernet_enabled || sm_actuals.eth_connected)
-    {
-        SAFE_APPEND("\nEthernet Settings:\n"
-                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
-                    sm_actuals.hostname, sm_actuals.eth_ip_addr, sm_actuals.eth_netmask, sm_actuals.eth_gateway, sm_actuals.eth_dns1, sm_actuals.eth_dns2, sm_actuals.eth_dhcp_enabled ? "enabled" : "static");
-    }
-
-    xSemaphoreGive(statemachine_mutex);
-    return used;
-}*/
 
 static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 {
@@ -555,9 +497,9 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     xSemaphoreGive(statemachine_mutex);
 
     // Debug: log the snapshot we will print
-    LOGI(TAG, "append_system_stats snapshot: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d\n",
+    LOGD(TAG, "append_system_stats snapshot: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d\n",
          snapshot.wifi_enabled, snapshot.wifi_connected, snapshot.ethernet_enabled, snapshot.eth_connected);
-    LOGI(TAG, "append_system_stats snapshot values: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
+    LOGD(TAG, "append_system_stats snapshot values: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
          snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway, snapshot.wifi_ip_addr);
 
     // Now format using the snapshot (no mutex held)

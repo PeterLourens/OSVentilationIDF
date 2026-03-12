@@ -9,23 +9,17 @@
 static const char *TAG = "wifi_functions";
 static int s_retry_num = 0;
 
-/* Exported event group so other modules can reference it */
-// EventGroupHandle_t s_wifi_event_group = NULL;
-
-/* Event handler instances (kept so we can unregister if needed) */
+// Event handler instances (kept so we can unregister if needed)
 static esp_event_handler_instance_t wifi_evt_inst = NULL;
 static esp_event_handler_instance_t ip_evt_inst = NULL;
 
-/* Initialization guard */
+// Initialization guard
 static bool s_wifi_initialized = false;
 
-/* Hostname buffer (kept for compatibility with existing code) */
+// Hostname buffer (kept for compatibility with existing code)
 char hostname[MEDIUM_CONFIG_ITEM] = {};
 
-/* Forward declarations */
-static esp_err_t ensure_netif_and_hostname(void);
-
-/* Stop WiFi and clear state */
+// Stop WiFi and clear state
 void wifi_manager_stop(void)
 {
     ESP_LOGI(TAG, "Stopping WiFi...");
@@ -54,7 +48,7 @@ void wifi_manager_stop(void)
     update_syslog_state();
 }
 
-/* Idempotent initialization: safe to call multiple times */
+// Idempotent initialization: safe to call multiple times
 esp_err_t wifi_manager_init(void)
 {
     if (s_wifi_initialized)
@@ -63,7 +57,7 @@ esp_err_t wifi_manager_init(void)
         return ESP_OK;
     }
 
-    /* Create (or reuse) the WiFi event group and export it */
+    // Create (or reuse) the WiFi event group and export it
     if (s_wifi_event_group == NULL)
     {
         s_wifi_event_group = xEventGroupCreate();
@@ -74,8 +68,8 @@ esp_err_t wifi_manager_init(void)
         }
     }
 
-    /* Defensive: ensure esp-netif is initialized. Prefer calling esp_netif_init() once from app_main(),
-       but tolerate calling it here and accept ESP_ERR_INVALID_STATE as OK. */
+    // Defensive: ensure esp-netif is initialized. Prefer calling esp_netif_init() once from app_main(),
+    // but tolerate calling it here and accept ESP_ERR_INVALID_STATE as OK.
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -83,7 +77,7 @@ esp_err_t wifi_manager_init(void)
         return err;
     }
 
-    /* Ensure default STA netif exists (reuse if present) */
+    // Ensure default STA netif exists (reuse if present)
     esp_netif_t *existing_sta = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (existing_sta == NULL)
     {
@@ -99,7 +93,7 @@ esp_err_t wifi_manager_init(void)
         ESP_LOGI(TAG, "wifi_manager_init: reusing existing WIFI_STA_DEF netif %p", (void *)existing_sta);
     }
 
-    /* Create default event loop if not already present */
+    // Create default event loop if not already present
     err = esp_event_loop_create_default();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -107,7 +101,7 @@ esp_err_t wifi_manager_init(void)
         return err;
     }
 
-    /* Read hostname from config under mutex and apply to STA netif if present */
+    // Read hostname from config under mutex and apply to STA netif if present
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
@@ -122,7 +116,7 @@ esp_err_t wifi_manager_init(void)
             ESP_LOGW(TAG, "esp_netif_set_hostname (STA) returned %s", esp_err_to_name(herr));
     }
 
-    /* Initialize WiFi driver (safe to call multiple times) */
+    // Initialize WiFi driver (safe to call multiple times)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     err = esp_wifi_init(&cfg);
     if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT)
@@ -131,7 +125,7 @@ esp_err_t wifi_manager_init(void)
         return err;
     }
 
-    /* Register event handlers once (store instances so we can unregister later if needed) */
+    // Register event handlers once (store instances so we can unregister later if needed)
     if (wifi_evt_inst == NULL)
     {
         ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, &wifi_evt_inst));
@@ -146,7 +140,7 @@ esp_err_t wifi_manager_init(void)
     return ESP_OK;
 }
 
-/* Select and start WiFi mode according to configuration */
+// Select and start WiFi mode according to configuration
 esp_err_t select_wifi_mode(void)
 {
     const char *TAG_LOCAL = "WiFi";
@@ -158,7 +152,7 @@ esp_err_t select_wifi_mode(void)
         return ESP_ERR_INVALID_STATE;
     }
 
-    /* DHCP path */
+    // DHCP path
     if (strcmp(wifi_config.enable_dhcp, "On") == 0)
     {
         if (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0)
@@ -176,7 +170,7 @@ esp_err_t select_wifi_mode(void)
     }
     else
     {
-        /* Static IP path: validate config */
+        // Static IP path: validate config
         bool valid_config = true;
         if (!is_valid_ip_address(wifi_config.ip_address))
         {
@@ -222,7 +216,7 @@ esp_err_t select_wifi_mode(void)
     return wifi_manager_start_ap();
 }
 
-/* WiFi event handler (keeps previous behavior) */
+// WiFi event handler (keeps previous behavior)
 void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     (void)arg;
@@ -330,7 +324,7 @@ void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id
     }
 }
 
-/* Connect in STA mode and optionally apply static IP if configured */
+// Connect in STA mode and optionally apply static IP if configured
 esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 {
     if (!settings)
@@ -356,7 +350,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
         },
     };
 
-    /* Copy configuration under mutex protection */
+    // Copy configuration under mutex protection
     strncpy((char *)wifi_cfg.sta.ssid, settings->ssid, sizeof(wifi_cfg.sta.ssid) - 1);
     strncpy((char *)wifi_cfg.sta.password, settings->wifi_password, sizeof(wifi_cfg.sta.password) - 1);
 
@@ -402,7 +396,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    /* Release config mutex before waiting */
+    // Release config mutex before waiting for connection, so event handler can set bits and update state
     xSemaphoreGive(network_config_mutex);
 
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
@@ -426,7 +420,7 @@ exit:
     return result;
 }
 
-/* Start AP mode (creates AP netif only if needed) */
+// Start AP mode (creates AP netif only if needed)
 esp_err_t wifi_manager_start_ap(void)
 {
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
@@ -435,7 +429,7 @@ esp_err_t wifi_manager_start_ap(void)
         return ESP_ERR_TIMEOUT;
     }
 
-    /* Create default AP netif only if not present */
+    // Create default AP netif only if not present
     esp_netif_t *ap_existing = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
     if (ap_existing == NULL)
     {
@@ -509,7 +503,7 @@ static bool cfg_str_is_on(const char *s)
     return (s && strcmp(s, "On") == 0);
 }
 
-/* Check connection state using the event group */
+// Check connection state using the event group
 bool wifi_manager_is_connected(void)
 {
     if (s_wifi_event_group == NULL)
@@ -525,7 +519,7 @@ bool wifi_manager_is_connected(void)
     return (is_connected || is_ap_mode);
 }
 
-/* Get IP string for current WiFi mode */
+// Get IP string for current WiFi mode
 esp_err_t wifi_manager_get_ip_info(char *ip_str, size_t max_len)
 {
     if (!ip_str || max_len < 16)
