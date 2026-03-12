@@ -15,5 +15,6 @@
 // Function declarations
 void start_task_mqtt(void);
 void task_mqtt_code(void *);
+bool mqtt_wait_for_connection(TickType_t);
 
 #endif

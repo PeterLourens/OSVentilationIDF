@@ -5,6 +5,7 @@
 */
 
 #include "mqtt.h"
+#include "freertos/semphr.h"
 
 static const char *TAG = "MQTT";
 
@@ -16,11 +17,54 @@ static bool s_mqtt_running = false; // client started (start() called)
 
 bool s_mqtt_connected = false; // broker connection up (event based)
 
+// Semaphore used to signal a successful MQTT connection to waiting tasks
+static SemaphoreHandle_t mqtt_connected_sem = NULL;
+
+// Public helper: wait for MQTT connection (returns true if connected within timeout)
+bool mqtt_wait_for_connection(TickType_t ticks_to_wait)
+{
+	if (mqtt_connected_sem == NULL)
+		return false;
+
+	if (xSemaphoreTake(mqtt_connected_sem, ticks_to_wait) == pdTRUE)
+		return true;
+
+	return false;
+}
+
+/* Internal helper to create the semaphore if needed */
+static void ensure_mqtt_connected_sem(void)
+{
+	if (mqtt_connected_sem == NULL)
+	{
+		mqtt_connected_sem = xSemaphoreCreateBinary();
+		if (mqtt_connected_sem == NULL)
+		{
+			LOGW(TAG, "Failed to create mqtt_connected_sem (out of memory)");
+		}
+	}
+}
+
+/* Internal helper to delete the semaphore */
+static void cleanup_mqtt_connected_sem(void)
+{
+	if (mqtt_connected_sem)
+	{
+		/* drain then delete */
+		xSemaphoreTake(mqtt_connected_sem, 0);
+		vSemaphoreDelete(mqtt_connected_sem);
+		mqtt_connected_sem = NULL;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Mutex-protected config snapshot
 // ---------------------------------------------------------------------------
 static void mqtt_get_config_snapshot(MQTT_config_t *out)
 {
+	if (!out)
+		return;
+
 	xSemaphoreTake(mqtt_config_mutex, portMAX_DELAY);
 	memcpy(out, &mqtt_config, sizeof(MQTT_config_t));
 	xSemaphoreGive(mqtt_config_mutex);
@@ -111,12 +155,26 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		s_mqtt_connected = true;
 		LOGI(TAG, "MQTT connected");
 
+		/* Signal any waiters that the client is connected */
+		if (mqtt_connected_sem)
+		{
+			BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+			xSemaphoreGiveFromISR(mqtt_connected_sem, &xHigherPriorityTaskWoken);
+			portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+		}
+
 		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;
 
 	case MQTT_EVENT_DISCONNECTED:
 		s_mqtt_connected = false;
 		LOGW(TAG, "MQTT disconnected");
+
+		/* Drain the semaphore so waiters will block until next connect */
+		if (mqtt_connected_sem)
+		{
+			xSemaphoreTake(mqtt_connected_sem, 0);
+		}
 		break;
 
 	case MQTT_EVENT_DATA:
@@ -129,7 +187,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		LOGD(TAG, "Topic (%d): %.*s", event->topic_len, event->topic_len, topic);
 		LOGD(TAG, "Payload (%d): %.*s", len, len, payload);
 
-		if (event->topic_len == strlen("zigbee2mqtt/Ventilation/action") && strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
+		if (event->topic_len == (int)strlen("zigbee2mqtt/Ventilation/action") &&
+			strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
 		{
 			statemachine_set_speed(payload, len);
 		}
@@ -159,6 +218,9 @@ void mqtt_apply_config_change(void)
 			esp_mqtt_client_stop(s_mqtt);
 			s_mqtt_running = false;
 			s_mqtt_connected = false;
+
+			/* Clean up connection semaphore */
+			cleanup_mqtt_connected_sem();
 		}
 
 		// Update last config snapshot
@@ -263,6 +325,9 @@ esp_err_t mqtt_start_client(void)
 		s_mqtt = NULL;
 		return err;
 	}
+
+	/* Create connection semaphore if not present */
+	ensure_mqtt_connected_sem();
 
 	s_mqtt_running = true;
 	s_last_cfg = cfg; // snapshot config used for this client

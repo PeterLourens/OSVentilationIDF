@@ -5,6 +5,7 @@
 */
 
 #include "task_mqtt.h"
+#include "mqtt.h"
 
 static const char *TAG = "task_MQTT";
 static StackType_t mqtt_stack[7168];  // stack buffer
@@ -35,7 +36,19 @@ void task_mqtt_code(void *pvParameters)
     }
 
     LOGI(TAG, "MQTT: Network ready, starting client");
-    mqtt_start_client();
+    if (mqtt_start_client() == ESP_OK)
+    {
+        /* Wait up to 10 seconds for a connection before first publish cycle.
+           This avoids the initial race where the client is started but not yet connected. */
+        if (mqtt_wait_for_connection(pdMS_TO_TICKS(10000)))
+        {
+            LOGI(TAG, "MQTT: connected, proceeding with initial publishes");
+        }
+        else
+        {
+            LOGW(TAG, "MQTT: did not connect within timeout; will retry publishes later");
+        }
+    }
 
     while (true)
     {
@@ -44,6 +57,18 @@ void task_mqtt_code(void *pvParameters)
         mqtt_apply_config_change();
 
         LOGD(TAG, "Publish sensors...");
+        /* If not connected, wait a short time for connection before skipping publishes */
+        if (!mqtt_wait_for_connection(0))
+        {
+            /* mqtt_wait_for_connection(0) returns immediately; use a timed wait to attempt connection */
+            if (!mqtt_wait_for_connection(pdMS_TO_TICKS(5000)))
+            {
+                LOGW(TAG, "Still not connected; skipping this publish cycle");
+                vTaskDelay(pdMS_TO_TICKS(20000));
+                continue;
+            }
+        }
+
         mqtt_publish_sensor_values();
 
         LOGD(TAG, "Publish valve positions...");
