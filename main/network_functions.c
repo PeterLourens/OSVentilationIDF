@@ -57,17 +57,17 @@ bool wifi_has_ip(void)
     return ip_info.ip.addr != 0;
 }
 
-/* Prefer Ethernet, then WiFi STA */
+// Prefer Ethernet, then WiFi STA
 esp_netif_t *get_active_netif(void)
 {
-    /* If eth connected, prefer eth_netif */
+    // If eth connected, prefer eth_netif
     if (eth_is_connected())
     {
         if (eth_netif)
             return eth_netif;
     }
 
-    /* WiFi STA */
+    // WiFi STA
     if (wifi_manager_is_connected())
     {
         esp_netif_t *w = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
@@ -112,12 +112,11 @@ bool network_has_ip(void)
     return ip.ip.addr != 0;
 }
 
-/* ========== Ping to gateway functions ========== */
+// ========== Ping to gateway functions ==========
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
 
-    // Profiles available in ESP‑IDF 5.5.1
     esp_ping_get_profile(hdl, ESP_PING_PROF_REQUEST, &transmitted, sizeof(transmitted));
     esp_ping_get_profile(hdl, ESP_PING_PROF_REPLY, &received, sizeof(received));
     esp_ping_get_profile(hdl, ESP_PING_PROF_DURATION, &duration, sizeof(duration));
@@ -227,8 +226,7 @@ bool ping_gateway(void)
         return false;
     }
 
-    // Wait for completion (5 pings + buffer)
-    // Duration profile will be ~count * interval + timeouts; use a safe upper bound
+    // Wait for completion (5 pings + buffer). Duration profile will be ~count * interval + timeouts; use a safe upper bound
     const TickType_t wait_ticks = pdMS_TO_TICKS(10000);
     if (xSemaphoreTake(g_ping_done_sem, wait_ticks) != pdTRUE)
     {
@@ -242,22 +240,3 @@ bool ping_gateway(void)
     // Success = at least one reply
     return g_ping_summary.success;
 }
-
-/*bool network_functions_get_interface_counters(const char *ifkey, uint64_t *rx_bytes, uint64_t *tx_bytes)
-{
-    if (!ifkey || !rx_bytes || !tx_bytes)
-        return false;
-
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey(ifkey);
-    if (!netif)
-        return false;
-
-    struct netif *lw = esp_netif_get_netif_impl(netif);
-    if (!lw)
-        return false;
-
-    // mib2_counters are 32-bit on some builds; cast to 64-bit to be safe
-    *rx_bytes = (uint64_t)lw->mib2_counters.ifin_octets;
-    *tx_bytes = (uint64_t)lw->mib2_counters.ifout_octets;
-    return true;
-}*/

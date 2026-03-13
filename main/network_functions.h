@@ -22,6 +22,4 @@ bool network_has_ip(void);
 void on_ping_end(esp_ping_handle_t hdl, void *args);
 bool ping_gateway(void);
 
-bool network_functions_get_interface_counters(const char *ifkey, uint64_t *rx_bytes, uint64_t *tx_bytes);
-
 #endif

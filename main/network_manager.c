@@ -10,28 +10,26 @@
 
 static const char *TAG = "net_mgr";
 
-/* Task handle and stack */
-// static TaskHandle_t network_manager_task_handle = NULL;
+// Task handle and stack
 static StackType_t network_manager_stack[5120];
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
-/* Event handler instances */
+// Event handler instances
 static esp_event_handler_instance_t wifi_evt_inst = NULL;
 static esp_event_handler_instance_t ip_evt_inst = NULL;
 static esp_event_handler_instance_t eth_evt_inst = NULL;
 
-/* Manager state */
+// Manager state
 static volatile bool manager_running = false;
 
-/* Forward declarations */
+// Forward declarations
 static void network_manager_task(void *pvParameters);
 static void register_event_handlers(void);
 static void unregister_event_handlers(void);
 static void evaluate_config_and_apply(void);
 
-/* Public API implementations */
-
+// Public API implementations
 bool network_manager_start(void)
 {
     if (network_manager_task_handle != NULL)
@@ -71,33 +69,6 @@ void network_manager_request_actuals_update(void)
 bool network_manager_is_running(void)
 {
     return manager_running;
-}
-
-bool network_manager_sample_transfer_rate(const char *ifkey, uint32_t *rx_bps, uint32_t *tx_bps, TickType_t sample_ms)
-{
-    if (!ifkey || !rx_bps || !tx_bps || sample_ms == 0)
-        return false;
-
-    uint64_t rx1 = 0, tx1 = 0, rx2 = 0, tx2 = 0;
-    if (!network_functions_get_interface_counters(ifkey, &rx1, &tx1))
-        return false;
-
-    vTaskDelay(sample_ms);
-
-    if (!network_functions_get_interface_counters(ifkey, &rx2, &tx2))
-        return false;
-
-    uint64_t drx = (rx2 >= rx1) ? (rx2 - rx1) : 0;
-    uint64_t dtx = (tx2 >= tx1) ? (tx2 - tx1) : 0;
-
-    // bytes per second (sample_ms rounded to seconds)
-    uint32_t secs = (uint32_t)((sample_ms + 500) / 1000);
-    if (secs == 0)
-        secs = 1;
-
-    *rx_bps = (uint32_t)(drx / secs);
-    *tx_bps = (uint32_t)(dtx / secs);
-    return true;
 }
 
 // -------------------- Internal implementation --------------------
@@ -273,7 +244,7 @@ static void evaluate_config_and_apply(void)
     {
         if (wifi_manager_init() == ESP_OK)
         {
-            /* Ensure DHCP client state matches config if netif exists */
+            // Ensure DHCP client state matches config if netif exists
             esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
             if (wifinet)
             {
@@ -288,11 +259,11 @@ static void evaluate_config_and_apply(void)
                     esp_err_t r = esp_netif_dhcpc_stop(wifinet);
                     if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
                         ESP_LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
-                    /* static IP will be applied by select_wifi_mode()/wifi_manager_connect when selecting static path */
+                    // static IP will be applied by select_wifi_mode()/wifi_manager_connect when selecting static path
                 }
             }
 
-            /* Start or reconnect if not connected */
+            // Start or reconnect if not connected
             if (!wifi_manager_is_connected())
             {
                 esp_err_t r = select_wifi_mode();

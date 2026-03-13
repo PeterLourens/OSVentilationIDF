@@ -13,8 +13,18 @@ static const char *TAG = "Sys_stats";
 static temperature_sensor_handle_t temp_sensor = NULL;
 static bool temp_sensor_initialized = false;
 
+typedef struct
+{
+    char ip[16];
+    char netmask[16];
+    char gw[16];
+    char dns1[16];
+    char dns2[16];
+    bool dhcp;
+} EthSnapshot_t;
+
 // Structure to hold ethernet snapshot
-static EthSnapshot_t eth_snapshot = {0};
+// static EthSnapshot_t eth_snapshot = {0};
 
 // Safe append macro
 #define SAFE_APPEND(fmt, ...)                                               \
@@ -329,14 +339,13 @@ static void gather_ethernet_snapshot(EthSnapshot_t *out)
     out->dhcp = ethernet_config_is_dhcp_enabled();
 }
 
-/* Public: update_ethernet_info that takes the mutex itself.
-   This is safe to call from contexts that do NOT already hold the mutex. */
-static void update_ethernet_info(void)
+// Public: update_ethernet_info that takes the mutex itself. This is safe to call from contexts that do NOT already hold the mutex.
+/*static void update_ethernet_info(void)
 {
     EthSnapshot_t snap;
     gather_ethernet_snapshot(&snap);
 
-    /* Try to take the mutex and copy snapshot into sm_actuals */
+    // Try to take the mutex and copy snapshot into sm_actuals
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) == pdTRUE)
     {
         copy_eth_actuals_into_sm(&snap);
@@ -349,7 +358,7 @@ static void update_ethernet_info(void)
 
     LOGD(TAG, "update_ethernet_info: snapshot IP=%s DNS1=%s DNS2=%s DHCP=%s",
          snap.ip, snap.dns1, snap.dns2, snap.dhcp ? "enabled" : "static");
-}
+}*/
 
 // Public: variant to call when the caller already holds statemachine_mutex. This avoids nested mutex attempts.
 static void update_ethernet_info_nolock(void)
@@ -357,7 +366,7 @@ static void update_ethernet_info_nolock(void)
     EthSnapshot_t snap;
     gather_ethernet_snapshot(&snap);
 
-    /* Caller must hold statemachine_mutex */
+    // Caller must hold statemachine_mutex
     copy_eth_actuals_into_sm(&snap);
 
     LOGD(TAG, "update_ethernet_info_nolock: snapshot IP=%s DNS1=%s DNS2=%s DHCP=%s",
@@ -396,7 +405,6 @@ void sys_stats_update_actuals(void)
     }
 
     bool eth_connected_now = eth_is_connected();
-    // bool eth_has_ip_now = network_has_ip();
 
     if (eth_connected_now)
     {
@@ -493,7 +501,8 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
         return used;
 
-    snapshot = sm_actuals; // shallow copy; ensure sm_actuals_t contains no pointers
+    // shallow copy; ensure sm_actuals_t contains no pointers
+    snapshot = sm_actuals;
     xSemaphoreGive(statemachine_mutex);
 
     // Debug: log the snapshot we will print
@@ -546,9 +555,6 @@ void show_system_and_task_stats(void)
         return;
 
     size_t used = 0;
-
-    // Update is done globally
-    // sys_stats_update_actuals();
 
     used = append_header(out, used, buf_size);
     used = append_task_table(out, used, buf_size);
