@@ -170,7 +170,7 @@ void eth_start(void)
     }
     if (eth_started)
     {
-        LOGI(TAG, "Ethernet already started");
+        LOGD(TAG, "Ethernet already started");
         return;
     }
     esp_err_t err = esp_eth_start(eth_handle);
@@ -273,7 +273,7 @@ esp_err_t ethernet_config_apply(void)
     Ethernet_config_t local;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        LOGI(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
+        LOGD(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
         memcpy(&local, &ethernet_config, sizeof(Ethernet_config_t));
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
         xSemaphoreGive(network_config_mutex);
@@ -291,19 +291,19 @@ esp_err_t ethernet_config_apply(void)
         return ESP_OK;
     }
 
-    LOGI(TAG, "Setting Ethernet hostname to: %s", hostname);
+    LOGD(TAG, "Setting Ethernet hostname to: %s", hostname);
     esp_err_t herr = esp_netif_set_hostname(eth_netif, hostname);
     if (herr != ESP_OK)
     {
         LOGW(TAG, "Failed to set Ethernet hostname: %s", esp_err_to_name(herr));
     }
 
-    LOGI(TAG, "Ethernet enabled in config; starting driver if needed");
+    LOGD(TAG, "Ethernet enabled in config; starting driver if needed");
     eth_start();
 
     if (strcmp(local.enable_dhcp, "On") == 0)
     {
-        LOGI(TAG, "Starting DHCP client on Ethernet");
+        LOGD(TAG, "Starting DHCP client on Ethernet");
         esp_err_t err = esp_netif_dhcpc_start(eth_netif);
         if (err != ESP_OK && err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
         {
