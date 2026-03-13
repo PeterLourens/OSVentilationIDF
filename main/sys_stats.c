@@ -296,7 +296,7 @@ static void gather_ethernet_snapshot(EthSnapshot_t *out)
         return;
     }
 
-    LOGI(TAG, "gather_ethernet_snapshot: ETH_DEF netif handle: %p", (void *)netif);
+    LOGD(TAG, "gather_ethernet_snapshot: ETH_DEF netif handle: %p", (void *)netif);
 
     esp_netif_ip_info_t ip;
     esp_err_t err = esp_netif_get_ip_info(netif, &ip);
@@ -305,7 +305,7 @@ static void gather_ethernet_snapshot(EthSnapshot_t *out)
         esp_ip4addr_ntoa(&ip.ip, out->ip, sizeof(out->ip));
         esp_ip4addr_ntoa(&ip.netmask, out->netmask, sizeof(out->netmask));
         esp_ip4addr_ntoa(&ip.gw, out->gw, sizeof(out->gw));
-        LOGI(TAG, "Got ETH IP: %s netmask: %s gw: %s", out->ip, out->netmask, out->gw);
+        LOGD(TAG, "Got ETH IP: %s netmask: %s gw: %s", out->ip, out->netmask, out->gw);
     }
     else
     {

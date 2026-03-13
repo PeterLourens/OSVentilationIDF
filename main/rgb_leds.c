@@ -226,6 +226,7 @@ void leds_update(const Statemachine_actuals_t *sm)
     if (sm_snap.eth_connected && sm_snap.wifi_connected)
     {
         // Alternate colors with delay
+        LOGD(TAG, "Blink blue & magenta (ETH: %s, Wifi: %s)", sm_snap.eth_connected ? "connected" : "disconnected", sm_snap.wifi_connected ? "connected" : "disconnected");
         uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
 
         if (now_ms - net_last_switch_ms > 500) // 500 ms delay between colors
@@ -238,10 +239,12 @@ void leds_update(const Statemachine_actuals_t *sm)
     }
     else if (sm_snap.eth_connected)
     {
+        LOGD(TAG, "Blink magenta (ETH: %s)", sm_snap.eth_connected ? "connected" : "disconnected");
         net_color = COLOR_MAGENTA;
     }
     else if (sm_snap.wifi_connected)
     {
+        LOGD(TAG, "Blink blue (WIFI: %s)", sm_snap.wifi_connected ? "connected" : "disconnected");
         net_color = COLOR_BLUE;
     }
     else

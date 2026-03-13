@@ -381,7 +381,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
             goto exit;
         }
 
-        /* Configure DNS servers */
+        // Configure DNS servers
         esp_netif_dns_info_t dns_info = {0};
         inet_pton(AF_INET, settings->primary_dns, &dns_info.ip.u_addr.ip4);
         dns_info.ip.type = ESP_IPADDR_TYPE_V4;
