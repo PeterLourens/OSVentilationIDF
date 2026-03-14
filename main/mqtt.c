@@ -733,9 +733,7 @@ static inline void mqtt_pubs_retained(const char *topic, const char *value)
 }
 
 // Publish discovery config for a sensor entity
-static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
-								   const char *name, const char *unit, const char *device_class,
-								   const char *state_topic, const char *value_template, const char *unique_id)
+static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, const char *name, const char *unit, const char *device_class, const char *state_topic, const char *value_template, const char *unique_id)
 {
 	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
 	char payload[512] = {0};
@@ -821,9 +819,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 }
 
 // Publish Home Assistant MQTT discovery for a valve (read-only position)
-static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
-								  const char *name, const char *position_topic,
-								  const char *unique_id)
+static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *unique_id)
 {
 	char payload[1024] = {0};
 	char topic[256] = {0};
@@ -1065,14 +1061,13 @@ void mqtt_publish_homeassistant_discovery(void)
 	// publish valves as read-only valves (no command_topic)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
-		/* state topic where firmware publishes the current valve position */
+		/* Build the same topic used by mqtt_publish_valve_positions() */
 		snprintf(state_topic, sizeof(state_topic), "%s/position/valve%d", base, id);
 		state_topic[sizeof(state_topic) - 1] = '\0';
 
 		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
 		object_id[sizeof(object_id) - 1] = '\0';
 
-		/// build unique_id safely
 		unique_id[0] = '\0';
 		strlcpy(unique_id, node_id, sizeof(unique_id));
 		strlcat(unique_id, "_", sizeof(unique_id));
@@ -1081,7 +1076,7 @@ void mqtt_publish_homeassistant_discovery(void)
 		snprintf(name, sizeof(name), "Valve %d Position", id);
 		name[sizeof(name) - 1] = '\0';
 
-		// publish as Home Assistant valve (read-only: no command_topic)
+		/* Publish as Home Assistant valve (read-only) */
 		mqtt_publish_ha_valve(node_id, object_id, name, state_topic, unique_id);
 	}
 
