@@ -4,10 +4,17 @@
 
 #include "task_mqtt.h"
 
+// desired stack in bytes
+#define MQTT_STACK_BYTES (16 * 1024) // try 16 KB first
+
+/* compute words for StackType_t */
+#define MQTT_STACK_WORDS (MQTT_STACK_BYTES / sizeof(StackType_t))
+
+static StackType_t mqtt_stack[MQTT_STACK_WORDS];
+static StaticTask_t mqtt_tcb;
+static const uint32_t mqtt_stack_size = MQTT_STACK_WORDS;
+
 static const char *TAG = "task_MQTT";
-static StackType_t mqtt_stack[65536];  // stack buffer
-static StaticTask_t mqtt_tcb;          // TCB buffer
-static size_t mqtt_stack_size = 65536; // 65536 words
 
 void start_task_mqtt(void)
 {
