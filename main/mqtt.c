@@ -820,6 +820,88 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	mqtt_pubs_retained(topic, payload);
 }
 
+/* Publish Home Assistant MQTT discovery for a valve (read-only position) */
+static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
+								  const char *name, const char *position_topic,
+								  const char *unique_id)
+{
+	char payload[1024] = {0};
+	char topic[256] = {0};
+	char macid[32] = {0};
+	uint8_t mac[6];
+
+	/* build discovery topic */
+	snprintf(topic, sizeof(topic), "homeassistant/valve/%s/%s/config", node_id, object_id);
+	topic[sizeof(topic) - 1] = '\0';
+
+	/* try to read MAC (non-fatal) */
+	if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
+	{
+		snprintf(macid, sizeof(macid), "%02X%02X%02X%02X%02X%02X",
+				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		macid[sizeof(macid) - 1] = '\0';
+	}
+
+	/* Base payload: name, unique_id, state/position topics */
+	if (macid[0] != '\0')
+	{
+		snprintf(payload, sizeof(payload),
+				 "{"
+				 "\"name\":\"%s\","
+				 "\"unique_id\":\"%s\","
+				 "\"state_topic\":\"%s\","
+				 "\"position_topic\":\"%s\","
+				 "\"position_open\":100,"
+				 "\"position_closed\":0,"
+				 "\"device\":{"
+				 "\"identifiers\":[\"%s\",\"%s\"],"
+				 "\"name\":\"%s\","
+				 "\"model\":\"%s\","
+				 "\"manufacturer\":\"%s\""
+				 "}",
+				 name, unique_id, position_topic, position_topic,
+				 node_id, macid, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
+	}
+	else
+	{
+		snprintf(payload, sizeof(payload),
+				 "{"
+				 "\"name\":\"%s\","
+				 "\"unique_id\":\"%s\","
+				 "\"state_topic\":\"%s\","
+				 "\"position_topic\":\"%s\","
+				 "\"position_open\":100,"
+				 "\"position_closed\":0,"
+				 "\"device\":{"
+				 "\"identifiers\":[\"%s\"],"
+				 "\"name\":\"%s\","
+				 "\"model\":\"%s\","
+				 "\"manufacturer\":\"%s\""
+				 "}",
+				 name, unique_id, position_topic, position_topic,
+				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
+	}
+
+	/* optional sw/hw version fields */
+#ifdef DEVICE_SW_VERSION
+	strlcat(payload, ",\"sw_version\":\"", sizeof(payload));
+	strlcat(payload, DEVICE_SW_VERSION, sizeof(payload));
+	strlcat(payload, "\"", sizeof(payload));
+#endif
+
+#ifdef DEVICE_HW_VERSION
+	strlcat(payload, ",\"hw_version\":\"", sizeof(payload));
+	strlcat(payload, DEVICE_HW_VERSION, sizeof(payload));
+	strlcat(payload, "\"", sizeof(payload));
+#endif
+
+	/* close device object and outer object */
+	strlcat(payload, "}}", sizeof(payload));
+
+	/* publish retained discovery */
+	mqtt_pubs_retained(topic, payload);
+}
+
 // Main discovery publisher — publishes retained discovery messages for HA
 void mqtt_publish_homeassistant_discovery(void)
 {
@@ -971,7 +1053,7 @@ void mqtt_publish_homeassistant_discovery(void)
 		}
 	}
 
-	// publish valves as read-only sensors (no command_topic)
+	// publish valves as read-only valves (no command_topic)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
 		/* state topic where firmware publishes the current valve position */
@@ -990,8 +1072,8 @@ void mqtt_publish_homeassistant_discovery(void)
 		snprintf(name, sizeof(name), "Valve %d Position", id);
 		name[sizeof(name) - 1] = '\0';
 
-		// publish as sensor (read-only)
-		mqtt_publish_ha_sensor(node_id, object_id, name, NULL, NULL, state_topic, "{{ value }}", unique_id);
+		// publish as Home Assistant valve (read-only: no command_topic)
+		mqtt_publish_ha_valve(node_id, object_id, name, state_topic, unique_id);
 	}
 
 	// System state (select)
