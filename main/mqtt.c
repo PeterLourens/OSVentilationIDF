@@ -1003,24 +1003,24 @@ void mqtt_publish_homeassistant_discovery(void)
 			mqtt_publish_ha_sensor(node_id, object_id, name, "%", "humidity", state_topic, "{{ value }}", unique_id);
 
 			// CO2 (avg) — only if sensor provides it (based on valid flag or CO2 > 0)
-			if ((have_avg && avg[bus][slot][IDX_CO2] > 0) || (have_raw && raw[bus][slot][IDX_CO2] > 0))
-			{
-				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
-				state_topic[sizeof(state_topic) - 1] = '\0';
+			// if ((have_avg && avg[bus][slot][IDX_CO2] > 0) || (have_raw && raw[bus][slot][IDX_CO2] > 0))
+			//{
+			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
+			state_topic[sizeof(state_topic) - 1] = '\0';
 
-				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_co2", bus, slot);
-				object_id[sizeof(object_id) - 1] = '\0';
+			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_co2", bus, slot);
+			object_id[sizeof(object_id) - 1] = '\0';
 
-				unique_id[0] = '\0';
-				strlcpy(unique_id, node_id, sizeof(unique_id));
-				strlcat(unique_id, "_", sizeof(unique_id));
-				strlcat(unique_id, object_id, sizeof(unique_id));
+			unique_id[0] = '\0';
+			strlcpy(unique_id, node_id, sizeof(unique_id));
+			strlcat(unique_id, "_", sizeof(unique_id));
+			strlcat(unique_id, object_id, sizeof(unique_id));
 
-				snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
-				name[sizeof(name) - 1] = '\0';
+			snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
+			name[sizeof(name) - 1] = '\0';
 
-				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id);
-			}
+			mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id);
+			//}
 
 			// Pressure (avg)
 			// snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/pressure", base, bus, slot);
