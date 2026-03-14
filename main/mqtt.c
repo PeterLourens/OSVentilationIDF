@@ -738,7 +738,6 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 								   const char *state_topic, const char *value_template, const char *unique_id)
 {
 	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
-	char topic[512];
 	char payload[1024];
 	char macid[32] = {0};
 	uint8_t mac[6];
@@ -812,6 +811,10 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 
 	// Close device and outer object
 	strlcat(payload, "}}", sizeof(payload));
+
+	char topic[256];
+	snprintf(topic, sizeof(topic), "homeassistant/sensor/%s/%s/config", node_id, object_id);
+	topic[sizeof(topic) - 1] = '\0';
 
 	// publish retained
 	mqtt_pubs_retained(topic, payload);
