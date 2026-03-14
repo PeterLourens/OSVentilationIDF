@@ -751,8 +751,9 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	mqtt_pubs_retained(topic, payload);
 }
 
-// Publish discovery config for a number (valve position)
-static void mqtt_publish_ha_number(const char *node_id, const char *object_id,
+// Publish discovery config for a number (valve position) - This function is need if you want to expose valve positions as Home Assistant "number" entities with min/max/unit.
+// If you prefer to publish them as simple sensors, you can skip this and use mqtt_publish_ha_sensor instead with appropriate device_class and unit.
+/*static void mqtt_publish_ha_number(const char *node_id, const char *object_id,
 								   const char *name, const char *state_topic, const char *unique_id, int min, int max, const char *unit)
 {
 	char topic[512];
@@ -766,7 +767,7 @@ static void mqtt_publish_ha_number(const char *node_id, const char *object_id,
 			 name, state_topic, unique_id, min, max, unit ? unit : "", node_id, node_id);
 
 	mqtt_pubs_retained(topic, payload);
-}
+}*/
 
 // Publish discovery config for a select (system state / fanspeed)
 static void mqtt_publish_ha_select(const char *node_id, const char *object_id,
@@ -808,18 +809,47 @@ void mqtt_publish_homeassistant_discovery(void)
 	// Here we iterate all buses/slots and publish discovery for avg sensors when valid.
 	// Adjust names/units/device_class as needed for your sensors.
 
+	// --- Determine which sensors are present by peeking the queues ---
+	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+	bool have_raw = false;
+	bool have_avg = false;
+
+	if (xQueuePeek(sensor_queue, raw, 0) == pdTRUE)
+	{
+		have_raw = true;
+	}
+	if (xQueuePeek(sensor_avg_queue, avg, 0) == pdTRUE)
+	{
+		have_avg = true;
+	}
+
+	// Buffers
 	char state_topic[512];
 	char object_id[256];
 	char unique_id[256];
 	char name[256];
 
+	// Publish discovery only for slots that are present (based on IDX_VALID or CO2 heuristic)
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
-			// We don't have direct access to whether a sensor exists here except via queues.
-			// For simplicity publish discovery for all possible slots; Home Assistant will only show entities when state_topic receives values.
-			// If you prefer to publish only for detected sensors, iterate your sensor registry instead.
+			bool slot_present = false;
+
+			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
+				slot_present = true;
+			if (!slot_present && have_avg && avg[bus][slot][IDX_VALID] == 1)
+				slot_present = true;
+
+			// fallback: if valid flag not set, treat non-zero CO2 as presence
+			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
+				slot_present = true;
+			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
+				slot_present = true;
+
+			if (!slot_present)
+				continue; // skip unused slot
 
 			// Temperature (avg)
 			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
@@ -855,11 +885,31 @@ void mqtt_publish_homeassistant_discovery(void)
 
 			mqtt_publish_ha_sensor(node_id, object_id, name, "%%", "humidity", state_topic, "{{ value }}", unique_id);
 
-			// CO2 (avg)
-			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
+			// CO2 (avg) — only if sensor provides it (based on valid flag or CO2 > 0)
+			if ((have_avg && avg[bus][slot][IDX_CO2] > 0) || (have_raw && raw[bus][slot][IDX_CO2] > 0))
+			{
+				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
+				state_topic[sizeof(state_topic) - 1] = '\0';
+
+				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_co2", bus, slot);
+				object_id[sizeof(object_id) - 1] = '\0';
+
+				unique_id[0] = '\0';
+				strlcpy(unique_id, node_id, sizeof(unique_id));
+				strlcat(unique_id, "_", sizeof(unique_id));
+				strlcat(unique_id, object_id, sizeof(unique_id));
+
+				snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
+				name[sizeof(name) - 1] = '\0';
+
+				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", NULL, state_topic, "{{ value }}", unique_id);
+			}
+
+			// Pressure (avg)
+			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/pressure", base, bus, slot);
 			state_topic[sizeof(state_topic) - 1] = '\0';
 
-			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_co2", bus, slot);
+			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_pressure", bus, slot);
 			object_id[sizeof(object_id) - 1] = '\0';
 
 			unique_id[0] = '\0';
@@ -867,42 +917,41 @@ void mqtt_publish_homeassistant_discovery(void)
 			strlcat(unique_id, "_", sizeof(unique_id));
 			strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
+			snprintf(name, sizeof(name), "Bus%d Slot%d Pressure (avg)", bus, slot);
 			name[sizeof(name) - 1] = '\0';
 
-			mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", NULL, state_topic, "{{ value }}", unique_id);
-
-			// Pressure (avg)
-			// snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/pressure", base, bus, slot);
-			// snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_pressure", bus, slot);
-			// unique_id[0] = '\0';
-			// strlcpy(unique_id, node_id, sizeof(unique_id));
-			// strlcat(unique_id, "_", sizeof(unique_id));
-			// strlcat(unique_id, object_id, sizeof(unique_id));
-			// snprintf(name, sizeof(name), "Bus%d Slot%d Pressure (avg)", bus, slot);
-			// mqtt_publish_ha_sensor(node_id, object_id, name, "hPa", "pressure", state_topic, "{{ value }}", unique_id);
+			mqtt_publish_ha_sensor(node_id, object_id, name, "hPa", "pressure", state_topic, "{{ value }}", unique_id);
 
 			// Gas resistance (avg)
-			// snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/gas_resistance", base, bus, slot);
-			// snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_gas", bus, slot);
-			// unique_id[0] = '\0';
-			// strlcpy(unique_id, node_id, sizeof(unique_id));
-			// strlcat(unique_id, "_", sizeof(unique_id));
-			// strlcat(unique_id, object_id, sizeof(unique_id));
-			// snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance (avg)", bus, slot);
-			// mqtt_publish_ha_sensor(node_id, object_id, name, "Ω", NULL, state_topic, "{{ value }}", unique_id);
+			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/gas_resistance", base, bus, slot);
+			state_topic[sizeof(state_topic) - 1] = '\0';
+
+			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_gas", bus, slot);
+			object_id[sizeof(object_id) - 1] = '\0';
+
+			unique_id[0] = '\0';
+			strlcpy(unique_id, node_id, sizeof(unique_id));
+			strlcat(unique_id, "_", sizeof(unique_id));
+			strlcat(unique_id, object_id, sizeof(unique_id));
+
+			snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance (avg)", bus, slot);
+			name[sizeof(name) - 1] = '\0';
+
+			mqtt_publish_ha_sensor(node_id, object_id, name, "Ω", NULL, state_topic, "{{ value }}", unique_id);
 		}
 	}
 
-	// Valve positions
+	// publish valves as read-only sensors (no command_topic)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
+		/* state topic where firmware publishes the current valve position */
 		snprintf(state_topic, sizeof(state_topic), "%s/position/valve%d", base, id);
 		state_topic[sizeof(state_topic) - 1] = '\0';
 
 		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
 		object_id[sizeof(object_id) - 1] = '\0';
 
+		/// build unique_id safely
 		unique_id[0] = '\0';
 		strlcpy(unique_id, node_id, sizeof(unique_id));
 		strlcat(unique_id, "_", sizeof(unique_id));
@@ -911,7 +960,8 @@ void mqtt_publish_homeassistant_discovery(void)
 		snprintf(name, sizeof(name), "Valve %d Position", id);
 		name[sizeof(name) - 1] = '\0';
 
-		mqtt_publish_ha_number(node_id, object_id, name, state_topic, unique_id, 0, 100, "%%");
+		// publish as sensor (read-only)
+		mqtt_publish_ha_sensor(node_id, object_id, name, "%%", NULL, state_topic, "{{ value }}", unique_id);
 	}
 
 	// System state (select)
