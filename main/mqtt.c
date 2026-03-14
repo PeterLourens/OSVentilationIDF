@@ -936,38 +936,38 @@ void mqtt_publish_homeassistant_discovery(void)
 			}
 
 			// Pressure (avg)
-			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/pressure", base, bus, slot);
-			state_topic[sizeof(state_topic) - 1] = '\0';
+			// snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/pressure", base, bus, slot);
+			// state_topic[sizeof(state_topic) - 1] = '\0';
 
-			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_pressure", bus, slot);
-			object_id[sizeof(object_id) - 1] = '\0';
+			// snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_pressure", bus, slot);
+			// object_id[sizeof(object_id) - 1] = '\0';
 
-			unique_id[0] = '\0';
-			strlcpy(unique_id, node_id, sizeof(unique_id));
-			strlcat(unique_id, "_", sizeof(unique_id));
-			strlcat(unique_id, object_id, sizeof(unique_id));
+			// unique_id[0] = '\0';
+			// strlcpy(unique_id, node_id, sizeof(unique_id));
+			// strlcat(unique_id, "_", sizeof(unique_id));
+			// strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d Pressure (avg)", bus, slot);
-			name[sizeof(name) - 1] = '\0';
+			// snprintf(name, sizeof(name), "Bus%d Slot%d Pressure (avg)", bus, slot);
+			// name[sizeof(name) - 1] = '\0';
 
-			mqtt_publish_ha_sensor(node_id, object_id, name, "hPa", "pressure", state_topic, "{{ value }}", unique_id);
+			// mqtt_publish_ha_sensor(node_id, object_id, name, "hPa", "pressure", state_topic, "{{ value }}", unique_id);
 
 			// Gas resistance (avg)
-			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/gas_resistance", base, bus, slot);
-			state_topic[sizeof(state_topic) - 1] = '\0';
+			// snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/gas_resistance", base, bus, slot);
+			// state_topic[sizeof(state_topic) - 1] = '\0';
 
-			snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_gas", bus, slot);
-			object_id[sizeof(object_id) - 1] = '\0';
+			// snprintf(object_id, sizeof(object_id), "bus%d_slot%d_avg_gas", bus, slot);
+			// object_id[sizeof(object_id) - 1] = '\0';
 
-			unique_id[0] = '\0';
-			strlcpy(unique_id, node_id, sizeof(unique_id));
-			strlcat(unique_id, "_", sizeof(unique_id));
-			strlcat(unique_id, object_id, sizeof(unique_id));
+			// unique_id[0] = '\0';
+			// strlcpy(unique_id, node_id, sizeof(unique_id));
+			// strlcat(unique_id, "_", sizeof(unique_id));
+			// strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance (avg)", bus, slot);
-			name[sizeof(name) - 1] = '\0';
+			// snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance (avg)", bus, slot);
+			// name[sizeof(name) - 1] = '\0';
 
-			mqtt_publish_ha_sensor(node_id, object_id, name, "Ω", NULL, state_topic, "{{ value }}", unique_id);
+			// mqtt_publish_ha_sensor(node_id, object_id, name, "Ω", NULL, state_topic, "{{ value }}", unique_id);
 		}
 	}
 
