@@ -913,7 +913,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			snprintf(name, sizeof(name), "Bus%d Slot%d Humidity (avg)", bus, slot);
 			name[sizeof(name) - 1] = '\0';
 
-			mqtt_publish_ha_sensor(node_id, object_id, name, "%%", "humidity", state_topic, "{{ value }}", unique_id);
+			mqtt_publish_ha_sensor(node_id, object_id, name, "%", "humidity", state_topic, "{{ value }}", unique_id);
 
 			// CO2 (avg) — only if sensor provides it (based on valid flag or CO2 > 0)
 			if ((have_avg && avg[bus][slot][IDX_CO2] > 0) || (have_raw && raw[bus][slot][IDX_CO2] > 0))
@@ -991,7 +991,7 @@ void mqtt_publish_homeassistant_discovery(void)
 		name[sizeof(name) - 1] = '\0';
 
 		// publish as sensor (read-only)
-		mqtt_publish_ha_sensor(node_id, object_id, name, "%%", NULL, state_topic, "{{ value }}", unique_id);
+		mqtt_publish_ha_sensor(node_id, object_id, name, NULL, NULL, state_topic, "{{ value }}", unique_id);
 	}
 
 	// System state (select)
