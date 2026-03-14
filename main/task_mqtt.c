@@ -5,9 +5,9 @@
 #include "task_mqtt.h"
 
 static const char *TAG = "task_MQTT";
-static StackType_t mqtt_stack[8192];  // stack buffer
-static StaticTask_t mqtt_tcb;         // TCB buffer
-static size_t mqtt_stack_size = 8192; // 8192 words
+static StackType_t mqtt_stack[16384];  // stack buffer
+static StaticTask_t mqtt_tcb;          // TCB buffer
+static size_t mqtt_stack_size = 16384; // 16384 words
 
 void start_task_mqtt(void)
 {
