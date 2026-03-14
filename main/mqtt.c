@@ -820,10 +820,8 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	mqtt_pubs_retained(topic, payload);
 }
 
-/* Publish Home Assistant MQTT discovery for a valve (read-only position) */
-static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
-								  const char *name, const char *position_topic,
-								  const char *unique_id)
+// Publish Home Assistant MQTT discovery for a valve (read-only position)
+static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *unique_id)
 {
 	char payload[1024] = {0};
 	char topic[256];
@@ -857,8 +855,7 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
 				 "\"identifiers\":[\"%s\",\"%s\"],"
 				 "\"name\":\"%s\","
 				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\""
-				 "}",
+				 "\"manufacturer\":\"%s\"",
 				 name, unique_id, position_topic, position_topic,
 				 node_id, macid, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
 	}
@@ -876,8 +873,7 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
 				 "\"identifiers\":[\"%s\"],"
 				 "\"name\":\"%s\","
 				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\""
-				 "}",
+				 "\"manufacturer\":\"%s\"",
 				 name, unique_id, position_topic, position_topic,
 				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
 	}
