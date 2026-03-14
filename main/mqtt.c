@@ -932,7 +932,7 @@ void mqtt_publish_homeassistant_discovery(void)
 				snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
 				name[sizeof(name) - 1] = '\0';
 
-				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", NULL, state_topic, "{{ value }}", unique_id);
+				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id);
 			}
 
 			// Pressure (avg)
