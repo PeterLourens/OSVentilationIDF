@@ -657,7 +657,7 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 void mqtt_publish_valve_positions(void)
 {
 	char base[256] = {0};
-	char topic[512] = {0};
+	// char topic[512] = {0};
 
 	MQTT_config_t cfg;
 
@@ -695,9 +695,9 @@ void mqtt_publish_valve_positions(void)
 
 	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
 	// LOGD(TAG, "Topic: %s", topic);
-}
+	//}
 
-nvs_close(nvs);
+	nvs_close(nvs);
 }
 
 /* ---------------------------------------------------------------------------
