@@ -738,7 +738,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 								   const char *state_topic, const char *value_template, const char *unique_id)
 {
 	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
-	char payload[1024];
+	char payload[512] = {0};
 	char macid[32] = {0};
 	uint8_t mac[6];
 
@@ -823,8 +823,8 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 // Publish Home Assistant MQTT discovery for a valve (read-only position)
 static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *unique_id)
 {
-	char payload[1024] = {0};
-	char topic[256];
+	char payload[512] = {0};
+	char topic[256] = {0};
 	char macid[32] = {0};
 	uint8_t mac[6];
 
