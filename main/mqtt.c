@@ -738,8 +738,8 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 								   const char *state_topic, const char *value_template, const char *unique_id)
 {
 	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
-	char topic[512];
-	char payload[1536];
+	// char topic[512];
+	char payload[1024];
 	char macid[32] = {0};
 	uint8_t mac[6];
 
@@ -814,7 +814,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	strlcat(payload, "}}", sizeof(payload));
 
 	// publish retained
-	mqtt_pubs_retained(topic, payload);
+	// mqtt_pubs_retained(topic, payload);
 }
 
 // Main discovery publisher — publishes retained discovery messages for HA
@@ -836,21 +836,6 @@ void mqtt_publish_homeassistant_discovery(void)
 	char base[256] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
-	// Remove old select discovery entries (publish empty retained payloads) */
-	char del_topic[256];
-
-	// snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_state/config", node_id);
-	// del_topic[sizeof(del_topic) - 1] = '\0';
-	// mqtt_pubs_retained(del_topic, "");
-
-	// snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_fanspeed/config", node_id);
-	// del_topic[sizeof(del_topic) - 1] = '\0';
-	// mqtt_pubs_retained(del_topic, "");
-
-	// Publish discovery for each valid sensor instance.
-	// Here we iterate all buses/slots and publish discovery for avg sensors when valid.
-	// Adjust names/units/device_class as needed for your sensors.
-
 	// --- Determine which sensors are present by peeking the queues ---
 	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
@@ -868,9 +853,9 @@ void mqtt_publish_homeassistant_discovery(void)
 
 	// Buffers
 	char state_topic[512];
-	char object_id[256];
-	char unique_id[256];
-	char name[256];
+	char object_id[128];
+	char unique_id[128];
+	char name[128];
 
 	// Publish discovery only for slots that are present (based on IDX_VALID or CO2 heuristic)
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
