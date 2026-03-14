@@ -599,6 +599,61 @@ void mqtt_publish_sensor_values(void)
 /* ---------------------------------------------------------------------------
    Publish all valve positions
    --------------------------------------------------------------------------- */
+
+// Helper: read one valve pos from NVS and publish it as a plain integer
+static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
+{
+	char key[16];
+	int32_t raw_pos = 0;
+	char topic[256];
+	char payload[16];
+
+	/* Read NVS key "valveN" */
+	snprintf(key, sizeof(key), "valve%d", id);
+	key[sizeof(key) - 1] = '\0';
+
+	esp_err_t r = nvs_get_i32(nvs, key, &raw_pos);
+	if (r == ESP_ERR_NVS_NOT_FOUND)
+	{
+		/* Valve not configured → skip quietly */
+		return;
+	}
+	else if (r != ESP_OK)
+	{
+		LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+		raw_pos = 0;
+	}
+
+	/* Optional: scale if stored range differs (example for 0..1023 -> 0..100)
+	   Uncomment and adjust if needed:
+	if (raw_pos > 100)
+		raw_pos = (raw_pos * 100) / 1023;
+	*/
+
+	/* Clamp to 0..100 */
+	if (raw_pos < 0)
+		raw_pos = 0;
+	if (raw_pos > 100)
+		raw_pos = 100;
+
+	/* Build topic and payload */
+	snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
+	topic[sizeof(topic) - 1] = '\0';
+
+	snprintf(payload, sizeof(payload), "%" PRId32, raw_pos);
+	payload[sizeof(payload) - 1] = '\0';
+
+	/* Debug: log exact payload and topic */
+	LOGD(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
+
+	/* Publish (non-retained, QoS 1) */
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
+	if (err < 0)
+	{
+		LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
+	}
+}
+
 void mqtt_publish_valve_positions(void)
 {
 	char base[256] = {0};
@@ -628,34 +683,21 @@ void mqtt_publish_valve_positions(void)
 
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
+	/* Replace the original loop with this: */
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
-		int32_t pos = 0;
-
-		char key[16];
-		snprintf(key, sizeof(key), "valve%d", id);
-
-		esp_err_t r = nvs_get_i32(nvs, key, &pos);
-		if (r == ESP_ERR_NVS_NOT_FOUND)
-		{
-			// Valve not configured → skip
-			continue;
-		}
-		else if (r != ESP_OK)
-		{
-			LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
-			pos = 0;
-		}
-
-		// Build topic manually
-		snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-		mqtt_pubi(topic, pos);
-
-		LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
-		LOGD(TAG, "Topic: %s", topic);
+		publish_valve_from_nvs(nvs, base, id);
 	}
 
-	nvs_close(nvs);
+	// Build topic manually
+	// snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
+	// mqtt_pubi(topic, pos);
+
+	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
+	// LOGD(TAG, "Topic: %s", topic);
+}
+
+nvs_close(nvs);
 }
 
 /* ---------------------------------------------------------------------------
