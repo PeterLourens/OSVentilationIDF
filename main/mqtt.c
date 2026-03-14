@@ -821,9 +821,11 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 }
 
 // Publish Home Assistant MQTT discovery for a valve (read-only position)
-static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *unique_id)
+static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
+								  const char *name, const char *position_topic,
+								  const char *unique_id)
 {
-	char payload[512] = {0};
+	char payload[1024] = {0};
 	char topic[256] = {0};
 	char macid[32] = {0};
 	uint8_t mac[6];
@@ -840,7 +842,13 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 		macid[sizeof(macid) - 1] = '\0';
 	}
 
-	/* Base payload: name, unique_id, state/position topics */
+	/*
+	 * We publish:
+	 *  - position_topic: numeric 0..100 (firmware must publish this)
+	 *  - state_topic: same as position_topic
+	 *  - value_template: maps numeric >0 to "OPEN", else "CLOSED"
+	 *  - no command_topic (read-only)
+	 */
 	if (macid[0] != '\0')
 	{
 		snprintf(payload, sizeof(payload),
@@ -849,6 +857,7 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 				 "\"unique_id\":\"%s\","
 				 "\"state_topic\":\"%s\","
 				 "\"position_topic\":\"%s\","
+				 "\"value_template\":\"{{ 'OPEN' if value|int > 0 else 'CLOSED' }}\","
 				 "\"position_open\":100,"
 				 "\"position_closed\":0,"
 				 "\"device\":{"
@@ -867,6 +876,7 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 				 "\"unique_id\":\"%s\","
 				 "\"state_topic\":\"%s\","
 				 "\"position_topic\":\"%s\","
+				 "\"value_template\":\"{{ 'OPEN' if value|int > 0 else 'CLOSED' }}\","
 				 "\"position_open\":100,"
 				 "\"position_closed\":0,"
 				 "\"device\":{"
@@ -878,7 +888,6 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
 	}
 
-	/* optional sw/hw version fields */
 #ifdef DEVICE_SW_VERSION
 	strlcat(payload, ",\"sw_version\":\"", sizeof(payload));
 	strlcat(payload, DEVICE_SW_VERSION, sizeof(payload));
@@ -893,6 +902,10 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 
 	/* close device object and outer object */
 	strlcat(payload, "}}", sizeof(payload));
+
+	/* debug log (optional) */
+	LOGD(TAG, "Valve discovery topic: %s", topic);
+	LOGD(TAG, "Valve discovery payload: %s", payload);
 
 	/* publish retained discovery */
 	mqtt_pubs_retained(topic, payload);
@@ -933,7 +946,7 @@ void mqtt_publish_homeassistant_discovery(void)
 	}
 
 	// Buffers
-	char state_topic[512];
+	char state_topic[300];
 	char object_id[128];
 	char unique_id[128];
 	char name[128];
