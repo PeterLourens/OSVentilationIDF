@@ -1055,7 +1055,7 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 	payload[sizeof(payload) - 1] = '\0';
 
 	/* Debug: log exact payload and topic */
-	LOGD(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
+	LOGI(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
 
 	/* Publish (non-retained, QoS 1) */
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
@@ -1068,7 +1068,6 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 void mqtt_publish_valve_positions(void)
 {
 	char base[256] = {0};
-	// char topic[512] = {0};
 
 	MQTT_config_t cfg;
 
