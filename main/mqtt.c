@@ -249,7 +249,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		mqtt_publish_homeassistant_discovery();
 
 		// Subscribe to control topic
-		// mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
+		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;
 
 	case MQTT_EVENT_DISCONNECTED:
@@ -273,11 +273,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		LOGD(TAG, "Topic (%d): %.*s", event->topic_len, event->topic_len, topic);
 		LOGD(TAG, "Payload (%d): %.*s", len, len, payload);
 
-		// if (event->topic_len == (int)strlen("zigbee2mqtt/Ventilation/action") &&
-		//	strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
-		//{
-		//	statemachine_set_speed(payload, len);
-		// }
+		if (event->topic_len == (int)strlen("zigbee2mqtt/Ventilation/action") &&
+			strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
+		{
+			statemachine_set_speed(payload, len);
+		}
 
 		break;
 	}
@@ -738,7 +738,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 								   const char *state_topic, const char *value_template, const char *unique_id)
 {
 	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
-	// char topic[512];
+	char topic[512];
 	char payload[1024];
 	char macid[32] = {0};
 	uint8_t mac[6];
@@ -814,7 +814,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	strlcat(payload, "}}", sizeof(payload));
 
 	// publish retained
-	// mqtt_pubs_retained(topic, payload);
+	mqtt_pubs_retained(topic, payload);
 }
 
 // Main discovery publisher — publishes retained discovery messages for HA
