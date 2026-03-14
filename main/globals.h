@@ -12,6 +12,12 @@
 #include <esp_netif_sntp.h>
 #include <led_strip.h>
 
+// Project-wide global variables and definitions
+#define DEVICE_MANUFACTURER "Peter Lourens"
+#define DEVICE_MODEL "OSVentilation"
+#define DEVICE_SW_VERSION "v1.0.0" // update at build time if possible
+#define DEVICE_HW_VERSION "v2.0.0" // First SMD version of the hardware
+
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
 

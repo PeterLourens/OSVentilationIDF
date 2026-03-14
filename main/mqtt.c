@@ -737,17 +737,83 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 								   const char *name, const char *unit, const char *device_class,
 								   const char *state_topic, const char *value_template, const char *unique_id)
 {
+	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
 	char topic[512];
-	char payload[1024];
+	char payload[1536];
+	char macid[32] = {0};
+	uint8_t mac[6];
 
-	snprintf(topic, sizeof(topic), "homeassistant/sensor/%s/%s/config", node_id, object_id);
+	// try to read MAC (non-fatal)
+	if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
+	{
+		snprintf(macid, sizeof(macid), "%02X%02X%02X%02X%02X%02X",
+				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		macid[sizeof(macid) - 1] = '\0';
+	}
 
-	snprintf(payload, sizeof(payload),
-			 "{\"name\":\"%s\",\"state_topic\":\"%s\",\"unique_id\":\"%s\",\"unit_of_measurement\":\"%s\",\"device_class\":\"%s\","
-			 "\"value_template\":\"%s\",\"device\":{\"identifiers\":[\"%s\"],\"name\":\"%s\",\"model\":\"OSVentilation\",\"manufacturer\":\"OSVentilation\"}}",
-			 name, state_topic, unique_id, unit ? unit : "", device_class ? device_class : "", value_template ? value_template : "{{ value }}",
-			 node_id, node_id);
+	// Build base payload with device object; choose branch depending on mac presence
+	if (macid[0] != '\0')
+	{
+		// identifiers: node_id and mac
+		snprintf(payload, sizeof(payload),
+				 "{"
+				 "\"name\":\"%s\","
+				 "\"state_topic\":\"%s\","
+				 "\"unique_id\":\"%s\","
+				 "\"unit_of_measurement\":\"%s\","
+				 "\"device_class\":\"%s\","
+				 "\"value_template\":\"%s\","
+				 "\"device\":{"
+				 "\"identifiers\":[\"%s\",\"%s\"],"
+				 "\"name\":\"%s\","
+				 "\"model\":\"%s\","
+				 "\"manufacturer\":\"%s\"",
+				 name, state_topic, unique_id,
+				 unit ? unit : "",
+				 device_class ? device_class : "",
+				 value_template ? value_template : "{{ value }}",
+				 node_id, macid, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
+	}
+	else
+	{
+		// identifiers: node_id only
+		snprintf(payload, sizeof(payload),
+				 "{"
+				 "\"name\":\"%s\","
+				 "\"state_topic\":\"%s\","
+				 "\"unique_id\":\"%s\","
+				 "\"unit_of_measurement\":\"%s\","
+				 "\"device_class\":\"%s\","
+				 "\"value_template\":\"%s\","
+				 "\"device\":{"
+				 "\"identifiers\":[\"%s\"],"
+				 "\"name\":\"%s\","
+				 "\"model\":\"%s\","
+				 "\"manufacturer\":\"%s\"",
+				 name, state_topic, unique_id,
+				 unit ? unit : "",
+				 device_class ? device_class : "",
+				 value_template ? value_template : "{{ value }}",
+				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
+	}
 
+// Append optional fields safely
+#ifdef DEVICE_SW_VERSION
+	strlcat(payload, ",\"sw_version\":\"", sizeof(payload));
+	strlcat(payload, DEVICE_SW_VERSION, sizeof(payload));
+	strlcat(payload, "\"", sizeof(payload));
+#endif
+
+#ifdef DEVICE_HW_VERSION
+	strlcat(payload, ",\"hw_version\":\"", sizeof(payload));
+	strlcat(payload, DEVICE_HW_VERSION, sizeof(payload));
+	strlcat(payload, "\"", sizeof(payload));
+#endif
+
+	// Close device and outer object
+	strlcat(payload, "}}", sizeof(payload));
+
+	// publish retained
 	mqtt_pubs_retained(topic, payload);
 }
 
@@ -770,8 +836,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 }*/
 
 // Publish discovery config for a select (system state / fanspeed)
-static void mqtt_publish_ha_select(const char *node_id, const char *object_id,
-								   const char *name, const char *state_topic, const char *unique_id, const char *options_json)
+/*static void mqtt_publish_ha_select(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *unique_id, const char *options_json)
 {
 	char topic[512];
 	char payload[1024];
@@ -784,7 +849,7 @@ static void mqtt_publish_ha_select(const char *node_id, const char *object_id,
 			 name, state_topic, unique_id, options_json ? options_json : "[]", node_id, node_id);
 
 	mqtt_pubs_retained(topic, payload);
-}
+}*/
 
 // Main discovery publisher — publishes retained discovery messages for HA
 void mqtt_publish_homeassistant_discovery(void)
@@ -804,6 +869,17 @@ void mqtt_publish_homeassistant_discovery(void)
 	const char *node_id = mqtt_get_node_id();
 	char base[256] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	// Remove old select discovery entries (publish empty retained payloads) */
+	char del_topic[256];
+
+	snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_state/config", node_id);
+	del_topic[sizeof(del_topic) - 1] = '\0';
+	mqtt_pubs_retained(del_topic, "");
+
+	snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_fanspeed/config", node_id);
+	del_topic[sizeof(del_topic) - 1] = '\0';
+	mqtt_pubs_retained(del_topic, "");
 
 	// Publish discovery for each valid sensor instance.
 	// Here we iterate all buses/slots and publish discovery for avg sensors when valid.
@@ -965,7 +1041,7 @@ void mqtt_publish_homeassistant_discovery(void)
 	}
 
 	// System state (select)
-	const char *state_options = "[\"ERROR\",\"INIT\",\"DAY\",\"NIGHT\",\"HIGH_CO2_DAY\",\"HIGH_CO2_NIGHT\",\"HIGH_RH_DAY\",\"HIGH_RH_NIGHT\",\"COOKING\",\"CYCLING_DAY\",\"CYCLING_NIGHT\",\"MANUAL_HIGH\",\"STOPPED\",\"TEMP\",\"NOT_USED\",\"NOT_USED2\"]";
+	// const char *state_options = "[\"ERROR\",\"INIT\",\"DAY\",\"NIGHT\",\"HIGH_CO2_DAY\",\"HIGH_CO2_NIGHT\",\"HIGH_RH_DAY\",\"HIGH_RH_NIGHT\",\"COOKING\",\"CYCLING_DAY\",\"CYCLING_NIGHT\",\"MANUAL_HIGH\",\"STOPPED\",\"TEMP\",\"NOT_USED\",\"NOT_USED2\"]";
 
 	snprintf(object_id, sizeof(object_id), "system_state");
 	object_id[sizeof(object_id) - 1] = '\0';
@@ -978,10 +1054,12 @@ void mqtt_publish_homeassistant_discovery(void)
 	snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
 	state_topic[sizeof(state_topic) - 1] = '\0';
 
-	mqtt_publish_ha_select(node_id, object_id, "OSVentilation System State", state_topic, unique_id, state_options);
+	// publish as read-only sensor
+	// mqtt_publish_ha_select(node_id, object_id, "OSVentilation System State", state_topic, unique_id, state_options);
+	mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", "", NULL, state_topic, "{{ value }}", unique_id);
 
 	// Fan speed (select)
-	const char *fan_options = "[\"ERROR\",\"LOW\",\"MEDIUM\",\"HIGH\"]";
+	// const char *fan_options = "[\"ERROR\",\"LOW\",\"MEDIUM\",\"HIGH\"]";
 
 	snprintf(object_id, sizeof(object_id), "system_fanspeed");
 	object_id[sizeof(object_id) - 1] = '\0';
@@ -994,7 +1072,9 @@ void mqtt_publish_homeassistant_discovery(void)
 	snprintf(state_topic, sizeof(state_topic), "%s/system/fanspeed", base);
 	state_topic[sizeof(state_topic) - 1] = '\0';
 
-	mqtt_publish_ha_select(node_id, object_id, "OSVentilation Fan Speed", state_topic, unique_id, fan_options);
+	// publish as read-only sensor
+	// mqtt_publish_ha_select(node_id, object_id, "OSVentilation Fan Speed", state_topic, unique_id, fan_options);
+	mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", "", NULL, state_topic, "{{ value }}", unique_id);
 
 	ESP_LOGI(TAG, "Published Home Assistant discovery configs (node=%s)", node_id);
 }
