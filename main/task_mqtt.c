@@ -5,7 +5,7 @@
 #include "task_mqtt.h"
 
 // desired stack in bytes
-#define MQTT_STACK_BYTES (32 * 1024) // try 16 KB first
+#define MQTT_STACK_BYTES (9 * 1024) // try 9 KB first
 
 /* compute words for StackType_t */
 #define MQTT_STACK_WORDS (MQTT_STACK_BYTES / sizeof(StackType_t))
