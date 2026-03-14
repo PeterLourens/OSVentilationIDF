@@ -24,6 +24,9 @@ void mqtt_apply_config_change(void);
 void mqtt_publish_sensor_values(void);
 void mqtt_publish_valve_positions(void);
 void mqtt_publish_state_and_fanspeed(void);
-void normalize_base_topic(const char *in, char *out, size_t out_size);
+void normalize_base_topic(const char *, char *, size_t);
+bool mqtt_wait_for_connection(TickType_t);
+const char *mqtt_get_node_id(void);
+void mqtt_publish_homeassistant_discovery(void);
 
 #endif

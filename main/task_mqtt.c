@@ -1,7 +1,5 @@
 /*
-    This file is part of the OSVentilationIDF project.
-
-    Copyright (C) 2023-2026 Peter Lourens
+    task_mqtt.c — MQTT task for OSVentilationIDF
 */
 
 #include "task_mqtt.h"
@@ -9,12 +7,11 @@
 static const char *TAG = "task_MQTT";
 static StackType_t mqtt_stack[6144];  // stack buffer
 static StaticTask_t mqtt_tcb;         // TCB buffer
-static size_t mqtt_stack_size = 6144; // 4096 words = 16 KB
+static size_t mqtt_stack_size = 6144; // 6144 words
 
 void start_task_mqtt(void)
 {
-    // Create MQTT task
-    // BaseType_t created = xTaskCreate(task_mqtt_code, "mqtt", 6144, NULL, 6, &task_mqtt);
+    /* Create MQTT task */
     task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
 
     if (task_mqtt == NULL)
@@ -25,21 +22,50 @@ void start_task_mqtt(void)
 
 void task_mqtt_code(void *pvParameters)
 {
-    // Some delay a boot
+    /* Initial delay to allow network stack to come up */
     vTaskDelay(pdMS_TO_TICKS(10000));
+
+    /* Start client (this will create the connection semaphore internally) */
     mqtt_start_client();
-    vTaskDelay(pdMS_TO_TICKS(2000)); // publish every 10s
+
+    /* Wait up to 10 seconds for a connection before first publish cycle.
+       This avoids the initial race where the client is started but not yet connected. */
+    if (mqtt_wait_for_connection(pdMS_TO_TICKS(10000)))
+    {
+        LOGI(TAG, "MQTT: connected, proceeding with initial publishes");
+    }
+    else
+    {
+        LOGW(TAG, "MQTT: did not connect within timeout; will continue and retry publishes");
+    }
 
     while (true)
     {
         LOGI(TAG, "Update MQTT...");
+
         mqtt_apply_config_change();
+
         LOGD(TAG, "Publish sensors...");
+        // If not connected, try waiting briefly for a connection before skipping publishes
+        if (!mqtt_wait_for_connection(0))
+        {
+            // immediate check failed — try a short timed wait
+            if (!mqtt_wait_for_connection(pdMS_TO_TICKS(5000)))
+            {
+                LOGW(TAG, "Still not connected; skipping this publish cycle");
+                vTaskDelay(pdMS_TO_TICKS(20000));
+                continue;
+            }
+        }
+
         mqtt_publish_sensor_values();
+
         LOGD(TAG, "Publish valve positions...");
         mqtt_publish_valve_positions();
+
         LOGD(TAG, "Publish state and fanspeed...");
         mqtt_publish_state_and_fanspeed();
-        vTaskDelay(pdMS_TO_TICKS(20000)); // publish every 10s
+
+        vTaskDelay(pdMS_TO_TICKS(20000));
     }
 }
