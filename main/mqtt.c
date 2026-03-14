@@ -826,7 +826,7 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id,
 								  const char *unique_id)
 {
 	char payload[1024] = {0};
-	char topic[256] = {0};
+	char topic[256];
 	char macid[32] = {0};
 	uint8_t mac[6];
 
