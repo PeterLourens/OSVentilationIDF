@@ -249,7 +249,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		mqtt_publish_homeassistant_discovery();
 
 		// Subscribe to control topic
-		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
+		// mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;
 
 	case MQTT_EVENT_DISCONNECTED:
@@ -273,11 +273,11 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		LOGD(TAG, "Topic (%d): %.*s", event->topic_len, event->topic_len, topic);
 		LOGD(TAG, "Payload (%d): %.*s", len, len, payload);
 
-		if (event->topic_len == (int)strlen("zigbee2mqtt/Ventilation/action") &&
-			strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
-		{
-			statemachine_set_speed(payload, len);
-		}
+		// if (event->topic_len == (int)strlen("zigbee2mqtt/Ventilation/action") &&
+		//	strncmp(topic, "zigbee2mqtt/Ventilation/action", event->topic_len) == 0)
+		//{
+		//	statemachine_set_speed(payload, len);
+		// }
 
 		break;
 	}
@@ -817,40 +817,6 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id,
 	mqtt_pubs_retained(topic, payload);
 }
 
-// Publish discovery config for a number (valve position) - This function is need if you want to expose valve positions as Home Assistant "number" entities with min/max/unit.
-// If you prefer to publish them as simple sensors, you can skip this and use mqtt_publish_ha_sensor instead with appropriate device_class and unit.
-/*static void mqtt_publish_ha_number(const char *node_id, const char *object_id,
-								   const char *name, const char *state_topic, const char *unique_id, int min, int max, const char *unit)
-{
-	char topic[512];
-	char payload[1024];
-
-	snprintf(topic, sizeof(topic), "homeassistant/number/%s/%s/config", node_id, object_id);
-
-	snprintf(payload, sizeof(payload),
-			 "{\"name\":\"%s\",\"state_topic\":\"%s\",\"unique_id\":\"%s\",\"min\":%d,\"max\":%d,\"unit_of_measurement\":\"%s\","
-			 "\"device\":{\"identifiers\":[\"%s\"],\"name\":\"%s\",\"model\":\"OSVentilation\",\"manufacturer\":\"OSVentilation\"}}",
-			 name, state_topic, unique_id, min, max, unit ? unit : "", node_id, node_id);
-
-	mqtt_pubs_retained(topic, payload);
-}*/
-
-// Publish discovery config for a select (system state / fanspeed)
-/*static void mqtt_publish_ha_select(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *unique_id, const char *options_json)
-{
-	char topic[512];
-	char payload[1024];
-
-	snprintf(topic, sizeof(topic), "homeassistant/select/%s/%s/config", node_id, object_id);
-
-	snprintf(payload, sizeof(payload),
-			 "{\"name\":\"%s\",\"state_topic\":\"%s\",\"unique_id\":\"%s\",\"options\":%s,"
-			 "\"device\":{\"identifiers\":[\"%s\"],\"name\":\"%s\",\"model\":\"OSVentilation\",\"manufacturer\":\"OSVentilation\"}}",
-			 name, state_topic, unique_id, options_json ? options_json : "[]", node_id, node_id);
-
-	mqtt_pubs_retained(topic, payload);
-}*/
-
 // Main discovery publisher — publishes retained discovery messages for HA
 void mqtt_publish_homeassistant_discovery(void)
 {
@@ -873,13 +839,13 @@ void mqtt_publish_homeassistant_discovery(void)
 	// Remove old select discovery entries (publish empty retained payloads) */
 	char del_topic[256];
 
-	snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_state/config", node_id);
-	del_topic[sizeof(del_topic) - 1] = '\0';
-	mqtt_pubs_retained(del_topic, "");
+	// snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_state/config", node_id);
+	// del_topic[sizeof(del_topic) - 1] = '\0';
+	// mqtt_pubs_retained(del_topic, "");
 
-	snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_fanspeed/config", node_id);
-	del_topic[sizeof(del_topic) - 1] = '\0';
-	mqtt_pubs_retained(del_topic, "");
+	// snprintf(del_topic, sizeof(del_topic), "homeassistant/select/%s/system_fanspeed/config", node_id);
+	// del_topic[sizeof(del_topic) - 1] = '\0';
+	// mqtt_pubs_retained(del_topic, "");
 
 	// Publish discovery for each valid sensor instance.
 	// Here we iterate all buses/slots and publish discovery for avg sensors when valid.
