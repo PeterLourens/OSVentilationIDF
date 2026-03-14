@@ -9,6 +9,7 @@
 
 #include <mqtt_client.h>
 #include <mqtt5_client.h>
+#include <inttypes.h>
 
 #include "globals.h"
 #include "general.h"

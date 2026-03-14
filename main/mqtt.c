@@ -509,7 +509,7 @@ void normalize_base_topic(const char *in, char *out, size_t out_size)
 	out[pos] = '\0';
 }
 
-/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+/*-------- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 Home Assistant discovery helpers and publisher
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -*/
 
@@ -1012,18 +1012,28 @@ void mqtt_publish_sensor_values(void)
    --------------------------------------------------------------------------- */
 
 // Helper: read one valve pos from NVS and publish it as a plain integer
+#include <inttypes.h> /* ensure this is included at top of mqtt.c */
+
+/* Publish one valve position (reads NVS key "valveN") */
 static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 {
 	char key[16];
 	int32_t raw_pos = 0;
-	char topic[256];
-	char payload[16];
+	char pos_topic[256];
+	char state_topic[256];
+	char payload_pos[16];
+	const char *state_str;
+	esp_err_t r;
 
-	/* Read NVS key "valveN" */
+	if (!base)
+		return;
+
+	/* Build NVS key "valveN" */
 	snprintf(key, sizeof(key), "valve%d", id);
 	key[sizeof(key) - 1] = '\0';
 
-	esp_err_t r = nvs_get_i32(nvs, key, &raw_pos);
+	/* Read position from NVS */
+	r = nvs_get_i32(nvs, key, &raw_pos);
 	if (r == ESP_ERR_NVS_NOT_FOUND)
 	{
 		/* Valve not configured → skip quietly */
@@ -1035,8 +1045,8 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 		raw_pos = 0;
 	}
 
-	/* Optional: scale if stored range differs (example for 0..1023 -> 0..100)
-	   Uncomment and adjust if needed:
+	/* Optional scaling: if your stored range is different (e.g. 0..1023),
+	   uncomment and adjust the following line:
 	if (raw_pos > 100)
 		raw_pos = (raw_pos * 100) / 1023;
 	*/
@@ -1047,21 +1057,41 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 	if (raw_pos > 100)
 		raw_pos = 100;
 
-	/* Build topic and payload */
-	snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-	topic[sizeof(topic) - 1] = '\0';
+	/* Build topics (position = numeric, state = textual OPEN/CLOSED) */
+	snprintf(pos_topic, sizeof(pos_topic), "%s/position/valve%d", base, id);
+	pos_topic[sizeof(pos_topic) - 1] = '\0';
 
-	snprintf(payload, sizeof(payload), "%" PRId32, raw_pos);
-	payload[sizeof(payload) - 1] = '\0';
+	snprintf(state_topic, sizeof(state_topic), "%s/state/valve%d", base, id);
+	state_topic[sizeof(state_topic) - 1] = '\0';
 
-	/* Debug: log exact payload and topic */
-	LOGI(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
+	/* Prepare payloads */
+	snprintf(payload_pos, sizeof(payload_pos), "%" PRId32, raw_pos);
+	payload_pos[sizeof(payload_pos) - 1] = '\0';
 
-	/* Publish (non-retained, QoS 1) */
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
+	state_str = (raw_pos > 0) ? "OPEN" : "CLOSED";
+
+	/* Ensure MQTT client connected before publishing */
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		LOGW(TAG, "MQTT not connected; skipping publish for valve %d", id);
+		return;
+	}
+
+	/* Debug log exact payloads and topics */
+	LOGD(TAG, "Valve %d -> %s = \"%s\", %s = \"%s\"", id, pos_topic, payload_pos, state_topic, state_str);
+
+	/* Publish numeric position (non-retained, QoS 1) */
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, pos_topic, payload_pos, 0, 1, 0);
 	if (err < 0)
 	{
 		LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
+	}
+
+	/* Publish textual state (non-retained, QoS 1) */
+	err = esp_mqtt_client_publish(s_mqtt, state_topic, state_str, 0, 1, 0);
+	if (err < 0)
+	{
+		LOGW(TAG, "Failed to publish valve %d state (err=%d)", id, err);
 	}
 }
 
