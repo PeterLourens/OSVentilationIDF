@@ -509,250 +509,9 @@ void normalize_base_topic(const char *in, char *out, size_t out_size)
 	out[pos] = '\0';
 }
 
-/* ---------------------------------------------------------------------------
-   Publish all sensor values
-   --------------------------------------------------------------------------- */
-void mqtt_publish_sensor_values(void)
-{
-	MQTT_config_t cfg;
-	mqtt_get_config_snapshot(&cfg);
-
-	if (!mqtt_is_enabled(&cfg))
-		return;
-
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		LOGW(TAG, "MQTT not connected; skipping publish");
-		return;
-	}
-
-	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-	if (xQueuePeek(sensor_queue, raw, 0) != pdTRUE)
-	{
-		LOGE(TAG, "Failed to read raw sensor queue");
-		return;
-	}
-
-	if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
-	{
-		LOGE(TAG, "Failed to read avg sensor queue");
-		return;
-	}
-
-	char base[256] = {0};
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	char topic[512];
-
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-		{
-			if (raw[bus][slot][IDX_VALID] != 1)
-				continue;
-
-			/* RAW */
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "temperature");
-			mqtt_pubf(topic, raw[bus][slot][IDX_TEMP]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
-			mqtt_pubf(topic, raw[bus][slot][IDX_HUMIDITY]);
-
-			/* CO2 */
-			if (raw[bus][slot][IDX_CO2] > 0)
-			{
-				mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
-				mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
-			}
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "pressure");
-			mqtt_pubf(topic, raw[bus][slot][IDX_PRESSURE]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "gas_resistance");
-			mqtt_pubf(topic, raw[bus][slot][IDX_GAS_RES]);
-
-			/* AVG */
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
-			mqtt_pubf(topic, avg[bus][slot][IDX_TEMP]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
-			mqtt_pubf(topic, avg[bus][slot][IDX_HUMIDITY]);
-
-			/* CO2 */
-			if (avg[bus][slot][IDX_CO2] > 0)
-			{
-				mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
-				mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
-			}
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "pressure");
-			mqtt_pubf(topic, avg[bus][slot][IDX_PRESSURE]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "gas_resistance");
-			mqtt_pubf(topic, avg[bus][slot][IDX_GAS_RES]);
-		}
-	}
-}
-
-/* ---------------------------------------------------------------------------
-   Publish all valve positions
-   --------------------------------------------------------------------------- */
-
-// Helper: read one valve pos from NVS and publish it as a plain integer
-static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
-{
-	char key[16];
-	int32_t raw_pos = 0;
-	char topic[256];
-	char payload[16];
-
-	/* Read NVS key "valveN" */
-	snprintf(key, sizeof(key), "valve%d", id);
-	key[sizeof(key) - 1] = '\0';
-
-	esp_err_t r = nvs_get_i32(nvs, key, &raw_pos);
-	if (r == ESP_ERR_NVS_NOT_FOUND)
-	{
-		/* Valve not configured → skip quietly */
-		return;
-	}
-	else if (r != ESP_OK)
-	{
-		LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
-		raw_pos = 0;
-	}
-
-	/* Optional: scale if stored range differs (example for 0..1023 -> 0..100)
-	   Uncomment and adjust if needed:
-	if (raw_pos > 100)
-		raw_pos = (raw_pos * 100) / 1023;
-	*/
-
-	/* Clamp to 0..100 */
-	if (raw_pos < 0)
-		raw_pos = 0;
-	if (raw_pos > 100)
-		raw_pos = 100;
-
-	/* Build topic and payload */
-	snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-	topic[sizeof(topic) - 1] = '\0';
-
-	snprintf(payload, sizeof(payload), "%" PRId32, raw_pos);
-	payload[sizeof(payload) - 1] = '\0';
-
-	/* Debug: log exact payload and topic */
-	LOGD(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
-
-	/* Publish (non-retained, QoS 1) */
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
-	if (err < 0)
-	{
-		LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
-	}
-}
-
-void mqtt_publish_valve_positions(void)
-{
-	char base[256] = {0};
-	// char topic[512] = {0};
-
-	MQTT_config_t cfg;
-
-	mqtt_get_config_snapshot(&cfg);
-
-	if (!mqtt_is_enabled(&cfg))
-		return;
-
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		LOGW(TAG, "MQTT not connected; skipping valve publish");
-		return;
-	}
-
-	// Open NVS namespace for valve positions
-	nvs_handle_t nvs;
-	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
-	if (err != ESP_OK)
-	{
-		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
-		return;
-	}
-
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	/* Replace the original loop with this: */
-	for (int id = 0; id < MAX_VALVE_COUNT; id++)
-	{
-		publish_valve_from_nvs(nvs, base, id);
-	}
-
-	// Build topic manually
-	// snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-	// mqtt_pubi(topic, pos);
-
-	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
-	// LOGD(TAG, "Topic: %s", topic);
-	//}
-
-	nvs_close(nvs);
-}
-
-/* ---------------------------------------------------------------------------
-   Publish system state and fan speed (mutex-protected read from sm_actuals)
-   --------------------------------------------------------------------------- */
-void mqtt_publish_state_and_fanspeed(void)
-{
-	int state = 0;
-	int fanspeed = 0;
-
-	char base[256] = {0};
-	char topic[512] = {0};
-	char uptime_str[64] = {0};
-
-	MQTT_config_t cfg;
-	mqtt_get_config_snapshot(&cfg);
-
-	formatted_uptime(uptime_str, sizeof(uptime_str));
-
-	if (!mqtt_is_enabled(&cfg))
-		return;
-
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		LOGW(TAG, "MQTT not connected; skipping state/fanspeed publish");
-		return;
-	}
-
-	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
-	{
-		state = sm_actuals.state;
-		fanspeed = sm_actuals.fanspeed;
-		xSemaphoreGive(statemachine_mutex);
-	}
-	else
-	{
-		LOGW(TAG, "Failed to lock statemachine_mutex; skipping publish");
-		return;
-	}
-
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	snprintf(topic, sizeof(topic), "%s/system/state", base);
-	mqtt_pubs(topic, state_nr_to_str(state));
-
-	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
-	mqtt_pubs(topic, fan_speed_to_str(fanspeed));
-
-	snprintf(topic, sizeof(topic), "%s/system/uptime", base);
-	mqtt_pubs(topic, uptime_str);
-}
-
-/* ---------------------------------------------------------------------------
-   Home Assistant discovery helpers and publisher
-   --------------------------------------------------------------------------- */
+/*-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+Home Assistant discovery helpers and publisher
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -*/
 
 // Retained publish helper
 static inline void mqtt_pubs_retained(const char *topic, const char *value)
@@ -1159,4 +918,245 @@ void mqtt_publish_homeassistant_discovery(void)
 	mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", "", NULL, state_topic, "{{ value }}", unique_id);
 
 	ESP_LOGI(TAG, "Published Home Assistant discovery configs (node=%s)", node_id);
+}
+
+/* ---------------------------------------------------------------------------
+   Publish all sensor values
+   --------------------------------------------------------------------------- */
+void mqtt_publish_sensor_values(void)
+{
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		LOGW(TAG, "MQTT not connected; skipping publish");
+		return;
+	}
+
+	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
+	if (xQueuePeek(sensor_queue, raw, 0) != pdTRUE)
+	{
+		LOGE(TAG, "Failed to read raw sensor queue");
+		return;
+	}
+
+	if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
+	{
+		LOGE(TAG, "Failed to read avg sensor queue");
+		return;
+	}
+
+	char base[256] = {0};
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	char topic[512];
+
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			if (raw[bus][slot][IDX_VALID] != 1)
+				continue;
+
+			/* RAW */
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "temperature");
+			mqtt_pubf(topic, raw[bus][slot][IDX_TEMP]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
+			mqtt_pubf(topic, raw[bus][slot][IDX_HUMIDITY]);
+
+			/* CO2 */
+			if (raw[bus][slot][IDX_CO2] > 0)
+			{
+				mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
+				mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
+			}
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "pressure");
+			mqtt_pubf(topic, raw[bus][slot][IDX_PRESSURE]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "gas_resistance");
+			mqtt_pubf(topic, raw[bus][slot][IDX_GAS_RES]);
+
+			/* AVG */
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
+			mqtt_pubf(topic, avg[bus][slot][IDX_TEMP]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
+			mqtt_pubf(topic, avg[bus][slot][IDX_HUMIDITY]);
+
+			/* CO2 */
+			if (avg[bus][slot][IDX_CO2] > 0)
+			{
+				mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
+				mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
+			}
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "pressure");
+			mqtt_pubf(topic, avg[bus][slot][IDX_PRESSURE]);
+
+			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "gas_resistance");
+			mqtt_pubf(topic, avg[bus][slot][IDX_GAS_RES]);
+		}
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Publish all valve positions
+   --------------------------------------------------------------------------- */
+
+// Helper: read one valve pos from NVS and publish it as a plain integer
+static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
+{
+	char key[16];
+	int32_t raw_pos = 0;
+	char topic[256];
+	char payload[16];
+
+	/* Read NVS key "valveN" */
+	snprintf(key, sizeof(key), "valve%d", id);
+	key[sizeof(key) - 1] = '\0';
+
+	esp_err_t r = nvs_get_i32(nvs, key, &raw_pos);
+	if (r == ESP_ERR_NVS_NOT_FOUND)
+	{
+		/* Valve not configured → skip quietly */
+		return;
+	}
+	else if (r != ESP_OK)
+	{
+		LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+		raw_pos = 0;
+	}
+
+	/* Optional: scale if stored range differs (example for 0..1023 -> 0..100)
+	   Uncomment and adjust if needed:
+	if (raw_pos > 100)
+		raw_pos = (raw_pos * 100) / 1023;
+	*/
+
+	/* Clamp to 0..100 */
+	if (raw_pos < 0)
+		raw_pos = 0;
+	if (raw_pos > 100)
+		raw_pos = 100;
+
+	/* Build topic and payload */
+	snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
+	topic[sizeof(topic) - 1] = '\0';
+
+	snprintf(payload, sizeof(payload), "%" PRId32, raw_pos);
+	payload[sizeof(payload) - 1] = '\0';
+
+	/* Debug: log exact payload and topic */
+	LOGD(TAG, "Publishing valve %d -> topic=%s payload=\"%s\"", id, topic, payload);
+
+	/* Publish (non-retained, QoS 1) */
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, payload, 0, 1, 0);
+	if (err < 0)
+	{
+		LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
+	}
+}
+
+void mqtt_publish_valve_positions(void)
+{
+	char base[256] = {0};
+	// char topic[512] = {0};
+
+	MQTT_config_t cfg;
+
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		LOGW(TAG, "MQTT not connected; skipping valve publish");
+		return;
+	}
+
+	// Open NVS namespace for valve positions
+	nvs_handle_t nvs;
+	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+	if (err != ESP_OK)
+	{
+		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
+		return;
+	}
+
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	/* Replace the original loop with this: */
+	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	{
+		publish_valve_from_nvs(nvs, base, id);
+	}
+
+	// Build topic manually
+	// snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
+	// mqtt_pubi(topic, pos);
+
+	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
+	// LOGD(TAG, "Topic: %s", topic);
+	//}
+
+	nvs_close(nvs);
+}
+
+/* ---------------------------------------------------------------------------
+   Publish system state and fan speed (mutex-protected read from sm_actuals)
+   --------------------------------------------------------------------------- */
+void mqtt_publish_state_and_fanspeed(void)
+{
+	int state = 0;
+	int fanspeed = 0;
+
+	char base[256] = {0};
+	char topic[512] = {0};
+	char uptime_str[64] = {0};
+
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
+
+	formatted_uptime(uptime_str, sizeof(uptime_str));
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		LOGW(TAG, "MQTT not connected; skipping state/fanspeed publish");
+		return;
+	}
+
+	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+	{
+		state = sm_actuals.state;
+		fanspeed = sm_actuals.fanspeed;
+		xSemaphoreGive(statemachine_mutex);
+	}
+	else
+	{
+		LOGW(TAG, "Failed to lock statemachine_mutex; skipping publish");
+		return;
+	}
+
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	snprintf(topic, sizeof(topic), "%s/system/state", base);
+	mqtt_pubs(topic, state_nr_to_str(state));
+
+	snprintf(topic, sizeof(topic), "%s/system/fanspeed", base);
+	mqtt_pubs(topic, fan_speed_to_str(fanspeed));
+
+	snprintf(topic, sizeof(topic), "%s/system/uptime", base);
+	mqtt_pubs(topic, uptime_str);
 }
