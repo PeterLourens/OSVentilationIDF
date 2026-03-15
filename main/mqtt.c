@@ -902,49 +902,39 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 	mqtt_pubs_retained(topic, payload);
 }
 
-// Publish Home Assistant MQTT discovery for a valve (read-only position)
-/*static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *availability_topic, const char *unique_id)
+/*static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id,
+										 const char *name, const char *state_topic,
+										 const char *availability_topic,
+										 const char *unique_id)
 {
-	char payload[512] = {0};
-	char topic[128] = {0};
-	char macid[32] = {0};
-	uint8_t mac[6];
+	char payload[512];
+	char topic[256];
 
 	snprintf(topic, sizeof(topic),
-			 "homeassistant/valve/%s/%s/config",
+			 "homeassistant/sensor/%s/%s/config",
 			 node_id, object_id);
-
-	if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
-	{
-		snprintf(macid, sizeof(macid),
-				 "%02X%02X%02X%02X%02X%02X",
-				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-	}
 
 	snprintf(payload, sizeof(payload),
 			 "{"
 			 "\"name\":\"%s\","
 			 "\"unique_id\":\"%s\","
-			 "\"position_topic\":\"%s\","
-			 "\"report_position\":true,"
-			 "\"device_class\":\"water\","
-			 "\"icon\":\"mdi:pipe-valve\","
+			 "\"state_topic\":\"%s\","
+			 "\"unit_of_measurement\":\"%%\","
+			 "\"device_class\":\"humidity\","
 			 "\"availability_topic\":\"%s\","
 			 "\"device\":{"
 			 "\"identifiers\":[\"%s\"],"
 			 "\"name\":\"%s\","
-			 "\"model\":\"%s\","
-			 "\"manufacturer\":\"%s\""
+			 "\"model\":\"OSVentilation\","
+			 "\"manufacturer\":\"Peter Lourens\""
 			 "}"
 			 "}",
 			 name,
 			 unique_id,
-			 position_topic,
+			 state_topic,
 			 availability_topic,
-			 macid[0] ? macid : node_id,
 			 node_id,
-			 DEVICE_MODEL,
-			 DEVICE_MANUFACTURER);
+			 node_id);
 
 	mqtt_pubs_retained(topic, payload);
 }*/
@@ -966,8 +956,6 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 			 "\"name\":\"%s\","
 			 "\"unique_id\":\"%s\","
 			 "\"state_topic\":\"%s\","
-			 "\"unit_of_measurement\":\"%%\","
-			 "\"device_class\":\"humidity\","
 			 "\"availability_topic\":\"%s\","
 			 "\"device\":{"
 			 "\"identifiers\":[\"%s\"],"
