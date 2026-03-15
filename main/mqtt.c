@@ -684,51 +684,6 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 	}
 }
 
-/*void mqtt_publish_valve_positions(void)
-{
-	char base[256] = {0};
-
-	MQTT_config_t cfg;
-
-	mqtt_get_config_snapshot(&cfg);
-
-	if (!mqtt_is_enabled(&cfg))
-		return;
-
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		LOGW(TAG, "MQTT not connected; skipping valve publish");
-		return;
-	}
-
-	// Open NVS namespace for valve positions
-	nvs_handle_t nvs;
-	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
-	if (err != ESP_OK)
-	{
-		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
-		return;
-	}
-
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	// Replace the original loop with this:
-	for (int id = 0; id < MAX_VALVE_COUNT; id++)
-	{
-		publish_valve_from_nvs(nvs, base, id);
-	}
-
-	// Build topic manually
-	// snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-	// mqtt_pubi(topic, pos);
-
-	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
-	// LOGD(TAG, "Topic: %s", topic);
-	//}
-
-	nvs_close(nvs);
-}*/
-
 void mqtt_publish_valve_positions(void)
 {
 	MQTT_config_t cfg;
@@ -950,8 +905,8 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 // Publish Home Assistant MQTT discovery for a valve (read-only position)
 static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *availability_topic, const char *unique_id)
 {
-	char payload[1024] = {0};
-	char topic[256] = {0};
+	char payload[512] = {0};
+	char topic[128] = {0};
 	char macid[32] = {0};
 	uint8_t mac[6];
 
@@ -1010,7 +965,7 @@ void mqtt_publish_homeassistant_discovery(void)
 	}
 
 	const char *node_id = mqtt_get_node_id();
-	char base[256] = {0};
+	char base[150] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	// --- Determine which sensors are present by peeking the queues ---
@@ -1034,11 +989,11 @@ void mqtt_publish_homeassistant_discovery(void)
 	// char unique_id[128];
 	// char name[128];
 
-	char position_topic[512];
-	char availability_topic[512];
-	char object_id[128];
-	char unique_id[256];
-	char name[128];
+	char position_topic[300];
+	char availability_topic[300];
+	char object_id[64];
+	char unique_id[150];
+	char name[64];
 
 	// Publish discovery only for slots that are present (based on IDX_VALID or CO2 heuristic)
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
@@ -1155,23 +1110,12 @@ void mqtt_publish_homeassistant_discovery(void)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
 
-		snprintf(position_topic, sizeof(position_topic),
-				 "%s/valve%d/position", base, id);
-
-		snprintf(availability_topic, sizeof(availability_topic),
-				 "%s/valve%d/availability", base, id);
-
-		snprintf(object_id, sizeof(object_id),
-				 "valve_%d_position", id);
-
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
-
-		snprintf(name, sizeof(name),
-				 "Valve %d Position", id);
-
-		mqtt_publish_ha_valve(node_id, object_id, name,
-							  position_topic, availability_topic, unique_id);
+		snprintf(position_topic, sizeof(position_topic), "%s/valve%d/position", base, id);
+		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
+		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(name, sizeof(name), "Valve %d Position", id);
+		mqtt_publish_ha_valve(node_id, object_id, name, position_topic, availability_topic, unique_id);
 	}
 
 	// System state (select)
