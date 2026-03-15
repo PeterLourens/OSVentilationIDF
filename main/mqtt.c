@@ -1053,7 +1053,7 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 	}
 }
 
-void mqtt_publish_valve_positions(void)
+/*void mqtt_publish_valve_positions(void)
 {
 	char base[256] = {0};
 
@@ -1081,7 +1081,7 @@ void mqtt_publish_valve_positions(void)
 
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
-	/* Replace the original loop with this: */
+	// Replace the original loop with this:
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
 		publish_valve_from_nvs(nvs, base, id);
@@ -1094,6 +1094,65 @@ void mqtt_publish_valve_positions(void)
 	// LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
 	// LOGD(TAG, "Topic: %s", topic);
 	//}
+
+	nvs_close(nvs);
+}*/
+
+void mqtt_publish_valve_positions(void)
+{
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg))
+		return;
+
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		LOGW(TAG, "MQTT not connected; skipping valve publish");
+		return;
+	}
+
+	char base[256] = {0};
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	// Open NVS namespace for valve positions
+	nvs_handle_t nvs;
+	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
+	if (err != ESP_OK)
+	{
+		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
+		return;
+	}
+
+	char topic[300];
+
+	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	{
+		// Read valve position from NVS
+		int32_t pos = 0;
+		char key[16];
+		snprintf(key, sizeof(key), "valve%d", id);
+
+		err = nvs_get_i32(nvs, key, &pos);
+		if (err != ESP_OK)
+		{
+			LOGW(TAG, "Valve %d position not found in NVS (err=%s), defaulting to 0",
+				 id, esp_err_to_name(err));
+			pos = 0;
+		}
+
+		// Publish numeric position (0–100)
+		snprintf(topic, sizeof(topic),
+				 "%s/position/valve%d", base, id);
+		mqtt_pubi(topic, (int)pos);
+
+		// Publish availability
+		snprintf(topic, sizeof(topic),
+				 "%s/valve%d/availability", base, id);
+		mqtt_pubs(topic, "online");
+
+		LOGD(TAG, "Published valve %d position: %ld", id, pos);
+	}
 
 	nvs_close(nvs);
 }
