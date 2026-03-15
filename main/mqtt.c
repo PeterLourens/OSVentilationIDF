@@ -1005,47 +1005,29 @@ void mqtt_publish_homeassistant_discovery(void)
 
 			// 1. avg valid flag
 			if (have_avg && avg[bus][slot][IDX_VALID] == 1)
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: avg VALID=1", bus, slot);
 				slot_present = true;
-			}
 
 			// 2. raw valid flag
 			if (!slot_present && have_raw && raw[bus][slot][IDX_VALID] == 1)
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: raw VALID=1", bus, slot);
 				slot_present = true;
-			}
 
 			// 3. avg temperature or humidity present
 			if (!slot_present && have_avg &&
 				(avg[bus][slot][IDX_TEMP] != 0 || avg[bus][slot][IDX_HUMIDITY] != 0))
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: avg TEMP/HUM present", bus, slot);
 				slot_present = true;
-			}
 
 			// 4. raw temperature or humidity present
 			if (!slot_present && have_raw &&
 				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: raw TEMP/HUM present", bus, slot);
 				slot_present = true;
-			}
 
-			// 5. CO2 heuristic (avg)
+			// 5. CO₂ heuristic (avg)
 			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: avg CO2 present", bus, slot);
 				slot_present = true;
-			}
 
-			// 6. CO2 heuristic (raw)
+			// 6. CO₂ heuristic (raw)
 			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
-			{
-				LOGI(TAG, "DETECT bus=%d slot=%d: raw CO2 present", bus, slot);
 				slot_present = true;
-			}
 
 			if (!slot_present)
 			{
