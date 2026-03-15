@@ -604,7 +604,7 @@ void mqtt_publish_sensor_values(void)
 #include <inttypes.h> /* ensure this is included at top of mqtt.c */
 
 /* Publish one valve position (reads NVS key "valveN") */
-static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
+/*static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 {
 	char key[16];
 	int32_t raw_pos = 0;
@@ -617,72 +617,73 @@ static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
 	if (!base)
 		return;
 
-	/* Build NVS key "valveN" */
-	snprintf(key, sizeof(key), "valve%d", id);
-	key[sizeof(key) - 1] = '\0';
+	// Build NVS key "valveN"
+snprintf(key, sizeof(key), "valve%d", id);
+key[sizeof(key) - 1] = '\0';
 
-	/* Read position from NVS */
-	r = nvs_get_i32(nvs, key, &raw_pos);
-	if (r == ESP_ERR_NVS_NOT_FOUND)
-	{
-		/* Valve not configured → skip quietly */
-		return;
-	}
-	else if (r != ESP_OK)
-	{
-		LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
-		raw_pos = 0;
-	}
-
-	/* Optional scaling: if your stored range is different (e.g. 0..1023),
-	   uncomment and adjust the following line:
-	if (raw_pos > 100)
-		raw_pos = (raw_pos * 100) / 1023;
-	*/
-
-	/* Clamp to 0..100 */
-	if (raw_pos < 0)
-		raw_pos = 0;
-	if (raw_pos > 100)
-		raw_pos = 100;
-
-	/* Build topics (position = numeric, state = textual OPEN/CLOSED) */
-	snprintf(pos_topic, sizeof(pos_topic), "%s/position/valve%d", base, id);
-	pos_topic[sizeof(pos_topic) - 1] = '\0';
-
-	snprintf(state_topic, sizeof(state_topic), "%s/state/valve%d", base, id);
-	state_topic[sizeof(state_topic) - 1] = '\0';
-
-	/* Prepare payloads */
-	snprintf(payload_pos, sizeof(payload_pos), "%" PRId32, raw_pos);
-	payload_pos[sizeof(payload_pos) - 1] = '\0';
-
-	state_str = (raw_pos > 0) ? "OPEN" : "CLOSED";
-
-	/* Ensure MQTT client connected before publishing */
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		LOGW(TAG, "MQTT not connected; skipping publish for valve %d", id);
-		return;
-	}
-
-	/* Debug log exact payloads and topics */
-	LOGD(TAG, "Valve %d -> %s = \"%s\", %s = \"%s\"", id, pos_topic, payload_pos, state_topic, state_str);
-
-	/* Publish numeric position (non-retained, QoS 1) */
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt, pos_topic, payload_pos, 0, 1, 0);
-	if (err < 0)
-	{
-		LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
-	}
-
-	/* Publish textual state (non-retained, QoS 1) */
-	err = esp_mqtt_client_publish(s_mqtt, state_topic, state_str, 0, 1, 0);
-	if (err < 0)
-	{
-		LOGW(TAG, "Failed to publish valve %d state (err=%d)", id, err);
-	}
+// Read position from NVS
+r = nvs_get_i32(nvs, key, &raw_pos);
+if (r == ESP_ERR_NVS_NOT_FOUND)
+{
+	// Valve not configured → skip quietly
+	return;
 }
+else if (r != ESP_OK)
+{
+	LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+	raw_pos = 0;
+}
+
+// Optional scaling: if your stored range is different (e.g. 0..1023),
+// uncomment and adjust the following line:
+// if (raw_pos > 100)
+// 	raw_pos = (raw_pos * 100) / 1023;
+
+
+// Clamp to 0..100
+if (raw_pos < 0)
+	raw_pos = 0;
+if (raw_pos > 100)
+	raw_pos = 100;
+
+// Build topics (position = numeric, state = textual OPEN/CLOSED)
+snprintf(pos_topic, sizeof(pos_topic), "%s/position/valve%d", base, id);
+pos_topic[sizeof(pos_topic) - 1] = '\0';
+
+snprintf(state_topic, sizeof(state_topic), "%s/state/valve%d", base, id);
+state_topic[sizeof(state_topic) - 1] = '\0';
+
+// Prepare payloads
+snprintf(payload_pos, sizeof(payload_pos), "%" PRId32, raw_pos);
+payload_pos[sizeof(payload_pos) - 1] = '\0';
+
+state_str = (raw_pos > 0) ? "OPEN" : "CLOSED";
+
+// Ensure MQTT client connected before publishing
+if (!s_mqtt || !s_mqtt_connected)
+{
+	LOGW(TAG, "MQTT not connected; skipping publish for valve %d", id);
+	return;
+}
+
+// Debug log exact payloads and topics
+LOGD(TAG, "Valve %d -> %s = \"%s\", %s = \"%s\"", id, pos_topic, payload_pos, state_topic, state_str);
+
+// Publish numeric position (non-retained, QoS 1)
+esp_err_t err = esp_mqtt_client_publish(s_mqtt, pos_topic, payload_pos, 0, 1, 0);
+if (err < 0)
+{
+	LOGW(TAG, "Failed to publish valve %d position (err=%d)", id, err);
+}
+
+// Publish textual state (non-retained, QoS 1)
+err = esp_mqtt_client_publish(s_mqtt, state_topic, state_str, 0, 1, 0);
+if (err < 0)
+{
+	LOGW(TAG, "Failed to publish valve %d state (err=%d)", id, err);
+}
+}
+*/
 
 void mqtt_publish_valve_positions(void)
 {
@@ -1003,7 +1004,10 @@ void mqtt_publish_homeassistant_discovery(void)
 			bool slot_present = false;
 
 			if (avg[bus][slot][IDX_VALID] == 1)
+			{
+				LOGI(TAG, "Slot present based on avg valid flag: bus %d slot %d", bus, slot);
 				slot_present = true;
+			}
 
 			if (!slot_present)
 				continue; // skip unused slot
@@ -1074,7 +1078,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			// strlcat(unique_id, "_", sizeof(unique_id));
 			// strlcat(unique_id, object_id, sizeof(unique_id));
 
-			// snprintf(name, sizeof(name), "Bus%d Slot%d Pressure (avg)", bus, slot);
+			// snprintf(name, sizeof(name), "Bus%d Slot%d Pressure", bus, slot);
 			// name[sizeof(name) - 1] = '\0';
 
 			// mqtt_publish_ha_sensor(node_id, object_id, name, "hPa", "pressure", state_topic, "{{ value }}", unique_id);
@@ -1091,7 +1095,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			// strlcat(unique_id, "_", sizeof(unique_id));
 			// strlcat(unique_id, object_id, sizeof(unique_id));
 
-			// snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance (avg)", bus, slot);
+			// snprintf(name, sizeof(name), "Bus%d Slot%d Gas Resistance", bus, slot);
 			// name[sizeof(name) - 1] = '\0';
 
 			// mqtt_publish_ha_sensor(node_id, object_id, name, "Ω", NULL, state_topic, "{{ value }}", unique_id);
@@ -1101,28 +1105,13 @@ void mqtt_publish_homeassistant_discovery(void)
 	// publish valves as read-only valves (no command_topic)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
-
-		snprintf(state_topic, sizeof(state_topic),
-				 "%s/valve%d/position", base, id);
-
-		snprintf(availability_topic, sizeof(availability_topic),
-				 "%s/valve%d/availability", base, id);
-
-		snprintf(object_id, sizeof(object_id),
-				 "valve_%d_position", id);
-
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
-
-		snprintf(name, sizeof(name),
-				 "Valve %d Position", id);
-
-		mqtt_publish_ha_valve_sensor(node_id, object_id, name,
-									 state_topic, availability_topic, unique_id);
+		snprintf(state_topic, sizeof(state_topic), "%s/valve%d/position", base, id);
+		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
+		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(name, sizeof(name), "Valve %d Position", id);
+		mqtt_publish_ha_valve_sensor(node_id, object_id, name, state_topic, availability_topic, unique_id);
 	}
-
-	// System state (select)
-	// const char *state_options = "[\"ERROR\",\"INIT\",\"DAY\",\"NIGHT\",\"HIGH_CO2_DAY\",\"HIGH_CO2_NIGHT\",\"HIGH_RH_DAY\",\"HIGH_RH_NIGHT\",\"COOKING\",\"CYCLING_DAY\",\"CYCLING_NIGHT\",\"MANUAL_HIGH\",\"STOPPED\",\"TEMP\",\"NOT_USED\",\"NOT_USED2\"]";
 
 	snprintf(object_id, sizeof(object_id), "system_state");
 	object_id[sizeof(object_id) - 1] = '\0';
