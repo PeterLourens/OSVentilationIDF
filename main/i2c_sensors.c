@@ -425,7 +425,7 @@ esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *t
 // -----------------------------------------------------------------------------
 // Per-bus channel configuration
 // -----------------------------------------------------------------------------
-static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
+/*static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
 {
     if (!slots || !bus_handle || !tca_handle || ch >= CHANNELS_PER_BUS)
         return ESP_ERR_INVALID_ARG;
@@ -506,17 +506,95 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 
     LOGD(TAG, "%s initialized on channel %u", type_str, ch);
     return ESP_OK;
+}*/
+static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
+{
+    if (!slots || !bus_handle || !tca_handle)
+    {
+        LOGE(TAG, "CONFIG: bus=%d ch=%d invalid handles (bus=%p tca=%p)",
+             bus_index, ch, bus_handle, tca_handle);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    sensor_type_t new_type = sensor_type_from_str(type_str);
+    sensor_type_t old_type = slots[ch].type;
+
+    LOGI(TAG, "CONFIG: bus=%d ch=%d old=%d new=%d",
+         bus_index, ch, old_type, new_type);
+
+    if (new_type == SENSOR_NONE)
+    {
+        if (slots[ch].handle)
+        {
+            i2c_master_bus_rm_device(slots[ch].handle);
+            slots[ch].handle = NULL;
+        }
+        slots[ch].type = SENSOR_NONE;
+        return ESP_OK;
+    }
+
+    // Re-init if type changed or handle missing
+    if (old_type != new_type || slots[ch].handle == NULL)
+    {
+        if (slots[ch].handle)
+        {
+            i2c_master_bus_rm_device(slots[ch].handle);
+            slots[ch].handle = NULL;
+        }
+
+        esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
+        if (err != ESP_OK)
+        {
+            LOGE(TAG, "CONFIG: bus=%d ch=%d mux select failed: %s",
+                 bus_index, ch, esp_err_to_name(err));
+            return err;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(3));
+
+        i2c_master_dev_handle_t h = NULL;
+
+        switch (new_type)
+        {
+        case SENSOR_AHT20:
+            err = i2c_aht20_init(bus_handle, &h);
+            break;
+        case SENSOR_DHT20:
+            err = i2c_dht20_init(bus_handle, &h);
+            break;
+        case SENSOR_SCD41:
+            err = i2c_init_scd41(bus_handle, &h);
+            break;
+        default:
+            return ESP_ERR_INVALID_ARG;
+        }
+
+        if (err != ESP_OK)
+        {
+            LOGE(TAG, "CONFIG: bus=%d ch=%d init failed: %s",
+                 bus_index, ch, esp_err_to_name(err));
+            return err;
+        }
+
+        slots[ch].handle = h;
+        slots[ch].type = new_type;
+
+        LOGI(TAG, "CONFIG OK: bus=%d ch=%d type=%d handle=%p",
+             bus_index, ch, new_type, h);
+    }
+
+    return ESP_OK;
 }
 
 // -----------------------------------------------------------------------------
 // Public: init_sensors_on_mux_channels
 // -----------------------------------------------------------------------------
-esp_err_t init_sensors_on_mux_channels(void)
+/*esp_err_t init_sensors_on_mux_channels(void)
 {
     esp_err_t err = ESP_OK;
     esp_err_t ret = ESP_OK;
 
-    /* --- Bus0 --- */
+    // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
@@ -530,17 +608,66 @@ esp_err_t init_sensors_on_mux_channels(void)
         }
     }
 
-    /* --- Bus1 --- */
+    // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
         LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
 
-        /* pass bus index 1 for bus1 */
+        // pass bus index 1 for bus1
         err = configure_bus_channel(bus1_sensors, 1, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
         if (err != ESP_OK)
         {
             LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
+            ret = err;
+        }
+    }
+
+    return ret;
+}*/
+esp_err_t init_sensors_on_mux_channels(void)
+{
+    esp_err_t ret = ESP_OK;
+
+    LOGW(TAG, "INIT: bus0 mux=%p bus1 mux=%p",
+         tca9548_bus0_handle, tca9548_bus1_handle);
+
+    /* --- Bus0 --- */
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        const char *type_str = bus0_sensor_settings[ch].type;
+        LOGI(TAG, "INIT: bus0 ch=%d type=%s", ch, type_str);
+
+        esp_err_t err = configure_bus_channel(
+            bus0_sensors, 0,
+            i2c_bus0_handle,
+            tca9548_bus0_handle,
+            ch, type_str);
+
+        if (err != ESP_OK)
+        {
+            LOGE(TAG, "INIT: bus0 ch=%d failed: %s",
+                 ch, esp_err_to_name(err));
+            ret = err;
+        }
+    }
+
+    /* --- Bus1 --- */
+    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    {
+        const char *type_str = bus1_sensor_settings[ch].type;
+        LOGI(TAG, "INIT: bus1 ch=%d type=%s", ch, type_str);
+
+        esp_err_t err = configure_bus_channel(
+            bus1_sensors, 1,
+            i2c_bus1_handle,
+            tca9548_bus1_handle,
+            ch, type_str);
+
+        if (err != ESP_OK)
+        {
+            LOGE(TAG, "INIT: bus1 ch=%d failed: %s",
+                 ch, esp_err_to_name(err));
             ret = err;
         }
     }
@@ -551,7 +678,7 @@ esp_err_t init_sensors_on_mux_channels(void)
 // -----------------------------------------------------------------------------
 // Reading sensors into queue (using per-channel slots)
 // -----------------------------------------------------------------------------
-esp_err_t read_sensors_into_queue(void)
+/*esp_err_t read_sensors_into_queue(void)
 {
     float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 
@@ -623,6 +750,89 @@ esp_err_t read_sensors_into_queue(void)
             snapshot[bus][ch][IDX_CO2] = (float)co2;
             snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
             snapshot[bus][ch][IDX_VALID] = 1.0f;
+        }
+    }
+
+    xQueueOverwrite(sensor_queue, snapshot);
+    return ESP_OK;
+}*/
+esp_err_t read_sensors_into_queue(void)
+{
+    float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
+    for (uint8_t bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
+        i2c_master_dev_handle_t tca = (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle;
+
+        LOGI(TAG, "READ: Starting bus %d (tca=%p)", bus, tca);
+
+        for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
+        {
+            sensor_slot_t *slot = &slots[ch];
+
+            // Always clear snapshot to avoid stale CO2/pressure/gas
+            memset(snapshot[bus][ch], 0, sizeof(snapshot[bus][ch]));
+
+            LOGI(TAG, "READ: bus=%d ch=%d type=%d handle=%p",
+                 bus, ch, slot->type, slot->handle);
+
+            // No sensor configured or not initialized
+            if (slot->type == SENSOR_NONE || slot->handle == NULL)
+            {
+                LOGW(TAG, "READ: bus=%d ch=%d skipped (no sensor or handle NULL)", bus, ch);
+                continue;
+            }
+
+            // Select mux channel
+            esp_err_t err = i2c_tca9548_set_channel(tca, ch);
+            if (err != ESP_OK)
+            {
+                LOGE(TAG, "READ: bus=%d ch=%d mux select failed: %s",
+                     bus, ch, esp_err_to_name(err));
+                continue;
+            }
+
+            vTaskDelay(pdMS_TO_TICKS(3));
+
+            float temp = 0, rh = 0;
+            uint16_t co2 = 0;
+            bool ok = false;
+
+            switch (slot->type)
+            {
+            case SENSOR_AHT20:
+                ok = (aht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                break;
+
+            case SENSOR_DHT20:
+                ok = (dht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                break;
+
+            case SENSOR_SCD41:
+                ok = (scd41_read(slot->handle, &co2, &temp, &rh) == ESP_OK);
+                break;
+
+            default:
+                ok = false;
+                break;
+            }
+
+            if (!ok)
+            {
+                LOGW(TAG, "READ: bus=%d ch=%d read failed", bus, ch);
+                continue;
+            }
+
+            // Write snapshot
+            snapshot[bus][ch][IDX_TEMP] = temp;
+            snapshot[bus][ch][IDX_HUMIDITY] = rh;
+            snapshot[bus][ch][IDX_CO2] = (slot->type == SENSOR_SCD41) ? (float)co2 : 0.0f;
+            snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
+            snapshot[bus][ch][IDX_VALID] = 1.0f;
+
+            LOGI(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
+                 bus, ch, temp, rh, snapshot[bus][ch][IDX_CO2]);
         }
     }
 

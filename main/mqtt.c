@@ -985,36 +985,73 @@ void mqtt_publish_homeassistant_discovery(void)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
+			LOGI(TAG,
+				 "SCAN bus=%d slot=%d | "
+				 "avg_valid=%d raw_valid=%d | "
+				 "avg_temp=%.2f raw_temp=%.2f | "
+				 "avg_hum=%.2f raw_hum=%.2f | "
+				 "avg_co2=%.2f raw_co2=%.2f",
+				 bus, slot,
+				 (have_avg ? (int)avg[bus][slot][IDX_VALID] : -1),
+				 (have_raw ? (int)raw[bus][slot][IDX_VALID] : -1),
+				 (have_avg ? avg[bus][slot][IDX_TEMP] : -1),
+				 (have_raw ? raw[bus][slot][IDX_TEMP] : -1),
+				 (have_avg ? avg[bus][slot][IDX_HUMIDITY] : -1),
+				 (have_raw ? raw[bus][slot][IDX_HUMIDITY] : -1),
+				 (have_avg ? avg[bus][slot][IDX_CO2] : -1),
+				 (have_raw ? raw[bus][slot][IDX_CO2] : -1));
+
 			bool slot_present = false;
 
 			// 1. avg valid flag
 			if (have_avg && avg[bus][slot][IDX_VALID] == 1)
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: avg VALID=1", bus, slot);
 				slot_present = true;
+			}
 
 			// 2. raw valid flag
 			if (!slot_present && have_raw && raw[bus][slot][IDX_VALID] == 1)
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: raw VALID=1", bus, slot);
 				slot_present = true;
+			}
 
 			// 3. avg temperature or humidity present
 			if (!slot_present && have_avg &&
 				(avg[bus][slot][IDX_TEMP] != 0 || avg[bus][slot][IDX_HUMIDITY] != 0))
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: avg TEMP/HUM present", bus, slot);
 				slot_present = true;
+			}
 
 			// 4. raw temperature or humidity present
 			if (!slot_present && have_raw &&
 				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: raw TEMP/HUM present", bus, slot);
 				slot_present = true;
+			}
 
 			// 5. CO2 heuristic (avg)
 			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: avg CO2 present", bus, slot);
 				slot_present = true;
+			}
 
 			// 6. CO2 heuristic (raw)
 			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
+			{
+				LOGI(TAG, "DETECT bus=%d slot=%d: raw CO2 present", bus, slot);
 				slot_present = true;
+			}
 
 			if (!slot_present)
+			{
+				LOGW(TAG, "SKIP bus=%d slot=%d: no valid data", bus, slot);
 				continue;
+			}
 
 			// Temperature (avg)
 			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
