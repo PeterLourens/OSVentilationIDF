@@ -1003,35 +1003,22 @@ void mqtt_publish_homeassistant_discovery(void)
 
 			bool slot_present = false;
 
-			// 1. avg valid flag
-			if (have_avg && avg[bus][slot][IDX_VALID] == 1)
+			// RAW valid flag
+			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
 				slot_present = true;
 
-			// 2. raw valid flag
-			if (!slot_present && have_raw && raw[bus][slot][IDX_VALID] == 1)
-				slot_present = true;
-
-			// 3. avg temperature or humidity present
-			if (!slot_present && have_avg &&
-				(avg[bus][slot][IDX_TEMP] != 0 || avg[bus][slot][IDX_HUMIDITY] != 0))
-				slot_present = true;
-
-			// 4. raw temperature or humidity present
+			// RAW temp/hum present
 			if (!slot_present && have_raw &&
 				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
 				slot_present = true;
 
-			// 5. CO₂ heuristic (avg)
-			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
-				slot_present = true;
-
-			// 6. CO₂ heuristic (raw)
+			// RAW CO2 present
 			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
 				slot_present = true;
 
 			if (!slot_present)
 			{
-				LOGW(TAG, "SKIP bus=%d slot=%d: no valid data", bus, slot);
+				LOGW(TAG, "SKIP bus=%d slot=%d: no valid RAW data", bus, slot);
 				continue;
 			}
 
