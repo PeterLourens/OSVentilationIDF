@@ -780,7 +780,7 @@ esp_err_t read_sensors_into_queue(void)
             // No sensor configured or not initialized
             if (slot->type == SENSOR_NONE || slot->handle == NULL)
             {
-                LOGW(TAG, "READ: bus=%d ch=%d skipped (no sensor or handle NULL)", bus, ch);
+                LOGD(TAG, "READ: bus=%d ch=%d skipped (no sensor or handle NULL)", bus, ch);
                 continue;
             }
 
@@ -820,7 +820,7 @@ esp_err_t read_sensors_into_queue(void)
 
             if (!ok)
             {
-                LOGW(TAG, "READ: bus=%d ch=%d read failed", bus, ch);
+                LOGD(TAG, "READ: bus=%d ch=%d read failed", bus, ch);
                 continue;
             }
 
