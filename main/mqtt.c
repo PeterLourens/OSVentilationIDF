@@ -1002,7 +1002,7 @@ void mqtt_publish_homeassistant_discovery(void)
 
 			bool slot_present = false;
 
-			if (raw[bus][slot][IDX_VALID] == 1)
+			if (avg[bus][slot][IDX_VALID] == 1)
 				slot_present = true;
 
 			if (!slot_present)
@@ -1020,7 +1020,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			strlcat(unique_id, "_", sizeof(unique_id));
 			strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d Temperature (avg)", bus, slot);
+			snprintf(name, sizeof(name), "Bus%d Slot%d Temperature", bus, slot);
 			name[sizeof(name) - 1] = '\0';
 
 			mqtt_publish_ha_sensor(node_id, object_id, name, "°C", "temperature", state_topic, "{{ value }}", unique_id);
@@ -1037,7 +1037,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			strlcat(unique_id, "_", sizeof(unique_id));
 			strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d Humidity (avg)", bus, slot);
+			snprintf(name, sizeof(name), "Bus%d Slot%d Humidity", bus, slot);
 			name[sizeof(name) - 1] = '\0';
 
 			mqtt_publish_ha_sensor(node_id, object_id, name, "%", "humidity", state_topic, "{{ value }}", unique_id);
@@ -1056,7 +1056,7 @@ void mqtt_publish_homeassistant_discovery(void)
 			strlcat(unique_id, "_", sizeof(unique_id));
 			strlcat(unique_id, object_id, sizeof(unique_id));
 
-			snprintf(name, sizeof(name), "Bus%d Slot%d CO2 (avg)", bus, slot);
+			snprintf(name, sizeof(name), "Bus%d Slot%d CO2", bus, slot);
 			name[sizeof(name) - 1] = '\0';
 
 			mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id);
