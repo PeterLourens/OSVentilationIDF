@@ -246,6 +246,8 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		}
 
 		// Publish Home Assistant discovery configs (retained)
+		// mqtt_publish_homeassistant_discovery();
+		vTaskDelay(pdMS_TO_TICKS(5000)); // wait 5 seconds for first sensor read
 		mqtt_publish_homeassistant_discovery();
 
 		// Subscribe to control topic
@@ -903,10 +905,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 	mqtt_pubs_retained(topic, payload);
 }
 
-static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id,
-										 const char *name, const char *state_topic,
-										 const char *availability_topic,
-										 const char *unique_id)
+static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *availability_topic, const char *unique_id)
 {
 	char payload[512];
 	char topic[256];
