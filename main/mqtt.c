@@ -985,29 +985,26 @@ void mqtt_publish_homeassistant_discovery(void)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
-			/*bool slot_present = false;
+			bool slot_present = false;
 
-			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
-				slot_present = true;
-			if (!slot_present && have_avg && avg[bus][slot][IDX_VALID] == 1)
+			// 1. avg valid flag
+			if (have_avg && avg[bus][slot][IDX_VALID] == 1)
 				slot_present = true;
 
-			// fallback: if valid flag not set, treat non-zero CO2 as presence
+			// 2. raw valid flag
+			if (!slot_present && have_raw && raw[bus][slot][IDX_VALID] == 1)
+				slot_present = true;
+
+			// 3. CO2 heuristic (avg)
 			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
 				slot_present = true;
+
+			// 4. CO2 heuristic (raw)
 			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
 				slot_present = true;
 
 			if (!slot_present)
-				continue; // skip unused slot*/
-
-			bool slot_present = false;
-
-			if (avg[bus][slot][IDX_VALID] == 1)
-			{
-				LOGI(TAG, "Slot present based on avg valid flag: bus %d slot %d", bus, slot);
-				slot_present = true;
-			}
+				continue;
 
 			if (!slot_present)
 				continue; // skip unused slot
