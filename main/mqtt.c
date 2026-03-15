@@ -902,43 +902,6 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 	mqtt_pubs_retained(topic, payload);
 }
 
-/*static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id,
-										 const char *name, const char *state_topic,
-										 const char *availability_topic,
-										 const char *unique_id)
-{
-	char payload[512];
-	char topic[256];
-
-	snprintf(topic, sizeof(topic),
-			 "homeassistant/sensor/%s/%s/config",
-			 node_id, object_id);
-
-	snprintf(payload, sizeof(payload),
-			 "{"
-			 "\"name\":\"%s\","
-			 "\"unique_id\":\"%s\","
-			 "\"state_topic\":\"%s\","
-			 "\"unit_of_measurement\":\"%%\","
-			 "\"device_class\":\"humidity\","
-			 "\"availability_topic\":\"%s\","
-			 "\"device\":{"
-			 "\"identifiers\":[\"%s\"],"
-			 "\"name\":\"%s\","
-			 "\"model\":\"OSVentilation\","
-			 "\"manufacturer\":\"Peter Lourens\""
-			 "}"
-			 "}",
-			 name,
-			 unique_id,
-			 state_topic,
-			 availability_topic,
-			 node_id,
-			 node_id);
-
-	mqtt_pubs_retained(topic, payload);
-}*/
-
 static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id,
 										 const char *name, const char *state_topic,
 										 const char *availability_topic,
@@ -1010,11 +973,7 @@ void mqtt_publish_homeassistant_discovery(void)
 
 	// Buffers
 	char state_topic[300];
-	// char object_id[128];
-	// char unique_id[128];
-	// char name[128];
-
-	char position_topic[300];
+	// char position_topic[300];
 	char availability_topic[300];
 	char object_id[64];
 	char unique_id[150];
@@ -1040,6 +999,14 @@ void mqtt_publish_homeassistant_discovery(void)
 
 			if (!slot_present)
 				continue; // skip unused slot*/
+
+			bool slot_present = false;
+
+			if (raw[bus][slot][IDX_VALID] == 1)
+				slot_present = true;
+
+			if (!slot_present)
+				continue; // skip unused slot
 
 			// Temperature (avg)
 			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
