@@ -627,84 +627,42 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 	char macid[32] = {0};
 	uint8_t mac[6];
 
-	/* build discovery topic */
-	snprintf(topic, sizeof(topic), "homeassistant/valve/%s/%s/config", node_id, object_id);
-	topic[sizeof(topic) - 1] = '\0';
+	snprintf(topic, sizeof(topic),
+			 "homeassistant/valve/%s/%s/config",
+			 node_id, object_id);
 
-	/* try to read MAC (non-fatal) */
 	if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
 	{
-		snprintf(macid, sizeof(macid), "%02X%02X%02X%02X%02X%02X",
+		snprintf(macid, sizeof(macid),
+				 "%02X%02X%02X%02X%02X%02X",
 				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-		macid[sizeof(macid) - 1] = '\0';
 	}
 
-	/*
-	 * We publish:
-	 *  - position_topic: numeric 0..100 (firmware must publish this)
-	 *  - state_topic: same as position_topic
-	 *  - value_template: maps numeric >0 to "OPEN", else "CLOSED"
-	 *  - no command_topic (read-only)
-	 */
-	if (macid[0] != '\0')
-	{
-		snprintf(payload, sizeof(payload),
-				 "{"
-				 "\"name\":\"%s\","
-				 "\"unique_id\":\"%s\","
-				 "\"state_topic\":\"%s\","
-				 "\"position_topic\":\"%s\","
-				 "\"value_template\":\"{{ 'OPEN' if value|int > 0 else 'CLOSED' }}\","
-				 "\"position_open\":100,"
-				 "\"position_closed\":0,"
-				 "\"device\":{"
-				 "\"identifiers\":[\"%s\",\"%s\"],"
-				 "\"name\":\"%s\","
-				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\"",
-				 name, unique_id, position_topic, position_topic,
-				 node_id, macid, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
-	}
-	else
-	{
-		snprintf(payload, sizeof(payload),
-				 "{"
-				 "\"name\":\"%s\","
-				 "\"unique_id\":\"%s\","
-				 "\"state_topic\":\"%s\","
-				 "\"position_topic\":\"%s\","
-				 "\"value_template\":\"{{ 'OPEN' if value|int > 0 else 'CLOSED' }}\","
-				 "\"position_open\":100,"
-				 "\"position_closed\":0,"
-				 "\"device\":{"
-				 "\"identifiers\":[\"%s\"],"
-				 "\"name\":\"%s\","
-				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\"",
-				 name, unique_id, position_topic, position_topic,
-				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
-	}
+	snprintf(payload, sizeof(payload),
+			 "{"
+			 "\"name\":\"%s\","
+			 "\"unique_id\":\"%s\","
+			 "\"position_topic\":\"%s\","
+			 "\"report_position\":true,"
+			 "\"device_class\":\"water\","
+			 "\"icon\":\"mdi:pipe-valve\","
+			 "\"availability_topic\":\"%s/availability\","
+			 "\"device\":{"
+			 "\"identifiers\":[\"%s\"],"
+			 "\"name\":\"%s\","
+			 "\"model\":\"%s\","
+			 "\"manufacturer\":\"%s\""
+			 "}"
+			 "}",
+			 name,
+			 unique_id,
+			 position_topic,
+			 node_id,
+			 macid[0] ? macid : node_id,
+			 node_id,
+			 DEVICE_MODEL,
+			 DEVICE_MANUFACTURER);
 
-#ifdef DEVICE_SW_VERSION
-	strlcat(payload, ",\"sw_version\":\"", sizeof(payload));
-	strlcat(payload, DEVICE_SW_VERSION, sizeof(payload));
-	strlcat(payload, "\"", sizeof(payload));
-#endif
-
-#ifdef DEVICE_HW_VERSION
-	strlcat(payload, ",\"hw_version\":\"", sizeof(payload));
-	strlcat(payload, DEVICE_HW_VERSION, sizeof(payload));
-	strlcat(payload, "\"", sizeof(payload));
-#endif
-
-	/* close device object and outer object */
-	strlcat(payload, "}}", sizeof(payload));
-
-	/* debug log (optional) */
-	LOGD(TAG, "Valve discovery topic: %s", topic);
-	LOGD(TAG, "Valve discovery payload: %s", payload);
-
-	/* publish retained discovery */
 	mqtt_pubs_retained(topic, payload);
 }
 
@@ -753,7 +711,7 @@ void mqtt_publish_homeassistant_discovery(void)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
-			bool slot_present = false;
+			/*bool slot_present = false;
 
 			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
 				slot_present = true;
@@ -767,7 +725,7 @@ void mqtt_publish_homeassistant_discovery(void)
 				slot_present = true;
 
 			if (!slot_present)
-				continue; // skip unused slot
+				continue; // skip unused slot*/
 
 			// Temperature (avg)
 			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
