@@ -995,19 +995,26 @@ void mqtt_publish_homeassistant_discovery(void)
 			if (!slot_present && have_raw && raw[bus][slot][IDX_VALID] == 1)
 				slot_present = true;
 
-			// 3. CO2 heuristic (avg)
+			// 3. avg temperature or humidity present
+			if (!slot_present && have_avg &&
+				(avg[bus][slot][IDX_TEMP] != 0 || avg[bus][slot][IDX_HUMIDITY] != 0))
+				slot_present = true;
+
+			// 4. raw temperature or humidity present
+			if (!slot_present && have_raw &&
+				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
+				slot_present = true;
+
+			// 5. CO2 heuristic (avg)
 			if (!slot_present && have_avg && avg[bus][slot][IDX_CO2] > 0)
 				slot_present = true;
 
-			// 4. CO2 heuristic (raw)
+			// 6. CO2 heuristic (raw)
 			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
 				slot_present = true;
 
 			if (!slot_present)
 				continue;
-
-			if (!slot_present)
-				continue; // skip unused slot
 
 			// Temperature (avg)
 			snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
