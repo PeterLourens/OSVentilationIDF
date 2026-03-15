@@ -903,7 +903,7 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 }
 
 // Publish Home Assistant MQTT discovery for a valve (read-only position)
-static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *availability_topic, const char *unique_id)
+/*static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, const char *name, const char *position_topic, const char *availability_topic, const char *unique_id)
 {
 	char payload[512] = {0};
 	char topic[128] = {0};
@@ -945,6 +945,43 @@ static void mqtt_publish_ha_valve(const char *node_id, const char *object_id, co
 			 node_id,
 			 DEVICE_MODEL,
 			 DEVICE_MANUFACTURER);
+
+	mqtt_pubs_retained(topic, payload);
+}*/
+
+static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id,
+										 const char *name, const char *state_topic,
+										 const char *availability_topic,
+										 const char *unique_id)
+{
+	char payload[512];
+	char topic[256];
+
+	snprintf(topic, sizeof(topic),
+			 "homeassistant/sensor/%s/%s/config",
+			 node_id, object_id);
+
+	snprintf(payload, sizeof(payload),
+			 "{"
+			 "\"name\":\"%s\","
+			 "\"unique_id\":\"%s\","
+			 "\"state_topic\":\"%s\","
+			 "\"unit_of_measurement\":\"%%\","
+			 "\"device_class\":\"humidity\","
+			 "\"availability_topic\":\"%s\","
+			 "\"device\":{"
+			 "\"identifiers\":[\"%s\"],"
+			 "\"name\":\"%s\","
+			 "\"model\":\"OSVentilation\","
+			 "\"manufacturer\":\"Peter Lourens\""
+			 "}"
+			 "}",
+			 name,
+			 unique_id,
+			 state_topic,
+			 availability_topic,
+			 node_id,
+			 node_id);
 
 	mqtt_pubs_retained(topic, payload);
 }
@@ -1110,12 +1147,23 @@ void mqtt_publish_homeassistant_discovery(void)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
 
-		snprintf(position_topic, sizeof(position_topic), "%s/valve%d/position", base, id);
-		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
-		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-		snprintf(name, sizeof(name), "Valve %d Position", id);
-		mqtt_publish_ha_valve(node_id, object_id, name, position_topic, availability_topic, unique_id);
+		snprintf(state_topic, sizeof(state_topic),
+				 "%s/valve%d/position", base, id);
+
+		snprintf(availability_topic, sizeof(availability_topic),
+				 "%s/valve%d/availability", base, id);
+
+		snprintf(object_id, sizeof(object_id),
+				 "valve_%d_position", id);
+
+		snprintf(unique_id, sizeof(unique_id),
+				 "%s_%s", node_id, object_id);
+
+		snprintf(name, sizeof(name),
+				 "Valve %d Position", id);
+
+		mqtt_publish_ha_valve_sensor(node_id, object_id, name,
+									 state_topic, availability_topic, unique_id);
 	}
 
 	// System state (select)
