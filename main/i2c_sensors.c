@@ -765,7 +765,7 @@ esp_err_t read_sensors_into_queue(void)
         sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
         i2c_master_dev_handle_t tca = (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle;
 
-        LOGI(TAG, "READ: Starting bus %d (tca=%p)", bus, tca);
+        LOGD(TAG, "READ: Starting bus %d (tca=%p)", bus, tca);
 
         for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
         {
@@ -774,7 +774,7 @@ esp_err_t read_sensors_into_queue(void)
             // Always clear snapshot to avoid stale CO2/pressure/gas
             memset(snapshot[bus][ch], 0, sizeof(snapshot[bus][ch]));
 
-            LOGI(TAG, "READ: bus=%d ch=%d type=%d handle=%p",
+            LOGD(TAG, "READ: bus=%d ch=%d type=%d handle=%p",
                  bus, ch, slot->type, slot->handle);
 
             // No sensor configured or not initialized
@@ -788,7 +788,7 @@ esp_err_t read_sensors_into_queue(void)
             esp_err_t err = i2c_tca9548_set_channel(tca, ch);
             if (err != ESP_OK)
             {
-                LOGE(TAG, "READ: bus=%d ch=%d mux select failed: %s",
+                LOGD(TAG, "READ: bus=%d ch=%d mux select failed: %s",
                      bus, ch, esp_err_to_name(err));
                 continue;
             }
@@ -831,7 +831,7 @@ esp_err_t read_sensors_into_queue(void)
             snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
             snapshot[bus][ch][IDX_VALID] = 1.0f;
 
-            LOGI(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
+            LOGD(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
                  bus, ch, temp, rh, snapshot[bus][ch][IDX_CO2]);
         }
     }
