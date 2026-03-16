@@ -632,7 +632,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     LOGW(TAG, "INIT: bus0 mux=%p bus1 mux=%p",
          tca9548_bus0_handle, tca9548_bus1_handle);
 
-    /* --- Bus0 --- */
+    // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
@@ -652,7 +652,7 @@ esp_err_t init_sensors_on_mux_channels(void)
         }
     }
 
-    /* --- Bus1 --- */
+    // --- Bus1 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
@@ -833,6 +833,25 @@ esp_err_t read_sensors_into_queue(void)
 
             LOGD(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
                  bus, ch, temp, rh, snapshot[bus][ch][IDX_CO2]);
+        }
+    }
+
+    LOGW(TAG, "================ RAW SENSOR ARRAY ================");
+    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+        {
+            LOGW(TAG,
+                 "RAW bus=%d slot=%d | "
+                 "valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
+                 bus, slot,
+                 (int)snapshot[bus][slot][IDX_VALID],
+                 snapshot[bus][slot][IDX_TEMP],
+                 snapshot[bus][slot][IDX_HUMIDITY],
+                 snapshot[bus][slot][IDX_CO2],
+                 snapshot[bus][slot][IDX_PRESSURE],
+                 snapshot[bus][slot][IDX_GAS_RES],
+                 snapshot[bus][slot][IDX_TIMESTAMP]);
         }
     }
 
