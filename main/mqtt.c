@@ -937,6 +937,46 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 	mqtt_pubs_retained(topic, payload);
 }
 
+// Debug helper to dump sensor arrays to log for verification
+static void debug_dump_sensor_arrays(float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
+{
+	ESP_LOGW("MQTT", "================ RAW SENSOR ARRAY ================");
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			ESP_LOGW("MQTT",
+					 "RAW bus=%d slot=%d | valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
+					 bus, slot,
+					 (int)raw[bus][slot][IDX_VALID],
+					 raw[bus][slot][IDX_TEMP],
+					 raw[bus][slot][IDX_HUMIDITY],
+					 raw[bus][slot][IDX_CO2],
+					 raw[bus][slot][IDX_PRESSURE],
+					 raw[bus][slot][IDX_GAS_RES],
+					 raw[bus][slot][IDX_TIMESTAMP]);
+		}
+	}
+
+	ESP_LOGW("MQTT", "================ AVG SENSOR ARRAY ================");
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			ESP_LOGW("MQTT",
+					 "AVG bus=%d slot=%d | valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
+					 bus, slot,
+					 (int)avg[bus][slot][IDX_VALID],
+					 avg[bus][slot][IDX_TEMP],
+					 avg[bus][slot][IDX_HUMIDITY],
+					 avg[bus][slot][IDX_CO2],
+					 avg[bus][slot][IDX_PRESSURE],
+					 avg[bus][slot][IDX_GAS_RES],
+					 avg[bus][slot][IDX_TIMESTAMP]);
+		}
+	}
+}
+
 // Main discovery publisher — publishes retained discovery messages for HA
 void mqtt_publish_homeassistant_discovery(void)
 {
@@ -971,9 +1011,11 @@ void mqtt_publish_homeassistant_discovery(void)
 		have_avg = true;
 	}
 
+	// dump arrays to log for verification
+	debug_dump_sensor_arrays(raw, avg);
+
 	// Buffers
 	char state_topic[300];
-	// char position_topic[300];
 	char availability_topic[300];
 	char object_id[64];
 	char unique_id[150];
