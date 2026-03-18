@@ -57,6 +57,6 @@ void reload_and_init_sensors(void);
 
 void preload_sensor_types_from_config(void);
 void sensor_data_average(void);
-void fifoPush(int, int, int, float, int);
+void fifoPush(int, int, int, float);
 
 #endif

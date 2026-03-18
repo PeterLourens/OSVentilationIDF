@@ -10,10 +10,14 @@ static const char *TAG = "i2c_sensors";
 
 // FIFO buffer for sensor moving average calculation
 static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][5][MAX_FIFO_SIZE];
-static float sum[SENSOR_AVG_SIZE] = {0};
-static float avg[SENSOR_AVG_SIZE] = {0};
-static int fifoSize[SENSOR_AVG_SIZE] = {0};
-static int fifoHead[SENSOR_AVG_SIZE] = {0};
+// static float sum[SENSOR_AVG_SIZE] = {0};
+// static float avg[SENSOR_AVG_SIZE] = {0};
+// static int fifoSize[SENSOR_AVG_SIZE] = {0};
+// static int fifoHead[SENSOR_AVG_SIZE] = {0};
+static float sum[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
+static float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
+static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
+static int fifoHead[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 
 // -----------------------------------------------------------------------------
 // Sensor slot model (per bus, per channel)
@@ -873,7 +877,50 @@ void sensor_data_average(void)
         return;
     }
 
-    /* Measurement indices to average (compile-time array) */
+    static const int meas_indices[] = {
+        IDX_TEMP,
+        IDX_HUMIDITY,
+        IDX_CO2,
+        IDX_PRESSURE,
+        IDX_GAS_RES};
+    const int meas_count = sizeof(meas_indices) / sizeof(meas_indices[0]);
+
+    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+        {
+            for (int m = 0; m < meas_count; m++)
+            {
+                int field = meas_indices[m];
+
+                if (sensor_data[bus][slot][IDX_VALID])
+                {
+                    fifoPush(bus, slot, m, sensor_data[bus][slot][field]);
+                }
+
+                sensor_avg_data[bus][slot][field] = avg[bus][slot][m];
+            }
+
+            sensor_avg_data[bus][slot][IDX_TIMESTAMP] = sensor_data[bus][slot][IDX_TIMESTAMP];
+            sensor_avg_data[bus][slot][IDX_VALID] = sensor_data[bus][slot][IDX_VALID];
+        }
+    }
+
+    xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
+}
+
+/*void sensor_data_average(void)
+{
+    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+    float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
+    if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
+    {
+        LOGW(TAG, "sensor_data_average: sensor_queue empty");
+        return;
+    }
+
+    // Measurement indices to average (compile-time array)
     static const int meas_indices[] = {
         IDX_TEMP,
         IDX_HUMIDITY,
@@ -903,7 +950,7 @@ void sensor_data_average(void)
                 pos++;
             }
 
-            /* Preserve timestamp and valid flags (copied directly) */
+            // Preserve timestamp and valid flags (copied directly)
             sensor_avg_data[bus][slot][IDX_TIMESTAMP] = sensor_data[bus][slot][IDX_TIMESTAMP];
             sensor_avg_data[bus][slot][IDX_VALID] = sensor_data[bus][slot][IDX_VALID];
         }
@@ -911,9 +958,9 @@ void sensor_data_average(void)
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
     LOGD(TAG, "sensor_data_average: wrote avg data to queue");
-}
+}*/
 
-void fifoPush(int bus, int slot, int measurement, float value, int pos)
+/*void fifoPush(int bus, int slot, int measurement, float value, int pos)
 {
     if (fifoSize[pos] < MAX_FIFO_SIZE)
     {
@@ -933,4 +980,27 @@ void fifoPush(int bus, int slot, int measurement, float value, int pos)
 
     if (fifoSize[pos] > 0)
         avg[pos] = sum[pos] / fifoSize[pos];
+}*/
+
+void fifoPush(int bus, int slot, int measurement, float value)
+{
+    int head = fifoHead[bus][slot][measurement];
+    int size = fifoSize[bus][slot][measurement];
+
+    if (size < MAX_FIFO_SIZE)
+    {
+        sensor_fifo[bus][slot][measurement][(head + size) % MAX_FIFO_SIZE] = value;
+        sum[bus][slot][measurement] += value;
+        fifoSize[bus][slot][measurement]++;
+    }
+    else
+    {
+        sum[bus][slot][measurement] -= sensor_fifo[bus][slot][measurement][head];
+        sensor_fifo[bus][slot][measurement][head] = value;
+        sum[bus][slot][measurement] += value;
+
+        fifoHead[bus][slot][measurement] = (head + 1) % MAX_FIFO_SIZE;
+    }
+
+    avg[bus][slot][measurement] = sum[bus][slot][measurement] / fifoSize[bus][slot][measurement];
 }
