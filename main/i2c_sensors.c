@@ -840,12 +840,12 @@ esp_err_t read_sensors_into_queue(void)
         }
     }
 
-    LOGW(TAG, "================ RAW SENSOR ARRAY ================");
+    LOGD(TAG, "================ RAW SENSOR ARRAY ================");
     for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
         for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
-            LOGW(TAG,
+            LOGD(TAG,
                  "RAW bus=%d slot=%d | "
                  "valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
                  bus, slot,
@@ -903,6 +903,25 @@ void sensor_data_average(void)
 
             sensor_avg_data[bus][slot][IDX_TIMESTAMP] = sensor_data[bus][slot][IDX_TIMESTAMP];
             sensor_avg_data[bus][slot][IDX_VALID] = sensor_data[bus][slot][IDX_VALID];
+        }
+    }
+
+    LOGI(TAG, "================ AVERAGED SENSOR ARRAY ================");
+    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    {
+        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+        {
+            LOGI(TAG,
+                 "RAW bus=%d slot=%d | "
+                 "valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
+                 bus, slot,
+                 (int)sensor_avg_data[bus][slot][IDX_VALID],
+                 sensor_avg_data[bus][slot][IDX_TEMP],
+                 sensor_avg_data[bus][slot][IDX_HUMIDITY],
+                 sensor_avg_data[bus][slot][IDX_CO2],
+                 sensor_avg_data[bus][slot][IDX_PRESSURE],
+                 sensor_avg_data[bus][slot][IDX_GAS_RES],
+                 sensor_avg_data[bus][slot][IDX_TIMESTAMP]);
         }
     }
 
