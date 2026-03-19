@@ -1230,194 +1230,184 @@ static void debug_dump_sensor_arrays(float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][
 
 void mqtt_publish_homeassistant_discovery(void)
 {
-    MQTT_config_t cfg;
-    mqtt_get_config_snapshot(&cfg);
+	MQTT_config_t cfg;
+	mqtt_get_config_snapshot(&cfg);
 
-    if (!mqtt_is_enabled(&cfg))
-        return;
+	if (!mqtt_is_enabled(&cfg))
+		return;
 
-    if (!s_mqtt || !s_mqtt_connected)
-    {
-        ESP_LOGW(TAG, "mqtt_publish_homeassistant_discovery: MQTT not connected; skipping");
-        return;
-    }
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "mqtt_publish_homeassistant_discovery: MQTT not connected; skipping");
+		return;
+	}
 
-    const char *node_id = mqtt_get_node_id();
-    char base[150] = {0};
-    normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+	const char *node_id = mqtt_get_node_id();
+	char base[150] = {0};
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
-    float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-    float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-    bool have_raw = xQueuePeek(sensor_queue, &raw, 0) == pdTRUE;
-    //bool have_avg = xQueuePeek(sensor_avg_queue, &avg, 0) == pdTRUE;
+	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+	bool have_raw = xQueuePeek(sensor_queue, &raw, 0) == pdTRUE;
+	// bool have_avg = xQueuePeek(sensor_avg_queue, &avg, 0) == pdTRUE;
 
-    debug_dump_sensor_arrays(raw, avg);
+	debug_dump_sensor_arrays(raw, avg);
 
-    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-        {
-            bool slot_present = false;
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			bool slot_present = false;
 
-            if (have_raw && raw[bus][slot][IDX_VALID] == 1)
-                slot_present = true;
+			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
+				slot_present = true;
 
-            if (!slot_present && have_raw &&
-                (raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
-                slot_present = true;
+			if (!slot_present && have_raw &&
+				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
+				slot_present = true;
 
-            if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
-                slot_present = true;
+			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
+				slot_present = true;
 
-            if (!slot_present)
-            {
-                ESP_LOGW(TAG, "SKIP bus=%d slot=%d: no valid RAW data", bus, slot);
-                continue;
-            }
+			if (!slot_present)
+			{
+				ESP_LOGW(TAG, "SKIP bus=%d slot=%d: no valid RAW data", bus, slot);
+				continue;
+			}
 
-            // ---------------- TEMPERATURE ----------------
-            {
-                char state_topic[200];
-                snprintf(state_topic, sizeof(state_topic),
-                         "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
+			// ---------------- TEMPERATURE ----------------
+			{
+				char state_topic[200];
+				snprintf(state_topic, sizeof(state_topic),
+						 "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
 
-                char object_id[64];
-                snprintf(object_id, sizeof(object_id),
-                         "bus%d_slot%d_avg_temperature", bus, slot);
+				char object_id[64];
+				snprintf(object_id, sizeof(object_id),
+						 "bus%d_slot%d_avg_temperature", bus, slot);
 
-                char unique_id[150];
-                snprintf(unique_id, sizeof(unique_id),
-                         "%s_%s", node_id, object_id);
+				char unique_id[150];
+				snprintf(unique_id, sizeof(unique_id),
+						 "%s_%s", node_id, object_id);
 
-                char name[64];
-                snprintf(name, sizeof(name),
-                         "Bus%d Slot%d Temperature", bus, slot);
+				char name[64];
+				snprintf(name, sizeof(name),
+						 "Bus%d Slot%d Temperature", bus, slot);
 
-                mqtt_publish_ha_sensor(node_id, object_id, name,
-                                       "°C", "temperature",
-                                       state_topic, "{{ value }}", unique_id);
-            }
+				mqtt_publish_ha_sensor(node_id, object_id, name,
+									   "°C", "temperature",
+									   state_topic, "{{ value }}", unique_id);
+			}
 
-            // ---------------- HUMIDITY ----------------
-            {
-                char state_topic[200];
-                snprintf(state_topic, sizeof(state_topic),
-                         "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
+			// ---------------- HUMIDITY ----------------
+			{
+				char state_topic[200];
+				snprintf(state_topic, sizeof(state_topic),
+						 "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
 
-                char object_id[64];
-                snprintf(object_id, sizeof(object_id),
-                         "bus%d_slot%d_avg_humidity", bus, slot);
+				char object_id[64];
+				snprintf(object_id, sizeof(object_id),
+						 "bus%d_slot%d_avg_humidity", bus, slot);
 
-                char unique_id[150];
-                snprintf(unique_id, sizeof(unique_id),
-                         "%s_%s", node_id, object_id);
+				char unique_id[150];
+				snprintf(unique_id, sizeof(unique_id),
+						 "%s_%s", node_id, object_id);
 
-                char name[64];
-                snprintf(name, sizeof(name),
-                         "Bus%d Slot%d Humidity", bus, slot);
+				char name[64];
+				snprintf(name, sizeof(name),
+						 "Bus%d Slot%d Humidity", bus, slot);
 
-                mqtt_publish_ha_sensor(node_id, object_id, name,
-                                       "%", "humidity",
-                                       state_topic, "{{ value }}", unique_id);
-            }
+				mqtt_publish_ha_sensor(node_id, object_id, name,
+									   "%", "humidity",
+									   state_topic, "{{ value }}", unique_id);
+			}
 
-            // ---------------- CO2 (ONLY FOR SCD41) ----------------
-            if (sensor_supports_co2(bus, slot))
-            {
-                float co2 = raw[bus][slot][IDX_CO2];
+			// ---------------- CO2 (ONLY FOR SCD41) ----------------
+			if (sensor_supports_co2(bus, slot))
+			{
+				float co2 = raw[bus][slot][IDX_CO2];
 
-                if (raw[bus][slot][IDX_VALID] == 1 && co2 > 0.0f)
-                {
-                    char state_topic[200];
-                    snprintf(state_topic, sizeof(state_topic),
-                             "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
+				if (raw[bus][slot][IDX_VALID] == 1 && co2 > 0.0f)
+				{
+					char state_topic[200];
+					snprintf(state_topic, sizeof(state_topic),
+							 "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
 
-                    char object_id[64];
-                    snprintf(object_id, sizeof(object_id),
-                             "bus%d_slot%d_avg_co2", bus, slot);
+					char object_id[64];
+					snprintf(object_id, sizeof(object_id),
+							 "bus%d_slot%d_avg_co2", bus, slot);
 
-                    char unique_id[150];
-                    snprintf(unique_id, sizeof(unique_id),
-                             "%s_%s", node_id, object_id);
+					char unique_id[150];
+					snprintf(unique_id, sizeof(unique_id),
+							 "%s_%s", node_id, object_id);
 
-                    char name[64];
-                    snprintf(name, sizeof(name),
-                             "Bus%d Slot%d CO2", bus, slot);
+					char name[64];
+					snprintf(name, sizeof(name),
+							 "Bus%d Slot%d CO2", bus, slot);
 
-                    mqtt_publish_ha_sensor(node_id, object_id, name,
-                                           "ppm", "carbon_dioxide",
-                                           state_topic, "{{ value }}", unique_id);
-                }
-                else
-                {
-                    ESP_LOGW(TAG,
-                             "Skipping CO2 for bus=%d slot=%d (not ready or zero)",
-                             bus, slot);
-                }
-            }
-        }
-    }
+					mqtt_publish_ha_sensor(node_id, object_id, name,
+										   "ppm", "carbon_dioxide",
+										   state_topic, "{{ value }}", unique_id);
+				}
+				else
+				{
+					ESP_LOGW(TAG,
+							 "Skipping CO2 for bus=%d slot=%d (not ready or zero)",
+							 bus, slot);
+				}
+			}
+		}
+	}
 
-    // ---------------- VALVES ----------------
-    for (int id = 0; id < MAX_VALVE_COUNT; id++)
-    {
-        char state_topic[200];
-        snprintf(state_topic, sizeof(state_topic),
-                 "%s/valve%d/position", base, id);
+	// ---------------- VALVES ----------------
+	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	{
+		char state_topic[200];
+		snprintf(state_topic, sizeof(state_topic),
+				 "%s/valve%d/position", base, id);
 
-        char availability_topic[200];
-        snprintf(availability_topic, sizeof(availability_topic),
-                 "%s/valve%d/availability", base, id);
+		char availability_topic[200];
+		snprintf(availability_topic, sizeof(availability_topic),
+				 "%s/valve%d/availability", base, id);
 
-        char object_id[64];
-        snprintf(object_id, sizeof(object_id),
-                 "valve_%d_position", id);
+		char object_id[64];
+		snprintf(object_id, sizeof(object_id),
+				 "valve_%d_position", id);
 
-        char unique_id[150];
-        snprintf(unique_id, sizeof(unique_id),
-                 "%s_%s", node_id, object_id);
+		char unique_id[150];
+		snprintf(unique_id, sizeof(unique_id),
+				 "%s_%s", node_id, object_id);
 
-        char name[64];
-        snprintf(name, sizeof(name),
-                 "Valve %d Position", id);
+		char name[64];
+		snprintf(name, sizeof(name),
+				 "Valve %d Position", id);
 
-        mqtt_publish_ha_valve_sensor(node_id, object_id, name,
-                                     state_topic, availability_topic, unique_id);
-    }
+		mqtt_publish_ha_valve_sensor(node_id, object_id, name,
+									 state_topic, availability_topic, unique_id);
+	}
 
-    // ---------------- SYSTEM STATE ----------------
-    {
-        char object_id[64] = "system_state";
-        char unique_id[150];
-        snprintf(unique_id, sizeof(unique_id),
-                 "%s_%s", node_id, object_id);
+	// ---------------- SYSTEM STATE ----------------
+	{
+		char object_id[64] = "system_state";
+		char unique_id[150];
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
 
-        char state_topic[200];
-        snprintf(state_topic, sizeof(state_topic),
-                 "%s/system/state", base);
+		char state_topic[200];
+		snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
 
-        mqtt_publish_ha_sensor(node_id, object_id,
-                               "OSVentilation System State",
-                               "", NULL,
-                               state_topic, "{{ value }}", unique_id);
-    }
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", NULL, NULL, state_topic, "{{ value }}", unique_id);
+	}
 
-    // ---------------- FAN SPEED ----------------
-    {
-        char object_id[64] = "system_fanspeed";
-        char unique_id[150];
-        snprintf(unique_id, sizeof(unique_id),
-                 "%s_%s", node_id, object_id);
+	// ---------------- FAN SPEED ----------------
+	{
+		char object_id[64] = "system_fanspeed";
+		char unique_id[150];
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
 
-        char state_topic[200];
-        snprintf(state_topic, sizeof(state_topic),
-                 "%s/system/fanspeed", base);
+		char state_topic[200];
+		snprintf(state_topic, sizeof(state_topic), "%s/system/fanspeed", base);
 
-        mqtt_publish_ha_sensor(node_id, object_id,
-                               "OSVentilation Fan Speed",
-                               "", NULL,
-                               state_topic, "{{ value }}", unique_id);
-    }
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", NULL, NULL, state_topic, "{{ value }}", unique_id);
+	}
 
-    ESP_LOGI(TAG, "Published Home Assistant discovery configs (node=%s)", node_id);
+	ESP_LOGI(TAG, "Published Home Assistant discovery configs (node=%s)", node_id);
 }
