@@ -685,6 +685,12 @@ bool configured_sensor(int bus, int slot)
     return slots[slot].type != SENSOR_NONE;
 }
 
+bool sensor_supports_co2(int bus, int slot)
+{
+    sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
+    return slots[slot].type == SENSOR_SCD41;
+}
+
 // -----------------------------------------------------------------------------
 // Reading sensors into queue (using per-channel slots)
 // -----------------------------------------------------------------------------

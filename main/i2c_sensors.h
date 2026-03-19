@@ -53,6 +53,7 @@ bool is_aht20(const char *);
 bool is_dht20(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
 bool configured_sensor(int, int);
+bool sensor_supports_co2(int, int);
 esp_err_t read_sensors_into_queue(void);
 void reload_and_init_sensors(void);
 
