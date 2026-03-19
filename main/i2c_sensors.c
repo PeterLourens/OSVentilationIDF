@@ -10,10 +10,6 @@ static const char *TAG = "i2c_sensors";
 
 // FIFO buffer for sensor moving average calculation
 static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][5][MAX_FIFO_SIZE];
-// static float sum[SENSOR_AVG_SIZE] = {0};
-// static float avg[SENSOR_AVG_SIZE] = {0};
-// static int fifoSize[SENSOR_AVG_SIZE] = {0};
-// static int fifoHead[SENSOR_AVG_SIZE] = {0};
 static float sum[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
@@ -426,91 +422,6 @@ esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *t
     return ESP_OK;
 }
 
-// -----------------------------------------------------------------------------
-// Per-bus channel configuration
-// -----------------------------------------------------------------------------
-/*static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
-{
-    if (!slots || !bus_handle || !tca_handle || ch >= CHANNELS_PER_BUS)
-        return ESP_ERR_INVALID_ARG;
-
-    sensor_type_t new_type = sensor_type_from_str(type_str);
-    sensor_type_t old_type = slots[ch].type;
-
-    // No sensor configured
-    if (new_type == SENSOR_NONE)
-    {
-        if (slots[ch].handle != NULL)
-        {
-            i2c_master_bus_rm_device(slots[ch].handle);
-            slots[ch].handle = NULL;
-        }
-        slots[ch].type = SENSOR_NONE;
-        LOGD(TAG, "No sensor configured on bus %d channel %u", bus_index, ch);
-        return ESP_OK;
-    }
-
-    // Type unchanged
-    if (old_type == new_type)
-    {
-        if (slots[ch].handle != NULL)
-        {
-            LOGD(TAG, "Bus %d channel %u: type unchanged (%s), skipping re-init", bus_index, ch, type_str);
-            return ESP_OK;
-        }
-
-        LOGD(TAG, "Bus %d channel %u: type unchanged (%s), initializing (first time)", bus_index, ch, type_str);
-    }
-    else
-    {
-        LOGD(TAG, "Bus %d channel %u: type changed (%d → %d), re-initializing",
-             bus_index, ch, old_type, new_type);
-
-        if (slots[ch].handle != NULL)
-        {
-            i2c_master_bus_rm_device(slots[ch].handle);
-            slots[ch].handle = NULL;
-        }
-    }
-
-    esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "Failed to set channel %u: %s", ch, esp_err_to_name(err));
-        return err;
-    }
-    vTaskDelay(pdMS_TO_TICKS(3));
-
-    i2c_master_dev_handle_t h = NULL;
-
-    switch (new_type)
-    {
-    case SENSOR_AHT20:
-        err = i2c_aht20_init(bus_handle, &h);
-        break;
-    case SENSOR_DHT20:
-        err = i2c_dht20_init(bus_handle, &h);
-        break;
-    case SENSOR_SCD41:
-        err = i2c_init_scd41(bus_handle, &h);
-        break;
-    default:
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "Failed to initialize %s on channel %u: %s",
-             type_str, ch, esp_err_to_name(err));
-        return err;
-    }
-
-    slots[ch].handle = h;
-    slots[ch].type = new_type;
-
-    LOGD(TAG, "%s initialized on channel %u", type_str, ch);
-    return ESP_OK;
-}*/
 static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
 {
     if (!slots || !bus_handle || !tca_handle)
@@ -523,8 +434,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
     sensor_type_t new_type = sensor_type_from_str(type_str);
     sensor_type_t old_type = slots[ch].type;
 
-    LOGI(TAG, "CONFIG: bus=%d ch=%d old=%d new=%d",
-         bus_index, ch, old_type, new_type);
+    LOGD(TAG, "CONFIG: bus=%d ch=%d old=%d new=%d", bus_index, ch, old_type, new_type);
 
     if (new_type == SENSOR_NONE)
     {
@@ -583,8 +493,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
         slots[ch].handle = h;
         slots[ch].type = new_type;
 
-        LOGI(TAG, "CONFIG OK: bus=%d ch=%d type=%d handle=%p",
-             bus_index, ch, new_type, h);
+        LOGD(TAG, "CONFIG OK: bus=%d ch=%d type=%d handle=%p", bus_index, ch, new_type, h);
     }
 
     return ESP_OK;
@@ -640,7 +549,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
-        LOGI(TAG, "INIT: bus0 ch=%d type=%s", ch, type_str);
+        LOGD(TAG, "INIT: bus0 ch=%d type=%s", ch, type_str);
 
         esp_err_t err = configure_bus_channel(
             bus0_sensors, 0,
@@ -660,7 +569,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
-        LOGI(TAG, "INIT: bus1 ch=%d type=%s", ch, type_str);
+        LOGD(TAG, "INIT: bus1 ch=%d type=%s", ch, type_str);
 
         esp_err_t err = configure_bus_channel(
             bus1_sensors, 1,
@@ -691,87 +600,6 @@ bool sensor_supports_co2(int bus, int slot)
     return slots[slot].type == SENSOR_SCD41;
 }
 
-// -----------------------------------------------------------------------------
-// Reading sensors into queue (using per-channel slots)
-// -----------------------------------------------------------------------------
-/*esp_err_t read_sensors_into_queue(void)
-{
-    float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-    for (uint8_t bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
-
-        i2c_master_dev_handle_t tca = (bus == 0) ? tca9548_bus0_handle : tca9548_bus1_handle;
-
-        for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
-        {
-            sensor_slot_t *slot = &slots[ch];
-
-            // Default: invalid
-            snapshot[bus][ch][IDX_VALID] = 0.0f;
-
-            if (slot->type == SENSOR_NONE || slot->handle == NULL)
-                continue;
-
-            // Select channel
-            esp_err_t err = i2c_tca9548_set_channel(tca, ch);
-            if (err != ESP_OK)
-                continue;
-
-            // Allow mux to settle
-            vTaskDelay(pdMS_TO_TICKS(3));
-
-            float temp = 0, rh = 0;
-            uint16_t co2 = 0;
-
-            bool ok = false;
-
-            switch (slot->type)
-            {
-            case SENSOR_AHT20:
-                ok = (aht20_read(slot->handle, &temp, &rh) == ESP_OK);
-                // Not available so make 0
-                snapshot[bus][ch][IDX_CO2] = 0.0f;
-                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
-                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
-                break;
-
-            case SENSOR_DHT20:
-                ok = (dht20_read(slot->handle, &temp, &rh) == ESP_OK);
-                // Not available so make 0
-                snapshot[bus][ch][IDX_CO2] = 0.0f;
-                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
-                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
-                break;
-
-            case SENSOR_SCD41:
-                ok = (scd41_read(slot->handle, &co2, &temp, &rh) == ESP_OK);
-                // Not available so make 0
-                snapshot[bus][ch][IDX_PRESSURE] = 0.0f;
-                snapshot[bus][ch][IDX_GAS_RES] = 0.0f;
-                break;
-
-            default:
-                ok = false;
-                break;
-            }
-
-            if (!ok)
-                continue;
-
-            // Write snapshot only on success
-            snapshot[bus][ch][IDX_TEMP] = temp;
-            snapshot[bus][ch][IDX_HUMIDITY] = rh;
-            snapshot[bus][ch][IDX_CO2] = (float)co2;
-            snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
-            snapshot[bus][ch][IDX_VALID] = 1.0f;
-        }
-    }
-
-    xQueueOverwrite(sensor_queue, snapshot);
-    return ESP_OK;
-}*/
 esp_err_t read_sensors_into_queue(void)
 {
     float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
@@ -918,12 +746,12 @@ void sensor_data_average(void)
         }
     }
 
-    LOGI(TAG, "================ AVERAGED SENSOR ARRAY ================");
+    LOGD(TAG, "================ AVERAGED SENSOR ARRAY ================");
     for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
     {
         for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
-            LOGI(TAG,
+            LOGD(TAG,
                  "RAW bus=%d slot=%d | "
                  "valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
                  bus, slot,
@@ -939,79 +767,6 @@ void sensor_data_average(void)
 
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
 }
-
-/*void sensor_data_average(void)
-{
-    float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
-    float sensor_avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-    if (xQueuePeek(sensor_queue, &sensor_data, 0) != pdTRUE)
-    {
-        LOGW(TAG, "sensor_data_average: sensor_queue empty");
-        return;
-    }
-
-    // Measurement indices to average (compile-time array)
-    static const int meas_indices[] = {
-        IDX_TEMP,
-        IDX_HUMIDITY,
-        IDX_CO2,
-        IDX_PRESSURE,
-        IDX_GAS_RES};
-    const int meas_count = (int)(sizeof(meas_indices) / sizeof(meas_indices[0]));
-
-    int pos = 0;
-
-    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-    {
-        for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-        {
-            // Average the selected measurements and write averaged values back into the same snapshot indices (0,1,2,5,6)
-            for (int m = 0; m < meas_count; m++)
-            {
-                int field_idx = meas_indices[m];
-
-                // Only average valid measurements
-                if (sensor_data[bus][slot][IDX_VALID])
-                {
-                    fifoPush(bus, slot, m, sensor_data[bus][slot][field_idx], pos);
-                }
-
-                sensor_avg_data[bus][slot][field_idx] = avg[pos];
-                pos++;
-            }
-
-            // Preserve timestamp and valid flags (copied directly)
-            sensor_avg_data[bus][slot][IDX_TIMESTAMP] = sensor_data[bus][slot][IDX_TIMESTAMP];
-            sensor_avg_data[bus][slot][IDX_VALID] = sensor_data[bus][slot][IDX_VALID];
-        }
-    }
-
-    xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
-    LOGD(TAG, "sensor_data_average: wrote avg data to queue");
-}*/
-
-/*void fifoPush(int bus, int slot, int measurement, float value, int pos)
-{
-    if (fifoSize[pos] < MAX_FIFO_SIZE)
-    {
-        sensor_fifo[bus][slot][measurement][(fifoHead[pos] + fifoSize[pos]) % MAX_FIFO_SIZE] = value;
-
-        sum[pos] += value;
-        fifoSize[pos]++;
-    }
-    else
-    {
-        sum[pos] -= sensor_fifo[bus][slot][measurement][fifoHead[pos]];
-        sensor_fifo[bus][slot][measurement][fifoHead[pos]] = value;
-        sum[pos] += value;
-
-        fifoHead[pos] = (fifoHead[pos] + 1) % MAX_FIFO_SIZE;
-    }
-
-    if (fifoSize[pos] > 0)
-        avg[pos] = sum[pos] / fifoSize[pos];
-}*/
 
 void fifoPush(int bus, int slot, int measurement, float value)
 {
