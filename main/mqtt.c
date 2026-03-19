@@ -247,7 +247,15 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 		// Publish Home Assistant discovery configs (retained)
 		// mqtt_publish_homeassistant_discovery();
-		vTaskDelay(pdMS_TO_TICKS(5000)); // wait 5 seconds for first sensor read
+		// vTaskDelay(pdMS_TO_TICKS(5000)); // wait 5 seconds for first sensor read
+		ESP_LOGI("MQTT", "Waiting for sensors to become ready...");
+
+		while (!sensors_ready())
+		{
+			vTaskDelay(pdMS_TO_TICKS(1000)); // check every second
+		}
+
+		ESP_LOGI("MQTT", "Sensors ready — publishing Home Assistant discovery");
 		mqtt_publish_homeassistant_discovery();
 
 		// Subscribe to control topic
@@ -602,8 +610,7 @@ void mqtt_publish_sensor_values(void)
    Publish all valve positions
    --------------------------------------------------------------------------- */
 
-// Helper: read one valve pos from NVS and publish it as a plain integer
-#include <inttypes.h> /* ensure this is included at top of mqtt.c */
+
 
 /* Publish one valve position (reads NVS key "valveN") */
 /*static void publish_valve_from_nvs(nvs_handle_t nvs, const char *base, int id)
@@ -799,6 +806,28 @@ void mqtt_publish_state_and_fanspeed(void)
 Home Assistant discovery helpers and publisher
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -*/
 
+bool sensors_ready(void)
+{
+	float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
+	if (xQueuePeek(sensor_queue, snapshot, 0) != pdTRUE)
+		return false;
+
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			if (configured_sensor(bus, slot) &&
+				snapshot[bus][slot][IDX_VALID] == 0.0f)
+			{
+				return false; // at least one configured sensor not ready
+			}
+		}
+	}
+
+	return true;
+}
+
 // Retained publish helper
 static inline void mqtt_pubs_retained(const char *topic, const char *value)
 {
@@ -940,12 +969,12 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 // Debug helper to dump sensor arrays to log for verification
 static void debug_dump_sensor_arrays(float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
 {
-	ESP_LOGW("MQTT", "================ RAW SENSOR ARRAY ================");
+	ESP_LOGD("MQTT", "================ RAW SENSOR ARRAY ================");
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
-			ESP_LOGW("MQTT",
+			ESP_LOGD("MQTT",
 					 "RAW bus=%d slot=%d | valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
 					 bus, slot,
 					 (int)raw[bus][slot][IDX_VALID],
@@ -958,7 +987,7 @@ static void debug_dump_sensor_arrays(float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][
 		}
 	}
 
-	ESP_LOGW("MQTT", "================ AVG SENSOR ARRAY ================");
+	ESP_LOGD("MQTT", "================ AVG SENSOR ARRAY ================");
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
@@ -1002,11 +1031,11 @@ void mqtt_publish_homeassistant_discovery(void)
 	bool have_raw = false;
 	bool have_avg = false;
 
-	if (xQueuePeek(sensor_queue, raw, 0) == pdTRUE)
+	if (xQueuePeek(sensor_queue, &raw, 0) == pdTRUE)
 	{
 		have_raw = true;
 	}
-	if (xQueuePeek(sensor_avg_queue, avg, 0) == pdTRUE)
+	if (xQueuePeek(sensor_avg_queue, &avg, 0) == pdTRUE)
 	{
 		have_avg = true;
 	}

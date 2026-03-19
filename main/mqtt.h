@@ -29,5 +29,6 @@ void normalize_base_topic(const char *, char *, size_t);
 bool mqtt_wait_for_connection(TickType_t);
 const char *mqtt_get_node_id(void);
 void mqtt_publish_homeassistant_discovery(void);
+bool sensors_ready(void);
 
 #endif

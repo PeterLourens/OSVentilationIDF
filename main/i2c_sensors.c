@@ -679,6 +679,12 @@ esp_err_t init_sensors_on_mux_channels(void)
     return ret;
 }
 
+bool configured_sensor(int bus, int slot)
+{
+    sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
+    return slots[slot].type != SENSOR_NONE;
+}
+
 // -----------------------------------------------------------------------------
 // Reading sensors into queue (using per-channel slots)
 // -----------------------------------------------------------------------------
