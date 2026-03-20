@@ -790,122 +790,6 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 	mqtt_pubs_retained(topic, payload);
 }
 
-/*static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, const char *name, const char *unit, const char *device_class, const char *state_topic, const char *value_template, const char *unique_id)
-{
-	// safe discovery payload builder: node_id, optional mac, optional sw/hw versions
-	char payload[512] = {0};
-	char macid[32] = {0};
-	uint8_t mac[6];
-
-	// try to read MAC (non-fatal)
-	if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
-	{
-		snprintf(macid, sizeof(macid), "%02X%02X%02X%02X%02X%02X",
-				 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-		macid[sizeof(macid) - 1] = '\0';
-	}
-
-	// Build base payload with device object; choose branch depending on mac presence
-	if (macid[0] != '\0')
-	{
-		// identifiers: node_id and mac
-		snprintf(payload, sizeof(payload),
-				 "{"
-				 "\"name\":\"%s\","
-				 "\"state_topic\":\"%s\","
-				 "\"unique_id\":\"%s\","
-				 "\"unit_of_measurement\":\"%s\","
-				 "\"device_class\":\"%s\","
-				 "\"value_template\":\"%s\","
-				 "\"device\":{"
-				 "\"identifiers\":[\"%s\",\"%s\"],"
-				 "\"name\":\"%s\","
-				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\"",
-				 name, state_topic, unique_id,
-				 unit ? unit : "",
-				 device_class ? device_class : "",
-				 value_template ? value_template : "{{ value }}",
-				 node_id, macid, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
-	}
-	else
-	{
-		// identifiers: node_id only
-		snprintf(payload, sizeof(payload),
-				 "{"
-				 "\"name\":\"%s\","
-				 "\"state_topic\":\"%s\","
-				 "\"unique_id\":\"%s\","
-				 "\"unit_of_measurement\":\"%s\","
-				 "\"device_class\":\"%s\","
-				 "\"value_template\":\"%s\","
-				 "\"device\":{"
-				 "\"identifiers\":[\"%s\"],"
-				 "\"name\":\"%s\","
-				 "\"model\":\"%s\","
-				 "\"manufacturer\":\"%s\"",
-				 name, state_topic, unique_id,
-				 unit ? unit : "",
-				 device_class ? device_class : "",
-				 value_template ? value_template : "{{ value }}",
-				 node_id, node_id, DEVICE_MODEL, DEVICE_MANUFACTURER);
-	}
-
-// Append optional fields safely
-#ifdef DEVICE_SW_VERSION
-	strlcat(payload, ",\"sw_version\":\"", sizeof(payload));
-	strlcat(payload, DEVICE_SW_VERSION, sizeof(payload));
-	strlcat(payload, "\"", sizeof(payload));
-#endif
-
-#ifdef DEVICE_HW_VERSION
-	strlcat(payload, ",\"hw_version\":\"", sizeof(payload));
-	strlcat(payload, DEVICE_HW_VERSION, sizeof(payload));
-	strlcat(payload, "\"", sizeof(payload));
-#endif
-
-	// Close device and outer object
-	strlcat(payload, "}}", sizeof(payload));
-
-	char topic[256];
-	snprintf(topic, sizeof(topic), "homeassistant/sensor/%s/%s/config", node_id, object_id);
-	topic[sizeof(topic) - 1] = '\0';
-
-	// publish retained
-	mqtt_pubs_retained(topic, payload);
-}
-
-static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *availability_topic, const char *unique_id)
-{
-	char payload[512];
-	char topic[256];
-
-	snprintf(topic, sizeof(topic),
-			 "homeassistant/sensor/%s/%s/config",
-			 node_id, object_id);
-
-	snprintf(payload, sizeof(payload),
-			 "{"
-			 "\"name\":\"%s\","
-			 "\"unique_id\":\"%s\","
-			 "\"state_topic\":\"%s\","
-			 "\"availability_topic\":\"%s\","
-			 "\"device\":{"
-			 "\"identifiers\":[\"%s\"],"
-			 "\"name\":\"%s\","
-			 "\"model\":\"OSVentilation\","
-			 "\"manufacturer\":\"Peter Lourens\""
-			 "}"
-			 "}",
-			 name,
-			 unique_id,
-			 state_topic,
-			 availability_topic,
-			 node_id,
-			 node_id);
-
-	mqtt_pubs_retained(topic, payload);
-}*/
 static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *availability_topic, const char *unique_id)
 {
 	char payload[350];
@@ -935,46 +819,6 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 
 	mqtt_pubs_retained(topic, payload);
 }
-
-// Debug helper to dump sensor arrays to log for verification
-/*static void debug_dump_sensor_arrays(float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
-{
-	ESP_LOGD("MQTT", "================ RAW SENSOR ARRAY ================");
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-		{
-			ESP_LOGD("MQTT",
-					 "RAW bus=%d slot=%d | valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
-					 bus, slot,
-					 (int)raw[bus][slot][IDX_VALID],
-					 raw[bus][slot][IDX_TEMP],
-					 raw[bus][slot][IDX_HUMIDITY],
-					 raw[bus][slot][IDX_CO2],
-					 raw[bus][slot][IDX_PRESSURE],
-					 raw[bus][slot][IDX_GAS_RES],
-					 raw[bus][slot][IDX_TIMESTAMP]);
-		}
-	}
-
-	ESP_LOGD("MQTT", "================ AVG SENSOR ARRAY ================");
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-		{
-			ESP_LOGW("MQTT",
-					 "AVG bus=%d slot=%d | valid=%d temp=%.2f hum=%.2f co2=%.2f press=%.2f gas=%.2f ts=%.0f",
-					 bus, slot,
-					 (int)avg[bus][slot][IDX_VALID],
-					 avg[bus][slot][IDX_TEMP],
-					 avg[bus][slot][IDX_HUMIDITY],
-					 avg[bus][slot][IDX_CO2],
-					 avg[bus][slot][IDX_PRESSURE],
-					 avg[bus][slot][IDX_GAS_RES],
-					 avg[bus][slot][IDX_TIMESTAMP]);
-		}
-	}
-}*/
 
 // Main discovery publisher — publishes retained discovery messages for HA
 void mqtt_publish_homeassistant_discovery(void)
@@ -1045,21 +889,15 @@ void mqtt_publish_homeassistant_discovery(void)
 				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
 
 				char object_id[60];
-				snprintf(object_id, sizeof(object_id),
-						 "bus%d_slot%d_co2", bus, slot);
+				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_co2", bus, slot);
 
 				char unique_id[120];
-				snprintf(unique_id, sizeof(unique_id),
-						 "%s_%s", node_id, object_id);
+				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
 
 				char name[60];
-				snprintf(name, sizeof(name),
-						 "Bus%d Slot%d CO2", bus, slot);
+				snprintf(name, sizeof(name), "Bus%d Slot%d CO2", bus, slot);
 
-				mqtt_publish_ha_sensor(node_id, object_id, name,
-									   "ppm", "carbon_dioxide",
-									   state_topic, "{{ value }}",
-									   unique_id, "mdi:molecule-co2");
+				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id, "mdi:molecule-co2");
 			}
 		}
 	}
@@ -1068,247 +906,44 @@ void mqtt_publish_homeassistant_discovery(void)
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
 		char state_topic[150];
-		snprintf(state_topic, sizeof(state_topic),
-				 "%s/valve%d/position", base, id);
+		snprintf(state_topic, sizeof(state_topic), "%s/valve%d/position", base, id);
 
 		char availability_topic[150];
-		snprintf(availability_topic, sizeof(availability_topic),
-				 "%s/valve%d/availability", base, id);
+		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
 
 		char object_id[60];
-		snprintf(object_id, sizeof(object_id),
-				 "valve_%d_position", id);
+		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
 
 		char unique_id[120];
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
 
 		char name[60];
-		snprintf(name, sizeof(name),
-				 "Valve %d Position", id);
+		snprintf(name, sizeof(name), "Valve %d Position", id);
 
-		mqtt_publish_ha_valve_sensor(node_id, object_id, name,
-									 state_topic, availability_topic,
-									 unique_id);
+		mqtt_publish_ha_valve_sensor(node_id, object_id, name, state_topic, availability_topic, unique_id);
 	}
 
 	// ---------------- SYSTEM STATE ----------------
 	{
 		char object_id[40] = "system_state";
 		char unique_id[120];
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
-
 		char state_topic[150];
-		snprintf(state_topic, sizeof(state_topic),
-				 "%s/system/state", base);
 
-		mqtt_publish_ha_sensor(node_id, object_id,
-							   "OSVentilation System State",
-							   NULL, NULL,
-							   state_topic, "{{ value }}",
-							   unique_id, "mdi:information-outline");
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
+
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:information-outline");
 	}
 
 	// ---------------- FAN SPEED ----------------
 	{
 		char object_id[40] = "system_fanspeed";
 		char unique_id[120];
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
 
 		char state_topic[150];
-		snprintf(state_topic, sizeof(state_topic),
-				 "%s/system/fanspeed", base);
-
-		mqtt_publish_ha_sensor(node_id, object_id,
-							   "OSVentilation Fan Speed",
-							   NULL, NULL,
-							   state_topic, "{{ value }}",
-							   unique_id, "mdi:fan");
-	}
-}
-
-/*void mqtt_publish_homeassistant_discovery(void)
-{
-	MQTT_config_t cfg;
-	mqtt_get_config_snapshot(&cfg);
-
-	if (!mqtt_is_enabled(&cfg))
-		return;
-
-	if (!s_mqtt || !s_mqtt_connected)
-	{
-		ESP_LOGW(TAG, "mqtt_publish_homeassistant_discovery: MQTT not connected; skipping");
-		return;
-	}
-
-	const char *node_id = mqtt_get_node_id();
-	char base[150] = {0};
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-	bool have_raw = xQueuePeek(sensor_queue, &raw, 0) == pdTRUE;
-	// bool have_avg = xQueuePeek(sensor_avg_queue, &avg, 0) == pdTRUE;
-
-	debug_dump_sensor_arrays(raw, avg);
-
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-		{
-			bool slot_present = false;
-
-			if (have_raw && raw[bus][slot][IDX_VALID] == 1)
-				slot_present = true;
-
-			if (!slot_present && have_raw &&
-				(raw[bus][slot][IDX_TEMP] != 0 || raw[bus][slot][IDX_HUMIDITY] != 0))
-				slot_present = true;
-
-			if (!slot_present && have_raw && raw[bus][slot][IDX_CO2] > 0)
-				slot_present = true;
-
-			if (!slot_present)
-			{
-				ESP_LOGW(TAG, "SKIP bus=%d slot=%d: no valid RAW data", bus, slot);
-				continue;
-			}
-
-			// ---------------- TEMPERATURE ----------------
-			{
-				char state_topic[200];
-				snprintf(state_topic, sizeof(state_topic),
-						 "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
-
-				char object_id[64];
-				snprintf(object_id, sizeof(object_id),
-						 "bus%d_slot%d_avg_temperature", bus, slot);
-
-				char unique_id[150];
-				snprintf(unique_id, sizeof(unique_id),
-						 "%s_%s", node_id, object_id);
-
-				char name[64];
-				snprintf(name, sizeof(name),
-						 "Bus%d Slot%d Temperature", bus, slot);
-
-				mqtt_publish_ha_sensor(node_id, object_id, name,
-									   "°C", "temperature",
-									   state_topic, "{{ value }}", unique_id);
-			}
-
-			// ---------------- HUMIDITY ----------------
-			{
-				char state_topic[200];
-				snprintf(state_topic, sizeof(state_topic),
-						 "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
-
-				char object_id[64];
-				snprintf(object_id, sizeof(object_id),
-						 "bus%d_slot%d_avg_humidity", bus, slot);
-
-				char unique_id[150];
-				snprintf(unique_id, sizeof(unique_id),
-						 "%s_%s", node_id, object_id);
-
-				char name[64];
-				snprintf(name, sizeof(name),
-						 "Bus%d Slot%d Humidity", bus, slot);
-
-				mqtt_publish_ha_sensor(node_id, object_id, name,
-									   "%", "humidity",
-									   state_topic, "{{ value }}", unique_id);
-			}
-
-			// ---------------- CO2 (ONLY FOR SCD41) ----------------
-			if (sensor_supports_co2(bus, slot))
-			{
-				float co2 = raw[bus][slot][IDX_CO2];
-
-				if (raw[bus][slot][IDX_VALID] == 1 && co2 > 0.0f)
-				{
-					char state_topic[200];
-					snprintf(state_topic, sizeof(state_topic),
-							 "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
-
-					char object_id[64];
-					snprintf(object_id, sizeof(object_id),
-							 "bus%d_slot%d_avg_co2", bus, slot);
-
-					char unique_id[150];
-					snprintf(unique_id, sizeof(unique_id),
-							 "%s_%s", node_id, object_id);
-
-					char name[64];
-					snprintf(name, sizeof(name),
-							 "Bus%d Slot%d CO2", bus, slot);
-
-					mqtt_publish_ha_sensor(node_id, object_id, name,
-										   "ppm", "carbon_dioxide",
-										   state_topic, "{{ value }}", unique_id);
-				}
-				else
-				{
-					ESP_LOGW(TAG,
-							 "Skipping CO2 for bus=%d slot=%d (not ready or zero)",
-							 bus, slot);
-				}
-			}
-		}
-	}
-
-	// ---------------- VALVES ----------------
-	for (int id = 0; id < MAX_VALVE_COUNT; id++)
-	{
-		char state_topic[200];
-		snprintf(state_topic, sizeof(state_topic),
-				 "%s/valve%d/position", base, id);
-
-		char availability_topic[200];
-		snprintf(availability_topic, sizeof(availability_topic),
-				 "%s/valve%d/availability", base, id);
-
-		char object_id[64];
-		snprintf(object_id, sizeof(object_id),
-				 "valve_%d_position", id);
-
-		char unique_id[150];
-		snprintf(unique_id, sizeof(unique_id),
-				 "%s_%s", node_id, object_id);
-
-		char name[64];
-		snprintf(name, sizeof(name),
-				 "Valve %d Position", id);
-
-		mqtt_publish_ha_valve_sensor(node_id, object_id, name,
-									 state_topic, availability_topic, unique_id);
-	}
-
-	// ---------------- SYSTEM STATE ----------------
-	{
-		char object_id[64] = "system_state";
-		char unique_id[150];
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-
-		char state_topic[200];
-		snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
-
-		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", NULL, NULL, state_topic, "{{ value }}", unique_id);
-	}
-
-	// ---------------- FAN SPEED ----------------
-	{
-		char object_id[64] = "system_fanspeed";
-		char unique_id[150];
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-
-		char state_topic[200];
 		snprintf(state_topic, sizeof(state_topic), "%s/system/fanspeed", base);
 
-		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", NULL, NULL, state_topic, "{{ value }}", unique_id);
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:fan");
 	}
-
-	ESP_LOGI(TAG, "Published Home Assistant discovery configs (node=%s)", node_id);
-}*/
+}
