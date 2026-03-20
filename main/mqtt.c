@@ -732,7 +732,7 @@ static inline void mqtt_pubs_retained(const char *topic, const char *value)
 // Publish discovery config for a sensor entity
 static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, const char *name, const char *unit, const char *device_class, const char *state_topic, const char *value_template, const char *unique_id, const char *icon)
 {
-	char payload[400] = {0};
+	char payload[700] = {0};
 	char topic[200] = {0};
 
 	snprintf(topic, sizeof(topic),
@@ -767,6 +767,12 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 		strlcat(payload, "\"icon\":\"", sizeof(payload));
 		strlcat(payload, icon, sizeof(payload));
 		strlcat(payload, "\",", sizeof(payload));
+	}
+
+	size_t len = strlen(payload);
+	if (len > 0 && payload[len - 1] == ',')
+	{
+		payload[len - 1] = '\0';
 	}
 
 	// Device block (groups all entities)
