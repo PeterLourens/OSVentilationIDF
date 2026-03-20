@@ -739,45 +739,43 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 			 "homeassistant/sensor/%s/%s/config",
 			 node_id, object_id);
 
+	// Base fields
 	snprintf(payload, sizeof(payload),
 			 "{"
 			 "\"name\":\"%s\","
 			 "\"state_topic\":\"%s\","
 			 "\"unique_id\":\"%s\","
-			 "\"value_template\":\"%s\",",
-			 name, state_topic, unique_id,
+			 "\"value_template\":\"%s\"",
+			 name,
+			 state_topic,
+			 unique_id,
 			 value_template ? value_template : "{{ value }}");
 
+	// Optional fields are appended with a leading comma
 	if (unit)
 	{
-		strlcat(payload, "\"unit_of_measurement\":\"", sizeof(payload));
+		strlcat(payload, ",\"unit_of_measurement\":\"", sizeof(payload));
 		strlcat(payload, unit, sizeof(payload));
-		strlcat(payload, "\",", sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
 	}
 
 	if (device_class)
 	{
-		strlcat(payload, "\"device_class\":\"", sizeof(payload));
+		strlcat(payload, ",\"device_class\":\"", sizeof(payload));
 		strlcat(payload, device_class, sizeof(payload));
-		strlcat(payload, "\",", sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
 	}
 
 	if (icon)
 	{
-		strlcat(payload, "\"icon\":\"", sizeof(payload));
+		strlcat(payload, ",\"icon\":\"", sizeof(payload));
 		strlcat(payload, icon, sizeof(payload));
-		strlcat(payload, "\",", sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
 	}
 
-	size_t len = strlen(payload);
-	if (len > 0 && payload[len - 1] == ',')
-	{
-		payload[len - 1] = '\0';
-	}
-
-	// Device block (groups all entities)
+	// Device block (always present, prepend with comma)
 	strlcat(payload,
-			"\"device\":{"
+			",\"device\":{"
 			"\"identifiers\":[\"",
 			sizeof(payload));
 	strlcat(payload, node_id, sizeof(payload));
