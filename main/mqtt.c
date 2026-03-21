@@ -9,16 +9,12 @@
 
 static const char *TAG = "MQTT";
 
-// Global MQTT client + connection state
-esp_mqtt_client_handle_t s_mqtt = NULL;
-
+esp_mqtt_client_handle_t s_mqtt = NULL; // Global MQTT client + connection state
 static MQTT_config_t s_last_cfg = {0};
-static bool s_mqtt_running = false; // client started (start() called)
-
-bool s_mqtt_connected = false; // broker connection up (event based)
-
-// Semaphore used to signal a successful MQTT connection to waiting tasks
-static SemaphoreHandle_t mqtt_connected_sem = NULL;
+static bool s_mqtt_running = false;					// client started (start() called)
+bool s_mqtt_connected = false;						// broker connection up (event based)
+static SemaphoreHandle_t mqtt_connected_sem = NULL; // Semaphore used to signal a successful MQTT connection to waiting tasks
+static char mqtt_node_id[64] = {0};					// Cached node id (derived from sm_actuals.hostname or fallback)
 
 // Public helper: wait for MQTT connection (returns true if connected within timeout)
 bool mqtt_wait_for_connection(TickType_t ticks_to_wait)
@@ -61,6 +57,89 @@ static void cleanup_mqtt_connected_sem(void)
 		vSemaphoreDelete(mqtt_connected_sem);
 		mqtt_connected_sem = NULL;
 	}
+}
+
+// Node id helper: prefer sm_actuals.hostname, then mqtt base topic, then MAC address, then final fallback
+static void sanitize_node(char *dst, const char *src, size_t dst_len)
+{
+	if (!dst || !src || dst_len == 0)
+		return;
+
+	size_t i = 0;
+	for (; *src && i + 1 < dst_len; ++src)
+	{
+		char c = *src;
+		if (isalnum((unsigned char)c) || c == '-' || c == '_')
+			dst[i++] = (char)tolower((unsigned char)c);
+		else
+			dst[i++] = '_';
+	}
+	dst[i] = '\0';
+}
+
+static void format_mac_compact(uint8_t mac[6], char *out, size_t out_len)
+{
+	if (!out || out_len < 13)
+		return;
+	snprintf(out, out_len, "%02X%02X%02X%02X%02X%02X",
+			 mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+}
+
+const char *mqtt_get_node_id(void)
+{
+	if (mqtt_node_id[0] != '\0')
+		return mqtt_node_id;
+
+	// 1) Try hostname from statemachine snapshot
+	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+	{
+		/* hostname is a fixed-size array; check first char */
+		if (sm_actuals.hostname[0] != '\0')
+		{
+			sanitize_node(mqtt_node_id, sm_actuals.hostname, sizeof(mqtt_node_id));
+		}
+		xSemaphoreGive(statemachine_mutex);
+	}
+
+	// 2) Fallback: normalized MQTT base topic
+	if (mqtt_node_id[0] == '\0')
+	{
+		MQTT_config_t cfg;
+		xSemaphoreTake(mqtt_config_mutex, portMAX_DELAY);
+		memcpy(&cfg, &mqtt_config, sizeof(cfg));
+		xSemaphoreGive(mqtt_config_mutex);
+
+		char base[128] = {0};
+		normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+		if (base[0] != '\0')
+		{
+			for (char *p = base; *p; ++p)
+				if (*p == '/')
+					*p = '_';
+			sanitize_node(mqtt_node_id, base, sizeof(mqtt_node_id));
+		}
+	}
+
+	// 3) Fallback: MAC address
+	if (mqtt_node_id[0] == '\0')
+	{
+		uint8_t mac[6];
+		if (esp_read_mac(mac, ESP_MAC_WIFI_STA) == ESP_OK)
+		{
+			char macid[16] = {0};
+			format_mac_compact(mac, macid, sizeof(macid));
+			snprintf(mqtt_node_id, sizeof(mqtt_node_id), "osvent_%s", macid);
+		}
+	}
+
+	// 4) Final fallback
+	if (mqtt_node_id[0] == '\0')
+	{
+		strncpy(mqtt_node_id, "osventilation", sizeof(mqtt_node_id) - 1);
+		mqtt_node_id[sizeof(mqtt_node_id) - 1] = '\0';
+	}
+
+	return mqtt_node_id;
 }
 
 // ---------------------------------------------------------------------------
@@ -525,15 +604,14 @@ void mqtt_publish_sensor_values(void)
 	}
 }
 
-// ---------------------------------------------------------------------------
-// Publish all valve positions
-// ---------------------------------------------------------------------------
+// Publish one valve position (reads NVS key "valveN")
 void mqtt_publish_valve_positions(void)
 {
-	char base[256] = {0};
-	char topic[512] = {0};
-
 	MQTT_config_t cfg;
+	int32_t pos = 0;
+	char topic[200] = {0};
+	char base[150] = {0};
+	char key[16] = {0};
 
 	mqtt_get_config_snapshot(&cfg);
 
@@ -546,43 +624,39 @@ void mqtt_publish_valve_positions(void)
 		return;
 	}
 
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
 	// Open NVS namespace for valve positions
 	nvs_handle_t nvs;
 	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
 	if (err != ESP_OK)
 	{
-		LOGE(TAG, "Failed to open NVS for valve positions: %s",
-			 esp_err_to_name(err));
+		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
 		return;
 	}
 
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
-		int32_t pos = 0;
+		pos = 0;
 
-		char key[16];
 		snprintf(key, sizeof(key), "valve%d", id);
 
-		esp_err_t r = nvs_get_i32(nvs, key, &pos);
-		if (r == ESP_ERR_NVS_NOT_FOUND)
+		err = nvs_get_i32(nvs, key, &pos);
+		if (err != ESP_OK)
 		{
-			// Valve not configured → skip
-			continue;
-		}
-		else if (r != ESP_OK)
-		{
-			LOGW(TAG, "Valve[%d]: NVS read failed (%s); assuming 0", id, esp_err_to_name(r));
+			LOGW(TAG, "Valve %d position not found in NVS (err=%s), defaulting to 0", id, esp_err_to_name(err));
 			pos = 0;
 		}
 
-		// Build topic manually
-		snprintf(topic, sizeof(topic), "%s/position/valve%d", base, id);
-		mqtt_pubi(topic, pos);
+		// Publish numeric position
+		snprintf(topic, sizeof(topic), "%s/valve%d/position", base, id);
+		mqtt_pubi(topic, (int)pos);
 
-		LOGD(TAG, "Publishing valve %d position: %ld", id, pos);
-		LOGD(TAG, "Topic: %s", topic);
+		// Publish availability
+		snprintf(topic, sizeof(topic), "%s/valve%d/availability", base, id);
+		mqtt_pubs(topic, "online");
+
+		LOGD(TAG, "Published valve %d position: %ld", id, pos);
 	}
 
 	nvs_close(nvs);

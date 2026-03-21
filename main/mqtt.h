@@ -14,6 +14,7 @@
 #include "general.h"
 #include "statemachine_states.h"
 #include "statemachine_helper.h"
+#include "i2c_sensors.h"
 #include "logging.h"
 
 extern esp_mqtt_client_handle_t s_mqtt;
@@ -26,5 +27,8 @@ void mqtt_publish_sensor_values(void);
 void mqtt_publish_valve_positions(void);
 void mqtt_publish_state_and_fanspeed(void);
 void normalize_base_topic(const char *in, char *out, size_t out_size);
+void mqtt_publish_homeassistant_discovery(void);
+bool sensors_ready(void);
+const char *mqtt_get_node_id(void);
 
 #endif

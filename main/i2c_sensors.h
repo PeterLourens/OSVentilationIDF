@@ -54,9 +54,10 @@ bool is_dht20(const char *);
 esp_err_t init_sensors_on_mux_channels(void);
 esp_err_t read_sensors_into_queue(void);
 void reload_and_init_sensors(void);
-
 void preload_sensor_types_from_config(void);
 void sensor_data_average(void);
-void fifoPush(int, int, int, float, int);
+void fifoPush(int, int, int, float);
+bool configured_sensor(int, int);
+bool sensor_supports_co2(int, int);
 
 #endif
