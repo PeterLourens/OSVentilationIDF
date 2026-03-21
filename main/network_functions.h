@@ -22,4 +22,9 @@ bool network_has_ip(void);
 void on_ping_end(esp_ping_handle_t hdl, void *args);
 bool ping_gateway(void);
 
-#endif
+// control the Ethernet LED (GPIO45) to indicate link/activity
+void eth_led_init(void);
+void eth_led_set_connected(void);
+void eth_led_set_disconnected(void);
+
+#endif // NETWORK_FUNCTIONS_H

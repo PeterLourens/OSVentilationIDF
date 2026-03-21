@@ -240,3 +240,71 @@ bool ping_gateway(void)
     // Success = at least one reply
     return g_ping_summary.success;
 }
+
+// control the Ethernet LED (GPIO45) to indicate link/activity
+void eth_led_init(void)
+{
+    gpio_config_t io_conf = {
+        .mode = GPIO_MODE_OUTPUT,
+        .pin_bit_mask = (1ULL << GPIO_NUM_45) | (1ULL << GPIO_NUM_46),
+        .pull_down_en = 0,
+        .pull_up_en = 0,
+        .intr_type = GPIO_INTR_DISABLE};
+    gpio_config(&io_conf);
+
+    gpio_set_level(GPIO_NUM_45, 0);
+    gpio_set_level(GPIO_NUM_46, 0);
+}
+
+static TaskHandle_t eth_blink_task = NULL;
+
+static void eth_led_blink_task(void *arg)
+{
+    while (1)
+    {
+        gpio_set_level(GPIO_NUM_45, 1);
+        gpio_set_level(GPIO_NUM_46, 1);
+        vTaskDelay(pdMS_TO_TICKS(300));
+
+        gpio_set_level(GPIO_NUM_45, 0);
+        gpio_set_level(GPIO_NUM_46, 0);
+        vTaskDelay(pdMS_TO_TICKS(300));
+    }
+}
+
+void eth_led_set_connected(void)
+{
+    if (eth_blink_task)
+    {
+        vTaskDelete(eth_blink_task);
+        eth_blink_task = NULL;
+    }
+
+    gpio_set_level(GPIO_NUM_45, 1);
+    gpio_set_level(GPIO_NUM_46, 1);
+}
+
+void eth_led_set_disconnected(void)
+{
+    gpio_set_level(GPIO_NUM_45, 0);
+    gpio_set_level(GPIO_NUM_46, 0);
+
+    if (eth_blink_task == NULL)
+    {
+        xTaskCreate(eth_led_blink_task, "eth_blink", 2048, NULL, 1, &eth_blink_task);
+    }
+}
+
+static void eth_led_fast_blink_task(void *arg)
+{
+    while (1)
+    {
+        gpio_set_level(GPIO_NUM_45, 1);
+        gpio_set_level(GPIO_NUM_46, 1);
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        gpio_set_level(GPIO_NUM_45, 0);
+        gpio_set_level(GPIO_NUM_46, 0);
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}

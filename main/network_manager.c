@@ -155,6 +155,8 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
         }
+
+        eth_led_set_connected();
         update_syslog_state();
         break;
     case ETHERNET_EVENT_DISCONNECTED:
@@ -164,6 +166,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
+        eth_led_set_disconnected();
         update_syslog_state();
         break;
     default:
@@ -294,6 +297,11 @@ static void evaluate_config_and_apply(void)
     {
         eth_stop();
     }
+
+    if (!sm_actuals.eth_connected)
+    {
+        eth_led_set_disconnected();
+    }
 }
 
 // Main manager task
@@ -301,6 +309,9 @@ static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
     ESP_LOGI(TAG, "Network manager starting");
+
+    // Initialize Ethernet LED GPIO
+    eth_led_init();
 
     // Register event handlers before initializing netif to ensure we catch all events
     register_event_handlers();
