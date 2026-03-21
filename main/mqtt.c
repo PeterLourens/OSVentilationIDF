@@ -161,11 +161,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		s_mqtt_connected = true;
 		LOGI(TAG, "MQTT connected");
 
-		// Signal any waiters that the client is connected (task context)
 		if (mqtt_connected_sem)
-		{
 			xSemaphoreGive(mqtt_connected_sem);
+
+		// Wait for sensors to be ready
+		while (!sensors_ready())
+		{
+			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
+
+		mqtt_publish_homeassistant_discovery();
 
 		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;
@@ -631,4 +636,258 @@ void mqtt_publish_state_and_fanspeed(void)
 
 	snprintf(topic, sizeof(topic), "%s/system/uptime", base);
 	mqtt_pubs(topic, uptime_str);
+}
+
+// Home Assistant discovery helpers and publisher
+bool sensors_ready(void)
+{
+	float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
+	if (xQueuePeek(sensor_queue, snapshot, 0) != pdTRUE)
+		return false;
+
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			if (configured_sensor(bus, slot) &&
+				snapshot[bus][slot][IDX_VALID] == 0.0f)
+			{
+				return false; // at least one configured sensor not ready
+			}
+		}
+	}
+
+	return true;
+}
+
+// Retained publish helper
+static inline void mqtt_pubs_retained(const char *topic, const char *value)
+{
+	if (!s_mqtt || !s_mqtt_connected)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
+		return;
+	}
+	if (!value)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
+		return;
+	}
+	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, value, 0, 0, 1);
+	if (err < 0)
+	{
+		ESP_LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
+	}
+}
+
+// Publish discovery config for a sensor entity
+static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, const char *name, const char *unit, const char *device_class, const char *state_topic, const char *value_template, const char *unique_id, const char *icon)
+{
+	char payload[500] = {0};
+	char topic[200] = {0};
+
+	snprintf(topic, sizeof(topic),
+			 "homeassistant/sensor/%s/%s/config",
+			 node_id, object_id);
+
+	// Base fields
+	snprintf(payload, sizeof(payload),
+			 "{"
+			 "\"name\":\"%s\","
+			 "\"state_topic\":\"%s\","
+			 "\"unique_id\":\"%s\","
+			 "\"value_template\":\"%s\"",
+			 name,
+			 state_topic,
+			 unique_id,
+			 value_template ? value_template : "{{ value }}");
+
+	// Optional fields are appended with a leading comma
+	if (unit)
+	{
+		strlcat(payload, ",\"unit_of_measurement\":\"", sizeof(payload));
+		strlcat(payload, unit, sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
+	}
+
+	if (device_class)
+	{
+		strlcat(payload, ",\"device_class\":\"", sizeof(payload));
+		strlcat(payload, device_class, sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
+	}
+
+	if (icon)
+	{
+		strlcat(payload, ",\"icon\":\"", sizeof(payload));
+		strlcat(payload, icon, sizeof(payload));
+		strlcat(payload, "\"", sizeof(payload));
+	}
+
+	// Device block (always present, prepend with comma)
+	strlcat(payload,
+			",\"device\":{"
+			"\"identifiers\":[\"",
+			sizeof(payload));
+	strlcat(payload, node_id, sizeof(payload));
+	strlcat(payload,
+			"\"],"
+			"\"name\":\"",
+			sizeof(payload));
+	strlcat(payload, node_id, sizeof(payload));
+	strlcat(payload,
+			"\",\"model\":\"OSVentilationIDF\","
+			"\"manufacturer\":\"Peter Lourens\""
+			"}"
+			"}",
+			sizeof(payload));
+
+	mqtt_pubs_retained(topic, payload);
+}
+
+static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *availability_topic, const char *unique_id)
+{
+	char payload[350];
+	char topic[200];
+
+	snprintf(topic, sizeof(topic),
+			 "homeassistant/sensor/%s/%s/config",
+			 node_id, object_id);
+
+	snprintf(payload, sizeof(payload),
+			 "{"
+			 "\"name\":\"%s\","
+			 "\"unique_id\":\"%s\","
+			 "\"state_topic\":\"%s\","
+			 "\"availability_topic\":\"%s\","
+			 "\"icon\":\"mdi:valve\","
+			 "\"device\":{"
+			 "\"identifiers\":[\"%s\"],"
+			 "\"name\":\"%s\","
+			 "\"model\":\"OSVentilationIDF\","
+			 "\"manufacturer\":\"Peter Lourens\""
+			 "}"
+			 "}",
+			 name, unique_id,
+			 state_topic, availability_topic,
+			 node_id, node_id);
+
+	mqtt_pubs_retained(topic, payload);
+}
+
+// Main discovery publisher — publishes retained discovery messages for HA
+void mqtt_publish_homeassistant_discovery(void)
+{
+	MQTT_config_t cfg;
+	char base[120] = {0};
+	const char *node_id = mqtt_get_node_id();
+	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+
+	mqtt_get_config_snapshot(&cfg);
+
+	if (!mqtt_is_enabled(&cfg) || !s_mqtt || !s_mqtt_connected)
+		return;
+
+	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
+
+	bool have_raw = xQueuePeek(sensor_queue, &raw, 0) == pdTRUE;
+
+	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		{
+			if (!have_raw || raw[bus][slot][IDX_VALID] != 1)
+				continue;
+
+			// ---------------- TEMPERATURE ----------------
+			{
+				char state_topic[200];
+				char object_id[60];
+				char unique_id[120];
+				char name[60];
+
+				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
+				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_temperature", bus, slot);
+				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+				snprintf(name, sizeof(name), "Bus%d Slot%d Temperature", bus, slot);
+
+				mqtt_publish_ha_sensor(node_id, object_id, name, "°C", "temperature", state_topic, "{{ value }}", unique_id, "mdi:thermometer");
+			}
+
+			// ---------------- HUMIDITY ----------------
+			{
+				char state_topic[200];
+				char object_id[60];
+				char unique_id[120];
+				char name[60];
+
+				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
+				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_humidity", bus, slot);
+				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+				snprintf(name, sizeof(name), "Bus%d Slot%d Humidity", bus, slot);
+
+				mqtt_publish_ha_sensor(node_id, object_id, name, "%", "humidity", state_topic, "{{ value }}", unique_id, "mdi:water-percent");
+			}
+
+			// ---------------- CO2 (ONLY SCD41) ----------------
+			if (sensor_supports_co2(bus, slot) &&
+				raw[bus][slot][IDX_CO2] > 0)
+			{
+				char state_topic[150];
+				char object_id[60];
+				char unique_id[120];
+				char name[60];
+
+				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
+				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_co2", bus, slot);
+				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+				snprintf(name, sizeof(name), "Bus%d Slot%d CO2", bus, slot);
+
+				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id, "mdi:molecule-co2");
+			}
+		}
+	}
+
+	// ---------------- VALVES ----------------
+	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	{
+		char state_topic[150];
+		char availability_topic[150];
+		char object_id[60];
+		char unique_id[120];
+		char name[60];
+
+		snprintf(state_topic, sizeof(state_topic), "%s/valve%d/position", base, id);
+		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
+		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(name, sizeof(name), "Valve %d Position", id);
+
+		mqtt_publish_ha_valve_sensor(node_id, object_id, name, state_topic, availability_topic, unique_id);
+	}
+
+	// ---------------- SYSTEM STATE ----------------
+	{
+		char object_id[40] = "system_state";
+		char unique_id[120];
+		char state_topic[150];
+
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
+
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:information-outline");
+	}
+
+	// ---------------- FAN SPEED ----------------
+	{
+		char object_id[40] = "system_fanspeed";
+		char unique_id[120];
+		char state_topic[150];
+
+		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+		snprintf(state_topic, sizeof(state_topic), "%s/system/fanspeed", base);
+
+		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:fan");
+	}
 }
