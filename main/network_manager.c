@@ -82,9 +82,17 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     {
     case WIFI_EVENT_STA_START:
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
+        wifi_led_set_mode(LED_SLOW_BLINK); // Wi-Fi enabled but not connected
         break;
+
+    case WIFI_EVENT_STA_CONNECTED:
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
+        wifi_led_set_mode(LED_FAST_BLINK); // DHCP running
+        break;
+
     case WIFI_EVENT_STA_DISCONNECTED:
         ESP_LOGW(TAG, "WIFI_EVENT_STA_DISCONNECTED");
+        wifi_led_set_mode(LED_SLOW_BLINK); // Lost connection
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.wifi_connected = false;
@@ -93,8 +101,10 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
         }
         update_syslog_state();
         break;
+
     case WIFI_EVENT_AP_START:
         ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
+        wifi_led_set_mode(LED_SOLID); // AP mode = always solid
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.wifi_ap_mode = true;
@@ -102,6 +112,7 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
         }
         update_syslog_state();
         break;
+
     default:
         break;
     }
@@ -113,7 +124,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
+
         ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        wifi_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.wifi_connected = true;
@@ -121,22 +135,31 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             sm_actuals.wifi_ap_mode = false;
             xSemaphoreGive(statemachine_mutex);
         }
+
         update_syslog_state();
         network_manager_request_actuals_update();
     }
-    else if (base == IP_EVENT && id == IP_EVENT_ETH_GOT_IP)
+    else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
-        ESP_LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
+        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+
+        if (event->esp_netif == eth)
         {
-            sm_actuals.eth_connected = true;
-            xSemaphoreGive(statemachine_mutex);
-        }
+            ESP_LOGI(TAG, "ETHERNET GOT IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        update_syslog_state();                    // enable syslog
-        network_manager_request_actuals_update(); // update actuals now
+            eth_led_set_mode(LED_DOUBLE_BLINK);
+
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
+            {
+                sm_actuals.eth_connected = true;
+                xSemaphoreGive(statemachine_mutex);
+            }
+
+            update_syslog_state();
+            network_manager_request_actuals_update();
+        }
     }
 }
 
@@ -156,9 +179,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
 
-        eth_led_set_connected();
+        eth_led_set_mode(LED_FAST_BLINK);
         update_syslog_state();
         break;
+
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
@@ -166,7 +190,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
-        eth_led_set_disconnected();
+        eth_led_set_mode(LED_SLOW_BLINK);
         update_syslog_state();
         break;
     default:
@@ -298,10 +322,8 @@ static void evaluate_config_and_apply(void)
         eth_stop();
     }
 
-    if (!sm_actuals.eth_connected)
-    {
-        eth_led_set_disconnected();
-    }
+    if (eth_enabled && !sm_actuals.eth_connected)
+        eth_led_set_mode(LED_SLOW_BLINK);
 }
 
 // Main manager task

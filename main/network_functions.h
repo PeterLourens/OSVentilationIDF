@@ -12,6 +12,15 @@
 
 #include "eth_functions.h"
 
+typedef enum
+{
+    LED_OFF,
+    LED_SLOW_BLINK,
+    LED_FAST_BLINK,
+    LED_DOUBLE_BLINK,
+    LED_SOLID
+} led_mode_t;
+
 void update_syslog_state(void);
 bool is_valid_ip_address(const char *ip_address);
 bool wifi_has_ip(void);
@@ -24,7 +33,7 @@ bool ping_gateway(void);
 
 // control the Ethernet LED (GPIO45) to indicate link/activity
 void eth_led_init(void);
-void eth_led_set_connected(void);
-void eth_led_set_disconnected(void);
+void eth_led_set_mode(led_mode_t mode);
+void wifi_led_set_mode(led_mode_t mode);
 
 #endif // NETWORK_FUNCTIONS_H

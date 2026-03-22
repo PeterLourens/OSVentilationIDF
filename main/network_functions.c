@@ -8,6 +8,12 @@
 
 static const char *TAG = "network_func";
 
+static TaskHandle_t eth_led_task = NULL;
+static TaskHandle_t wifi_led_task = NULL;
+
+static led_mode_t eth_led_mode = LED_OFF;
+static led_mode_t wifi_led_mode = LED_OFF;
+
 // Helper function to enable or disable syslog based on current network state
 void update_syslog_state(void)
 {
@@ -241,7 +247,7 @@ bool ping_gateway(void)
     return g_ping_summary.success;
 }
 
-// control the Ethernet LED (GPIO45) to indicate link/activity
+// control the Ethernet LED (GPIO45/46) to indicate link/activity
 void eth_led_init(void)
 {
     gpio_config_t io_conf = {
@@ -256,55 +262,98 @@ void eth_led_init(void)
     gpio_set_level(GPIO_NUM_46, 0);
 }
 
-static TaskHandle_t eth_blink_task = NULL;
-
-static void eth_led_blink_task(void *arg)
+static void led_slow_blink_task(void *arg)
 {
+    gpio_num_t pin = (gpio_num_t)arg;
+
     while (1)
     {
-        gpio_set_level(GPIO_NUM_45, 1);
-        gpio_set_level(GPIO_NUM_46, 1);
+        gpio_set_level(pin, 1);
         vTaskDelay(pdMS_TO_TICKS(300));
-
-        gpio_set_level(GPIO_NUM_45, 0);
-        gpio_set_level(GPIO_NUM_46, 0);
+        gpio_set_level(pin, 0);
         vTaskDelay(pdMS_TO_TICKS(300));
     }
 }
 
-void eth_led_set_connected(void)
+static void led_fast_blink_task(void *arg)
 {
-    if (eth_blink_task)
-    {
-        vTaskDelete(eth_blink_task);
-        eth_blink_task = NULL;
-    }
+    gpio_num_t pin = (gpio_num_t)arg;
 
-    gpio_set_level(GPIO_NUM_45, 1);
-    gpio_set_level(GPIO_NUM_46, 1);
-}
-
-void eth_led_set_disconnected(void)
-{
-    gpio_set_level(GPIO_NUM_45, 0);
-    gpio_set_level(GPIO_NUM_46, 0);
-
-    if (eth_blink_task == NULL)
-    {
-        xTaskCreate(eth_led_blink_task, "eth_blink", 2048, NULL, 1, &eth_blink_task);
-    }
-}
-
-static void eth_led_fast_blink_task(void *arg)
-{
     while (1)
     {
-        gpio_set_level(GPIO_NUM_45, 1);
-        gpio_set_level(GPIO_NUM_46, 1);
+        gpio_set_level(pin, 1);
         vTaskDelay(pdMS_TO_TICKS(100));
-
-        gpio_set_level(GPIO_NUM_45, 0);
-        gpio_set_level(GPIO_NUM_46, 0);
+        gpio_set_level(pin, 0);
         vTaskDelay(pdMS_TO_TICKS(100));
     }
+}
+
+static void led_double_blink_task(void *arg)
+{
+    gpio_num_t pin = (gpio_num_t)arg;
+
+    while (1)
+    {
+        // Blink 1
+        gpio_set_level(pin, 1);
+        vTaskDelay(pdMS_TO_TICKS(120));
+        gpio_set_level(pin, 0);
+        vTaskDelay(pdMS_TO_TICKS(120));
+
+        // Blink 2
+        gpio_set_level(pin, 1);
+        vTaskDelay(pdMS_TO_TICKS(120));
+        gpio_set_level(pin, 0);
+
+        // Pause
+        vTaskDelay(pdMS_TO_TICKS(800));
+    }
+}
+
+static void set_led_mode(led_mode_t mode, gpio_num_t pin, TaskHandle_t *task_handle, led_mode_t *current_mode)
+{
+    if (*current_mode == mode)
+        return;
+
+    *current_mode = mode;
+
+    // Stop old task
+    if (*task_handle)
+    {
+        vTaskDelete(*task_handle);
+        *task_handle = NULL;
+    }
+
+    switch (mode)
+    {
+    case LED_OFF:
+        gpio_set_level(pin, 0);
+        break;
+
+    case LED_SOLID:
+        gpio_set_level(pin, 1);
+        break;
+
+    case LED_SLOW_BLINK:
+        xTaskCreate(led_slow_blink_task, "led_slow", 2048, (void *)pin, 1, task_handle);
+        break;
+
+    case LED_FAST_BLINK:
+        xTaskCreate(led_fast_blink_task, "led_fast", 2048, (void *)pin, 1, task_handle);
+        break;
+
+    case LED_DOUBLE_BLINK:
+        xTaskCreate(led_double_blink_task, "led_double", 2048, (void *)pin, 1, task_handle);
+        break;
+    }
+}
+
+void eth_led_set_mode(led_mode_t mode)
+{
+    set_led_mode(mode, GPIO_NUM_45, &eth_led_task, &eth_led_mode);
+}
+
+void wifi_led_set_mode(led_mode_t mode)
+{
+    set_led_mode(mode, GPIO_NUM_46, &wifi_led_task, &wifi_led_mode);
 }
