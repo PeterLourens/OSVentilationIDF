@@ -249,7 +249,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
 
-		eth_led_set_mode(LED_SOLID);
+		if (eth_is_connected())
+		{
+			eth_led_set_mode(LED_SOLID);
+		}
+
+		if (wifi_manager_is_connected())
+		{
+			wifi_led_set_mode(LED_SOLID);
+		}
+
 		mqtt_publish_homeassistant_discovery();
 		mqtt_subscribe("zigbee2mqtt/Ventilation/action", 1);
 		break;

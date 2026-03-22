@@ -121,12 +121,18 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
 static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
-    if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP)
-    {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
 
+    if (base != IP_EVENT)
+        return;
+
+    ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
+
+    /* ---------------- Wi‑Fi IP acquired ---------------- */
+    if (id == IP_EVENT_STA_GOT_IP)
+    {
         ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
-        wifi_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
+
+        wifi_led_set_mode(LED_DOUBLE_BLINK); // Wi‑Fi IP acquired
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -138,28 +144,25 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
         update_syslog_state();
         network_manager_request_actuals_update();
+        return;
     }
-    else if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP)
+
+    /* ---------------- Ethernet IP acquired ---------------- */
+    if (id == IP_EVENT_ETH_GOT_IP)
     {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
+        ESP_LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        eth_led_set_mode(LED_DOUBLE_BLINK); // Ethernet IP acquired
 
-        if (event->esp_netif == eth)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
-            ESP_LOGI(TAG, "ETHERNET GOT IP: " IPSTR, IP2STR(&event->ip_info.ip));
-
-            eth_led_set_mode(LED_DOUBLE_BLINK);
-
-            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, 10) == pdTRUE)
-            {
-                sm_actuals.eth_connected = true;
-                xSemaphoreGive(statemachine_mutex);
-            }
-
-            update_syslog_state();
-            network_manager_request_actuals_update();
+            sm_actuals.eth_connected = true;
+            xSemaphoreGive(statemachine_mutex);
         }
+
+        update_syslog_state();
+        network_manager_request_actuals_update();
+        return;
     }
 }
 
