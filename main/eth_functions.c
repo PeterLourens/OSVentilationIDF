@@ -14,11 +14,20 @@ esp_eth_handle_t eth_handle = NULL;
 
 static bool eth_started = false;
 static bool s_eth_initialized = false;
-static volatile bool eth_connected = false; // used by eth_is_connected()
+// static volatile bool eth_connected = false; // used by eth_is_connected()
 
 bool eth_is_connected(void)
 {
-    return eth_connected; // updated indirectly via network_manager logic if needed
+    bool connected = false;
+
+    if (statemachine_mutex &&
+        xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+        connected = sm_actuals.eth_connected;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    return connected;
 }
 
 static bool cfg_str_is_on(const char *s)

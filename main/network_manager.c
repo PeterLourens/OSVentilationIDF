@@ -226,15 +226,25 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     {
         ESP_LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        eth_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
+        eth_led_set_mode(LED_DOUBLE_BLINK);
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
+
+            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), IPSTR, IP2STR(&event->ip_info.ip));
+            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), IPSTR, IP2STR(&event->ip_info.netmask));
+            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), IPSTR, IP2STR(&event->ip_info.gw));
+
+            esp_netif_dns_info_t dns;
+            if (esp_netif_get_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+                snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
+            if (esp_netif_get_dns_info(eth_netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
+                snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
+
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // Restart HTTP server only now that IP is valid
         http_server_stop();
         http_server_start();
 
