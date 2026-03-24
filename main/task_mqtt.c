@@ -1,20 +1,14 @@
-/*
-    This file is part of the OSVentilationIDF project.
-
-    Copyright (C) 2023-2026 Peter Lourens
-*/
-
 #include "task_mqtt.h"
 #include "mqtt.h"
+#include "network_functions.h"
 
 static const char *TAG = "task_MQTT";
-static StackType_t mqtt_stack[7168];  // stack buffer
-static StaticTask_t mqtt_tcb;         // TCB buffer
-static size_t mqtt_stack_size = 7168; // 7168 words = 28.672 KB
+static StackType_t mqtt_stack[7168];
+static StaticTask_t mqtt_tcb;
+static size_t mqtt_stack_size = 7168;
 
 void start_task_mqtt(void)
 {
-    // Create staticMQTT task
     task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
 
     if (task_mqtt == NULL)
@@ -25,56 +19,45 @@ void start_task_mqtt(void)
 
 void task_mqtt_code(void *pvParameters)
 {
-    // Give the system some time to bring up netifs
-    vTaskDelay(pdMS_TO_TICKS(5000));
+    // Give network_manager time to bring up interfaces
+    vTaskDelay(pdMS_TO_TICKS(3000));
 
-    // Wait until Ethernet or Wi-Fi has an IP
-    while (!network_has_ip())
+    LOGI(TAG, "MQTT task starting...");
+
+    // Start MQTT client using current config
+    if (mqtt_start(&mqtt_config) != ESP_OK)
     {
-        LOGW(TAG, "MQTT: No network available, waiting...");
-        vTaskDelay(pdMS_TO_TICKS(2000));
+        LOGE(TAG, "MQTT: failed to start client");
+        vTaskDelete(NULL);
+        return;
     }
 
-    LOGI(TAG, "MQTT: Network ready, starting client");
-    if (mqtt_start_client() == ESP_OK)
+    // Wait for MQTT connection (non-blocking)
+    for (int i = 0; i < 20; i++)
     {
-        // Wait up to 10 seconds for a connection before first publish cycle.
-        // This avoids the initial race where the client is started but not yet connected.
-        if (mqtt_wait_for_connection(pdMS_TO_TICKS(10000)))
+        if (mqtt_is_connected())
         {
-            LOGI(TAG, "MQTT: connected, proceeding with initial publishes");
+            LOGI(TAG, "MQTT: connected");
+            break;
         }
-        else
-        {
-            LOGW(TAG, "MQTT: did not connect within timeout; will retry publishes later");
-        }
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 
     while (true)
     {
-        LOGI(TAG, "Update MQTT...");
+        LOGI(TAG, "MQTT: publish cycle");
 
-        mqtt_apply_config_change();
+        // If not connected, skip this cycle
+        if (!mqtt_is_connected())
 
-        LOGD(TAG, "Publish sensors...");
-        // If not connected, wait a short time for connection before skipping publishes
-        if (!mqtt_wait_for_connection(0))
         {
-            // mqtt_wait_for_connection(0) returns immediately; use a timed wait to attempt connection
-            if (!mqtt_wait_for_connection(pdMS_TO_TICKS(5000)))
-            {
-                LOGW(TAG, "Still not connected; skipping this publish cycle");
-                vTaskDelay(pdMS_TO_TICKS(20000));
-                continue;
-            }
+            LOGW(TAG, "MQTT: not connected, skipping publish");
+            vTaskDelay(pdMS_TO_TICKS(5000));
+            continue;
         }
 
         mqtt_publish_sensor_values();
-
-        LOGD(TAG, "Publish valve positions...");
         mqtt_publish_valve_positions();
-
-        LOGD(TAG, "Publish state and fanspeed...");
         mqtt_publish_state_and_fanspeed();
 
         vTaskDelay(pdMS_TO_TICKS(20000));

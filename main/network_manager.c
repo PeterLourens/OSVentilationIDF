@@ -1,8 +1,8 @@
 /*
     network_manager.c
-    Unified network manager for WiFi + Ethernet
+    Unified network manager for WiFi + Ethernet + MQTT
 
-    Replaces task_eth, task_wifi, wifi_functions, eth_functions.
+    Single orchestrator for events, LEDs, statemachine, syslog.
     Copyright (C) 2023-2026 Peter Lourens
 */
 
@@ -19,6 +19,7 @@ static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 static esp_event_handler_instance_t wifi_evt_inst = NULL;
 static esp_event_handler_instance_t ip_evt_inst = NULL;
 static esp_event_handler_instance_t eth_evt_inst = NULL;
+static esp_event_handler_instance_t mqtt_evt_inst = NULL;
 
 // Manager state
 static volatile bool manager_running = false;
@@ -29,7 +30,8 @@ static void register_event_handlers(void);
 static void unregister_event_handlers(void);
 static void evaluate_config_and_apply(void);
 
-// Public API implementations
+// -------------------- Public API --------------------
+
 bool network_manager_start(void)
 {
     if (network_manager_task_handle != NULL)
@@ -39,6 +41,7 @@ bool network_manager_start(void)
     }
 
     network_manager_task_handle = xTaskCreateStatic(network_manager_task, "net_mgr", network_manager_stack_size, NULL, 9, network_manager_stack, &network_manager_tcb);
+
     if (network_manager_task_handle == NULL)
     {
         ESP_LOGE(TAG, "network_manager_start: failed to create task");
@@ -71,7 +74,9 @@ bool network_manager_is_running(void)
     return manager_running;
 }
 
-// -------------------- Internal implementation --------------------
+// -------------------- Event handlers --------------------
+
+// Wi‑Fi events (STA + AP)
 static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
@@ -82,7 +87,21 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     {
     case WIFI_EVENT_STA_START:
         ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
-        wifi_led_set_mode(LED_SLOW_BLINK); // Wi-Fi enabled but not connected
+
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        {
+            sm_actuals.wifi_connected = false;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+            xSemaphoreGive(statemachine_mutex);
+        }
+
+        wifi_led_set_mode(LED_SLOW_BLINK); // enabled but not connected
+
+        if (task_rgb_leds != NULL)
+            xTaskNotifyGive(task_rgb_leds);
+
+        esp_wifi_connect();
         break;
 
     case WIFI_EVENT_STA_CONNECTED:
@@ -91,33 +110,79 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
         break;
 
     case WIFI_EVENT_STA_DISCONNECTED:
+    {
         ESP_LOGW(TAG, "WIFI_EVENT_STA_DISCONNECTED");
-        wifi_led_set_mode(LED_SLOW_BLINK); // Lost connection
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+
+        extern int s_retry_num;
+        if (s_retry_num < MAXIMUM_RETRY)
         {
-            sm_actuals.wifi_connected = false;
-            sm_actuals.wifi_error = true;
-            xSemaphoreGive(statemachine_mutex);
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+            {
+                sm_actuals.wifi_connected = false;
+                sm_actuals.wifi_error = true;
+                xSemaphoreGive(statemachine_mutex);
+            }
+
+            wifi_led_set_mode(LED_SLOW_BLINK);
+
+            if (task_rgb_leds != NULL)
+                xTaskNotifyGive(task_rgb_leds);
+
+            esp_wifi_connect();
+            s_retry_num++;
+            ESP_LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
         }
+        else
+        {
+            if (s_wifi_event_group)
+                xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+            ESP_LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
+        }
+
         update_syslog_state();
         break;
+    }
 
     case WIFI_EVENT_AP_START:
         ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
-        wifi_led_set_mode(LED_SOLID); // AP mode = always solid
+
+        wifi_led_set_mode(LED_SOLID); // AP mode = solid
+
+        if (s_wifi_event_group)
+            xEventGroupSetBits(s_wifi_event_group, AP_STARTED_BIT);
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.wifi_ap_mode = true;
             xSemaphoreGive(statemachine_mutex);
         }
+
+        if (task_rgb_leds != NULL)
+            xTaskNotifyGive(task_rgb_leds);
+
         update_syslog_state();
         break;
+
+    case WIFI_EVENT_AP_STACONNECTED:
+    {
+        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)data;
+        ESP_LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
+        break;
+    }
+
+    case WIFI_EVENT_AP_STADISCONNECTED:
+    {
+        wifi_event_ap_stadisconnected_t *event_disc = (wifi_event_ap_stadisconnected_t *)data;
+        ESP_LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
+        break;
+    }
 
     default:
         break;
     }
 }
 
+// IP events (Wi‑Fi + Ethernet)
 static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
@@ -127,12 +192,18 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
     ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
 
-    /* ---------------- Wi‑Fi IP acquired ---------------- */
+    // Wi‑Fi STA got IP
     if (id == IP_EVENT_STA_GOT_IP)
     {
         ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        wifi_led_set_mode(LED_DOUBLE_BLINK); // Wi‑Fi IP acquired
+        wifi_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
+
+        extern int s_retry_num;
+        s_retry_num = 0;
+
+        if (s_wifi_event_group)
+            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -142,17 +213,20 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
+        if (task_rgb_leds != NULL)
+            xTaskNotifyGive(task_rgb_leds);
+
         update_syslog_state();
         network_manager_request_actuals_update();
         return;
     }
 
-    /* ---------------- Ethernet IP acquired ---------------- */
+    // Ethernet got IP
     if (id == IP_EVENT_ETH_GOT_IP)
     {
         ESP_LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
-        eth_led_set_mode(LED_DOUBLE_BLINK); // Ethernet IP acquired
+        eth_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -160,12 +234,17 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
+        // Restart HTTP server only now that IP is valid
+        http_server_stop();
+        http_server_start();
+
         update_syslog_state();
         network_manager_request_actuals_update();
         return;
     }
 }
 
+// Ethernet link events
 static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
@@ -176,10 +255,19 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     {
     case ETHERNET_EVENT_CONNECTED:
         ESP_LOGI(TAG, "ETHERNET_EVENT_CONNECTED");
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.eth_connected = true;
             xSemaphoreGive(statemachine_mutex);
+        }
+
+        // Make Ethernet the default route as soon as link is up
+        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (eth)
+        {
+            esp_netif_set_default_netif(eth);
+            ESP_LOGI(TAG, "ETH set as default route");
         }
 
         eth_led_set_mode(LED_FAST_BLINK);
@@ -188,24 +276,94 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
 
     case ETHERNET_EVENT_DISCONNECTED:
         ESP_LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
-        eth_led_set_mode(LED_SLOW_BLINK);
+
+        eth_led_set_mode(LED_SLOW_BLINK); // enabled but no link
         update_syslog_state();
         break;
+
     default:
         break;
     }
 }
 
+// MQTT events
+static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
+{
+    (void)handler_args;
+    (void)base;
+    (void)event_data;
+
+    switch (event_id)
+    {
+    case MQTT_EVENT_CONNECTED:
+    {
+        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        mqtt_set_connected(true);
+
+        bool eth_up = false;
+        bool wifi_up = false;
+
+        if (statemachine_mutex &&
+            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        {
+            eth_up = sm_actuals.eth_connected;
+            wifi_up = sm_actuals.wifi_connected || sm_actuals.wifi_ap_mode;
+            xSemaphoreGive(statemachine_mutex);
+        }
+
+        if (eth_up)
+        {
+            eth_led_set_mode(LED_SOLID);
+        }
+        else if (wifi_up)
+        {
+            wifi_led_set_mode(LED_SOLID);
+        }
+        break;
+    }
+
+    case MQTT_EVENT_DISCONNECTED:
+
+        ESP_LOGW(TAG, "MQTT_EVENT_DISCONNECTED");
+
+        mqtt_set_connected(false);
+
+        if (eth_is_connected())
+        {
+            eth_led_set_mode(LED_DOUBLE_BLINK); // IP OK, MQTT down
+        }
+        else if (wifi_manager_is_connected())
+        {
+            wifi_led_set_mode(LED_DOUBLE_BLINK);
+        }
+        break;
+
+    default:
+        break;
+    }
+}
+
+// -------------------- Event registration --------------------
+
 static void register_event_handlers(void)
 {
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &on_wifi_event, NULL, &wifi_evt_inst));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID, &on_ip_event, NULL, &ip_evt_inst));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(ETH_EVENT, ESP_EVENT_ANY_ID, &on_eth_event, NULL, &eth_evt_inst));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(
+        WIFI_EVENT, ESP_EVENT_ANY_ID, &on_wifi_event, NULL, &wifi_evt_inst));
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(
+        IP_EVENT, ESP_EVENT_ANY_ID, &on_ip_event, NULL, &ip_evt_inst));
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(
+        ETH_EVENT, ESP_EVENT_ANY_ID, &on_eth_event, NULL, &eth_evt_inst));
+
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(
+        MQTT_EVENTS, ESP_EVENT_ANY_ID, &on_mqtt_event, NULL, &mqtt_evt_inst));
 }
 
 static void unregister_event_handlers(void)
@@ -216,10 +374,14 @@ static void unregister_event_handlers(void)
         esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, ip_evt_inst);
     if (eth_evt_inst)
         esp_event_handler_instance_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, eth_evt_inst);
-    wifi_evt_inst = ip_evt_inst = eth_evt_inst = NULL;
+    if (mqtt_evt_inst)
+        esp_event_handler_instance_unregister(MQTT_EVENTS, ESP_EVENT_ANY_ID, mqtt_evt_inst);
+
+    wifi_evt_inst = ip_evt_inst = eth_evt_inst = mqtt_evt_inst = NULL;
 }
 
-// Evaluate config and apply changes, enforcing DHCP flags
+// -------------------- Config evaluation --------------------
+
 static void evaluate_config_and_apply(void)
 {
     bool wifi_enabled = false;
@@ -243,7 +405,7 @@ static void evaluate_config_and_apply(void)
         return;
     }
 
-    // Update statemachine actuals for enabled flags under statemachine_mutex
+    // Update statemachine actuals for enabled flags
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         sm_actuals.wifi_enabled = wifi_enabled;
@@ -274,7 +436,6 @@ static void evaluate_config_and_apply(void)
     {
         if (wifi_manager_init() == ESP_OK)
         {
-            // Ensure DHCP client state matches config if netif exists
             esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
             if (wifinet)
             {
@@ -289,11 +450,9 @@ static void evaluate_config_and_apply(void)
                     esp_err_t r = esp_netif_dhcpc_stop(wifinet);
                     if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
                         ESP_LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
-                    // static IP will be applied by select_wifi_mode()/wifi_manager_connect when selecting static path
                 }
             }
 
-            // Start or reconnect if not connected
             if (!wifi_manager_is_connected())
             {
                 esp_err_t r = select_wifi_mode();
@@ -309,43 +468,52 @@ static void evaluate_config_and_apply(void)
     else
     {
         wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
     }
 
     // ---------- Ethernet ----------
     if (eth_enabled)
     {
-        eth_manager_start(); // only init + handlers, no start
-
+        eth_init(); // idempotent
         esp_err_t r = ethernet_config_apply();
         if (r != ESP_OK)
             ESP_LOGW(TAG, "ethernet_config_apply returned %s", esp_err_to_name(r));
+
+        if (!sm_actuals.eth_connected)
+            eth_led_set_mode(LED_SLOW_BLINK);
     }
     else
     {
         eth_stop();
+        eth_led_set_mode(LED_OFF);
     }
-
-    if (eth_enabled && !sm_actuals.eth_connected)
-        eth_led_set_mode(LED_SLOW_BLINK);
 }
 
-// Main manager task
+// -------------------- Main manager task --------------------
+
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
     ESP_LOGI(TAG, "Network manager starting");
 
-    // Initialize Ethernet LED GPIO
+    // Initialize Ethernet + WiFi LED GPIO
     eth_led_init();
-
-    // Register event handlers before initializing netif to ensure we catch all events
-    register_event_handlers();
 
     // Ensure TCP/IP stack initialized
     ESP_ERROR_CHECK(esp_netif_init());
 
+    // Create default event loop if not already present
+    esp_err_t err = esp_event_loop_create_default();
+    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
+    {
+        ESP_LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
+    }
+
+    // Register event handlers
+    register_event_handlers();
+
     // Initialize both managers (safe to call multiple times)
-    eth_manager_start();
+    eth_init();
     wifi_manager_init();
 
     manager_running = true;

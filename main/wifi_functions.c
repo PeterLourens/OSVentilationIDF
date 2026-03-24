@@ -1,25 +1,23 @@
 /*
-    This file is part of the OSVentilationIDF project.
+    wifi_functions.c
+    WiFi driver + config helpers only.
 
-    Copyright (C) 2023-2026 Peter Lourens
+    All events and LEDs are handled in network_manager.c.
 */
 
 #include "wifi_functions.h"
 
 static const char *TAG = "wifi_functions";
-static int s_retry_num = 0;
 
-// Event handler instances (kept so we can unregister if needed)
-static esp_event_handler_instance_t wifi_evt_inst = NULL;
-static esp_event_handler_instance_t ip_evt_inst = NULL;
-
-// Initialization guard
+int s_retry_num = 0; // used by network_manager.c
 static bool s_wifi_initialized = false;
-
-// Hostname buffer (kept for compatibility with existing code)
 char hostname[MEDIUM_CONFIG_ITEM] = {};
 
-// Stop WiFi and clear state
+static bool cfg_str_is_on(const char *s)
+{
+    return (s && strcmp(s, "On") == 0);
+}
+
 void wifi_manager_stop(void)
 {
     ESP_LOGI(TAG, "Stopping WiFi...");
@@ -34,7 +32,8 @@ void wifi_manager_stop(void)
 
     if (s_wifi_event_group)
     {
-        xEventGroupClearBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT | AP_STARTED_BIT);
+        xEventGroupClearBits(s_wifi_event_group,
+                             WIFI_CONNECTED_BIT | WIFI_FAIL_BIT | AP_STARTED_BIT);
     }
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
@@ -48,7 +47,6 @@ void wifi_manager_stop(void)
     update_syslog_state();
 }
 
-// Idempotent initialization: safe to call multiple times
 esp_err_t wifi_manager_init(void)
 {
     if (s_wifi_initialized)
@@ -57,7 +55,6 @@ esp_err_t wifi_manager_init(void)
         return ESP_OK;
     }
 
-    // Create (or reuse) the WiFi event group and export it
     if (s_wifi_event_group == NULL)
     {
         s_wifi_event_group = xEventGroupCreate();
@@ -68,8 +65,6 @@ esp_err_t wifi_manager_init(void)
         }
     }
 
-    // Defensive: ensure esp-netif is initialized. Prefer calling esp_netif_init() once from app_main(),
-    // but tolerate calling it here and accept ESP_ERR_INVALID_STATE as OK.
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -77,7 +72,6 @@ esp_err_t wifi_manager_init(void)
         return err;
     }
 
-    // Ensure default STA netif exists (reuse if present)
     esp_netif_t *existing_sta = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (existing_sta == NULL)
     {
@@ -93,15 +87,6 @@ esp_err_t wifi_manager_init(void)
         ESP_LOGI(TAG, "wifi_manager_init: reusing existing WIFI_STA_DEF netif %p", (void *)existing_sta);
     }
 
-    // Create default event loop if not already present
-    err = esp_event_loop_create_default();
-    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
-    {
-        ESP_LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
-        return err;
-    }
-
-    // Read hostname from config under mutex and apply to STA netif if present
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
@@ -116,7 +101,6 @@ esp_err_t wifi_manager_init(void)
             ESP_LOGW(TAG, "esp_netif_set_hostname (STA) returned %s", esp_err_to_name(herr));
     }
 
-    // Initialize WiFi driver (safe to call multiple times)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     err = esp_wifi_init(&cfg);
     if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT)
@@ -125,22 +109,11 @@ esp_err_t wifi_manager_init(void)
         return err;
     }
 
-    // Register event handlers once (store instances so we can unregister later if needed)
-    if (wifi_evt_inst == NULL)
-    {
-        ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL, &wifi_evt_inst));
-    }
-    if (ip_evt_inst == NULL)
-    {
-        ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL, &ip_evt_inst));
-    }
-
     s_wifi_initialized = true;
     ESP_LOGI(TAG, "WiFi manager initialized successfully");
     return ESP_OK;
 }
 
-// Select and start WiFi mode according to configuration
 esp_err_t select_wifi_mode(void)
 {
     const char *TAG_LOCAL = "WiFi";
@@ -152,7 +125,6 @@ esp_err_t select_wifi_mode(void)
         return ESP_ERR_INVALID_STATE;
     }
 
-    // DHCP path
     if (strcmp(wifi_config.enable_dhcp, "On") == 0)
     {
         if (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0)
@@ -170,7 +142,6 @@ esp_err_t select_wifi_mode(void)
     }
     else
     {
-        // Static IP path: validate config
         bool valid_config = true;
         if (!is_valid_ip_address(wifi_config.ip_address))
         {
@@ -216,115 +187,6 @@ esp_err_t select_wifi_mode(void)
     return wifi_manager_start_ap();
 }
 
-// WiFi event handler (keeps previous behavior)
-void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
-{
-    (void)arg;
-
-    if (event_base == WIFI_EVENT)
-    {
-        switch (event_id)
-        {
-        case WIFI_EVENT_STA_START:
-            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-            {
-                sm_actuals.wifi_connected = false;
-                sm_actuals.wifi_error = false;
-                xSemaphoreGive(statemachine_mutex);
-            }
-            if (task_rgb_leds != NULL)
-            {
-                xTaskNotifyGive(task_rgb_leds);
-            }
-            esp_wifi_connect();
-            break;
-
-        case WIFI_EVENT_STA_DISCONNECTED:
-            if (s_retry_num < MAXIMUM_RETRY)
-            {
-                if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-                {
-                    sm_actuals.wifi_connected = false;
-                    sm_actuals.wifi_error = true;
-                    xSemaphoreGive(statemachine_mutex);
-                }
-                if (task_rgb_leds != NULL)
-                {
-                    xTaskNotifyGive(task_rgb_leds);
-                }
-                esp_wifi_connect();
-                s_retry_num++;
-                ESP_LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
-            }
-            else
-            {
-                if (s_wifi_event_group)
-                    xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-                ESP_LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
-            }
-            update_syslog_state();
-            break;
-
-        case WIFI_EVENT_AP_START:
-            ESP_LOGI(TAG, "AP Started");
-            if (s_wifi_event_group)
-                xEventGroupSetBits(s_wifi_event_group, AP_STARTED_BIT);
-            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-            {
-                sm_actuals.wifi_ap_mode = true;
-                xSemaphoreGive(statemachine_mutex);
-            }
-            if (task_rgb_leds != NULL)
-            {
-                xTaskNotifyGive(task_rgb_leds);
-            }
-            update_syslog_state();
-            break;
-
-        case WIFI_EVENT_AP_STACONNECTED:
-        {
-            wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)event_data;
-            ESP_LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
-        }
-        break;
-
-        case WIFI_EVENT_AP_STADISCONNECTED:
-        {
-            wifi_event_ap_stadisconnected_t *event_disc = (wifi_event_ap_stadisconnected_t *)event_data;
-            ESP_LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
-        }
-        break;
-
-        default:
-            break;
-        }
-    }
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
-    {
-        ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "Got IP:" IPSTR, IP2STR(&event->ip_info.ip));
-
-        update_syslog_state();
-
-        s_retry_num = 0;
-        if (s_wifi_event_group)
-            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-        {
-            sm_actuals.wifi_connected = true;
-            sm_actuals.wifi_error = false;
-            sm_actuals.wifi_ap_mode = false;
-            xSemaphoreGive(statemachine_mutex);
-        }
-        if (task_rgb_leds != NULL)
-        {
-            xTaskNotifyGive(task_rgb_leds);
-        }
-    }
-}
-
-// Connect in STA mode and optionally apply static IP if configured
 esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 {
     if (!settings)
@@ -350,7 +212,6 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
         },
     };
 
-    // Copy configuration under mutex protection
     strncpy((char *)wifi_cfg.sta.ssid, settings->ssid, sizeof(wifi_cfg.sta.ssid) - 1);
     strncpy((char *)wifi_cfg.sta.password, settings->wifi_password, sizeof(wifi_cfg.sta.password) - 1);
 
@@ -381,7 +242,6 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
             goto exit;
         }
 
-        // Configure DNS servers
         esp_netif_dns_info_t dns_info = {0};
         inet_pton(AF_INET, settings->primary_dns, &dns_info.ip.u_addr.ip4);
         dns_info.ip.type = ESP_IPADDR_TYPE_V4;
@@ -396,10 +256,13 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    // Release config mutex before waiting for connection, so event handler can set bits and update state
     xSemaphoreGive(network_config_mutex);
 
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
+    EventBits_t bits = xEventGroupWaitBits(
+        s_wifi_event_group,
+        WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
+        pdFALSE, pdFALSE,
+        pdMS_TO_TICKS(10000));
 
     if (bits & WIFI_CONNECTED_BIT)
     {
@@ -420,7 +283,6 @@ exit:
     return result;
 }
 
-// Start AP mode (creates AP netif only if needed)
 esp_err_t wifi_manager_start_ap(void)
 {
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
@@ -429,7 +291,6 @@ esp_err_t wifi_manager_start_ap(void)
         return ESP_ERR_TIMEOUT;
     }
 
-    // Create default AP netif only if not present
     esp_netif_t *ap_existing = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
     if (ap_existing == NULL)
     {
@@ -483,7 +344,11 @@ esp_err_t wifi_manager_start_ap(void)
         return err;
     }
 
-    EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group, AP_STARTED_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(5000));
+    EventBits_t bits = xEventGroupWaitBits(
+        s_wifi_event_group,
+        AP_STARTED_BIT,
+        pdFALSE, pdFALSE,
+        pdMS_TO_TICKS(5000));
     xSemaphoreGive(network_config_mutex);
 
     if (bits & AP_STARTED_BIT)
@@ -498,12 +363,6 @@ esp_err_t wifi_manager_start_ap(void)
     return ESP_FAIL;
 }
 
-static bool cfg_str_is_on(const char *s)
-{
-    return (s && strcmp(s, "On") == 0);
-}
-
-// Check connection state using the event group
 bool wifi_manager_is_connected(void)
 {
     if (s_wifi_event_group == NULL)
@@ -517,49 +376,6 @@ bool wifi_manager_is_connected(void)
     bool is_ap_mode = (bits & AP_STARTED_BIT) != 0;
 
     return (is_connected || is_ap_mode);
-}
-
-// Get IP string for current WiFi mode
-esp_err_t wifi_manager_get_ip_info(char *ip_str, size_t max_len)
-{
-    if (!ip_str || max_len < 16)
-    {
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    wifi_mode_t mode;
-    esp_err_t err = esp_wifi_get_mode(&mode);
-    if (err != ESP_OK)
-    {
-        return err;
-    }
-
-    esp_netif_t *netif = NULL;
-    if (mode == WIFI_MODE_STA)
-    {
-        netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    }
-    else if (mode == WIFI_MODE_AP)
-    {
-        netif = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
-    }
-
-    if (!netif)
-    {
-        ESP_LOGE(TAG, "Failed to get netif handle");
-        return ESP_FAIL;
-    }
-
-    esp_netif_ip_info_t ip_info;
-    err = esp_netif_get_ip_info(netif, &ip_info);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to get IP info");
-        return err;
-    }
-
-    snprintf(ip_str, max_len, IPSTR, IP2STR(&ip_info.ip));
-    return ESP_OK;
 }
 
 bool wifi_config_is_dhcp_enabled(void)

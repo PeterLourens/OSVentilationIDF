@@ -59,6 +59,7 @@
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
 #define LARGE_CONFIG_ITEM 64
+#define MLARGE_CONFIG_ITEM 256
 #define XLARGE_CONFIG_ITEM 512
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
@@ -217,6 +218,14 @@ typedef struct
     char mqtt_server[LARGE_CONFIG_ITEM];
     char mqtt_port[SMALL_CONFIG_ITEM];
     char mqtt_base_topic[XLARGE_CONFIG_ITEM];
+    char uri[MLARGE_CONFIG_ITEM];
+    char username[MEDIUM_CONFIG_ITEM];
+    char password[XLARGE_CONFIG_ITEM];
+    int keepalive;
+    char will_topic[XLARGE_CONFIG_ITEM];
+    char will_message[XLARGE_CONFIG_ITEM];
+    int will_qos;
+    int will_retain;
 } MQTT_config_t;
 
 typedef struct

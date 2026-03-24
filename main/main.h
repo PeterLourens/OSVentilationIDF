@@ -12,7 +12,7 @@
 #include "config_files.h"
 #include "i2c_functions.h"
 #include "task_i2c_sensors.h"
-#include "task_wifi.h"
+// #include "task_wifi.h"
 #include "task_i2c_ds3231.h"
 #include "i2c_ds3231.h"
 #include "task_i2c_lcd.h"
@@ -27,7 +27,7 @@
 #include "task_influxdb.h"
 #include "task_mqtt.h"
 #include "sys_stats.h"
-#include "task_eth.h"
+// #include "task_eth.h"
 #include "network_manager.h"
 
 #define PROJECT_LOG_LEVEL ESP_LOG_INFO
