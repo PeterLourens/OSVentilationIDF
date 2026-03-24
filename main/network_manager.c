@@ -321,7 +321,8 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
         {
             eth_led_set_mode(LED_SOLID);
         }
-        else if (wifi_up)
+
+        if (wifi_up)
         {
             wifi_led_set_mode(LED_SOLID);
         }
@@ -350,7 +351,6 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 }
 
 // -------------------- Event registration --------------------
-
 static void register_event_handlers(void)
 {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(
