@@ -44,7 +44,7 @@ bool network_manager_start(void)
 
     if (network_manager_task_handle == NULL)
     {
-        ESP_LOGE(TAG, "network_manager_start: failed to create task");
+        LOGE(TAG, "network_manager_start: failed to create task");
         return false;
     }
 
@@ -86,7 +86,7 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     switch (id)
     {
     case WIFI_EVENT_STA_START:
-        ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
+        LOGI(TAG, "WIFI_EVENT_STA_START");
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -105,13 +105,13 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
         break;
 
     case WIFI_EVENT_STA_CONNECTED:
-        ESP_LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
+        LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
         wifi_led_set_mode(LED_FAST_BLINK); // DHCP running
         break;
 
     case WIFI_EVENT_STA_DISCONNECTED:
     {
-        ESP_LOGW(TAG, "WIFI_EVENT_STA_DISCONNECTED");
+        LOGW(TAG, "WIFI_EVENT_STA_DISCONNECTED");
 
         extern int s_retry_num;
         if (s_retry_num < MAXIMUM_RETRY)
@@ -130,13 +130,13 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
 
             esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
+            LOGW(TAG, "Retry to connect to the AP (%d/%d)", s_retry_num, MAXIMUM_RETRY);
         }
         else
         {
             if (s_wifi_event_group)
                 xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-            ESP_LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
+            LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
         }
 
         update_syslog_state();
@@ -144,7 +144,7 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     }
 
     case WIFI_EVENT_AP_START:
-        ESP_LOGI(TAG, "WIFI_EVENT_AP_START");
+        LOGI(TAG, "WIFI_EVENT_AP_START");
 
         wifi_led_set_mode(LED_SOLID); // AP mode = solid
 
@@ -166,14 +166,14 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     case WIFI_EVENT_AP_STACONNECTED:
     {
         wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)data;
-        ESP_LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
+        LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
         break;
     }
 
     case WIFI_EVENT_AP_STADISCONNECTED:
     {
         wifi_event_ap_stadisconnected_t *event_disc = (wifi_event_ap_stadisconnected_t *)data;
-        ESP_LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
+        LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
         break;
     }
 
@@ -195,7 +195,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     // Wi‑Fi STA got IP
     if (id == IP_EVENT_STA_GOT_IP)
     {
-        ESP_LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
         wifi_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
 
@@ -224,7 +224,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     // Ethernet got IP
     if (id == IP_EVENT_ETH_GOT_IP)
     {
-        ESP_LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
+        LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
         eth_led_set_mode(LED_DOUBLE_BLINK);
 
@@ -264,7 +264,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     switch (id)
     {
     case ETHERNET_EVENT_CONNECTED:
-        ESP_LOGI(TAG, "ETHERNET_EVENT_CONNECTED");
+        LOGI(TAG, "ETHERNET_EVENT_CONNECTED");
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -277,7 +277,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         if (eth)
         {
             esp_netif_set_default_netif(eth);
-            ESP_LOGI(TAG, "ETH set as default route");
+            LOGI(TAG, "ETH set as default route");
         }
 
         eth_led_set_mode(LED_FAST_BLINK);
@@ -285,7 +285,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
-        ESP_LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
+        LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -313,7 +313,7 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
     {
     case MQTT_EVENT_CONNECTED:
     {
-        ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+        LOGD(TAG, "MQTT_EVENT_CONNECTED");
         mqtt_set_connected(true);
 
         bool eth_up = false;
@@ -341,7 +341,7 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
     case MQTT_EVENT_DISCONNECTED:
 
-        ESP_LOGW(TAG, "MQTT_EVENT_DISCONNECTED");
+        LOGW(TAG, "MQTT_EVENT_DISCONNECTED");
 
         mqtt_set_connected(false);
 
@@ -411,7 +411,7 @@ static void evaluate_config_and_apply(void)
     }
     else
     {
-        ESP_LOGW(TAG, "evaluate_config_and_apply: could not take network_config_mutex");
+        LOGW(TAG, "evaluate_config_and_apply: could not take network_config_mutex");
         return;
     }
 
@@ -426,7 +426,7 @@ static void evaluate_config_and_apply(void)
     }
     else
     {
-        ESP_LOGW(TAG, "evaluate_config_and_apply: could not take statemachine_mutex to update actuals");
+        LOGW(TAG, "evaluate_config_and_apply: could not take statemachine_mutex to update actuals");
     }
 
     // Apply hostname to both netifs if present
@@ -453,13 +453,13 @@ static void evaluate_config_and_apply(void)
                 {
                     esp_err_t r = esp_netif_dhcpc_start(wifinet);
                     if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
-                        ESP_LOGW(TAG, "esp_netif_dhcpc_start (wifi) returned %s", esp_err_to_name(r));
+                        LOGW(TAG, "esp_netif_dhcpc_start (wifi) returned %s", esp_err_to_name(r));
                 }
                 else
                 {
                     esp_err_t r = esp_netif_dhcpc_stop(wifinet);
                     if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
-                        ESP_LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
+                        LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
                 }
             }
 
@@ -467,12 +467,12 @@ static void evaluate_config_and_apply(void)
             {
                 esp_err_t r = select_wifi_mode();
                 if (r != ESP_OK)
-                    ESP_LOGW(TAG, "select_wifi_mode returned %s", esp_err_to_name(r));
+                    LOGW(TAG, "select_wifi_mode returned %s", esp_err_to_name(r));
             }
         }
         else
         {
-            ESP_LOGW(TAG, "wifi_manager_init failed or returned non-OK");
+            LOGW(TAG, "wifi_manager_init failed or returned non-OK");
         }
     }
     else
@@ -487,7 +487,7 @@ static void evaluate_config_and_apply(void)
         eth_init(); // idempotent
         esp_err_t r = ethernet_config_apply();
         if (r != ESP_OK)
-            ESP_LOGW(TAG, "ethernet_config_apply returned %s", esp_err_to_name(r));
+            LOGW(TAG, "ethernet_config_apply returned %s", esp_err_to_name(r));
 
         if (!sm_actuals.eth_connected)
             eth_led_set_mode(LED_SLOW_BLINK);
@@ -504,7 +504,7 @@ static void evaluate_config_and_apply(void)
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
-    ESP_LOGI(TAG, "Network manager starting");
+    LOGI(TAG, "Network manager starting");
 
     // Initialize Ethernet + WiFi LED GPIO
     eth_led_init();
@@ -516,7 +516,7 @@ static void network_manager_task(void *pvParameters)
     esp_err_t err = esp_event_loop_create_default();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
-        ESP_LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
     }
 
     // Register event handlers

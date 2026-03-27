@@ -20,12 +20,12 @@ static bool cfg_str_is_on(const char *s)
 
 void wifi_manager_stop(void)
 {
-    ESP_LOGI(TAG, "Stopping WiFi...");
+    LOGI(TAG, "Stopping WiFi...");
 
     esp_err_t err = esp_wifi_stop();
     if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_STARTED)
     {
-        ESP_LOGW(TAG, "esp_wifi_stop returned %s", esp_err_to_name(err));
+        LOGW(TAG, "esp_wifi_stop returned %s", esp_err_to_name(err));
     }
 
     esp_wifi_disconnect();
@@ -51,7 +51,7 @@ esp_err_t wifi_manager_init(void)
 {
     if (s_wifi_initialized)
     {
-        ESP_LOGD(TAG, "wifi_manager_init: already initialized");
+        LOGD(TAG, "wifi_manager_init: already initialized");
         return ESP_OK;
     }
 
@@ -60,7 +60,7 @@ esp_err_t wifi_manager_init(void)
         s_wifi_event_group = xEventGroupCreate();
         if (s_wifi_event_group == NULL)
         {
-            ESP_LOGE(TAG, "Failed to create WiFi event group");
+            LOGE(TAG, "Failed to create WiFi event group");
             return ESP_ERR_NO_MEM;
         }
     }
@@ -68,7 +68,7 @@ esp_err_t wifi_manager_init(void)
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
-        ESP_LOGE(TAG, "esp_netif_init failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "esp_netif_init failed: %s", esp_err_to_name(err));
         return err;
     }
 
@@ -78,13 +78,13 @@ esp_err_t wifi_manager_init(void)
         esp_netif_t *netif = esp_netif_create_default_wifi_sta();
         if (netif == NULL)
         {
-            ESP_LOGE(TAG, "esp_netif_create_default_wifi_sta returned NULL");
+            LOGE(TAG, "esp_netif_create_default_wifi_sta returned NULL");
             return ESP_FAIL;
         }
     }
     else
     {
-        ESP_LOGI(TAG, "wifi_manager_init: reusing existing WIFI_STA_DEF netif %p", (void *)existing_sta);
+        LOGI(TAG, "wifi_manager_init: reusing existing WIFI_STA_DEF netif %p", (void *)existing_sta);
     }
 
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
@@ -92,25 +92,25 @@ esp_err_t wifi_manager_init(void)
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
         xSemaphoreGive(network_config_mutex);
     }
-    ESP_LOGI(TAG, "Setting WiFi hostname to: %s", hostname);
+    LOGI(TAG, "Setting WiFi hostname to: %s", hostname);
     esp_netif_t *sta_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (sta_netif)
     {
         esp_err_t herr = esp_netif_set_hostname(sta_netif, hostname);
         if (herr != ESP_OK)
-            ESP_LOGW(TAG, "esp_netif_set_hostname (STA) returned %s", esp_err_to_name(herr));
+            LOGW(TAG, "esp_netif_set_hostname (STA) returned %s", esp_err_to_name(herr));
     }
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     err = esp_wifi_init(&cfg);
     if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT)
     {
-        ESP_LOGE(TAG, "esp_wifi_init failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "esp_wifi_init failed: %s", esp_err_to_name(err));
         return err;
     }
 
     s_wifi_initialized = true;
-    ESP_LOGI(TAG, "WiFi manager initialized successfully");
+    LOGI(TAG, "WiFi manager initialized successfully");
     return ESP_OK;
 }
 
@@ -121,7 +121,7 @@ esp_err_t select_wifi_mode(void)
 
     if (strcmp(wifi_config.enable_wifi, "Off") == 0)
     {
-        ESP_LOGW(TAG_LOCAL, "WiFi disabled in config; not starting STA or AP");
+        LOGW(TAG_LOCAL, "WiFi disabled in config; not starting STA or AP");
         return ESP_ERR_INVALID_STATE;
     }
 
@@ -129,15 +129,15 @@ esp_err_t select_wifi_mode(void)
     {
         if (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0)
         {
-            ESP_LOGI(TAG_LOCAL, "Attempting station mode with DHCP");
+            LOGI(TAG_LOCAL, "Attempting station mode with DHCP");
             err = wifi_manager_connect(&wifi_config);
             if (err == ESP_OK)
                 return ESP_OK;
-            ESP_LOGE(TAG_LOCAL, "Failed to connect in station mode with DHCP");
+            LOGE(TAG_LOCAL, "Failed to connect in station mode with DHCP");
         }
         else
         {
-            ESP_LOGW(TAG_LOCAL, "Invalid SSID or password for station mode");
+            LOGW(TAG_LOCAL, "Invalid SSID or password for station mode");
         }
     }
     else
@@ -145,45 +145,45 @@ esp_err_t select_wifi_mode(void)
         bool valid_config = true;
         if (!is_valid_ip_address(wifi_config.ip_address))
         {
-            ESP_LOGE(TAG_LOCAL, "Invalid IP address: %s", wifi_config.ip_address);
+            LOGE(TAG_LOCAL, "Invalid IP address: %s", wifi_config.ip_address);
             valid_config = false;
         }
         if (!is_valid_ip_address(wifi_config.subnet_mask))
         {
-            ESP_LOGE(TAG_LOCAL, "Invalid subnet mask: %s", wifi_config.subnet_mask);
+            LOGE(TAG_LOCAL, "Invalid subnet mask: %s", wifi_config.subnet_mask);
             valid_config = false;
         }
         if (!is_valid_ip_address(wifi_config.gateway))
         {
-            ESP_LOGE(TAG_LOCAL, "Invalid gateway: %s", wifi_config.gateway);
+            LOGE(TAG_LOCAL, "Invalid gateway: %s", wifi_config.gateway);
             valid_config = false;
         }
         if (!is_valid_ip_address(wifi_config.primary_dns))
         {
-            ESP_LOGE(TAG_LOCAL, "Invalid primary DNS: %s", wifi_config.primary_dns);
+            LOGE(TAG_LOCAL, "Invalid primary DNS: %s", wifi_config.primary_dns);
             valid_config = false;
         }
         if (strlen(wifi_config.secondary_dns) > 0 && !is_valid_ip_address(wifi_config.secondary_dns))
         {
-            ESP_LOGE(TAG_LOCAL, "Invalid secondary DNS: %s", wifi_config.secondary_dns);
+            LOGE(TAG_LOCAL, "Invalid secondary DNS: %s", wifi_config.secondary_dns);
             valid_config = false;
         }
 
         if (valid_config && strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0)
         {
-            ESP_LOGI(TAG_LOCAL, "Attempting station mode with static IP");
+            LOGI(TAG_LOCAL, "Attempting station mode with static IP");
             err = wifi_manager_connect(&wifi_config);
             if (err == ESP_OK)
                 return ESP_OK;
-            ESP_LOGE(TAG_LOCAL, "Failed to connect with static IP configuration");
+            LOGE(TAG_LOCAL, "Failed to connect with static IP configuration");
         }
         else
         {
-            ESP_LOGW(TAG_LOCAL, "Invalid static IP configuration or credentials");
+            LOGW(TAG_LOCAL, "Invalid static IP configuration or credentials");
         }
     }
 
-    ESP_LOGW(TAG_LOCAL, "Falling back to AP mode");
+    LOGW(TAG_LOCAL, "Falling back to AP mode");
     return wifi_manager_start_ap();
 }
 
@@ -191,13 +191,13 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 {
     if (!settings)
     {
-        ESP_LOGE(TAG, "WiFi settings pointer is NULL");
+        LOGE(TAG, "WiFi settings pointer is NULL");
         return ESP_ERR_INVALID_ARG;
     }
 
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
+        LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
     }
 
@@ -223,7 +223,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
         esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
         if (!netif)
         {
-            ESP_LOGE(TAG, "Failed to get netif handle");
+            LOGE(TAG, "Failed to get netif handle");
             result = ESP_FAIL;
             goto exit;
         }
@@ -237,7 +237,7 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 
         if (esp_netif_set_ip_info(netif, &ip_info) != ESP_OK)
         {
-            ESP_LOGE(TAG, "Failed to set static IP");
+            LOGE(TAG, "Failed to set static IP");
             result = ESP_FAIL;
             goto exit;
         }
@@ -266,16 +266,16 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 
     if (bits & WIFI_CONNECTED_BIT)
     {
-        ESP_LOGI(TAG, "Connected to SSID: %s", settings->ssid);
+        LOGI(TAG, "Connected to SSID: %s", settings->ssid);
         return ESP_OK;
     }
     else if (bits & WIFI_FAIL_BIT)
     {
-        ESP_LOGE(TAG, "Failed to connect to SSID: %s", settings->ssid);
+        LOGE(TAG, "Failed to connect to SSID: %s", settings->ssid);
         return ESP_FAIL;
     }
 
-    ESP_LOGE(TAG, "Connection timeout");
+    LOGE(TAG, "Connection timeout");
     return ESP_ERR_TIMEOUT;
 
 exit:
@@ -287,7 +287,7 @@ esp_err_t wifi_manager_start_ap(void)
 {
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to acquire WiFi config mutex");
+        LOGE(TAG, "Failed to acquire WiFi config mutex");
         return ESP_ERR_TIMEOUT;
     }
 
@@ -297,14 +297,14 @@ esp_err_t wifi_manager_start_ap(void)
         esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
         if (!ap_netif)
         {
-            ESP_LOGE(TAG, "Failed to create AP network interface");
+            LOGE(TAG, "Failed to create AP network interface");
             xSemaphoreGive(network_config_mutex);
             return ESP_FAIL;
         }
     }
     else
     {
-        ESP_LOGI(TAG, "wifi_manager_start_ap: reusing existing WIFI_AP_DEF netif %p", (void *)ap_existing);
+        LOGI(TAG, "wifi_manager_start_ap: reusing existing WIFI_AP_DEF netif %p", (void *)ap_existing);
     }
 
     wifi_config_t wifi_cfg = {
@@ -323,7 +323,7 @@ esp_err_t wifi_manager_start_ap(void)
     esp_err_t err = esp_wifi_set_mode(WIFI_MODE_AP);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to set WiFi mode to AP: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to set WiFi mode to AP: %s", esp_err_to_name(err));
         xSemaphoreGive(network_config_mutex);
         return err;
     }
@@ -331,7 +331,7 @@ esp_err_t wifi_manager_start_ap(void)
     err = esp_wifi_set_config(WIFI_IF_AP, &wifi_cfg);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to set AP config: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to set AP config: %s", esp_err_to_name(err));
         xSemaphoreGive(network_config_mutex);
         return err;
     }
@@ -339,7 +339,7 @@ esp_err_t wifi_manager_start_ap(void)
     err = esp_wifi_start();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to start AP: %s", esp_err_to_name(err));
+        LOGE(TAG, "Failed to start AP: %s", esp_err_to_name(err));
         xSemaphoreGive(network_config_mutex);
         return err;
     }
@@ -353,13 +353,13 @@ esp_err_t wifi_manager_start_ap(void)
 
     if (bits & AP_STARTED_BIT)
     {
-        ESP_LOGI(TAG, "AP started successfully");
-        ESP_LOGI(TAG, "SSID: %s", ESP_AP_SSID);
-        ESP_LOGI(TAG, "Password: %s", strlen(ESP_AP_PASS) > 0 ? ESP_AP_PASS : "open");
+        LOGI(TAG, "AP started successfully");
+        LOGI(TAG, "SSID: %s", ESP_AP_SSID);
+        LOGI(TAG, "Password: %s", strlen(ESP_AP_PASS) > 0 ? ESP_AP_PASS : "open");
         return ESP_OK;
     }
 
-    ESP_LOGE(TAG, "AP failed to start");
+    LOGE(TAG, "AP failed to start");
     return ESP_FAIL;
 }
 
@@ -367,7 +367,7 @@ bool wifi_manager_is_connected(void)
 {
     if (s_wifi_event_group == NULL)
     {
-        ESP_LOGW(TAG, "WiFi event group not initialized");
+        LOGW(TAG, "WiFi event group not initialized");
         return false;
     }
 

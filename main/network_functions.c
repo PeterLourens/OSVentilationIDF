@@ -51,7 +51,7 @@ bool wifi_has_ip(void)
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (netif == NULL)
     {
-        ESP_LOGW(TAG, "Wi-Fi STA interface not found");
+        LOGW(TAG, "Wi-Fi STA interface not found");
         return false;
     }
 
@@ -141,10 +141,10 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
     g_ping_summary.duration_ms = (int)duration;
     g_ping_summary.success = (received > 0);
 
-    ESP_LOGD(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
-             g_ping_summary.transmitted, g_ping_summary.received,
-             g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
-             g_ping_summary.duration_ms);
+    LOGD(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
+         g_ping_summary.transmitted, g_ping_summary.received,
+         g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
+         g_ping_summary.duration_ms);
 
     // Clean up session
     esp_ping_delete_session(hdl);
@@ -169,18 +169,18 @@ bool ping_gateway(void)
     esp_netif_ip_info_t ip_info;
     if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to get IP info");
+        LOGE(TAG, "Failed to get IP info");
         return false;
     }
 
     // Log gateway using IPSTR/IP2STR to avoid incompatible-pointer warnings
-    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+    LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
 
     // Build ip_addr_t target_addr from ip_info.gw
     ip_addr_t target_addr;
     IP_ADDR4(&target_addr, ip4_addr1(&ip_info.gw), ip4_addr2(&ip_info.gw), ip4_addr3(&ip_info.gw), ip4_addr4(&ip_info.gw));
 
-    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
+    LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
 
     // Reset summary
     memset(&g_ping_summary, 0, sizeof(g_ping_summary));
@@ -191,7 +191,7 @@ bool ping_gateway(void)
         g_ping_done_sem = xSemaphoreCreateBinary();
         if (g_ping_done_sem == NULL)
         {
-            ESP_LOGE(TAG, "Failed to create semaphore");
+            LOGE(TAG, "Failed to create semaphore");
             return false;
         }
     }
@@ -220,14 +220,14 @@ bool ping_gateway(void)
     esp_err_t err = esp_ping_new_session(&config, &cbs, &ping);
     if (err != ESP_OK || ping == NULL)
     {
-        ESP_LOGE(TAG, "esp_ping_new_session failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "esp_ping_new_session failed: %s", esp_err_to_name(err));
         return false;
     }
 
     err = esp_ping_start(ping);
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "esp_ping_start failed: %s", esp_err_to_name(err));
+        LOGE(TAG, "esp_ping_start failed: %s", esp_err_to_name(err));
         esp_ping_delete_session(ping);
         return false;
     }
@@ -236,7 +236,7 @@ bool ping_gateway(void)
     const TickType_t wait_ticks = pdMS_TO_TICKS(10000);
     if (xSemaphoreTake(g_ping_done_sem, wait_ticks) != pdTRUE)
     {
-        ESP_LOGW(TAG, "Ping session timeout waiting for completion");
+        LOGW(TAG, "Ping session timeout waiting for completion");
         // If still running, stop and cleanup
         esp_ping_stop(ping);
         esp_ping_delete_session(ping);

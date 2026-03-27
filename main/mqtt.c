@@ -34,13 +34,13 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 {
 	if (s_mqtt_started)
 	{
-		ESP_LOGI(TAG, "mqtt_start: already started");
+		LOGI(TAG, "mqtt_start: already started");
 		return ESP_OK;
 	}
 
 	if (!cfg)
 	{
-		ESP_LOGE(TAG, "mqtt_start: cfg is NULL");
+		LOGE(TAG, "mqtt_start: cfg is NULL");
 		return ESP_ERR_INVALID_ARG;
 	}
 
@@ -60,7 +60,7 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 	s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 	if (s_mqtt_client == NULL)
 	{
-		ESP_LOGE(TAG, "esp_mqtt_client_init failed");
+		LOGE(TAG, "esp_mqtt_client_init failed");
 		return ESP_FAIL;
 	}
 
@@ -68,19 +68,19 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 	esp_err_t err = esp_mqtt_client_register_event(s_mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_forwarder, NULL);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "esp_mqtt_client_register_event failed: %s", esp_err_to_name(err));
+		LOGE(TAG, "esp_mqtt_client_register_event failed: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	err = esp_mqtt_client_start(s_mqtt_client);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "esp_mqtt_client_start failed: %s", esp_err_to_name(err));
+		LOGE(TAG, "esp_mqtt_client_start failed: %s", esp_err_to_name(err));
 		return err;
 	}
 
 	s_mqtt_started = true;
-	ESP_LOGI(TAG, "MQTT client started");
+	LOGI(TAG, "MQTT client started");
 	return ESP_OK;
 }
 
@@ -88,25 +88,25 @@ esp_err_t mqtt_stop(void)
 {
 	if (!s_mqtt_started || s_mqtt_client == NULL)
 	{
-		ESP_LOGW(TAG, "mqtt_stop: not started");
+		LOGW(TAG, "mqtt_stop: not started");
 		return ESP_OK;
 	}
 
 	esp_err_t err = esp_mqtt_client_stop(s_mqtt_client);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "esp_mqtt_client_stop failed: %s", esp_err_to_name(err));
+		LOGE(TAG, "esp_mqtt_client_stop failed: %s", esp_err_to_name(err));
 	}
 
 	err = esp_mqtt_client_destroy(s_mqtt_client);
 	if (err != ESP_OK)
 	{
-		ESP_LOGE(TAG, "esp_mqtt_client_destroy failed: %s", esp_err_to_name(err));
+		LOGE(TAG, "esp_mqtt_client_destroy failed: %s", esp_err_to_name(err));
 	}
 
 	s_mqtt_client = NULL;
 	s_mqtt_started = false;
-	ESP_LOGI(TAG, "MQTT client stopped");
+	LOGI(TAG, "MQTT client stopped");
 	return ESP_OK;
 }
 
@@ -114,7 +114,7 @@ int mqtt_publish(const char *topic, const char *data, int len, int qos, int reta
 {
 	if (!s_mqtt_client)
 	{
-		ESP_LOGW(TAG, "mqtt_publish: client not started");
+		LOGW(TAG, "mqtt_publish: client not started");
 		return -1;
 	}
 	return esp_mqtt_client_publish(s_mqtt_client, topic, data, len, qos, retain);
@@ -124,7 +124,7 @@ int mqtt_subscribe(const char *topic, int qos)
 {
 	if (!s_mqtt_client)
 	{
-		ESP_LOGW(TAG, "mqtt_subscribe: client not started");
+		LOGW(TAG, "mqtt_subscribe: client not started");
 		return -1;
 	}
 	return esp_mqtt_client_subscribe(s_mqtt_client, topic, qos);
@@ -591,18 +591,18 @@ static inline void mqtt_pubs_retained(const char *topic, const char *value)
 {
 	if (!s_mqtt_client || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
 		return;
 	}
 	if (!value)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
 		return;
 	}
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt_client, topic, value, 0, 0, 1);
 	if (err < 0)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
 	}
 }
 

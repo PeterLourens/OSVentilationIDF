@@ -434,7 +434,7 @@ void show_system_and_task_stats(void)
     used = append_heap_stats(out, used, buf_size);
     used = append_system_stats(out, used, buf_size);
 
-    ESP_LOGD(TAG, "Sending sys_stats over websocket, %zu bytes", used);
+    LOGD(TAG, "Sending sys_stats over websocket, %zu bytes", used);
     ws_async_send(out, used);
     free(out);
 }

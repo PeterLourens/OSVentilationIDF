@@ -39,14 +39,14 @@ void eth_init(void)
 {
     if (s_eth_initialized)
     {
-        ESP_LOGD(TAG, "eth_init: already initialized");
+        LOGD(TAG, "eth_init: already initialized");
         if (eth_netif == NULL)
         {
             esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
             if (existing)
             {
                 eth_netif = existing;
-                ESP_LOGI(TAG, "eth_init: recovered existing ETH_DEF netif handle %p", (void *)eth_netif);
+                LOGI(TAG, "eth_init: recovered existing ETH_DEF netif handle %p", (void *)eth_netif);
             }
         }
         return;

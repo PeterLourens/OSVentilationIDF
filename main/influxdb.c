@@ -428,7 +428,7 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
         esp_err_t err = influxdb_send_payload_internal(payload, cfg);
         if (err == ESP_OK)
         {
-            LOGI(TAG, "Influx write succeeded (attempt %d)", attempt + 1);
+            LOGD(TAG, "Influx write succeeded (attempt %d)", attempt + 1);
             return;
         }
 

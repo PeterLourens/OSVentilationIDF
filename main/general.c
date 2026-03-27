@@ -182,7 +182,7 @@ esp_err_t create_mutexes(void)
     lock_valve_move_mutex = xSemaphoreCreateMutex();
     if (lock_valve_move_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create lock_valve_move_mutex");
+        LOGE(TAG, "Failed to create lock_valve_move_mutex");
         ok = false;
     }
 
@@ -190,7 +190,7 @@ esp_err_t create_mutexes(void)
     sensor_cfg_mutex = xSemaphoreCreateMutex();
     if (sensor_cfg_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create sensor_cfg_mutex");
+        LOGE(TAG, "Failed to create sensor_cfg_mutex");
         ok = false;
     }
 
@@ -198,7 +198,7 @@ esp_err_t create_mutexes(void)
     network_config_mutex = xSemaphoreCreateMutex();
     if (network_config_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create network_config_mutex");
+        LOGE(TAG, "Failed to create network_config_mutex");
         ok = false;
     }
 
@@ -358,7 +358,7 @@ void init_timezone(void)
     // --- Read config under mutex ---
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
+        LOGE(TAG, "Failed to acquire time_config mutex");
         return;
     }
 

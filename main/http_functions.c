@@ -1068,10 +1068,10 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 void ws_async_send(char *buf, size_t len)
 {
 
-    ESP_LOGD(TAG, "ws_async_send: called with %zu bytes", len);
+    LOGD(TAG, "ws_async_send: called with %zu bytes", len);
     if (http_server == NULL)
     {
-        ESP_LOGW(TAG, "ws_async_send: http_server is NULL, not sending");
+        LOGW(TAG, "ws_async_send: http_server is NULL, not sending");
         return;
     }
 
@@ -1089,10 +1089,10 @@ void ws_async_send(char *buf, size_t len)
     int client_fds[max_clients];
 
     esp_err_t ret = httpd_get_client_list(http_server, &fds, client_fds);
-    ESP_LOGD(TAG, "ws_async_send: httpd_get_client_list found %zu clients, ret=%d", fds, ret);
+    LOGD(TAG, "ws_async_send: httpd_get_client_list found %zu clients, ret=%d", fds, ret);
     if (ret != ESP_OK)
     {
-        ESP_LOGW(TAG, "ws_async_send: httpd_get_client_list failed");
+        LOGW(TAG, "ws_async_send: httpd_get_client_list failed");
         return;
     }
 
@@ -1100,17 +1100,17 @@ void ws_async_send(char *buf, size_t len)
     for (int i = 0; i < fds; i++)
     {
         int client_info = httpd_ws_get_fd_info(http_server, client_fds[i]);
-        ESP_LOGD(TAG, "ws_async_send: client_fd[%d]=%d info=%d", i, client_fds[i], client_info);
+        LOGD(TAG, "ws_async_send: client_fd[%d]=%d info=%d", i, client_fds[i], client_info);
         if (client_info == HTTPD_WS_CLIENT_WEBSOCKET)
         {
             esp_err_t sret = httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
-            ESP_LOGD(TAG, "ws_async_send: sent to client_fd[%d]=%d, sret=%d", i, client_fds[i], sret);
+            LOGD(TAG, "ws_async_send: sent to client_fd[%d]=%d, sret=%d", i, client_fds[i], sret);
             sent++;
         }
     }
     if (sent == 0)
     {
-        ESP_LOGW(TAG, "ws_async_send: No WebSocket clients to send to");
+        LOGW(TAG, "ws_async_send: No WebSocket clients to send to");
     }
 }
 
