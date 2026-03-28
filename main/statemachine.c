@@ -1649,7 +1649,7 @@ void valve_cycle_night_transitions(void)
 
 void manual_high_speed_transitions(void)
 {
-    int state = STATE_NR_MANUALHS;
+    // int state = STATE_NR_MANUALHS;
     int new_time = 0;
     int state_config_index = 0;
     int state_fanspeed = FAN_SPEED_HIGH;
