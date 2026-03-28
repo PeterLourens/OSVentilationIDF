@@ -237,11 +237,6 @@ esp_err_t load_wifi_config(void)
 
     LOGI(TAG, "Wifi config loaded from %s", path);
 
-    // if (task_wifi != NULL)
-    //{
-    // xTaskNotifyGive(task_wifi);
-    //}
-
     return ESP_OK;
 }
 
@@ -942,10 +937,6 @@ esp_err_t load_statemachine_general_config(void)
 
     return ESP_OK;
 }
-
-// ========= Load statemachine settings ===========
-//
-// Load all statemachine states from JSON file matching the pattern and store in the provided struct array
 
 // Simple wildcard pattern matching function for the state names
 bool match_pattern(const char *name, const char *pattern)

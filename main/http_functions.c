@@ -1065,6 +1065,163 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
+// GET handler: stream all config JSON files as a tar.gz archive
+static esp_err_t handle_get_all_configs_targz(httpd_req_t *req)
+{
+    DIR *dir = opendir("/data/json");
+    if (!dir)
+    {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Cannot open config directory");
+        return ESP_FAIL;
+    }
+
+    httpd_resp_set_type(req, "application/gzip");
+    httpd_resp_set_hdr(req, "Content-Disposition", "attachment; filename=\"configs.tar.gz\"");
+
+    // allocate gzip stream on heap
+    gzip_stream_t *gz = malloc(sizeof(*gz));
+    if (!gz)
+    {
+        closedir(dir);
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "No memory");
+        return ESP_FAIL;
+    }
+
+    gzip_stream_init(gz, req);
+
+    struct dirent *entry;
+    uint8_t buf[512];
+    char path[300];
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (!strstr(entry->d_name, ".json"))
+            continue;
+
+        snprintf(path, sizeof(path), "/data/json/%s", entry->d_name);
+
+        FILE *f = fopen(path, "r");
+        if (!f)
+            continue;
+
+        fseek(f, 0, SEEK_END);
+        long size = ftell(f);
+        fseek(f, 0, SEEK_SET);
+
+        // use your official helper
+        tar_write_header(req, entry->d_name, size);
+
+        long remaining = size;
+        while (remaining > 0)
+        {
+            size_t chunk = remaining > sizeof(buf) ? sizeof(buf) : remaining;
+            fread(buf, 1, chunk, f);
+            gzip_stream_write(gz, buf, chunk);
+            remaining -= chunk;
+        }
+
+        fclose(f);
+
+        size_t pad = (512 - (size % 512)) % 512;
+        if (pad > 0)
+        {
+            memset(buf, 0, pad);
+            gzip_stream_write(gz, buf, pad);
+        }
+    }
+
+    closedir(dir);
+
+    memset(buf, 0, 512);
+    gzip_stream_write(gz, buf, 512);
+    gzip_stream_write(gz, buf, 512);
+
+    gzip_stream_finish(gz);
+    free(gz);
+
+    httpd_resp_send_chunk(req, NULL, 0);
+    return ESP_OK;
+}
+
+static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
+{
+    DIR *dir = opendir("/data/json");
+    if (!dir)
+    {
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Cannot open config directory");
+        return ESP_FAIL;
+    }
+
+    httpd_resp_set_type(req, "application/x-tar");
+    httpd_resp_set_hdr(req, "Content-Disposition", "attachment; filename=\"configs.tar\"");
+
+    struct dirent *entry;
+    uint8_t buf[512];
+    char path[300];
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (!strstr(entry->d_name, ".json"))
+            continue;
+
+        snprintf(path, sizeof(path), "/data/json/%s", entry->d_name);
+
+        FILE *f = fopen(path, "r");
+        if (!f)
+            continue;
+
+        fseek(f, 0, SEEK_END);
+        long size = ftell(f);
+        fseek(f, 0, SEEK_SET);
+
+        // build tar header locally and send it raw
+        tar_header_t hdr;
+        memset(&hdr, 0, sizeof(hdr));
+        strncpy(hdr.name, entry->d_name, sizeof(hdr.name) - 1);
+        hdr.name[sizeof(hdr.name) - 1] = '\0';
+        snprintf(hdr.mode, sizeof(hdr.mode), "%07o", 0644);
+        snprintf(hdr.uid, sizeof(hdr.uid), "%07o", 0);
+        snprintf(hdr.gid, sizeof(hdr.gid), "%07o", 0);
+        snprintf(hdr.size, sizeof(hdr.size), "%011o", (unsigned int)size);
+        snprintf(hdr.mtime, sizeof(hdr.mtime), "%011o", (unsigned int)time(NULL));
+        memcpy(hdr.magic, "ustar", 5);
+        memcpy(hdr.version, "00", 2);
+        hdr.typeflag = '0';
+        tar_fill_checksum(&hdr);
+
+        httpd_resp_send_chunk(req, (const char *)&hdr, 512);
+
+        long remaining = size;
+        while (remaining > 0)
+        {
+            size_t chunk = remaining > sizeof(buf) ? sizeof(buf) : remaining;
+            size_t r = fread(buf, 1, chunk, f);
+            if (r == 0)
+                break;
+            httpd_resp_send_chunk(req, (const char *)buf, r);
+            remaining -= r;
+        }
+
+        fclose(f);
+
+        size_t pad = (512 - (size % 512)) % 512;
+        if (pad > 0)
+        {
+            memset(buf, 0, pad);
+            httpd_resp_send_chunk(req, (const char *)buf, pad);
+        }
+    }
+
+    closedir(dir);
+
+    memset(buf, 0, 512);
+    httpd_resp_send_chunk(req, (const char *)buf, 512);
+    httpd_resp_send_chunk(req, (const char *)buf, 512);
+
+    httpd_resp_send_chunk(req, NULL, 0);
+    return ESP_OK;
+}
+
 void ws_async_send(char *buf, size_t len)
 {
 
@@ -1483,7 +1640,19 @@ void register_http_handlers(httpd_handle_t server)
     };
     httpd_register_uri_handler(http_server, &state9_config_post_uri);
 
-    // return http_server;
+    httpd_uri_t all_config_gz_uri = {
+        .uri = "/api/config/all.tar.gz",
+        .method = HTTP_GET,
+        .handler = handle_get_all_configs_targz,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &all_config_gz_uri);
+
+    httpd_uri_t all_config_tar_uri = {
+        .uri = "/api/config/all.tar",
+        .method = HTTP_GET,
+        .handler = handle_get_all_configs_tar,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &all_config_tar_uri);
 }
 
 esp_err_t http_server_stop(void)

@@ -245,8 +245,8 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
-        http_server_stop();
-        http_server_start();
+        // http_server_stop();
+        // http_server_start();
 
         update_syslog_state();
         network_manager_request_actuals_update();
