@@ -204,21 +204,21 @@ void app_main(void)
         char uptime_str[64] = {};
 
         formatted_uptime(uptime_str, sizeof(uptime_str));
-        ESP_LOGI(TAG, "System uptime: %s", uptime_str);
+        LOGI(TAG, "System uptime: %s", uptime_str);
 
         sys_stats_update_actuals();
-        ESP_LOGI(TAG, "Updated system stats");
+        LOGI(TAG, "Updated system stats");
 
         // Ensure connected and have IP before pinging (check esp_netif_get_ip_info)
         if (!wifi_has_ip())
         {
             if (ping_gateway())
             {
-                ESP_LOGI(TAG, "gateway OK");
+                LOGI(TAG, "gateway OK");
             }
             else
             {
-                ESP_LOGW(TAG, "gateway unreachable — consider reconnecting Wi‑Fi");
+                LOGW(TAG, "gateway unreachable — consider reconnecting Wi‑Fi");
             }
         }
 

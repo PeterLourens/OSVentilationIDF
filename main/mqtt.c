@@ -23,11 +23,11 @@ static void ensure_mqtt_connected_sem(void)
 		mqtt_connected_sem = xSemaphoreCreateBinary();
 		if (mqtt_connected_sem == NULL)
 		{
-			ESP_LOGW(TAG, "Failed to create mqtt_connected_sem");
+			LOGW(TAG, "Failed to create mqtt_connected_sem");
 		}
 		else
 		{
-			ESP_LOGD(TAG, "mqtt_connected_sem created");
+			LOGD(TAG, "mqtt_connected_sem created");
 		}
 	}
 }
@@ -223,14 +223,14 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 		}
 
 		// Publish Home Assistant discovery configs (retained)
-		ESP_LOGI("MQTT", "Waiting for sensors to become ready...");
+		LOGI("MQTT", "Waiting for sensors to become ready...");
 
 		while (!sensors_ready())
 		{
 			vTaskDelay(pdMS_TO_TICKS(1000)); // check every second
 		}
 
-		ESP_LOGI("MQTT", "Sensors ready — publishing Home Assistant discovery");
+		LOGI("MQTT", "Sensors ready — publishing Home Assistant discovery");
 		mqtt_publish_homeassistant_discovery();
 
 		// Subscribe to control topic
@@ -709,18 +709,18 @@ static inline void mqtt_pubs_retained(const char *topic, const char *value)
 {
 	if (!s_mqtt || !s_mqtt_connected)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
 		return;
 	}
 	if (!value)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
 		return;
 	}
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt, topic, value, 0, 0, 1);
 	if (err < 0)
 	{
-		ESP_LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
+		LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
 	}
 }
 
