@@ -17,7 +17,7 @@ static uint8_t led_brightness = 16;
 static Statemachine_actuals_t sm_snap;
 
 static bool blink0 = false;
-static bool blink1 = false;
+// static bool blink1 = false;
 
 const Color_t COLORS[] = {
     {255, 0, 0},     // RED
@@ -197,23 +197,97 @@ void leds_update(const Statemachine_actuals_t *sm)
         set_led(0, state_to_color(sm_snap.state));
     }
 
-    // ---------------- LED1: WIFI overrides FAN ----------------
-    if (sm_snap.wifi_error)
+    // --- LED1: Network status at startup, fanspeed with periodic blink when running ---
+    static bool startup_mode = true;
+    static bool blink_override = false;
+    // static bool net_toggle = false;
+    static bool net_phase = false; // false = ETH color, true = WIFI color
+
+    static int startup_counter = 0;
+
+    static uint32_t blink_start_ms = 0;
+    static uint32_t last_blink_ms = 0;
+    static uint32_t net_last_switch_ms = 0;
+
+    // Detect end of startup: after 5 seconds or both network interfaces checked
+    if (startup_mode)
     {
-        toggle_led(1, COLOR_RED, &blink1);
+        startup_counter++;
+        if (startup_counter > 25)
+        { // ~5s if leds_update called every 200ms
+            startup_mode = false;
+        }
     }
-    else if (sm_snap.wifi_ap_mode)
+
+    uint32_t now = (uint32_t)(esp_timer_get_time() / 1000); // ms
+
+    ColorName_t net_color = COLOR_RED;
+
+    if (sm_snap.eth_connected && sm_snap.wifi_connected)
     {
-        toggle_led(1, COLOR_YELLOW, &blink1);
+        // Alternate colors with delay
+        LOGD(TAG, "Blink blue & magenta (ETH: %s, Wifi: %s)", sm_snap.eth_connected ? "connected" : "disconnected", sm_snap.wifi_connected ? "connected" : "disconnected");
+        uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+
+        if (now_ms - net_last_switch_ms > 500) // 500 ms delay between colors
+        {
+            net_phase = !net_phase;
+            net_last_switch_ms = now_ms;
+        }
+
+        net_color = net_phase ? COLOR_BLUE : COLOR_MAGENTA;
     }
-    else if (!sm_snap.wifi_connected)
+    else if (sm_snap.eth_connected)
     {
-        toggle_led(1, COLOR_CYAN, &blink1);
+        LOGD(TAG, "Blink magenta (ETH: %s)", sm_snap.eth_connected ? "connected" : "disconnected");
+        net_color = COLOR_MAGENTA;
+    }
+    else if (sm_snap.wifi_connected)
+    {
+        LOGD(TAG, "Blink blue (WIFI: %s)", sm_snap.wifi_connected ? "connected" : "disconnected");
+        net_color = COLOR_BLUE;
     }
     else
     {
-        blink1 = false;
-        set_led(1, fan_to_color(sm_snap.fanspeed));
+        net_color = COLOR_RED;
+    }
+
+    if (startup_mode)
+    {
+        // Blink network status on LED1
+        static bool blink_on = false;
+        static uint32_t last_toggle = 0;
+        if (now - last_toggle > 300)
+        { // 300ms period
+            blink_on = !blink_on;
+            last_toggle = now;
+        }
+        if (blink_on)
+            set_led(1, net_color);
+        else
+            set_off(1);
+    }
+    else
+    {
+        // Normal: fanspeed color, but blink network status every 30s
+        if (!blink_override && (now - last_blink_ms > 30000))
+        {
+            blink_override = true;
+            blink_start_ms = now;
+            last_blink_ms = now;
+        }
+        if (blink_override)
+        {
+            set_led(1, net_color);
+            if (now - blink_start_ms > 120)
+            { // 120ms blink
+                blink_override = false;
+            }
+        }
+        else
+        {
+            set_led(1, fan_to_color(sm_snap.fanspeed));
+        }
     }
 
     led_strip_refresh(rgb_leds);

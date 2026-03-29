@@ -8,9 +8,9 @@
 
 static const char *TAG = "task_i2c_LCD";
 
-static StackType_t i2c_lcd_stack[4096];  // stack buffer
+static StackType_t i2c_lcd_stack[5120];  // stack buffer
 static StaticTask_t i2c_lcd_tcb;         // TCB buffer
-static size_t i2c_lcd_stack_size = 4096; // 4096 words = 16 KB
+static size_t i2c_lcd_stack_size = 5120; // 5120 words = 20 KB
 
 void stop_task_i2c_lcd(void)
 {
@@ -31,15 +31,6 @@ void stop_task_i2c_lcd(void)
 
 void start_task_i2c_lcd(void)
 {
-    // Create LCD task
-    // xTaskCreate(task_i2c_lcd_code, "i2c_lcd", 4096, NULL, 6, &task_i2c_lcd);
-    // task_i2c_lcd = xTaskCreateStatic(task_i2c_lcd_code, "i2c_lcd", i2c_lcd_stack_size, NULL, 6, i2c_lcd_stack, &i2c_lcd_tcb);
-
-    // if (task_i2c_lcd == NULL)
-    //{
-    //    LOGE(TAG, "I2C LCD task creation failed");
-    //}
-
     I2C_config_t cfg;
 
     xSemaphoreTake(i2c_config_mutex, portMAX_DELAY);
@@ -71,9 +62,10 @@ void task_i2c_lcd_code(void *pvParameters)
     I2C_config_t cfg;
 
     char uptime[20] = {};
-    char ip_str[16] = {};
     char ping_result[20] = {};
     char formatted_time[32] = {};
+    char wifi_ip[16] = "0.0.0.0";
+    char eth_ip[16] = "0.0.0.0";
     char buf[100] = {}; // 4x20 LCD + null terminator is 81 bytes so 100 is plenty
     // char ds3231_status[30] = {};
 
@@ -105,18 +97,34 @@ void task_i2c_lcd_code(void *pvParameters)
         //----- Display 1 - General info -----
         formatted_uptime(uptime, sizeof(uptime));
         formatted_datetime(formatted_time, sizeof(formatted_time));
-        wifi_manager_get_ip_info(ip_str, sizeof(ip_str));
+        snprintf(buf, sizeof(buf), "%s\nUp: %s", formatted_time, uptime);
+        i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
+        vTaskDelay(pdMS_TO_TICKS(3000));
+
+        //----- Display 2 - Network info -----
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+        {
+            // Copy WiFi IP if present
+            if (sm_actuals.wifi_ip_addr[0] != '\0')
+                strncpy(wifi_ip, sm_actuals.wifi_ip_addr, sizeof(wifi_ip));
+
+            // Copy Ethernet IP if present
+            if (sm_actuals.eth_ip_addr[0] != '\0')
+                strncpy(eth_ip, sm_actuals.eth_ip_addr, sizeof(eth_ip));
+
+            xSemaphoreGive(statemachine_mutex);
+        }
 
         if (ping_gateway())
         {
-            strcpy(ping_result, "Gateway OK");
+            snprintf(ping_result, sizeof(ping_result), "Gateway OK");
         }
         else
         {
-            strcpy(ping_result, "Gateway unreachable");
+            snprintf(ping_result, sizeof(ping_result), "Gateway unreachable");
         }
 
-        snprintf(buf, sizeof(buf), "%s\nUp: %s\nIP: %s\n%s", formatted_time, uptime, ip_str, ping_result);
+        snprintf(buf, sizeof(buf), "Wifi:%s\nEth:%s\n%s", wifi_ip, eth_ip, ping_result);
         i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
         vTaskDelay(pdMS_TO_TICKS(3000));
 

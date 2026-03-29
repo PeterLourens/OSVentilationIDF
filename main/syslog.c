@@ -11,8 +11,46 @@ const char *TAG = "syslog";
 // Enable syslog when wifi network is connected
 bool syslog_enabled = false;
 
+static bool syslog_network_ready(void)
+{
+    // Ethernet preferred
+    if (hw.has_ethernet && eth_is_connected())
+    {
+        esp_netif_t *n = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (!n)
+            return false;
+
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(n, &ip) != ESP_OK)
+            return false;
+
+        return ip.ip.addr != 0; // Only true after DHCP completed
+    }
+
+    // WiFi fallback
+    if (wifi_manager_is_connected())
+    {
+        esp_netif_t *n = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (!n)
+            return false;
+
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(n, &ip) != ESP_OK)
+            return false;
+
+        return ip.ip.addr != 0;
+    }
+
+    return false;
+}
+
 void syslog_send_line(const char *line)
 {
+    if (!syslog_network_ready())
+    {
+        return;
+    }
+
     if (!line || !*line)
     {
         LOGW(TAG, "Empty line, nothing to send");
@@ -63,13 +101,13 @@ void syslog_send_line(const char *line)
     }
 
     if (strlen(hostname) == 0)
-        strcpy(hostname, "set hostame");
+        snprintf(hostname, sizeof(hostname), "%s", "set hostname");
 
     if (strlen(appname) == 0)
-        strcpy(appname, "set app name");
+        snprintf(appname, sizeof(appname), "%s", "set app name");
 
     if (strlen(device_id) == 0)
-        strcpy(appname, "set device ID");
+        snprintf(device_id, sizeof(device_id), "%s", "set device ID");
 
     /* ---- Build syslog message ---- */
     char *msg = NULL;
@@ -118,26 +156,32 @@ void syslog_send_line(const char *line)
 /* Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key) */
 bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
 {
-    if (!netif_key)
-        netif_key = "WIFI_STA_DEF";
-
     int retries = 0;
+    esp_netif_ip_info_t ip;
 
     while (retries < max_retries)
     {
-        esp_netif_ip_info_t ip;
-        if (esp_netif_get_ip_info(esp_netif_get_handle_from_ifkey(netif_key), &ip) == ESP_OK)
+        esp_netif_t *netif = get_active_netif();
+
+        if (netif)
         {
-            if (ip.ip.addr != 0)
+            if (esp_netif_get_ip_info(netif, &ip) == ESP_OK)
             {
-                LOGD(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
-                return true;
+                if (ip.ip.addr != 0)
+                {
+                    ESP_LOGI(TAG, "IP ready: " IPSTR, IP2STR(&ip.ip));
+                    return true;
+                }
             }
         }
-        LOGW(TAG, "Waiting for IP on %s... (%d/%d)", netif_key, retries + 1, max_retries);
+
+        ESP_LOGW(TAG, "Waiting for IP on active interface... (%d/%d)",
+                 retries + 1, max_retries);
+
         vTaskDelay(pdMS_TO_TICKS(delay_ms));
         retries++;
     }
+
     return false;
 }
 

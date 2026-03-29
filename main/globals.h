@@ -14,22 +14,16 @@
 
 #include "hardware_caps.h"
 
-// Project-wide global variables and definitions
-#define DEVICE_MANUFACTURER "Peter Lourens"
-#define DEVICE_MODEL "OSVentilation"
-#define DEVICE_SW_VERSION "v1.0.0" // update at build time if possible
-#define DEVICE_HW_VERSION "v2.0.0" // First SMD version of the hardware
-
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
 
 // I2C Bus0 configuration
-// #define I2C_MASTER_BUS0_SDA_IO 39
-// #define I2C_MASTER_BUS0_SCL_IO 38
+// #define I2C_MASTER_BUS0_SDA_IO 18
+// #define I2C_MASTER_BUS0_SCL_IO 17
 
 // I2C Bus1 configuration
-// #define I2C_MASTER_BUS1_SDA_IO 41
-// #define I2C_MASTER_BUS1_SCL_IO 40
+// #define I2C_MASTER_BUS1_SDA_IO 7
+// #define I2C_MASTER_BUS1_SCL_IO 6
 
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address
@@ -40,10 +34,25 @@
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
 
+// SPI configuration for W5500 Ethernet
+// #define W5500_MISO_GPIO 13
+// #define W5500_MOSI_GPIO 11
+// #define W5500_SCLK_GPIO 12
+// #define W5500_CS_GPIO 10
+
+// Interrupt pin (optional)
+// #define W5500_INT_GPIO 9
+
+// Reset pin (optional, -1 if unused)
+// #define W5500_RST_GPIO 8
+
+// SPI host (VSPI_HOST or HSPI_HOST)
+#define W5500_SPI_HOST SPI2_HOST // or SPI3_HOST depending on your wiring
+
 // Define I/O for 74595 chips
-// #define CLOCKPIN1 11
-// #define LATCHPIN1 12
-// #define DATAPIN1 13
+// #define CLOCKPIN1 1
+// #define LATCHPIN1 2
+// #define DATAPIN1 3
 
 // #define CLOCKPIN2 15
 // #define LATCHPIN2 16
@@ -52,6 +61,7 @@
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
 #define LARGE_CONFIG_ITEM 64
+#define MLARGE_CONFIG_ITEM 256
 #define XLARGE_CONFIG_ITEM 512
 #define XXLARGE_CONFIG_ITEM 1024
 #define XXXLARGE_CONFIG_ITEM 2048
@@ -77,6 +87,7 @@
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT BIT1
 #define AP_STARTED_BIT BIT2
+#define MAINTENANCE_AP_TIMEOUT_MS (10 * 60 * 1000) // 10 minutes
 
 // statemachine settings
 #define MAX_NR_STATES 15
@@ -126,12 +137,14 @@ extern i2c_master_dev_handle_t lcd_bus1_handle;
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_ds3231;
 extern TaskHandle_t task_wifi;
+extern TaskHandle_t task_ethernet;
 extern TaskHandle_t task_i2c_lcd;
 extern TaskHandle_t task_rgb_leds;
 extern TaskHandle_t task_statemachine;
 extern TaskHandle_t task_valvectrl;
 extern TaskHandle_t task_mqtt;
 extern TaskHandle_t task_influxdb;
+extern TaskHandle_t network_manager_task_handle;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -172,6 +185,7 @@ typedef struct
 
 typedef struct
 {
+    char enable_wifi[SMALL_CONFIG_ITEM];
     char enable_dhcp[SMALL_CONFIG_ITEM];
     char hostname[MEDIUM_CONFIG_ITEM];
     char ssid[MEDIUM_CONFIG_ITEM];
@@ -181,7 +195,18 @@ typedef struct
     char gateway[MEDIUM_CONFIG_ITEM];
     char primary_dns[MEDIUM_CONFIG_ITEM];
     char secondary_dns[MEDIUM_CONFIG_ITEM];
-} Network_config_t;
+} Wifi_config_t;
+
+typedef struct
+{
+    char enable_ethernet[SMALL_CONFIG_ITEM];
+    char enable_dhcp[SMALL_CONFIG_ITEM];
+    char ip_address[MEDIUM_CONFIG_ITEM];
+    char subnet_mask[MEDIUM_CONFIG_ITEM];
+    char gateway[MEDIUM_CONFIG_ITEM];
+    char primary_dns[MEDIUM_CONFIG_ITEM];
+    char secondary_dns[MEDIUM_CONFIG_ITEM];
+} Ethernet_config_t;
 
 typedef struct
 {
@@ -195,6 +220,14 @@ typedef struct
     char mqtt_server[LARGE_CONFIG_ITEM];
     char mqtt_port[SMALL_CONFIG_ITEM];
     char mqtt_base_topic[XLARGE_CONFIG_ITEM];
+    char uri[MLARGE_CONFIG_ITEM];
+    char username[MEDIUM_CONFIG_ITEM];
+    char password[XLARGE_CONFIG_ITEM];
+    int keepalive;
+    char will_topic[XLARGE_CONFIG_ITEM];
+    char will_message[XLARGE_CONFIG_ITEM];
+    int will_qos;
+    int will_retain;
 } MQTT_config_t;
 
 typedef struct
@@ -284,7 +317,9 @@ typedef struct
     int state;
     int co2_sensors_high;
     int rh_sensors_high;
+
     bool valve_lock;
+
     bool wifi_error;
     bool wifi_connected;
     bool wifi_ap_mode;
@@ -299,12 +334,22 @@ typedef struct
     char wifi_ssid[LARGE_CONFIG_ITEM];
     char hostname[MEDIUM_CONFIG_ITEM];
 
-    char ip_addr[SMALL_CONFIG_ITEM];
-    char netmask[SMALL_CONFIG_ITEM];
-    char gateway[SMALL_CONFIG_ITEM];
-    char dns1[SMALL_CONFIG_ITEM];
-    char dns2[SMALL_CONFIG_ITEM];
-    bool dhcp_enabled;
+    char wifi_ip_addr[SMALL_CONFIG_ITEM];
+    char wifi_netmask[SMALL_CONFIG_ITEM];
+    char wifi_gateway[SMALL_CONFIG_ITEM];
+    char wifi_dns1[SMALL_CONFIG_ITEM];
+    char wifi_dns2[SMALL_CONFIG_ITEM];
+    bool wifi_dhcp_enabled;
+    bool wifi_enabled;
+
+    char eth_ip_addr[SMALL_CONFIG_ITEM];
+    char eth_netmask[SMALL_CONFIG_ITEM];
+    char eth_gateway[SMALL_CONFIG_ITEM];
+    char eth_dns1[SMALL_CONFIG_ITEM];
+    char eth_dns2[SMALL_CONFIG_ITEM];
+    bool eth_dhcp_enabled;
+    bool ethernet_enabled;
+    bool eth_connected;
 
     int cpu_temp;
 
@@ -313,13 +358,15 @@ typedef struct
 
     uint32_t stack_i2c_sensors;
     uint32_t stack_i2c_ds3231;
-    uint32_t stack_wifi;
+    // uint32_t stack_wifi;
+    // uint32_t stack_eth;
     uint32_t stack_i2c_lcd;
     uint32_t stack_rgb_leds;
     uint32_t stack_statemachine;
     uint32_t stack_valvectrl;
     uint32_t stack_mqtt;
     uint32_t stack_influxdb;
+    uint32_t stack_network_manager;
 
 } Statemachine_actuals_t;
 
@@ -337,7 +384,8 @@ typedef struct
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];
 extern bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS];
-extern Network_config_t network_config;
+extern Wifi_config_t wifi_config;
+extern Ethernet_config_t ethernet_config;
 extern Time_config_t time_config;
 extern MQTT_config_t mqtt_config;
 extern Influxdb_config_t influxdb_config;

@@ -1,4 +1,3 @@
-
 // hardware_caps.h
 #pragma once
 

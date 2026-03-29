@@ -56,9 +56,10 @@ bool configured_sensor(int, int);
 bool sensor_supports_co2(int, int);
 esp_err_t read_sensors_into_queue(void);
 void reload_and_init_sensors(void);
-
 void preload_sensor_types_from_config(void);
 void sensor_data_average(void);
 void fifoPush(int, int, int, float);
+bool configured_sensor(int, int);
+bool sensor_supports_co2(int, int);
 
 #endif

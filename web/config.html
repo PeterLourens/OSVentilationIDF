@@ -38,16 +38,34 @@
                 <h2>Settings</h2>
             </div>
             <div class="content">
+                <p>On this page the the system can be configured. For the network settings there are two choices: Wifi or Ethernet. One can choose either one of them or both.
+                    If no interface is set (both off) or when ethernet is down, then an wifi AP will be launched. The hostname can be set in the Wifi section but is actually also
+                    used for the Ethernet interface and for the syslog messages. DNS servers are also set globally. The last interface to come up will set the DNS servers.
+                </p>
                 <form method="POST" action="/restart_esp">
                     <input type="submit" value="Restart ESP32" class="pure-button-primary button-xsmall pure-button">
                 </form>
+                <br>
+                <a href="/api/config/all.tar" class="pure-button-primary button-xsmall pure-button">Download all config files (tar)</a>
+                <br><br>
+                <form method="POST" action="/api/config/import" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".tar">
+                    <input type="submit" value="Import all config files" class="pure-button-primary button-xsmall pure-button">
+                </form>
 
-                <h4 class="content-subhead">Network configuration (requires ESP32 restart)</h4>
+                <h4 class="content-subhead">WiFi configuration (requires ESP32 restart)</h4>
 
-                <form class="pure-form pure-form-stacked" method="POST" action="/network_config">
+                <form class="pure-form pure-form-stacked" method="POST" action="/wifi_config">
                     <fieldset>
                         <div class="pure-g">
-                            <div class="pure-u-1 pure-u-md-1-1">
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="enable_wifi">Enable WiFi:</label>
+                                <select name="enable_wifi" id="enable_wifi" class="pure-input-1-1">
+                                    <option>On</option>
+                                    <option>Off</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="enable_dhcp">Enable DHCP:</label>
                                 <select name="enable_dhcp" id="enable_dhcp" class="pure-input-1-1">
                                     <option>On</option>
@@ -89,6 +107,52 @@
                         </div>
                         <br>
                         <input type="submit" value="Save network configuration" class="pure-button-primary button-xsmall pure-button">
+                        <br>
+                    </fieldset>
+                </form>
+
+                <h4 class="content-subhead">Ethernet configuration (requires ESP32 restart)</h4>
+
+                <form class="pure-form pure-form-stacked" method="POST" action="/ethernet_config">
+                    <fieldset>
+                        <div class="pure-g">
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="enable_ethernet">Enable Ethernet</label>
+                                <select name="enable_ethernet" id="enable_ethernet" class="pure-input-1-1">
+                                    <option>On</option>
+                                    <option>Off</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_enable_dhcp">Enable DHCP:</label>
+                                <select name="eth_enable_dhcp" id="eth_enable_dhcp" class="pure-input-1-1">
+                                    <option>On</option>
+                                    <option>Off</option>
+                                </select>
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_ip_address">IP Address:</label>
+                                <input type="text" placeholder="Leave blank for DHCP" name="eth_ip_address" id="eth_ip_address" class="pure-input-3-4">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_subnet_mask">Subnet mask:</label>
+                                <input type="text" placeholder="Leave blank for DHCP" name="eth_subnet_mask" id="eth_subnet_mask" class="pure-input-3-4">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_gateway">Gateway:</label>
+                                <input type="text" placeholder="Leave blank for DHCP" name="eth_gateway" id="eth_gateway" class="pure-input-3-4">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_primary_dns">Primary DNS server:</label>
+                                <input type="text" placeholder="Leave blank for DHCP" name="eth_primary_dns" id="eth_primary_dns" class="pure-input-3-4">
+                            </div>
+                            <div class="pure-u-1 pure-u-md-1-2">
+                                <label for="eth_secondary_dns">Secundary DNS server (optional):</label>
+                                <input type="text" placeholder="Leave blank for DHCP" name="eth_secondary_dns" id="eth_secondary_dns" class="pure-input-3-4">
+                            </div>
+                        </div>
+                        <br>
+                        <input type="submit" value="Save ethernet configuration" class="pure-button-primary button-xsmall pure-button">
                         <br>
                     </fieldset>
                 </form>

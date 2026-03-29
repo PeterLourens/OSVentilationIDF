@@ -2,7 +2,7 @@
     "enable_syslog": "On",
     "syslog_ip": "192.168.0.5",
     "syslog_port": "515",
-    "syslog_hostname": "dev",
-    "syslog_appname": "dev",
-    "syslog_device_id": "living room"
+    "syslog_hostname": "dev2",
+    "syslog_appname": "dev2",
+    "syslog_device_id": "Office"
 }

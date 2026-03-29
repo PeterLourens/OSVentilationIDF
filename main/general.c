@@ -174,34 +174,6 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
     return ESP_OK;
 }
 
-bool is_valid_ip_address(const char *ip_address)
-{
-    if (!ip_address || strlen(ip_address) == 0)
-    {
-        return false;
-    }
-    struct in_addr addr;
-    return inet_pton(AF_INET, ip_address, &addr) == 1;
-}
-
-// Function to check if Wi-Fi has an IP
-bool wifi_has_ip(void)
-{
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (netif == NULL)
-    {
-        ESP_LOGW(TAG, "Wi-Fi STA interface not found");
-        return false;
-    }
-
-    esp_netif_ip_info_t ip_info;
-    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
-    {
-        return false;
-    }
-    return ip_info.ip.addr != 0;
-}
-
 esp_err_t create_mutexes(void)
 {
     bool ok = true;
@@ -210,7 +182,7 @@ esp_err_t create_mutexes(void)
     lock_valve_move_mutex = xSemaphoreCreateMutex();
     if (lock_valve_move_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create lock_valve_move_mutex");
+        LOGE(TAG, "Failed to create lock_valve_move_mutex");
         ok = false;
     }
 
@@ -218,7 +190,7 @@ esp_err_t create_mutexes(void)
     sensor_cfg_mutex = xSemaphoreCreateMutex();
     if (sensor_cfg_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create sensor_cfg_mutex");
+        LOGE(TAG, "Failed to create sensor_cfg_mutex");
         ok = false;
     }
 
@@ -226,7 +198,7 @@ esp_err_t create_mutexes(void)
     network_config_mutex = xSemaphoreCreateMutex();
     if (network_config_mutex == NULL)
     {
-        ESP_LOGE(TAG, "Failed to create network_config_mutex");
+        LOGE(TAG, "Failed to create network_config_mutex");
         ok = false;
     }
 
@@ -386,7 +358,7 @@ void init_timezone(void)
     // --- Read config under mutex ---
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
-        ESP_LOGE(TAG, "Failed to acquire time_config mutex");
+        LOGE(TAG, "Failed to acquire time_config mutex");
         return;
     }
 
@@ -398,137 +370,6 @@ void init_timezone(void)
 
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
     tzset();
-}
-
-/* ========== Ping to gateway functions ========== */
-void on_ping_end(esp_ping_handle_t hdl, void *args)
-{
-    uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;
-
-    // Profiles available in ESP‑IDF 5.5.1
-    esp_ping_get_profile(hdl, ESP_PING_PROF_REQUEST, &transmitted, sizeof(transmitted));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_REPLY, &received, sizeof(received));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_DURATION, &duration, sizeof(duration));
-    esp_ping_get_profile(hdl, ESP_PING_PROF_TIMEGAP, &avg_time, sizeof(avg_time));
-
-    int loss_percent = 0;
-    if (transmitted > 0)
-    {
-        loss_percent = (int)((transmitted - received) * 100 / transmitted);
-    }
-
-    g_ping_summary.transmitted = (int)transmitted;
-    g_ping_summary.received = (int)received;
-    g_ping_summary.loss_percent = loss_percent;
-    g_ping_summary.avg_time_ms = (int)avg_time;
-    g_ping_summary.duration_ms = (int)duration;
-    g_ping_summary.success = (received > 0);
-
-    ESP_LOGD(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
-             g_ping_summary.transmitted, g_ping_summary.received,
-             g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,
-             g_ping_summary.duration_ms);
-
-    // Clean up session
-    esp_ping_delete_session(hdl);
-
-    // Signal completion
-    if (g_ping_done_sem)
-    {
-        xSemaphoreGive(g_ping_done_sem);
-    }
-}
-
-bool ping_gateway(void)
-{
-    // Ensure station netif exists
-    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-    if (!netif)
-    {
-        ESP_LOGE(TAG, "No station netif found");
-        return false;
-    }
-
-    esp_netif_ip_info_t ip_info;
-    if (esp_netif_get_ip_info(netif, &ip_info) != ESP_OK)
-    {
-        ESP_LOGE(TAG, "Failed to get IP info");
-        return false;
-    }
-
-    // Log gateway using IPSTR/IP2STR to avoid incompatible-pointer warnings
-    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
-
-    // Build ip_addr_t target_addr from ip_info.gw
-    ip_addr_t target_addr;
-    IP_ADDR4(&target_addr, ip4_addr1(&ip_info.gw), ip4_addr2(&ip_info.gw), ip4_addr3(&ip_info.gw), ip4_addr4(&ip_info.gw));
-
-    ESP_LOGD(TAG, "Pinging gateway: " IPSTR, IP2STR(&ip_info.gw));
-
-    // Reset summary
-    memset(&g_ping_summary, 0, sizeof(g_ping_summary));
-
-    // Create (or reuse) semaphore
-    if (g_ping_done_sem == NULL)
-    {
-        g_ping_done_sem = xSemaphoreCreateBinary();
-        if (g_ping_done_sem == NULL)
-        {
-            ESP_LOGE(TAG, "Failed to create semaphore");
-            return false;
-        }
-    }
-    else
-    {
-        // Drain any previous signal
-        xSemaphoreTake(g_ping_done_sem, 0);
-    }
-
-    // Configure ping session
-    esp_ping_config_t config = ESP_PING_DEFAULT_CONFIG();
-    config.count = 5;                 // number of probes
-    config.interval_ms = 1000;        // 1s between pings
-    config.timeout_ms = 1000;         // per‑ping timeout
-    config.target_addr = target_addr; // gateway
-
-    esp_ping_callbacks_t cbs = {
-        .on_ping_end = on_ping_end,
-        // You can add per‑reply logging if you want:
-        // .on_ping_success = your_success_cb,
-        // .on_ping_timeout = your_timeout_cb,
-    };
-
-    // Start session
-    esp_ping_handle_t ping = NULL;
-    esp_err_t err = esp_ping_new_session(&config, &cbs, &ping);
-    if (err != ESP_OK || ping == NULL)
-    {
-        ESP_LOGE(TAG, "esp_ping_new_session failed: %s", esp_err_to_name(err));
-        return false;
-    }
-
-    err = esp_ping_start(ping);
-    if (err != ESP_OK)
-    {
-        ESP_LOGE(TAG, "esp_ping_start failed: %s", esp_err_to_name(err));
-        esp_ping_delete_session(ping);
-        return false;
-    }
-
-    // Wait for completion (5 pings + buffer)
-    // Duration profile will be ~count * interval + timeouts; use a safe upper bound
-    const TickType_t wait_ticks = pdMS_TO_TICKS(10000);
-    if (xSemaphoreTake(g_ping_done_sem, wait_ticks) != pdTRUE)
-    {
-        ESP_LOGW(TAG, "Ping session timeout waiting for completion");
-        // If still running, stop and cleanup
-        esp_ping_stop(ping);
-        esp_ping_delete_session(ping);
-        return false;
-    }
-
-    // Success = at least one reply
-    return g_ping_summary.success;
 }
 
 void formatted_uptime(char *buf, size_t bufsize)
@@ -594,6 +435,11 @@ void formatted_day(char *buf, size_t bufsize)
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
+    esp_log_level_set("*", ESP_LOG_INFO);
+
+    esp_log_level_set("bus_lock", ESP_LOG_NONE);
+    esp_log_level_set("spi", ESP_LOG_NONE);
+    esp_log_level_set("spi_master", ESP_LOG_NONE);
     esp_log_level_set("scd4x", ESP_LOG_ERROR);
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);
@@ -618,9 +464,13 @@ void set_log_levels(void)
     esp_log_level_set("outbox", ESP_LOG_ERROR);
     esp_log_level_set("esp-tls", ESP_LOG_ERROR);
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
+    esp_log_level_set("w5500.mac", ESP_LOG_NONE);
+    esp_log_level_set("esp_eth", ESP_LOG_NONE);
+    esp_log_level_set("gdma", ESP_LOG_NONE);
 
     // Custom TAG sttings
     esp_log_level_set("Config", ESP_LOG_INFO);
+    esp_log_level_set("Eth_func", ESP_LOG_INFO);
     esp_log_level_set("Fan_control", ESP_LOG_INFO);
     esp_log_level_set("General", ESP_LOG_INFO);
     esp_log_level_set("HTTP_server", ESP_LOG_INFO);
@@ -639,6 +489,7 @@ void set_log_levels(void)
     esp_log_level_set("Sys_stats", ESP_LOG_INFO);
     esp_log_level_set("Syslog", ESP_LOG_INFO);
     esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
+    esp_log_level_set("task_eth", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
     esp_log_level_set("task_influxdb", ESP_LOG_INFO);
@@ -650,8 +501,10 @@ void set_log_levels(void)
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
     esp_log_level_set("syslog", ESP_LOG_WARN);
     esp_log_level_set("control_valves", ESP_LOG_INFO);
+    esp_log_level_set("Eth_func", ESP_LOG_INFO);
+    esp_log_level_set("task_eth", ESP_LOG_INFO);
 
-    // esp_log_level_set("*", ESP_LOG_ERROR);       // Set all log levels
+    // esp_log_level_set("*", ESP_LOG_INFO);       // Set all log levels
 }
 
 void print_html_file(const char *filepath)

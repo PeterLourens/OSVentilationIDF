@@ -19,6 +19,7 @@
 #include "i2c_sensors.h"
 #include "logging.h"
 #include "statemachine.h"
+#include "network_manager.h"
 
 #define LOG_BUF_SIZE 256
 
@@ -42,7 +43,8 @@ esp_err_t reset_valves_handler(httpd_req_t *);
 esp_err_t stop_statemachine_handler(httpd_req_t *);
 esp_err_t start_statemachine_handler(httpd_req_t *);
 esp_err_t valvecontrol_post_handler(httpd_req_t *);
-esp_err_t network_config_post_handler(httpd_req_t *);
+esp_err_t wifi_config_post_handler(httpd_req_t *);
+esp_err_t ethernet_config_post_handler(httpd_req_t *);
 esp_err_t i2c_config_post_handler(httpd_req_t *);
 esp_err_t mqtt_config_post_handler(httpd_req_t *);
 esp_err_t influxdb_config_post_handler(httpd_req_t *);
@@ -53,7 +55,9 @@ esp_err_t state_gen_config_post_handler(httpd_req_t *);
 esp_err_t state_config_post_handler(httpd_req_t *);
 
 void ws_async_send(char *, size_t);
-httpd_handle_t start_webserver(void);
+esp_err_t http_server_start(void);
+// httpd_handle_t start_webserver(void);
+void register_http_handlers(httpd_handle_t server);
 esp_err_t http_server_stop(void);
 
 #endif

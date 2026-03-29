@@ -141,10 +141,11 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     timezone[sizeof(timezone) - 1] = '\0';
     xSemaphoreGive(time_config_mutex);
 
-    // --- Check Wi-Fi ---
-    if (!wifi_has_ip())
+    // --- Check network availability (Ethernet preferred, Wi-Fi fallback) ---
+    if (!network_has_ip())
     {
-        LOGW(TAG, "No Wi-Fi, fallback to DS3231");
+        LOGW(TAG, "No network available, fallback to DS3231");
+
         struct tm rtc_time;
         if (ds3231_get_time(dev_handle, &rtc_time) == ESP_OK)
         {
@@ -153,6 +154,8 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
             LOGI(TAG, "System time set from DS3231");
             return ESP_OK;
         }
+
+        LOGE(TAG, "Failed to read DS3231");
         return ESP_FAIL;
     }
 

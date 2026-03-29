@@ -162,19 +162,21 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              "wifi_error=%s,"
              "wifi_connected=%s,"
              "wifi_ap_mode=%s,"
+             "ethernet_connected=%s,"
+             "ethernet_enabled=%s,"
              "wifi_rssi=%d,"
              "wifi_channel=%d,"
              "wifi_authmode=%d,"
              "wifi_phy=%d,"
              "wifi_bandwidth=%d,"
-             "dhcp_enabled=%s,"
              "cpu_temp=%d,"
              "uptime=%llu,"
              "heap_free=%u,"
              "heap_min_ever=%u,"
              "stack_i2c_sensors=%lu,"
              "stack_i2c_ds3231=%lu,"
-             "stack_wifi=%lu,"
+             //"stack_wifi=%lu,"
+             "stack_network_manager=%lu,"
              "stack_i2c_lcd=%lu,"
              "stack_rgb_leds=%lu,"
              "stack_statemachine=%lu,"
@@ -190,19 +192,21 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
              sm_actuals.wifi_error ? "true" : "false",
              sm_actuals.wifi_connected ? "true" : "false",
              sm_actuals.wifi_ap_mode ? "true" : "false",
+             sm_actuals.eth_connected ? "true" : "false",
+             sm_actuals.ethernet_enabled ? "true" : "false",
              sm_actuals.wifi_rssi,
              sm_actuals.wifi_channel,
              sm_actuals.wifi_authmode,
              sm_actuals.wifi_phy,
              sm_actuals.wifi_bandwidth,
-             sm_actuals.dhcp_enabled ? "true" : "false",
              sm_actuals.cpu_temp,
              (unsigned long long)uptime,
              (unsigned)sm_actuals.heap_free,
              (unsigned)sm_actuals.heap_min_ever,
              sm_actuals.stack_i2c_sensors,
              sm_actuals.stack_i2c_ds3231,
-             sm_actuals.stack_wifi,
+             // sm_actuals.stack_wifi,
+             sm_actuals.stack_network_manager,
              sm_actuals.stack_i2c_lcd,
              sm_actuals.stack_rgb_leds,
              sm_actuals.stack_statemachine,
@@ -280,6 +284,20 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
         escape_tag(valve_esc, sizeof(valve_esc), meta->valve);
         escape_tag(loc_esc, sizeof(loc_esc), meta->location);
 
+        // If any of the fields are empty, set to "unknown" or "none" to avoid Influx tag parsing issues
+        if (type_esc[0] == '\0')
+        {
+            strcpy(type_esc, "None");
+        }
+        if (loc_esc[0] == '\0')
+        {
+            strcpy(loc_esc, "None");
+        }
+        if (valve_esc[0] == '\0')
+        {
+            strcpy(valve_esc, "None");
+        }
+
         char sensor_id[32];
         snprintf(sensor_id, sizeof(sensor_id), "bus%d_ch%d", bus, ch);
 
@@ -314,6 +332,13 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
 // ---------------------------------------------------------------------------
 static esp_err_t influxdb_send_payload_internal(const char *payload, const Influxdb_config_t *cfg)
 {
+    // Abort if no network interface has an IP
+    if (!network_has_ip())
+    {
+        LOGW(TAG, "InfluxDB: Cannot send, no active network interface");
+        return ESP_ERR_INVALID_STATE;
+    }
+
     if (!payload || !cfg)
     {
         LOGW(TAG, "send_internal: invalid args");
@@ -403,7 +428,7 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
         esp_err_t err = influxdb_send_payload_internal(payload, cfg);
         if (err == ESP_OK)
         {
-            LOGI(TAG, "Influx write succeeded (attempt %d)", attempt + 1);
+            LOGD(TAG, "Influx write succeeded (attempt %d)", attempt + 1);
             return;
         }
 
@@ -425,6 +450,13 @@ static void influx_sender_task(void *pv)
     Influxdb_config_t cfg;
     influxdb_get_config_snapshot(&cfg);
 
+    // Wait for network availability
+    while (!network_has_ip())
+    {
+        LOGW(TAG, "InfluxDB: No network available, waiting...");
+        vTaskDelay(pdMS_TO_TICKS(2000));
+    }
+
     for (;;)
     {
         influx_job_t job;
@@ -436,6 +468,14 @@ static void influx_sender_task(void *pv)
             // Refresh config snapshot before each send
             influxdb_get_config_snapshot(&cfg);
 
+            // Wait for network before sending
+            while (!network_has_ip())
+            {
+                LOGW(TAG, "InfluxDB: No network available, waiting...");
+                vTaskDelay(pdMS_TO_TICKS(2000));
+            }
+
+            // Check if InfluxDB is enabled
             if (strcmp(cfg.enable_influxdb, "On") != 0)
             {
                 LOGW(TAG, "InfluxDB disabled; dropping payload");

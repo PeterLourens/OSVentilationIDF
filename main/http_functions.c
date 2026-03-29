@@ -189,44 +189,42 @@ esp_err_t websocket_handler(httpd_req_t *req)
             return ret;
         }
 
-        if (strncmp((char *)ws_pkt.payload, "Start", 5) == 0)
+        if (strcmp((char *)ws_pkt.payload, "Start") == 0)
         {
-            // Redirect log output to the custom function
             esp_log_set_vprintf(websocket_log_output);
             LOGD(TAG, "Redirecting console to websocket");
         }
 
-        if (strncmp((char *)ws_pkt.payload, "Stop", 4) == 0)
+        if (strcmp((char *)ws_pkt.payload, "Stop") == 0)
         {
-            // Redirect log output to the custom function
             LOGD(TAG, "Stopped redirecting console to websocket");
             esp_log_set_vprintf(uart_log_output);
         }
 
-        if (strncmp((char *)ws_pkt.payload, "stats", 8) == 0)
+        if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
             LOGD(TAG, "Stats requested via WebSocket");
             show_system_and_task_stats();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "index", 9) == 0)
+        if (strcmp((char *)ws_pkt.payload, "index") == 0)
         {
             LOGD(TAG, "Index data requested via WebSocket");
             send_index_html_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "sensor_config", 17) == 0)
+        if (strcmp((char *)ws_pkt.payload, "sensor_config") == 0)
         {
             LOGD(TAG, "Sensor config requested via WebSocket");
             send_sensor_config_json_ws();
         }
 
-        if (strncmp((char *)ws_pkt.payload, "config", 10) == 0)
+        if (strcmp((char *)ws_pkt.payload, "config") == 0)
         {
             LOGD(TAG, "Config requested via WebSocket");
             send_config_json_ws();
         }
-        if (strncmp((char *)ws_pkt.payload, "statemachine", 10) == 0)
+        if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
         {
             LOGD(TAG, "Statemachine config requested via WebSocket");
             send_statemachine_config_json_ws();
@@ -390,8 +388,8 @@ esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-// POST handler: save network configuration to flash
-esp_err_t network_config_post_handler(httpd_req_t *req)
+// POST handler: save wifi configuration to flash
+esp_err_t wifi_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -414,12 +412,12 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     }
     buf[len] = '\0';
 
-    cJSON *arr = build_network_config_from_body_urlencoded(buf, len);
+    cJSON *arr = build_wifi_config_from_body_urlencoded(buf, len);
     free(buf);
     if (!arr)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
 
-    const char *path = "/data/json/network_config.json";
+    const char *path = "/data/json/wifi_config.json";
     if (!write_json_atomic_fs(path, arr))
     {
         cJSON_Delete(arr);
@@ -427,11 +425,64 @@ esp_err_t network_config_post_handler(httpd_req_t *req)
     }
     cJSON_Delete(arr);
 
-    // reload into runtime globals (uses mutex inside load_sensor_config)
-    if (load_network_config() != ESP_OK)
+    // reload into runtime globals (uses mutex inside load_wifi_config)
+    if (load_wifi_config() != ESP_OK)
     {
-        LOGE(TAG, "Failed to reload network config after write");
+        LOGE(TAG, "Failed to reload wifi config after write");
     }
+
+    network_manager_notify_config_change();
+
+    // return the page body (original config.html)
+    httpd_resp_set_type(req, "text/html");
+    len = config_html_end - config_html_start;
+    return httpd_resp_send(req, config_html_start, len);
+}
+
+// POST handler: save ethernet configuration to flash
+esp_err_t ethernet_config_post_handler(httpd_req_t *req)
+{
+    size_t len = req->content_len;
+    if (len == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
+
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    if (!buf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
+
+    size_t rec = 0;
+    while (rec < len)
+    {
+        int r = httpd_req_recv(req, buf + rec, len - rec);
+        if (r <= 0)
+        {
+            free(buf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv");
+        }
+        rec += (size_t)r;
+    }
+    buf[len] = '\0';
+
+    cJSON *arr = build_ethernet_config_from_body_urlencoded(buf, len);
+    free(buf);
+    if (!arr)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "parse fail");
+
+    const char *path = "/data/json/ethernet_config.json";
+    if (!write_json_atomic_fs(path, arr))
+    {
+        cJSON_Delete(arr);
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+    }
+    cJSON_Delete(arr);
+
+    // reload into runtime globals (uses mutex inside load_ethernet_config)
+    if (load_ethernet_config() != ESP_OK)
+    {
+        LOGE(TAG, "Failed to reload ethernet config after write");
+    }
+
+    network_manager_notify_config_change();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
@@ -863,8 +914,7 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
         // still return the page so UI stays consistent
     }
 
-    // Update actual valve positions struct after writing all zeros to NVS
-    // otherwise the statemachine will still have old values
+    // Update actual valve positions struct after writing all zeros to NVS, otherwise the statemachine will still have old values
     read_valve_pos_in_valvecontrol();
 
     // Return the original valvecontrol.html page
@@ -1181,8 +1231,8 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
     free(tarbuf);
 
     // 3. Reload all configs
-    //load_wifi_config();
-    //load_ethernet_config();
+    load_wifi_config();
+    load_ethernet_config();
     load_i2c_config();
     load_fan_config();
     load_mqtt_config();
@@ -1224,8 +1274,13 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
 
 void ws_async_send(char *buf, size_t len)
 {
+
+    LOGD(TAG, "ws_async_send: called with %zu bytes", len);
     if (http_server == NULL)
+    {
+        LOGW(TAG, "ws_async_send: http_server is NULL, not sending");
         return;
+    }
 
     httpd_ws_frame_t ws_pkt;
 
@@ -1241,30 +1296,82 @@ void ws_async_send(char *buf, size_t len)
     int client_fds[max_clients];
 
     esp_err_t ret = httpd_get_client_list(http_server, &fds, client_fds);
-
+    LOGD(TAG, "ws_async_send: httpd_get_client_list found %zu clients, ret=%d", fds, ret);
     if (ret != ESP_OK)
     {
+        LOGW(TAG, "ws_async_send: httpd_get_client_list failed");
         return;
     }
 
+    int sent = 0;
     for (int i = 0; i < fds; i++)
     {
         int client_info = httpd_ws_get_fd_info(http_server, client_fds[i]);
+        LOGD(TAG, "ws_async_send: client_fd[%d]=%d info=%d", i, client_fds[i], client_info);
         if (client_info == HTTPD_WS_CLIENT_WEBSOCKET)
         {
-            httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
+            esp_err_t sret = httpd_ws_send_frame_async(http_server, client_fds[i], &ws_pkt);
+            LOGD(TAG, "ws_async_send: sent to client_fd[%d]=%d, sret=%d", i, client_fds[i], sret);
+            sent++;
         }
+    }
+    if (sent == 0)
+    {
+        LOGW(TAG, "ws_async_send: No WebSocket clients to send to");
     }
 }
 
-// Start webserver
-httpd_handle_t start_webserver(void)
+esp_err_t http_server_start(void)
 {
+    if (http_server)
+    {
+        LOGW(TAG, "HTTP server already running, skipping start");
+        return ESP_OK;
+    }
+
+    esp_netif_t *netif = get_active_netif();
+    if (!netif)
+    {
+        LOGW(TAG, "No active network interface, delaying HTTP server start");
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(netif, &ip) != ESP_OK || ip.ip.addr == 0)
+    {
+        LOGW(TAG, "Active interface has no IP yet, delaying HTTP server start");
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    LOGI(TAG, "Starting HTTP server on IP: " IPSTR, IP2STR(&ip.ip));
+
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 50;                 // increase from default 8 to 50
-    config.stack_size = 6144;                     // increase stack size for websocket handling
-    config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
-    ESP_ERROR_CHECK(httpd_start(&http_server, &config));
+    config.server_port = 80;
+    config.max_uri_handlers = 50;
+    config.stack_size = 6144;
+    config.task_priority = tskIDLE_PRIORITY + 20;
+
+    esp_err_t err = httpd_start(&http_server, &config);
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "Failed to start HTTP server: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    register_http_handlers(http_server);
+    LOGI(TAG, "HTTP server started successfully");
+    return ESP_OK;
+}
+
+// Start webserver
+// httpd_handle_t start_webserver(void)
+void register_http_handlers(httpd_handle_t server)
+{
+    // httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    // config.max_uri_handlers = 50;                 // increase from default 8 to 50
+    // config.stack_size = 6144;                     // increase stack size for websocket handling
+    // config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
+    // ESP_ERROR_CHECK(httpd_start(&http_server, &config));
 
     httpd_uri_t pure_min_css_uri = {
         .uri = "/pure_min.css",
@@ -1431,13 +1538,21 @@ httpd_handle_t start_webserver(void)
     };
     httpd_register_uri_handler(http_server, &sensorconfig2_delete_post_uri);
 
-    httpd_uri_t network_config_post_uri = {
-        .uri = "/network_config",
+    httpd_uri_t wifi_config_post_uri = {
+        .uri = "/wifi_config",
         .method = HTTP_POST,
-        .handler = network_config_post_handler,
+        .handler = wifi_config_post_handler,
         .user_ctx = NULL,
     };
-    httpd_register_uri_handler(http_server, &network_config_post_uri);
+    httpd_register_uri_handler(http_server, &wifi_config_post_uri);
+
+    httpd_uri_t ethernet_config_post_uri = {
+        .uri = "/ethernet_config",
+        .method = HTTP_POST,
+        .handler = ethernet_config_post_handler,
+        .user_ctx = NULL,
+    };
+    httpd_register_uri_handler(http_server, &ethernet_config_post_uri);
 
     httpd_uri_t i2c_config_post_uri = {
         .uri = "/i2c_config",
@@ -1601,6 +1716,10 @@ esp_err_t http_server_stop(void)
     if (http_server)
     {
         ret = httpd_stop(http_server);
+        if (ret == ESP_OK)
+        {
+            http_server = NULL;
+        }
     }
     else
     {

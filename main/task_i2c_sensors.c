@@ -7,9 +7,9 @@
 #include "task_i2c_sensors.h"
 
 static const char *TAG = "task_i2c_sensors";
-static StackType_t i2c_sensors_stack[8192];  // stack buffer
+static StackType_t i2c_sensors_stack[5120];  // stack buffer
 static StaticTask_t i2c_sensors_tcb;         // TCB buffer
-static size_t i2c_sensors_stack_size = 8192; // 4096 words = 16 KB
+static size_t i2c_sensors_stack_size = 5120; // 5120 words = 20.480 KB
 
 void start_task_i2c_sensors(void)
 {

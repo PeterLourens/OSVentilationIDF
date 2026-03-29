@@ -41,12 +41,14 @@ i2c_master_dev_handle_t lcd_bus1_handle = {0};
 TaskHandle_t task_i2c_sensors = NULL;
 TaskHandle_t task_i2c_ds3231 = NULL;
 TaskHandle_t task_wifi = NULL;
+TaskHandle_t task_ethernet = NULL;
 TaskHandle_t task_i2c_lcd = NULL;
 TaskHandle_t task_rgb_leds = NULL;
 TaskHandle_t task_statemachine = NULL;
 TaskHandle_t task_valvectrl = NULL;
 TaskHandle_t task_mqtt = NULL;
 TaskHandle_t task_influxdb = NULL;
+TaskHandle_t network_manager_task_handle = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
@@ -83,7 +85,8 @@ httpd_handle_t http_server = NULL;
 struct tm timeinfo = {0};
 
 // Structs for settings
-Network_config_t network_config = {0};
+Wifi_config_t wifi_config = {0};
+Ethernet_config_t ethernet_config = {0};
 Time_config_t time_config = {0};
 MQTT_config_t mqtt_config = {0};
 Influxdb_config_t influxdb_config = {0};
