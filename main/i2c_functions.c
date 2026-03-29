@@ -15,8 +15,8 @@ esp_err_t i2c_init_master0(void)
     i2c_master_bus_config_t i2c_bus0_cfg = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .i2c_port = 0,
-        .sda_io_num = I2C_MASTER_BUS0_SDA_IO,
-        .scl_io_num = I2C_MASTER_BUS0_SCL_IO,
+        .sda_io_num = hw.i2c_master_bus0_sda_io,
+        .scl_io_num = hw.i2c_master_bus0_scl_io,
         .glitch_ignore_cnt = 7,
         .flags.enable_internal_pullup = true,
     };
@@ -36,8 +36,8 @@ esp_err_t i2c_init_master1(void)
     i2c_master_bus_config_t i2c_bus1_cfg = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .i2c_port = 1,
-        .sda_io_num = I2C_MASTER_BUS1_SDA_IO,
-        .scl_io_num = I2C_MASTER_BUS1_SCL_IO,
+        .sda_io_num = hw.i2c_master_bus1_sda_io,
+        .scl_io_num = hw.i2c_master_bus1_scl_io,
         .glitch_ignore_cnt = 7,
         .flags.enable_internal_pullup = true,
     };

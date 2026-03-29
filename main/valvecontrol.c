@@ -212,15 +212,21 @@ void control_valves(void)
         // Assign the correct IO based on valve number
         if (valve_number < 6)
         {
-            latchPin = LATCHPIN1;
-            clockPin = CLOCKPIN1;
-            dataPin = DATAPIN1;
+            // latchPin = LATCHPIN1;
+            // clockPin = CLOCKPIN1;
+            // dataPin = DATAPIN1;
+            latchPin = hw.latchpin1;
+            clockPin = hw.clockpin1;
+            dataPin = hw.datapin1;
         }
         else
         {
-            latchPin = LATCHPIN2;
-            clockPin = CLOCKPIN2;
-            dataPin = DATAPIN2;
+            // latchPin = LATCHPIN2;
+            // clockPin = CLOCKPIN2;
+            // dataPin = DATAPIN2;
+            latchPin = hw.latchpin2;
+            clockPin = hw.clockpin2;
+            dataPin = hw.datapin2;
         }
 
         bool moved = false;
