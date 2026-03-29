@@ -8,13 +8,13 @@
 
 static const char *TAG = "valve_control";
 
-/* Patterns */
+// Patterns
 static const uint8_t pattern1[4] = {0b00000101, 0b00001001, 0b00001010, 0b00000110};
 static const uint8_t pattern2[4] = {0b01010000, 0b10010000, 0b10100000, 0b01100000};
 
-/* ---------------------- Generic helpers ---------------------- */
+// ---------------------- Generic helpers ----------------------
 
-/* Configure three GPIOs as outputs (idempotent). Returns ESP_OK or error. */
+// Configure three GPIOs as outputs (idempotent). Returns ESP_OK or error.
 esp_err_t gpio_setup_3pins(int dataPin, int clockPin, int latchPin)
 {
     if (dataPin < 0 || clockPin < 0 || latchPin < 0)
@@ -29,14 +29,14 @@ esp_err_t gpio_setup_3pins(int dataPin, int clockPin, int latchPin)
     return gpio_config(&cfg);
 }
 
-/* short microsecond delay using ROM API */
+// short microsecond delay using ROM API
 void short_delay_us(int us)
 {
     if (us > 0)
         esp_rom_delay_us(us);
 }
 
-/* Shift out one byte MSB-first (equivalent to Arduino shiftOut MSBFIRST) */
+// Shift out one byte MSB-first (equivalent to Arduino shiftOut MSBFIRST)
 void shift_out_msbfist(int dataPin, int clockPin, uint8_t val)
 {
     for (int bit = 7; bit >= 0; --bit)
@@ -51,7 +51,7 @@ void shift_out_msbfist(int dataPin, int clockPin, uint8_t val)
     }
 }
 
-/* Latch pulse: generate a short RCLK rising edge (caller may set latch low beforehand) */
+// Latch pulse: generate a short RCLK rising edge (caller may set latch low beforehand)
 void latch_pulse(int latchPin)
 {
     gpio_set_level(latchPin, 1);
@@ -60,13 +60,13 @@ void latch_pulse(int latchPin)
     short_delay_us(1);
 }
 
-/* Shift three zero bytes (nearest first) and latch — mirrors Arduino reference */
+// Shift three zero bytes (nearest first) and latch — mirrors Arduino reference
 void all_outputs_off(int dataPin, int clockPin, int latchPin)
 {
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
         return;
 
-    /* follow original order: shift output[2], output[1], output[0] */
+    // follow original order: shift output[2], output[1], output[0]
     gpio_set_level(latchPin, 0);
     shift_out_msbfist(dataPin, clockPin, 0x00); // nearest chip
     shift_out_msbfist(dataPin, clockPin, 0x00); // middle chip
@@ -157,7 +157,7 @@ void control_valves(void)
 
     LOGD(TAG, "Store new valve Position: %d, Check valve position: %d", store_valve_position ? 1 : 0, check_valve_position ? 1 : 0);
 
-    /* Ensure statemachine is in stopped mode before allowing manual valve moves */
+    // Ensure statemachine is in stopped mode before allowing manual valve moves
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
         sm_state = sm_actuals.state;
@@ -367,18 +367,18 @@ void valve_position_statemachine(int state_config_index)
         if (desired == current)
         {
             valvecontroldata.position_change[v] = 0;
-            valvecontroldata.direction[v] = 0; /* direction irrelevant when no movement */
+            valvecontroldata.direction[v] = 0; // direction irrelevant when no movement
         }
         else if (desired > current)
         {
             valvecontroldata.position_change[v] = desired - current;
-            valvecontroldata.direction[v] = 1; /* open/forward */
+            valvecontroldata.direction[v] = 1; // open/forward
             sum_move = sum_move + valvecontroldata.position_change[v];
         }
-        else /* desired < current */
+        else // desired < current
         {
             valvecontroldata.position_change[v] = current - desired;
-            valvecontroldata.direction[v] = 0; /* close/backward */
+            valvecontroldata.direction[v] = 0; // close/backward
             sum_move = sum_move + valvecontroldata.position_change[v];
         }
         LOGD(TAG, "Valve %d: cur=%d desired=%d change=%d dir=%s", v, current, desired, valvecontroldata.position_change[v], valvecontroldata.direction[v] ? "open" : "close");
@@ -395,13 +395,13 @@ void valve_position_statemachine(int state_config_index)
         valvecontroldata.write_new_position = false;
     }
 
-    /* Clear any previous POST-request flag — movement is requested programmatically now */
+    // Clear any previous POST-request flag — movement is requested programmatically now
     valvecontroldata.valve_move_request_from_post = false;
     xSemaphoreGive(valve_control_data_mutex);
 
     LOGD(TAG, "Valve targets from state %d copied to valvecontroldata. Calling control_valves() to execute.", state_config_index);
 
-    /* Invoke control_valves() to perform movements. It will check statemachine state internally. */
+    // Invoke control_valves() to perform movements. It will check statemachine state internally.
     if (sum_move > 0)
     {
         LOGI(TAG, "sum_move is >0 (%d)", sum_move);
@@ -426,7 +426,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     int i, j, k;
     const int cycles = 24; // cycles per full rotation (same as original)
 
-    /* Validate direction and position_change like original */
+    // Validate direction and position_change like original
     if (!(direction == 1 || direction == 0))
     {
         LOGE(TAG, "Invalid direction: %d", direction);
@@ -438,7 +438,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         return ESP_ERR_INVALID_ARG;
     }
 
-    /* Take lock_valve_move mutex and set flag like original (if available) */
+    // Take lock_valve_move mutex and set flag like original (if available)
     if (statemachine_mutex)
     {
         if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -448,11 +448,11 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         }
     }
 
-    /* Normalize valve number same as original */
+    // Normalize valve number same as original
     if (valve_number >= 6)
         valve_number -= 6;
 
-    /* Build outputs exactly like Arduino switch-case */
+    // Build outputs exactly like Arduino switch-case
     switch (valve_number)
     {
     case 0:
@@ -505,7 +505,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         break;
     default:
         LOGE(TAG, "Invalid valve_number: %d", valve_number);
-        /* Clear lock flag if set then return */
+        // Clear lock flag if set then return
         if (statemachine_mutex)
         {
             if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -517,7 +517,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         return ESP_ERR_INVALID_ARG;
     }
 
-    /* Configure GPIO pins */
+    // Configure GPIO pins
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
     {
         LOGE(TAG, "GPIO config failed in valvecontrol");
@@ -532,12 +532,12 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         return ESP_FAIL;
     }
 
-    /* Ensure pins start low */
+    // Ensure pins start low
     gpio_set_level(dataPin, 0);
     gpio_set_level(clockPin, 0);
     gpio_set_level(latchPin, 0);
 
-    /* Forward / open */
+    // Forward / open
     if (direction == 1)
     {
         for (j = 0; j < (cycles * position_change); j++)
@@ -549,14 +549,14 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
                 shift_out_msbfist(dataPin, clockPin, (uint8_t)output[1][k]);
                 shift_out_msbfist(dataPin, clockPin, (uint8_t)output[0][k]);
                 gpio_set_level(latchPin, 1);
-                /* match original delay */
+                // match original delay
                 vTaskDelay(pdMS_TO_TICKS(10));
                 gpio_set_level(latchPin, 0);
             }
         }
         all_outputs_off(dataPin, clockPin, latchPin);
     }
-    /* Backward / close */
+    // Backward / close
     else
     {
         for (j = 0; j < (cycles * position_change); j++)
@@ -575,7 +575,7 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         all_outputs_off(dataPin, clockPin, latchPin);
     }
 
-    /* Release lock flag */
+    // Release lock flag
     if (statemachine_mutex)
     {
         if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)

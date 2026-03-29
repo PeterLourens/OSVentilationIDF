@@ -1,9 +1,7 @@
 /*
-	mqtt.c
-	MQTT driver only: connect, disconnect, publish, subscribe.
+	This file is part of the OSVentilationIDF project.
 
-	All LED/statemachine/syslog logic is handled in network_manager.c
-	via MQTT_EVENTS event base.
+	Copyright (C) 2023-2026 Peter Lourens
 */
 
 #include "mqtt.h"

@@ -1,8 +1,6 @@
 /*
-    network_manager.c
-    Unified network manager for WiFi + Ethernet + MQTT
+    This file is part of the OSVentilationIDF project.
 
-    Single orchestrator for events, LEDs, statemachine, syslog.
     Copyright (C) 2023-2026 Peter Lourens
 */
 

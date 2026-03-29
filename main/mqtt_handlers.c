@@ -1,3 +1,9 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "mqtt_handlers.h"
 #include "statemachine.h"
 #include "esp_log.h"

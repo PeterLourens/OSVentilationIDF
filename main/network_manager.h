@@ -1,7 +1,4 @@
 /*
-    network_manager.h
-    Unified network manager for WiFi + Ethernet
-
     This file is part of the OSVentilationIDF project.
 
     Copyright (C) 2023-2026 Peter Lourens
