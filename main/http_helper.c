@@ -128,3 +128,38 @@ bool write_json_atomic_fs(const char *path, cJSON *root)
 
     return (r == 0);
 }
+
+void tar_fill_checksum(tar_header_t *hdr)
+{
+    memset(hdr->chksum, ' ', 8);
+    unsigned int sum = 0;
+    unsigned char *p = (unsigned char *)hdr;
+    for (int i = 0; i < 512; i++)
+        sum += p[i];
+    snprintf(hdr->chksum, 8, "%06o", sum);
+    hdr->chksum[6] = '\0';
+    hdr->chksum[7] = ' ';
+}
+
+// Public function to write a tar header for a file to the HTTP response
+void tar_write_header(httpd_req_t *req, const char *filename, size_t filesize)
+{
+    tar_header_t hdr;
+    memset(&hdr, 0, sizeof(hdr));
+
+    snprintf(hdr.name, sizeof(hdr.name), "%s", filename);
+    snprintf(hdr.mode, sizeof(hdr.mode), "%07o", 0644);
+    snprintf(hdr.uid, sizeof(hdr.uid), "%07o", 0);
+    snprintf(hdr.gid, sizeof(hdr.gid), "%07o", 0);
+    snprintf(hdr.size, sizeof(hdr.size), "%011o", (unsigned int)filesize);
+    snprintf(hdr.mtime, sizeof(hdr.mtime), "%011o", (unsigned int)time(NULL));
+
+    memcpy(hdr.magic, "ustar", 5);
+    memcpy(hdr.version, "00", 2);
+
+    hdr.typeflag = '0'; // regular file
+
+    tar_fill_checksum(&hdr);
+
+    httpd_resp_send_chunk(req, (const char *)&hdr, 512);
+}
