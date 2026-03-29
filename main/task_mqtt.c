@@ -8,9 +8,9 @@
 /* compute words for StackType_t */
 #define MQTT_STACK_WORDS (MQTT_STACK_BYTES / sizeof(StackType_t))
 
-static StackType_t mqtt_stack[MQTT_STACK_WORDS];
-static StaticTask_t mqtt_tcb;
-static const uint32_t mqtt_stack_size = MQTT_STACK_WORDS;
+// static StackType_t mqtt_stack[MQTT_STACK_WORDS];
+// static StaticTask_t mqtt_tcb;
+// static const uint32_t mqtt_stack_size = MQTT_STACK_WORDS;
 
 static const char *TAG = "task_MQTT";
 static StackType_t mqtt_stack[7168];

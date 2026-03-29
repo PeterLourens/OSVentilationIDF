@@ -242,6 +242,7 @@ static inline void mqtt_pubi(const char *topic, int value)
 		return;
 	}
 
+	char payload[16];
 	snprintf(payload, sizeof(payload), "%d", value);
 
 	esp_err_t err = esp_mqtt_client_publish(s_mqtt_client, topic, payload, 0, 1, 0);
