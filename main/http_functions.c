@@ -1065,84 +1065,6 @@ esp_err_t valvecontrol_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
-// GET handler: stream all config JSON files as a tar.gz archive
-static esp_err_t handle_get_all_configs_targz(httpd_req_t *req)
-{
-    DIR *dir = opendir("/data/json");
-    if (!dir)
-    {
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Cannot open config directory");
-        return ESP_FAIL;
-    }
-
-    httpd_resp_set_type(req, "application/gzip");
-    httpd_resp_set_hdr(req, "Content-Disposition", "attachment; filename=\"configs.tar.gz\"");
-
-    // allocate gzip stream on heap
-    gzip_stream_t *gz = malloc(sizeof(*gz));
-    if (!gz)
-    {
-        closedir(dir);
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "No memory");
-        return ESP_FAIL;
-    }
-
-    gzip_stream_init(gz, req);
-
-    struct dirent *entry;
-    uint8_t buf[512];
-    char path[300];
-
-    while ((entry = readdir(dir)) != NULL)
-    {
-        if (!strstr(entry->d_name, ".json"))
-            continue;
-
-        snprintf(path, sizeof(path), "/data/json/%s", entry->d_name);
-
-        FILE *f = fopen(path, "r");
-        if (!f)
-            continue;
-
-        fseek(f, 0, SEEK_END);
-        long size = ftell(f);
-        fseek(f, 0, SEEK_SET);
-
-        // use your official helper
-        tar_write_header(req, entry->d_name, size);
-
-        long remaining = size;
-        while (remaining > 0)
-        {
-            size_t chunk = remaining > sizeof(buf) ? sizeof(buf) : remaining;
-            fread(buf, 1, chunk, f);
-            gzip_stream_write(gz, buf, chunk);
-            remaining -= chunk;
-        }
-
-        fclose(f);
-
-        size_t pad = (512 - (size % 512)) % 512;
-        if (pad > 0)
-        {
-            memset(buf, 0, pad);
-            gzip_stream_write(gz, buf, pad);
-        }
-    }
-
-    closedir(dir);
-
-    memset(buf, 0, 512);
-    gzip_stream_write(gz, buf, 512);
-    gzip_stream_write(gz, buf, 512);
-
-    gzip_stream_finish(gz);
-    free(gz);
-
-    httpd_resp_send_chunk(req, NULL, 0);
-    return ESP_OK;
-}
-
 static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
 {
     DIR *dir = opendir("/data/json");
@@ -1220,6 +1142,134 @@ static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
 
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
+}
+
+static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
+{
+    // 1. Read entire uploaded file into RAM (tar is small ~23 KB)
+    size_t total = req->content_len;
+    if (total == 0)
+        return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty upload");
+
+    uint8_t *tarbuf = malloc(total);
+    if (!tarbuf)
+        return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "no memory");
+
+    size_t rec = 0;
+    while (rec < total)
+    {
+        int r = httpd_req_recv(req, (char *)tarbuf + rec, total - rec);
+        if (r <= 0)
+        {
+            free(tarbuf);
+            return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "recv error");
+        }
+        rec += r;
+    }
+
+    // 2. Parse tar entries
+    size_t pos = 0;
+    while (pos + 512 <= total)
+    {
+        tar_header_t *hdr = (tar_header_t *)(tarbuf + pos);
+
+        // End of archive: two 512-byte zero blocks
+        bool all_zero = true;
+        for (int i = 0; i < 512; i++)
+            if (tarbuf[pos + i] != 0)
+            {
+                all_zero = false;
+                break;
+            }
+
+        if (all_zero)
+            break;
+
+        // Extract filename
+        char name[101];
+        memcpy(name, hdr->name, 100);
+        name[100] = '\0';
+
+        // Only import JSON files
+        if (strstr(name, ".json"))
+        {
+            // Parse file size (octal)
+            size_t filesize = strtol(hdr->size, NULL, 8);
+
+            // Compute file data offset
+            size_t data_offset = pos + 512;
+            if (data_offset + filesize > total)
+            {
+                free(tarbuf);
+                return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "tar truncated");
+            }
+
+            // Build full path
+            char path[256];
+            snprintf(path, sizeof(path), "/data/json/%s", name);
+
+            // Write file atomically
+            FILE *f = fopen("/data/json/tmp_import.json", "w");
+            if (!f)
+            {
+                free(tarbuf);
+                return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "write fail");
+            }
+
+            fwrite(tarbuf + data_offset, 1, filesize, f);
+            fclose(f);
+
+            rename("/data/json/tmp_import.json", path);
+        }
+
+        // Move to next entry (header + padded data)
+        size_t filesize = strtol(hdr->size, NULL, 8);
+        size_t padded = ((filesize + 511) / 512) * 512;
+        pos += 512 + padded;
+    }
+
+    free(tarbuf);
+
+    // 3. Reload all configs
+    load_wifi_config();
+    load_ethernet_config();
+    load_i2c_config();
+    load_fan_config();
+    load_mqtt_config();
+    load_syslog_config();
+    load_time_config();
+    load_sensor_config("bus0_sensor_config");
+    load_sensor_config("bus1_sensor_config");
+    load_state_config();
+    load_statemachine_general_config();
+
+    char referer[128] = {0};
+    size_t referer_len = httpd_req_get_hdr_value_len(req, "Referer");
+
+    if (referer_len > 0 && referer_len < sizeof(referer))
+    {
+        httpd_req_get_hdr_value_str(req, "Referer", referer, sizeof(referer));
+
+        // Convert absolute URL → path only
+        char *path = strstr(referer, "://");
+        if (path)
+        {
+            path = strchr(path + 3, '/'); // first slash after hostname
+            if (path)
+                memmove(referer, path, strlen(path) + 1);
+            else
+                strcpy(referer, "/config.html");
+        }
+    }
+    else
+    {
+        strcpy(referer, "/config.html");
+    }
+
+    // 4. Return config page
+    httpd_resp_set_status(req, "303 See Other");
+    httpd_resp_set_hdr(req, "Location", referer);
+    return httpd_resp_send(req, NULL, 0);
 }
 
 void ws_async_send(char *buf, size_t len)
@@ -1640,19 +1690,19 @@ void register_http_handlers(httpd_handle_t server)
     };
     httpd_register_uri_handler(http_server, &state9_config_post_uri);
 
-    httpd_uri_t all_config_gz_uri = {
-        .uri = "/api/config/all.tar.gz",
-        .method = HTTP_GET,
-        .handler = handle_get_all_configs_targz,
-        .user_ctx = NULL};
-    httpd_register_uri_handler(server, &all_config_gz_uri);
-
-    httpd_uri_t all_config_tar_uri = {
+    httpd_uri_t exp_all_config_tar_uri = {
         .uri = "/api/config/all.tar",
         .method = HTTP_GET,
         .handler = handle_get_all_configs_tar,
         .user_ctx = NULL};
-    httpd_register_uri_handler(server, &all_config_tar_uri);
+    httpd_register_uri_handler(server, &exp_all_config_tar_uri);
+
+    httpd_uri_t imp_all_config_tar_uri = {
+        .uri = "/api/config/import",
+        .method = HTTP_POST,
+        .handler = handle_import_all_configs_tar,
+        .user_ctx = NULL};
+    httpd_register_uri_handler(server, &imp_all_config_tar_uri);
 }
 
 esp_err_t http_server_stop(void)
