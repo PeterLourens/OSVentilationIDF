@@ -345,7 +345,7 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
         mqtt_set_connected(false);
 
-        if (eth_is_connected())
+        if (hw.has_ethernet && eth_is_connected())
         {
             eth_led_set_mode(LED_DOUBLE_BLINK); // IP OK, MQTT down
         }

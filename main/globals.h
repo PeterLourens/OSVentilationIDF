@@ -12,16 +12,18 @@
 #include <esp_netif_sntp.h>
 #include <led_strip.h>
 
+#include "hardware_caps.h"
+
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
 
 // I2C Bus0 configuration
-#define I2C_MASTER_BUS0_SDA_IO 18
-#define I2C_MASTER_BUS0_SCL_IO 17
+// #define I2C_MASTER_BUS0_SDA_IO 18
+// #define I2C_MASTER_BUS0_SCL_IO 17
 
 // I2C Bus1 configuration
-#define I2C_MASTER_BUS1_SDA_IO 7
-#define I2C_MASTER_BUS1_SCL_IO 6
+// #define I2C_MASTER_BUS1_SDA_IO 7
+// #define I2C_MASTER_BUS1_SCL_IO 6
 
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address
@@ -33,28 +35,28 @@
 #define LCD_I2C_ADDR 0x27     // Default address
 
 // SPI configuration for W5500 Ethernet
-#define W5500_MISO_GPIO 13
-#define W5500_MOSI_GPIO 11
-#define W5500_SCLK_GPIO 12
-#define W5500_CS_GPIO 10
+// #define W5500_MISO_GPIO 13
+// #define W5500_MOSI_GPIO 11
+// #define W5500_SCLK_GPIO 12
+// #define W5500_CS_GPIO 10
 
 // Interrupt pin (optional)
-#define W5500_INT_GPIO 9
+// #define W5500_INT_GPIO 9
 
 // Reset pin (optional, -1 if unused)
-#define W5500_RST_GPIO 8
+// #define W5500_RST_GPIO 8
 
 // SPI host (VSPI_HOST or HSPI_HOST)
 #define W5500_SPI_HOST SPI2_HOST // or SPI3_HOST depending on your wiring
 
 // Define I/O for 74595 chips
-#define CLOCKPIN1 1
-#define LATCHPIN1 2
-#define DATAPIN1 3
+// #define CLOCKPIN1 1
+// #define LATCHPIN1 2
+// #define DATAPIN1 3
 
-#define CLOCKPIN2 15
-#define LATCHPIN2 16
-#define DATAPIN2 14
+// #define CLOCKPIN2 15
+// #define LATCHPIN2 16
+// #define DATAPIN2 14
 
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32

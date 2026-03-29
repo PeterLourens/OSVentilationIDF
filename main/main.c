@@ -27,6 +27,9 @@ void app_main(void)
 {
     esp_err_t err = ESP_OK;
 
+    // Initialize hardware capabilities based on hardware version defined in hardware_caps.c
+    hw_init();
+
     // Set log levels for each TAG
     set_log_levels();
 

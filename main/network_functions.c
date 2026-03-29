@@ -67,7 +67,7 @@ bool wifi_has_ip(void)
 esp_netif_t *get_active_netif(void)
 {
     // If eth connected, prefer eth_netif
-    if (eth_is_connected())
+    if (hw.has_ethernet && eth_is_connected())
     {
         if (eth_netif)
             return eth_netif;
@@ -91,8 +91,9 @@ void update_hostname(void)
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
-        if (sm_actuals.eth_connected)
+        if (hw.has_ethernet && sm_actuals.eth_connected)
             netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+
         else if (sm_actuals.wifi_connected)
             netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
 
@@ -250,16 +251,30 @@ bool ping_gateway(void)
 // control the Ethernet LED (GPIO45/46) to indicate link/activity
 void eth_led_init(void)
 {
+    uint64_t mask = 0;
+
+    if (hw.has_eth_led)
+        mask |= (1ULL << hw.pin_eth_led);
+
+    if (hw.has_wifi_led)
+        mask |= (1ULL << hw.pin_wifi_led);
+
+    if (mask == 0)
+        return; // v2 hardware → no LEDs
+
     gpio_config_t io_conf = {
         .mode = GPIO_MODE_OUTPUT,
-        .pin_bit_mask = (1ULL << GPIO_NUM_45) | (1ULL << GPIO_NUM_46),
+        .pin_bit_mask = mask,
         .pull_down_en = 0,
         .pull_up_en = 0,
         .intr_type = GPIO_INTR_DISABLE};
     gpio_config(&io_conf);
 
-    gpio_set_level(GPIO_NUM_45, 0);
-    gpio_set_level(GPIO_NUM_46, 0);
+    if (hw.has_eth_led)
+        gpio_set_level(hw.pin_eth_led, 0);
+
+    if (hw.has_wifi_led)
+        gpio_set_level(hw.pin_wifi_led, 0);
 }
 
 static void led_slow_blink_task(void *arg)
@@ -350,10 +365,16 @@ static void set_led_mode(led_mode_t mode, gpio_num_t pin, TaskHandle_t *task_han
 
 void eth_led_set_mode(led_mode_t mode)
 {
-    set_led_mode(mode, GPIO_NUM_45, &eth_led_task, &eth_led_mode);
+    if (!hw.has_eth_led)
+        return;
+
+    set_led_mode(mode, hw.pin_eth_led, &eth_led_task, &eth_led_mode);
 }
 
 void wifi_led_set_mode(led_mode_t mode)
 {
-    set_led_mode(mode, GPIO_NUM_46, &wifi_led_task, &wifi_led_mode);
+    if (!hw.has_wifi_led)
+        return;
+
+    set_led_mode(mode, hw.pin_wifi_led, &wifi_led_task, &wifi_led_mode);
 }

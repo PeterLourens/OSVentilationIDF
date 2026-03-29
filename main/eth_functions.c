@@ -37,6 +37,12 @@ static bool cfg_str_is_on(const char *s)
 
 void eth_init(void)
 {
+    if (!hw.has_ethernet)
+    {
+        LOGI(TAG, "eth_init: Ethernet not present on this hardware");
+        return;
+    }
+
     if (s_eth_initialized)
     {
         LOGD(TAG, "eth_init: already initialized");
@@ -52,17 +58,16 @@ void eth_init(void)
         return;
     }
 
-    esp_err_t err;
-
     LOGI(TAG, "eth_init: initializing W5500 Ethernet");
 
-    err = esp_netif_init();
+    esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
         LOGE(TAG, "esp_netif_init failed: %s", esp_err_to_name(err));
         return;
     }
 
+    // Reuse existing netif if present
     esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (existing != NULL)
     {
@@ -80,10 +85,11 @@ void eth_init(void)
         }
     }
 
+    // --- SPI BUS INIT ---
     spi_bus_config_t buscfg = {
-        .miso_io_num = W5500_MISO_GPIO,
-        .mosi_io_num = W5500_MOSI_GPIO,
-        .sclk_io_num = W5500_SCLK_GPIO,
+        .miso_io_num = hw.w5500_miso_gpio,
+        .mosi_io_num = hw.w5500_mosi_gpio,
+        .sclk_io_num = hw.w5500_sclk_gpio,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
     };
@@ -95,39 +101,43 @@ void eth_init(void)
         return;
     }
 
+    // SPI device config
     static spi_device_interface_config_t w5500_spi_devcfg = {
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
-        .spics_io_num = W5500_CS_GPIO,
+        .spics_io_num = -1,
         .queue_size = 20,
     };
 
+    // Runtime assignment
+    w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
+
+    // --- MAC + PHY CONFIG ---
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
 
-#ifdef W5500_RST_GPIO
-    phy_config.reset_gpio_num = W5500_RST_GPIO;
-#endif
+    if (hw.w5500_rst_gpio >= 0)
+        phy_config.reset_gpio_num = hw.w5500_rst_gpio;
+
     phy_config.phy_addr = 0;
 
-    eth_w5500_config_t w5500_cfg;
-    memset(&w5500_cfg, 0, sizeof(w5500_cfg));
+    // --- W5500 CONFIG ---
+    eth_w5500_config_t w5500_cfg = {0};
     w5500_cfg.spi_host_id = W5500_SPI_HOST;
     w5500_cfg.spi_devcfg = &w5500_spi_devcfg;
-#ifdef W5500_INT_GPIO
-    if (W5500_INT_GPIO >= 0)
-    {
-        w5500_cfg.int_gpio_num = W5500_INT_GPIO;
-    }
-#endif
 
+    if (hw.w5500_int_gpio >= 0)
+        w5500_cfg.int_gpio_num = hw.w5500_int_gpio;
+
+    // --- CREATE MAC ---
     esp_eth_mac_t *mac = esp_eth_mac_new_w5500(&w5500_cfg, &mac_config);
     if (mac == NULL)
     {
-        LOGE(TAG, "esp_eth_mac_new_w5500 returned NULL — check W5500 config and GPIO defines");
+        LOGE(TAG, "esp_eth_mac_new_w5500 returned NULL — check W5500 config and GPIO pins");
         return;
     }
 
+    // --- CREATE PHY ---
     esp_eth_phy_t *phy = esp_eth_phy_new_w5500(&phy_config);
     if (phy == NULL)
     {
@@ -135,6 +145,7 @@ void eth_init(void)
         return;
     }
 
+    // --- INSTALL DRIVER ---
     esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
     err = esp_eth_driver_install(&eth_config, &eth_handle);
     if (err != ESP_OK)
@@ -143,6 +154,7 @@ void eth_init(void)
         return;
     }
 
+    // --- ATTACH NETIF ---
     esp_eth_netif_glue_handle_t glue = esp_eth_new_netif_glue(eth_handle);
     if (glue == NULL)
     {
@@ -261,8 +273,7 @@ esp_err_t ethernet_config_apply(void)
     Ethernet_config_t local;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        LOGD(TAG, "enable_ethernet: %s, enable_dhcp: %s",
-             ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
+        LOGD(TAG, "enable_ethernet: %s, enable_dhcp: %s", ethernet_config.enable_ethernet, ethernet_config.enable_dhcp);
         memcpy(&local, &ethernet_config, sizeof(Ethernet_config_t));
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
         xSemaphoreGive(network_config_mutex);

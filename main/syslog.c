@@ -14,7 +14,7 @@ bool syslog_enabled = false;
 static bool syslog_network_ready(void)
 {
     // Ethernet preferred
-    if (eth_is_connected())
+    if (hw.has_ethernet && eth_is_connected())
     {
         esp_netif_t *n = esp_netif_get_handle_from_ifkey("ETH_DEF");
         if (!n)
