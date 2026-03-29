@@ -48,7 +48,7 @@ extern const char reboot_html_start[] asm("_binary_reboot_html_start");
 extern const char reboot_html_end[] asm("_binary_reboot_html_end");
 
 // Serve pure_min.css
-esp_err_t pure_min_css_get_handler(httpd_req_t *req)
+static esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
     size_t len = pure_min_css_end - pure_min_css_start;
@@ -56,7 +56,7 @@ esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 }
 
 // Serve styles.css
-esp_err_t styles_css_get_handler(httpd_req_t *req)
+static esp_err_t styles_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
     size_t len = styles_css_end - styles_css_start;
@@ -64,7 +64,7 @@ esp_err_t styles_css_get_handler(httpd_req_t *req)
 }
 
 // Serve ui.js
-esp_err_t ui_js_get_handler(httpd_req_t *req)
+static esp_err_t ui_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
     size_t len = ui_js_end - ui_js_start - 1;
@@ -72,7 +72,7 @@ esp_err_t ui_js_get_handler(httpd_req_t *req)
 }
 
 // Serve send_json_ws.js
-esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
+static esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
     size_t len = send_json_ws_js_end - send_json_ws_js_start - 1;
@@ -80,7 +80,7 @@ esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
 }
 
 // Serve favicon.ico
-esp_err_t favicon_ico_get_handler(httpd_req_t *req)
+static esp_err_t favicon_ico_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "image/x-icon");
     size_t len = favicon_ico_end - favicon_ico_start;
@@ -88,7 +88,7 @@ esp_err_t favicon_ico_get_handler(httpd_req_t *req)
 }
 
 // Serve index.html
-esp_err_t index_get_handler(httpd_req_t *req)
+static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = index_html_end - index_html_start;
@@ -96,7 +96,7 @@ esp_err_t index_get_handler(httpd_req_t *req)
 }
 
 // Serve sensor_config.html
-esp_err_t sensor_config_get_handler(httpd_req_t *req)
+static esp_err_t sensor_config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = sensor_config_html_end - sensor_config_html_start;
@@ -104,7 +104,7 @@ esp_err_t sensor_config_get_handler(httpd_req_t *req)
 }
 
 // Serve config.html
-esp_err_t config_get_handler(httpd_req_t *req)
+static esp_err_t config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = config_html_end - config_html_start;
@@ -112,7 +112,7 @@ esp_err_t config_get_handler(httpd_req_t *req)
 }
 
 // Serve statemachine.html
-esp_err_t statemachine_get_handler(httpd_req_t *req)
+static esp_err_t statemachine_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = statemachine_html_end - statemachine_html_start;
@@ -120,7 +120,7 @@ esp_err_t statemachine_get_handler(httpd_req_t *req)
 }
 
 // Serve valvecontrol.html
-esp_err_t valvecontrol_get_handler(httpd_req_t *req)
+static esp_err_t valvecontrol_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = valvecontrol_html_end - valvecontrol_html_start;
@@ -128,7 +128,7 @@ esp_err_t valvecontrol_get_handler(httpd_req_t *req)
 }
 
 // Serve webserial.html
-esp_err_t webserial_get_handler(httpd_req_t *req)
+static esp_err_t webserial_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = webserial_html_end - webserial_html_start;
@@ -136,7 +136,7 @@ esp_err_t webserial_get_handler(httpd_req_t *req)
 }
 
 // Serve stats.html
-esp_err_t stats_get_handler(httpd_req_t *req)
+static esp_err_t stats_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = stats_html_end - stats_html_start;
@@ -144,7 +144,7 @@ esp_err_t stats_get_handler(httpd_req_t *req)
 }
 
 // WebSocket handler
-esp_err_t websocket_handler(httpd_req_t *req)
+static esp_err_t websocket_handler(httpd_req_t *req)
 {
     httpd_ws_frame_t ws_pkt;
     uint8_t *buf = NULL;
@@ -237,7 +237,7 @@ esp_err_t websocket_handler(httpd_req_t *req)
 }
 
 /* POST handler: save bus0 config to /data/json/bus0_sensor_config.json */
-esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
+static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -289,7 +289,7 @@ esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
 }
 
 /* POST handler: save bus1 config to /data/json/bus1_sensor_config.json */
-esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
+static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -349,8 +349,8 @@ esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-/* POST handler: restart ESP */
-esp_err_t restart_esp_post_handler(httpd_req_t *req)
+// POST handler: restart ESP
+static esp_err_t restart_esp_post_handler(httpd_req_t *req)
 {
     size_t html_size = reboot_html_end - reboot_html_start;
 
@@ -364,8 +364,8 @@ esp_err_t restart_esp_post_handler(httpd_req_t *req)
     return ESP_OK; // never reached
 }
 
-/* POST handler: delete bus0 config file */
-esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
+// POST handler: delete bus0 config file
+static esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
 {
     const char *path = "/data/json/bus0_sensor_config.json";
     remove(path); // ignore errors
@@ -377,7 +377,7 @@ esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
 }
 
 /* POST handler: delete bus1 config file */
-esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
+static esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
 {
     const char *path = "/data/json/bus1_sensor_config.json";
     remove(path); // ignore errors
@@ -389,7 +389,7 @@ esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save wifi configuration to flash
-esp_err_t wifi_config_post_handler(httpd_req_t *req)
+static esp_err_t wifi_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -440,7 +440,7 @@ esp_err_t wifi_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save ethernet configuration to flash
-esp_err_t ethernet_config_post_handler(httpd_req_t *req)
+static esp_err_t ethernet_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -491,7 +491,7 @@ esp_err_t ethernet_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save I2C configuration to flash
-esp_err_t i2c_config_post_handler(httpd_req_t *req)
+static esp_err_t i2c_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -542,7 +542,7 @@ esp_err_t i2c_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save fan configuration to flash
-esp_err_t fan_config_post_handler(httpd_req_t *req)
+static esp_err_t fan_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -591,7 +591,7 @@ esp_err_t fan_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save influxdb configuration to flash
-esp_err_t influxdb_config_post_handler(httpd_req_t *req)
+static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -640,7 +640,7 @@ esp_err_t influxdb_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save MQTT configuration to flash
-esp_err_t mqtt_config_post_handler(httpd_req_t *req)
+static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -689,7 +689,7 @@ esp_err_t mqtt_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save syslog configuration to flash
-esp_err_t syslog_config_post_handler(httpd_req_t *req)
+static esp_err_t syslog_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -738,7 +738,7 @@ esp_err_t syslog_config_post_handler(httpd_req_t *req)
 }
 
 // POST handler: save time configuration to flash
-esp_err_t time_config_post_handler(httpd_req_t *req)
+static esp_err_t time_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -786,7 +786,7 @@ esp_err_t time_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-esp_err_t state_gen_config_post_handler(httpd_req_t *req)
+static esp_err_t state_gen_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -834,7 +834,7 @@ esp_err_t state_gen_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
-esp_err_t state_config_post_handler(httpd_req_t *req)
+static esp_err_t state_config_post_handler(httpd_req_t *req)
 {
     int state_number = (int)(intptr_t)req->user_ctx;
     char path[64];
@@ -891,7 +891,7 @@ esp_err_t state_config_post_handler(httpd_req_t *req)
 }
 
 // Set valve positions in NVS to 0
-esp_err_t reset_valves_handler(httpd_req_t *req)
+static esp_err_t reset_valves_handler(httpd_req_t *req)
 {
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("valves", NVS_READWRITE, &nvs);
@@ -924,7 +924,7 @@ esp_err_t reset_valves_handler(httpd_req_t *req)
 }
 
 // POST handler: stop the statemachine (set state to STOPPED)
-esp_err_t stop_statemachine_handler(httpd_req_t *req)
+static esp_err_t stop_statemachine_handler(httpd_req_t *req)
 {
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
@@ -941,7 +941,7 @@ esp_err_t stop_statemachine_handler(httpd_req_t *req)
 }
 
 // POST handler: start the statemachine (set state to INIT)
-esp_err_t start_statemachine_handler(httpd_req_t *req)
+static esp_err_t start_statemachine_handler(httpd_req_t *req)
 {
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
     {
@@ -958,7 +958,7 @@ esp_err_t start_statemachine_handler(httpd_req_t *req)
 }
 
 // POST handler: update `valvecontroldata` from valvecontrol form and notify valve control task
-esp_err_t valvecontrol_post_handler(httpd_req_t *req)
+static esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
     if (len == 0)
@@ -1363,16 +1363,8 @@ esp_err_t http_server_start(void)
     return ESP_OK;
 }
 
-// Start webserver
-// httpd_handle_t start_webserver(void)
 void register_http_handlers(httpd_handle_t server)
 {
-    // httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    // config.max_uri_handlers = 50;                 // increase from default 8 to 50
-    // config.stack_size = 6144;                     // increase stack size for websocket handling
-    // config.task_priority = tskIDLE_PRIORITY + 20; // increase with 20 for better performance
-    // ESP_ERROR_CHECK(httpd_start(&http_server, &config));
-
     httpd_uri_t pure_min_css_uri = {
         .uri = "/pure_min.css",
         .method = HTTP_GET,
@@ -1703,8 +1695,6 @@ void register_http_handlers(httpd_handle_t server)
         .handler = handle_import_all_configs_tar,
         .user_ctx = NULL};
     httpd_register_uri_handler(http_server, &imp_all_config_tar_uri);
-
-    // return http_server;
 }
 
 esp_err_t http_server_stop(void)
