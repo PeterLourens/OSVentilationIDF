@@ -2,7 +2,7 @@
 #include "hardware_caps.h"
 
 // default: build for v3 in this branch
-hardware_version_t hw_version = HW_VERSION_2;
+hardware_version_t hw_version = HW_VERSION_3;
 
 static const hw_caps_t hw_v2 = {
     .has_ethernet = false,

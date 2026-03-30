@@ -35,9 +35,7 @@ typedef struct
 static sensor_slot_t bus0_sensors[CHANNELS_PER_BUS] = {0};
 static sensor_slot_t bus1_sensors[CHANNELS_PER_BUS] = {0};
 
-// -----------------------------------------------------------------------------
 // TCA9548A helpers
-// -----------------------------------------------------------------------------
 esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -56,6 +54,7 @@ esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_ha
     {
         LOGE(TAG, "Failed to add device: %s", esp_err_to_name(err));
     }
+    vTaskDelay(pdMS_TO_TICKS(100));
     return err;
 }
 
@@ -71,12 +70,11 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
     {
         LOGE(TAG, "Failed to select channel %u (mask=0x%02X): %s", channel, mask, esp_err_to_name(err));
     }
+    vTaskDelay(pdMS_TO_TICKS(10));
     return err;
 }
 
-// -----------------------------------------------------------------------------
 // Sensor type helpers
-// -----------------------------------------------------------------------------
 bool is_scd4x(const char *type)
 {
     return (strcmp(type, "SCD41") == 0 || strcmp(type, "SCD40") == 0);
@@ -108,9 +106,7 @@ static sensor_type_t sensor_type_from_str(const char *type_str)
     return SENSOR_NONE;
 }
 
-// -----------------------------------------------------------------------------
 // Helpers for checking output aht20 and dht20 sensors
-// -----------------------------------------------------------------------------
 static uint8_t xht20_crc8(const uint8_t *data, size_t len)
 {
     uint8_t crc = 0xFF;
@@ -160,9 +156,7 @@ static esp_err_t xht20_validate(const uint8_t *data)
     return ESP_OK;
 }
 
-// -----------------------------------------------------------------------------
 // Pre-load sensor type so sensors only once
-// -----------------------------------------------------------------------------
 void preload_sensor_types_from_config(void)
 {
     for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
@@ -178,9 +172,7 @@ void reload_and_init_sensors(void)
     init_sensors_on_mux_channels();
 }
 
-// -----------------------------------------------------------------------------
 // Sensor init helpers (per type)
-// -----------------------------------------------------------------------------
 esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -329,9 +321,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     return ESP_OK;
 }
 
-// -----------------------------------------------------------------------------
 // SCD41 helpers
-// -----------------------------------------------------------------------------
 uint8_t scd41_crc8(const uint8_t *data, size_t len)
 {
     uint8_t crc = 0xFF;
@@ -426,20 +416,20 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 {
     if (!slots || !bus_handle || !tca_handle)
     {
-        LOGE(TAG, "CONFIG: bus=%d ch=%d invalid handles (bus=%p tca=%p)",
-             bus_index, ch, bus_handle, tca_handle);
+        LOGE(TAG, "CONFIG: bus=%d ch=%d invalid handles (bus=%p tca=%p)", bus_index, ch, bus_handle, tca_handle);
         return ESP_ERR_INVALID_ARG;
     }
 
     sensor_type_t new_type = sensor_type_from_str(type_str);
     sensor_type_t old_type = slots[ch].type;
 
-    LOGD(TAG, "CONFIG: bus=%d ch=%d old=%d new=%d", bus_index, ch, old_type, new_type);
+    LOGD(TAG, "CONFIG ENTER: bus=%d ch=%d old=%d new=%d bus_handle=%p tca=%p slot_handle=%p", bus_index, ch, old_type, new_type, (void *)bus_handle, (void *)tca_handle, (void *)slots[ch].handle);
 
     if (new_type == SENSOR_NONE)
     {
         if (slots[ch].handle)
         {
+            LOGD(TAG, "CONFIG: bus=%d ch=%d removing existing handle %p", bus_index, ch, (void *)slots[ch].handle);
             i2c_master_bus_rm_device(slots[ch].handle);
             slots[ch].handle = NULL;
         }
@@ -447,109 +437,118 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
         return ESP_OK;
     }
 
-    // Re-init if type changed or handle missing
-    if (old_type != new_type || slots[ch].handle == NULL)
+    // If already configured with same type and handle present, skip re-init */
+    if (old_type == new_type && slots[ch].handle != NULL)
     {
-        if (slots[ch].handle)
-        {
-            i2c_master_bus_rm_device(slots[ch].handle);
-            slots[ch].handle = NULL;
-        }
-
-        esp_err_t err = i2c_tca9548_set_channel(tca_handle, ch);
-        if (err != ESP_OK)
-        {
-            LOGE(TAG, "CONFIG: bus=%d ch=%d mux select failed: %s",
-                 bus_index, ch, esp_err_to_name(err));
-            return err;
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(3));
-
-        i2c_master_dev_handle_t h = NULL;
-
-        switch (new_type)
-        {
-        case SENSOR_AHT20:
-            err = i2c_aht20_init(bus_handle, &h);
-            break;
-        case SENSOR_DHT20:
-            err = i2c_dht20_init(bus_handle, &h);
-            break;
-        case SENSOR_SCD41:
-            err = i2c_init_scd41(bus_handle, &h);
-            break;
-        default:
-            return ESP_ERR_INVALID_ARG;
-        }
-
-        if (err != ESP_OK)
-        {
-            LOGE(TAG, "CONFIG: bus=%d ch=%d init failed: %s",
-                 bus_index, ch, esp_err_to_name(err));
-            return err;
-        }
-
-        slots[ch].handle = h;
-        slots[ch].type = new_type;
-
-        LOGD(TAG, "CONFIG OK: bus=%d ch=%d type=%d handle=%p", bus_index, ch, new_type, h);
+        LOGD(TAG, "CONFIG: bus=%d ch=%d already initialized (type=%d handle=%p), skipping", bus_index, ch, new_type, (void *)slots[ch].handle);
+        return ESP_OK;
     }
 
+    // If a different type or no handle, remove old handle first */
+    if (slots[ch].handle)
+    {
+        LOGD(TAG, "CONFIG: bus=%d ch=%d removing stale handle %p before re-init", bus_index, ch, (void *)slots[ch].handle);
+        i2c_master_bus_rm_device(slots[ch].handle);
+        slots[ch].handle = NULL;
+    }
+
+    // Select mux channel with a few retries
+    esp_err_t err = ESP_ERR_INVALID_STATE;
+    for (int attempt = 0; attempt < 3; ++attempt)
+    {
+        LOGD(TAG, "CONFIG: bus=%d ch=%d selecting mux channel %u (attempt %d)", bus_index, ch, ch, attempt);
+        err = i2c_tca9548_set_channel(tca_handle, ch);
+        LOGD(TAG, "CONFIG: bus=%d ch=%d mux select -> %s", bus_index, ch, esp_err_to_name(err));
+        if (err == ESP_OK)
+            break;
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "CONFIG: bus=%d ch=%d mux select failed after retries: %s", bus_index, ch, esp_err_to_name(err));
+        return err;
+    }
+
+    // Small settle time after channel select (SCD4x benefits from a bit more)
+    vTaskDelay(pdMS_TO_TICKS(20));
+
+    i2c_master_dev_handle_t h = NULL;
+
+    // Initialize device with conservative retries for flaky states
+    switch (new_type)
+    {
+    case SENSOR_AHT20:
+        for (int attempt = 0; attempt < 3; ++attempt)
+        {
+            LOGD(TAG, "CONFIG: bus=%d ch=%d AHT20 init attempt %d", bus_index, ch, attempt);
+            err = i2c_aht20_init(bus_handle, &h);
+            LOGD(TAG, "CONFIG: bus=%d ch=%d AHT20 init -> %s handle=%p", bus_index, ch, esp_err_to_name(err), (void *)h);
+            if (err == ESP_OK)
+                break;
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        break;
+
+    case SENSOR_DHT20:
+        for (int attempt = 0; attempt < 3; ++attempt)
+        {
+            LOGD(TAG, "CONFIG: bus=%d ch=%d DHT20 init attempt %d", bus_index, ch, attempt);
+            err = i2c_dht20_init(bus_handle, &h);
+            LOGD(TAG, "CONFIG: bus=%d ch=%d DHT20 init -> %s handle=%p", bus_index, ch, esp_err_to_name(err), (void *)h);
+            if (err == ESP_OK)
+                break;
+            vTaskDelay(pdMS_TO_TICKS(10));
+        }
+        break;
+
+    case SENSOR_SCD41:
+        // SCD4x is strict: try a few times, with slightly longer delays between attempts
+        for (int attempt = 0; attempt < 4; ++attempt)
+        {
+            LOGD(TAG, "CONFIG: bus=%d ch=%d SCD41 init attempt %d", bus_index, ch, attempt);
+            err = i2c_init_scd41(bus_handle, &h);
+            LOGD(TAG, "CONFIG: bus=%d ch=%d SCD41 init -> %s handle=%p", bus_index, ch, esp_err_to_name(err), (void *)h);
+            if (err == ESP_OK)
+                break;
+            vTaskDelay(pdMS_TO_TICKS(50));
+            // re-select mux before retrying init, in case channel dropped
+            esp_err_t sel = i2c_tca9548_set_channel(tca_handle, ch);
+            LOGD(TAG, "CONFIG: bus=%d ch=%d re-select mux -> %s", bus_index, ch, esp_err_to_name(sel));
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
+        break;
+
+    default:
+        LOGE(TAG, "CONFIG: bus=%d ch=%d unknown sensor type %d", bus_index, ch, new_type);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "CONFIG: bus=%d ch=%d init failed after retries: %s", bus_index, ch, esp_err_to_name(err));
+        return err;
+    }
+
+    // Success: store handle and type
+    slots[ch].handle = h;
+    slots[ch].type = new_type;
+
+    LOGD(TAG, "CONFIG OK: bus=%d ch=%d type=%d handle=%p", bus_index, ch, new_type, (void *)h);
     return ESP_OK;
 }
 
-// -----------------------------------------------------------------------------
 // Public: init_sensors_on_mux_channels
-// -----------------------------------------------------------------------------
-/*esp_err_t init_sensors_on_mux_channels(void)
-{
-    esp_err_t err = ESP_OK;
-    esp_err_t ret = ESP_OK;
-
-    // --- Bus0 ---
-    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
-    {
-        const char *type_str = bus0_sensor_settings[ch].type;
-        LOGD(TAG, "Configuring bus 0 channel %u as '%s'", ch, type_str);
-
-        err = configure_bus_channel(bus0_sensors, 0, i2c_bus0_handle, tca9548_bus0_handle, ch, type_str);
-        if (err != ESP_OK)
-        {
-            LOGW(TAG, "Bus 0 channel %u configuration failed: %s", ch, esp_err_to_name(err));
-            ret = err;
-        }
-    }
-
-    // --- Bus1 ---
-    for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
-    {
-        const char *type_str = bus1_sensor_settings[ch].type;
-        LOGD(TAG, "Configuring bus 1 channel %u as '%s'", ch, type_str);
-
-        // pass bus index 1 for bus1
-        err = configure_bus_channel(bus1_sensors, 1, i2c_bus1_handle, tca9548_bus1_handle, ch, type_str);
-        if (err != ESP_OK)
-        {
-            LOGW(TAG, "Bus 1 channel %u configuration failed: %s", ch, esp_err_to_name(err));
-            ret = err;
-        }
-    }
-
-    return ret;
-}*/
 esp_err_t init_sensors_on_mux_channels(void)
 {
     esp_err_t ret = ESP_OK;
 
-    LOGW(TAG, "INIT: bus0 mux=%p bus1 mux=%p",
-         tca9548_bus0_handle, tca9548_bus1_handle);
+    LOGW(TAG, "INIT: bus0 mux=%p bus1 mux=%p", tca9548_bus0_handle, tca9548_bus1_handle);
 
     // --- Bus0 ---
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
-        LOGD(TAG, "INIT: bus0 ch=%d type=%s", ch, type_str);
+        LOGI(TAG, "INIT: bus0 ch=%d type=%s", ch, type_str);
 
         esp_err_t err = configure_bus_channel(
             bus0_sensors, 0,
@@ -559,8 +558,7 @@ esp_err_t init_sensors_on_mux_channels(void)
 
         if (err != ESP_OK)
         {
-            LOGE(TAG, "INIT: bus0 ch=%d failed: %s",
-                 ch, esp_err_to_name(err));
+            LOGE(TAG, "INIT: bus0 ch=%d failed: %s", ch, esp_err_to_name(err));
             ret = err;
         }
     }
@@ -569,7 +567,7 @@ esp_err_t init_sensors_on_mux_channels(void)
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;
-        LOGD(TAG, "INIT: bus1 ch=%d type=%s", ch, type_str);
+        LOGI(TAG, "INIT: bus1 ch=%d type=%s", ch, type_str);
 
         esp_err_t err = configure_bus_channel(
             bus1_sensors, 1,
@@ -579,8 +577,7 @@ esp_err_t init_sensors_on_mux_channels(void)
 
         if (err != ESP_OK)
         {
-            LOGE(TAG, "INIT: bus1 ch=%d failed: %s",
-                 ch, esp_err_to_name(err));
+            LOGE(TAG, "INIT: bus1 ch=%d failed: %s", ch, esp_err_to_name(err));
             ret = err;
         }
     }
@@ -703,9 +700,7 @@ esp_err_t read_sensors_into_queue(void)
     return ESP_OK;
 }
 
-// -----------------------------------------------------------------------------
 // Averaging logic (unchanged except for using same snapshot layout)
-// -----------------------------------------------------------------------------
 void sensor_data_average(void)
 {
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];

@@ -14,7 +14,6 @@
 #include "globals.h"
 #include "logging.h"
 
-//#define GPIO_RGB_LED 47           // The ESP32 pin GPIO10 connected to WS2812B
 #define RGB_LED_NUM 2             // The number of LEDs (pixels) on WS2812B LED strip
 #define RMT_RESOLUTION_HZ 8000000 // 8 MHz
 
