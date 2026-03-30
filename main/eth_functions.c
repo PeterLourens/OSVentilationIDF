@@ -200,7 +200,7 @@ void eth_start(void)
 
 void eth_stop(void)
 {
-    if (eth_handle == NULL)
+    if (eth_handle == NULL && hw.has_ethernet)
     {
         LOGW(TAG, "eth_stop: eth_handle is NULL");
         return;
@@ -264,7 +264,7 @@ esp_err_t ethernet_config_apply(void)
 {
     char hostname[32] = {0};
 
-    if (!eth_netif)
+    if (!eth_netif && hw.has_ethernet)
     {
         LOGW(TAG, "eth_netif is NULL; call eth_init() before applying config");
         return ESP_ERR_INVALID_STATE;

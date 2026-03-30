@@ -110,7 +110,7 @@ ColorName_t fan_to_color(int fanspeed)
 esp_err_t init_rgb_led(void)
 {
     led_strip_config_t cfg = {
-        .strip_gpio_num = GPIO_RGB_LED,
+        .strip_gpio_num = hw.rgb_led_pin,
         .max_leds = RGB_LED_NUM,
         .led_model = LED_MODEL_WS2812,
         .flags.invert_out = false,

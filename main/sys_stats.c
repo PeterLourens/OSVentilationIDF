@@ -404,19 +404,21 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
                     snapshot.wifi_dns1, snapshot.wifi_dns2, snapshot.wifi_dhcp_enabled ? "enabled" : "static");
     }
 
-    if (snapshot.ethernet_enabled || snapshot.eth_connected)
+    if (hw.has_ethernet)
     {
-        SAFE_APPEND("\nEthernet Settings:\n"
-                    "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
-                    snapshot.hostname, snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway,
-                    snapshot.eth_dns1, snapshot.eth_dns2, snapshot.eth_dhcp_enabled ? "enabled" : "static");
+        if (snapshot.ethernet_enabled || snapshot.eth_connected)
+        {
+            SAFE_APPEND("\nEthernet Settings:\n"
+                        "Hostname: %s\nIP: %s\nNetmask: %s\nGateway: %s\nDNS1: %s\nDNS2: %s\nDHCP: %s\n\n",
+                        snapshot.hostname, snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway,
+                        snapshot.eth_dns1, snapshot.eth_dns2, snapshot.eth_dhcp_enabled ? "enabled" : "static");
+        }
+        else
+        {
+            LOGD(TAG, "Skipping Ethernet Settings in output: ethernet_enabled=%d eth_connected=%d",
+                 snapshot.ethernet_enabled, snapshot.eth_connected);
+        }
     }
-    else
-    {
-        LOGD(TAG, "Skipping Ethernet Settings in output: ethernet_enabled=%d eth_connected=%d",
-             snapshot.ethernet_enabled, snapshot.eth_connected);
-    }
-
     return used;
 }
 

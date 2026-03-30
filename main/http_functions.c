@@ -365,7 +365,7 @@ static esp_err_t restart_esp_post_handler(httpd_req_t *req)
 }
 
 // POST handler: delete bus0 config file
-static esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
+/*static esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
 {
     const char *path = "/data/json/bus0_sensor_config.json";
     remove(path); // ignore errors
@@ -374,10 +374,10 @@ static esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "text/html");
     size_t len = sensor_config_html_end - sensor_config_html_start;
     return httpd_resp_send(req, sensor_config_html_start, len);
-}
+}*/
 
-/* POST handler: delete bus1 config file */
-static esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
+// POST handler: delete bus1 config file
+/*static esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
 {
     const char *path = "/data/json/bus1_sensor_config.json";
     remove(path); // ignore errors
@@ -386,7 +386,7 @@ static esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
     httpd_resp_set_type(req, "text/html");
     size_t len = sensor_config_html_end - sensor_config_html_start;
     return httpd_resp_send(req, sensor_config_html_start, len);
-}
+}*/
 
 // POST handler: save wifi configuration to flash
 static esp_err_t wifi_config_post_handler(httpd_req_t *req)

@@ -141,8 +141,7 @@ void syslog_send_line(const char *line)
     }
 
     /* ---- Send message ---- */
-    int sent = sendto(sock, msg, strlen(msg), 0,
-                      (struct sockaddr *)&dest, sizeof(dest));
+    int sent = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
 
     if (sent < 0)
         LOGE(TAG, "sendto failed: errno=%d", errno);

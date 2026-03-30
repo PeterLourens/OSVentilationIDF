@@ -2,7 +2,7 @@
 #include "hardware_caps.h"
 
 // default: build for v3 in this branch
-hardware_version_t hw_version = HW_VERSION_3;
+hardware_version_t hw_version = HW_VERSION_2;
 
 static const hw_caps_t hw_v2 = {
     .has_ethernet = false,
@@ -31,6 +31,8 @@ static const hw_caps_t hw_v2 = {
     .clockpin2 = 15,
     .latchpin2 = 16,
     .datapin2 = 14,
+
+    .rgb_led_pin = 42,
 };
 
 static const hw_caps_t hw_v3 = {
@@ -60,6 +62,8 @@ static const hw_caps_t hw_v3 = {
     .clockpin2 = 15,
     .latchpin2 = 16,
     .datapin2 = 14,
+
+    .rgb_led_pin = 47,
 };
 hw_caps_t hw;
 

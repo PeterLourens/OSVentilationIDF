@@ -42,6 +42,10 @@ typedef struct
     int clockpin2;
     int latchpin2;
     int datapin2;
+
+    // RGB LEDs pin
+    int rgb_led_pin;
+
 } hw_caps_t;
 
 extern hardware_version_t hw_version;

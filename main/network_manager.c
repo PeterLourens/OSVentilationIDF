@@ -480,7 +480,7 @@ static void evaluate_config_and_apply(void)
     }
 
     // ---------- Ethernet ----------
-    if (eth_enabled)
+    if (eth_enabled && hw.has_ethernet)
     {
         eth_init(); // idempotent
         esp_err_t r = ethernet_config_apply();
