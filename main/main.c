@@ -30,6 +30,9 @@ void app_main(void)
     // Initialize hardware capabilities based on hardware version defined in hardware_caps.c
     hw_init();
 
+    // Initialize lifecycle mutex for Ethernet operations
+    eth_lifecycle_init_once();
+
     // Set log levels for each TAG
     set_log_levels();
 

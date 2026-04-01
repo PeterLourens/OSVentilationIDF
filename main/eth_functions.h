@@ -9,6 +9,7 @@
 
 #include <driver/spi_master.h>
 #include <esp_netif.h>
+#include <esp_eth_netif_glue.h>
 #include <esp_eth.h>
 #include <esp_eth_mac.h>
 #include <esp_eth_phy.h>
@@ -24,6 +25,9 @@ extern esp_netif_t *eth_netif;
 extern esp_eth_handle_t eth_handle;
 
 // Lifecycle
+void eth_lifecycle_init_once(void);
+void eth_lifecycle_init(void);
+void eth_teardown_safe(void);
 void eth_init(void);
 void eth_start(void);
 void eth_stop(void);
