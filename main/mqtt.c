@@ -144,7 +144,7 @@ void mqtt_event_forwarder(void *handler_args, esp_event_base_t base, int32_t eve
 }
 
 // Mutex-protected config snapshot
-static void mqtt_get_config_snapshot(MQTT_config_t *out)
+void mqtt_get_config_snapshot(MQTT_config_t *out)
 {
 	if (!out)
 		return;

@@ -24,7 +24,7 @@ ESP_EVENT_DECLARE_BASE(MQTT_EVENTS);
 
 // Function declarations
 bool mqtt_wait_for_connection(TickType_t);
-esp_err_t mqtt_start_client(void);
+// esp_err_t mqtt_start_client(void);
 void mqtt_set_connected(bool state);
 bool mqtt_is_connected(void);
 esp_err_t mqtt_start(const MQTT_config_t *cfg);
@@ -37,7 +37,9 @@ void mqtt_publish_homeassistant_discovery(void);
 bool sensors_ready(void);
 const char *mqtt_get_node_id(void);
 void mqtt_event_forwarder(void *, esp_event_base_t, int32_t, void *);
+void mqtt_get_config_snapshot(MQTT_config_t *out);
 void mqtt_handle_incoming(esp_mqtt_event_handle_t);
 void statemachine_set_speed(const char *payload, size_t len);
+esp_err_t mqtt_stop(void);
 
 #endif

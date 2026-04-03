@@ -373,9 +373,9 @@ bool wifi_manager_is_connected(void)
 
     EventBits_t bits = xEventGroupGetBits(s_wifi_event_group);
     bool is_connected = (bits & WIFI_CONNECTED_BIT) != 0;
-    bool is_ap_mode = (bits & AP_STARTED_BIT) != 0;
+    // bool is_ap_mode = (bits & AP_STARTED_BIT) != 0;
 
-    return (is_connected || is_ap_mode);
+    return (is_connected);
 }
 
 bool wifi_config_is_dhcp_enabled(void)

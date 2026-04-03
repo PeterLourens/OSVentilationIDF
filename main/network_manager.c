@@ -216,6 +216,19 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
         update_syslog_state();
         network_manager_request_actuals_update();
+
+        // --- NEW: Restart MQTT after Wi-Fi gets IP ---
+        MQTT_config_t cfg;
+        mqtt_get_config_snapshot(&cfg);
+
+        mqtt_stop();
+        vTaskDelay(pdMS_TO_TICKS(300)); // allow netif to settle
+        mqtt_start(&cfg);
+
+        // --- NEW: Republish Home Assistant discovery ---
+        vTaskDelay(pdMS_TO_TICKS(300));
+        mqtt_publish_homeassistant_discovery();
+
         return;
     }
 
@@ -313,6 +326,7 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
     {
         LOGD(TAG, "MQTT_EVENT_CONNECTED");
         mqtt_set_connected(true);
+        mqtt_publish_homeassistant_discovery();
 
         bool eth_up = false;
         bool wifi_up = false;
@@ -345,13 +359,29 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
         if (hw.has_ethernet && eth_is_connected())
         {
-            eth_led_set_mode(LED_DOUBLE_BLINK); // IP OK, MQTT down
+            eth_led_set_mode(LED_DOUBLE_BLINK);
         }
-        else if (wifi_manager_is_connected())
+        else
         {
-            wifi_led_set_mode(LED_DOUBLE_BLINK);
+            // v2 or Wi-Fi active on v3
+            if (wifi_manager_is_connected())
+                wifi_led_set_mode(LED_DOUBLE_BLINK);
         }
         break;
+
+    case MQTT_EVENT_ERROR:
+    {
+        esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+
+        if (!event || !event->error_handle)
+        {
+            LOGE(TAG, "MQTT_EVENT_ERROR but event_data is NULL");
+            break;
+        }
+
+        LOGE(TAG, "MQTT_EVENT_ERROR: esp_err=%s tls_err=%d", esp_err_to_name(event->error_handle->esp_tls_last_esp_err), event->error_handle->esp_tls_stack_err);
+        break;
+    }
 
     default:
         break;
@@ -367,8 +397,11 @@ static void register_event_handlers(void)
     ESP_ERROR_CHECK(esp_event_handler_instance_register(
         IP_EVENT, ESP_EVENT_ANY_ID, &on_ip_event, NULL, &ip_evt_inst));
 
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(
-        ETH_EVENT, ESP_EVENT_ANY_ID, &on_eth_event, NULL, &eth_evt_inst));
+    if (hw.has_ethernet)
+    {
+        ESP_ERROR_CHECK(esp_event_handler_instance_register(
+            ETH_EVENT, ESP_EVENT_ANY_ID, &on_eth_event, NULL, &eth_evt_inst));
+    }
 
     ESP_ERROR_CHECK(esp_event_handler_instance_register(
         MQTT_EVENTS, ESP_EVENT_ANY_ID, &on_mqtt_event, NULL, &mqtt_evt_inst));
@@ -380,7 +413,7 @@ static void unregister_event_handlers(void)
         esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_evt_inst);
     if (ip_evt_inst)
         esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, ip_evt_inst);
-    if (eth_evt_inst)
+    if (hw.has_ethernet && eth_evt_inst)
         esp_event_handler_instance_unregister(ETH_EVENT, ESP_EVENT_ANY_ID, eth_evt_inst);
     if (mqtt_evt_inst)
         esp_event_handler_instance_unregister(MQTT_EVENTS, ESP_EVENT_ANY_ID, mqtt_evt_inst);
@@ -480,20 +513,20 @@ static void evaluate_config_and_apply(void)
     }
 
     // ---------- Ethernet ----------
-    if (eth_enabled && hw.has_ethernet)
+    if (hw.has_ethernet)
     {
-        eth_init(); // idempotent
-        esp_err_t r = ethernet_config_apply();
-        if (r != ESP_OK)
-            LOGW(TAG, "ethernet_config_apply returned %s", esp_err_to_name(r));
-
-        if (!sm_actuals.eth_connected)
-            eth_led_set_mode(LED_SLOW_BLINK);
-    }
-    else
-    {
-        eth_stop();
-        eth_led_set_mode(LED_OFF);
+        if (eth_enabled)
+        {
+            eth_init();
+            ethernet_config_apply();
+            if (!sm_actuals.eth_connected)
+                eth_led_set_mode(LED_SLOW_BLINK);
+        }
+        else
+        {
+            eth_stop();
+            eth_led_set_mode(LED_OFF);
+        }
     }
 }
 
@@ -521,7 +554,9 @@ static void network_manager_task(void *pvParameters)
     register_event_handlers();
 
     // Initialize both managers (safe to call multiple times)
-    eth_init();
+    if (hw.has_ethernet)
+        eth_init();
+
     wifi_manager_init();
 
     manager_running = true;

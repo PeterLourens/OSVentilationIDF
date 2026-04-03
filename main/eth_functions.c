@@ -523,7 +523,7 @@ void eth_stop(void)
 {
     if (!hw.has_ethernet)
     {
-        LOGI(TAG, "eth_stop: Ethernet not present");
+        LOGD(TAG, "Ethernet not present");
         return;
     }
 
