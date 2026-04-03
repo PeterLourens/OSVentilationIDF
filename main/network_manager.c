@@ -24,14 +24,14 @@ static volatile bool manager_running = false;
 
 // Request flags (set by event handlers, acted on in main loop)
 static volatile bool s_request_mqtt_restart = false;
+static volatile bool s_request_ha_discovery = false;
+static volatile bool s_discovery_requested = false;
 
 // Forward declarations
 static void network_manager_task(void *pvParameters);
 static void register_event_handlers(void);
 static void unregister_event_handlers(void);
 static void evaluate_config_and_apply(void);
-
-// -------------------- Public API --------------------
 
 bool network_manager_start(void)
 {
@@ -325,7 +325,9 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
     {
         LOGD(TAG, "MQTT_EVENT_CONNECTED");
         mqtt_set_connected(true);
-        mqtt_publish_homeassistant_discovery();
+
+        // Defer HA discovery to MQTT task
+        mqtt_request_homeassistant_discovery();
 
         bool eth_up = false;
         bool wifi_up = false;
@@ -339,14 +341,11 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
         }
 
         if (eth_up)
-        {
             eth_led_set_mode(LED_SOLID);
-        }
 
         if (wifi_up)
-        {
             wifi_led_set_mode(LED_SOLID);
-        }
+
         break;
     }
 
@@ -378,7 +377,9 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
             break;
         }
 
-        LOGE(TAG, "MQTT_EVENT_ERROR: esp_err=%s tls_err=%d", esp_err_to_name(event->error_handle->esp_tls_last_esp_err), event->error_handle->esp_tls_stack_err);
+        LOGE(TAG, "MQTT_EVENT_ERROR: esp_err=%s tls_err=%d",
+             esp_err_to_name(event->error_handle->esp_tls_last_esp_err),
+             event->error_handle->esp_tls_stack_err);
         break;
     }
 
@@ -387,7 +388,6 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
     }
 }
 
-// -------------------- Event registration --------------------
 static void register_event_handlers(void)
 {
     ESP_ERROR_CHECK(esp_event_handler_instance_register(
@@ -406,6 +406,7 @@ static void register_event_handlers(void)
         MQTT_EVENTS, ESP_EVENT_ANY_ID, &on_mqtt_event, NULL, &mqtt_evt_inst));
 }
 
+// Register event handlers for Wi‑Fi, Ethernet, IP, and MQTT
 static void unregister_event_handlers(void)
 {
     if (wifi_evt_inst)
@@ -530,7 +531,6 @@ static void evaluate_config_and_apply(void)
 }
 
 // -------------------- Main manager task --------------------
-
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -582,9 +582,13 @@ static void network_manager_task(void *pvParameters)
             mqtt_stop();
             vTaskDelay(pdMS_TO_TICKS(300));
             mqtt_start(&cfg);
+        }
 
-            // vTaskDelay(pdMS_TO_TICKS(300));
-            // mqtt_publish_homeassistant_discovery();
+        // Handle deferred Home Assistant discovery
+        if (s_request_ha_discovery)
+        {
+            s_request_ha_discovery = false;
+            mqtt_publish_homeassistant_discovery();
         }
 
         sys_stats_update_actuals();

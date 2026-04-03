@@ -23,8 +23,10 @@ extern esp_mqtt_client_handle_t s_mqtt;
 ESP_EVENT_DECLARE_BASE(MQTT_EVENTS);
 
 // Function declarations
+void mqtt_request_homeassistant_discovery(void);
+bool mqtt_discovery_requested(void);
+void mqtt_clear_discovery_request(void);
 bool mqtt_wait_for_connection(TickType_t);
-// esp_err_t mqtt_start_client(void);
 void mqtt_set_connected(bool state);
 bool mqtt_is_connected(void);
 esp_err_t mqtt_start(const MQTT_config_t *cfg);

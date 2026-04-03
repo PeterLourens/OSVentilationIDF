@@ -26,6 +26,9 @@
 
 // Public API
 
+// Request Home Assistant discovery to be performed (non-blocking; schedules discovery in MQTT task context).
+void mqtt_request_homeassistant_discovery(void);
+
 // Start the network manager task (call once at startup).
 bool network_manager_start(void);
 

@@ -21,7 +21,14 @@ static size_t mqtt_stack_size = 7168;
 
 void start_task_mqtt(void)
 {
-    task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
+    task_mqtt = xTaskCreateStatic(
+        task_mqtt_code,
+        "mqtt",
+        mqtt_stack_size / sizeof(StackType_t),
+        NULL,
+        9,
+        mqtt_stack,
+        &mqtt_tcb);
 
     if (task_mqtt == NULL)
     {
@@ -31,41 +38,29 @@ void start_task_mqtt(void)
 
 void task_mqtt_code(void *pvParameters)
 {
-    // Give network_manager time to bring up interfaces
+    (void)pvParameters;
+
+    // Give network_manager time to bring up interfaces and start MQTT
     vTaskDelay(pdMS_TO_TICKS(3000));
 
     LOGI(TAG, "MQTT task starting...");
-
-    // Start MQTT client using current config
-    if (mqtt_start(&mqtt_config) != ESP_OK)
-    {
-        LOGE(TAG, "MQTT: failed to start client");
-        vTaskDelete(NULL);
-        return;
-    }
-
-    // Wait for MQTT connection (non-blocking)
-    for (int i = 0; i < 20; i++)
-    {
-        if (mqtt_is_connected())
-        {
-            LOGI(TAG, "MQTT: connected");
-            break;
-        }
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
 
     while (true)
     {
         LOGI(TAG, "MQTT: publish cycle");
 
-        // If not connected, skip this cycle
         if (!mqtt_is_connected())
-
         {
             LOGW(TAG, "MQTT: not connected, skipping publish");
             vTaskDelay(pdMS_TO_TICKS(5000));
             continue;
+        }
+
+        // Handle deferred HA discovery here (MQTT task context)
+        if (mqtt_discovery_requested() && sensors_ready())
+        {
+            mqtt_clear_discovery_request();
+            mqtt_publish_homeassistant_discovery();
         }
 
         mqtt_publish_sensor_values();
