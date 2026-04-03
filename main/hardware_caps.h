@@ -46,6 +46,10 @@ typedef struct
     // RGB LEDs pin
     int rgb_led_pin;
 
+    // Switches pins
+    int switch1_pin;
+    int switch2_pin;
+
 } hw_caps_t;
 
 extern hardware_version_t hw_version;

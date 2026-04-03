@@ -33,6 +33,9 @@ static const hw_caps_t hw_v2 = {
     .datapin2 = 14,
 
     .rgb_led_pin = 42,
+
+    .switch1_pin = 6,
+    .switch2_pin = 7,
 };
 
 static const hw_caps_t hw_v3 = {
@@ -64,6 +67,9 @@ static const hw_caps_t hw_v3 = {
     .datapin2 = 14,
 
     .rgb_led_pin = 47,
+
+    .switch1_pin = 4,
+    .switch2_pin = 5,
 };
 hw_caps_t hw;
 
