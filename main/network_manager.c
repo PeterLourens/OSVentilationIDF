@@ -9,7 +9,7 @@
 static const char *TAG = "net_mgr";
 
 // Task handle and stack
-static StackType_t network_manager_stack[5120];
+static StackType_t network_manager_stack[7168];
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
@@ -21,6 +21,9 @@ static esp_event_handler_instance_t mqtt_evt_inst = NULL;
 
 // Manager state
 static volatile bool manager_running = false;
+
+// Request flags (set by event handlers, acted on in main loop)
+static volatile bool s_request_mqtt_restart = false;
 
 // Forward declarations
 static void network_manager_task(void *pvParameters);
@@ -217,17 +220,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         update_syslog_state();
         network_manager_request_actuals_update();
 
-        // --- NEW: Restart MQTT after Wi-Fi gets IP ---
-        MQTT_config_t cfg;
-        mqtt_get_config_snapshot(&cfg);
-
-        mqtt_stop();
-        vTaskDelay(pdMS_TO_TICKS(300)); // allow netif to settle
-        mqtt_start(&cfg);
-
-        // --- NEW: Republish Home Assistant discovery ---
-        vTaskDelay(pdMS_TO_TICKS(300));
-        mqtt_publish_homeassistant_discovery();
+        // NEW: defer MQTT restart to network_manager_task
+        s_request_mqtt_restart = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
 
         return;
     }
@@ -256,8 +252,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // http_server_stop();
-        // http_server_start();
+        // Always restart MQTT when Ethernet gets IP (v3)
+        s_request_mqtt_restart = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
 
         update_syslog_state();
         network_manager_request_actuals_update();
@@ -567,13 +565,27 @@ static void network_manager_task(void *pvParameters)
 
     for (;;)
     {
-        // Wait for notification or timeout
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(30000));
 
         // Re-evaluate config and apply changes
         evaluate_config_and_apply();
 
-        // Ask sys_stats (the authoritative source) to refresh global actuals
+        // Handle deferred MQTT restart
+        if (s_request_mqtt_restart)
+        {
+            s_request_mqtt_restart = false;
+
+            MQTT_config_t cfg;
+            mqtt_get_config_snapshot(&cfg);
+
+            mqtt_stop();
+            vTaskDelay(pdMS_TO_TICKS(300));
+            mqtt_start(&cfg);
+
+            // vTaskDelay(pdMS_TO_TICKS(300));
+            // mqtt_publish_homeassistant_discovery();
+        }
+
         sys_stats_update_actuals();
     }
 
