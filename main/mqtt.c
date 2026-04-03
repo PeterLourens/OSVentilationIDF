@@ -372,8 +372,35 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		return ESP_ERR_INVALID_ARG;
 	}
 
+	char uri[128] = {0};
+
+	// Prefer cfg->uri if it already contains a scheme
+	if (cfg->uri[0] != '\0')
+	{
+		strlcpy(uri, cfg->uri, sizeof(uri));
+	}
+	else if (cfg->mqtt_server[0] != '\0' && cfg->mqtt_port[0] != '\0')
+	{
+		// Backward‑compatible: build mqtt://host:port
+		snprintf(uri, sizeof(uri), "mqtt://%s:%s", cfg->mqtt_server, cfg->mqtt_port);
+
+		// Also store into global config so future snapshots have a proper URI
+		if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+		{
+			strlcpy(mqtt_config.uri, uri, sizeof(mqtt_config.uri));
+			xSemaphoreGive(mqtt_config_mutex);
+		}
+	}
+	else
+	{
+		LOGE(TAG, "mqtt_start: no valid URI or server/port in config");
+		return ESP_ERR_INVALID_ARG;
+	}
+
+	LOGI(TAG, "mqtt_start: using URI '%s'", uri);
+
 	esp_mqtt_client_config_t mqtt_cfg = {
-		.broker.address.uri = cfg->uri,
+		.broker.address.uri = uri,
 		.credentials.username = cfg->username,
 		.credentials.authentication.password = cfg->password,
 		.session.keepalive = cfg->keepalive,
@@ -383,8 +410,6 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		.session.last_will.retain = cfg->will_retain,
 	};
 
-	snprintf(mqtt_config.uri, sizeof(mqtt_config.uri), "mqtt://%s:%s", mqtt_config.mqtt_server, mqtt_config.mqtt_port);
-
 	s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 	if (s_mqtt_client == NULL)
 	{
@@ -392,11 +417,13 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		return ESP_FAIL;
 	}
 
-	// Register default MQTT event handler that just forwards events to the global event loop under MQTT_EVENTS base.
-	esp_err_t err = esp_mqtt_client_register_event(s_mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_forwarder, NULL);
+	esp_err_t err = esp_mqtt_client_register_event(
+		s_mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_forwarder, NULL);
 	if (err != ESP_OK)
 	{
 		LOGE(TAG, "esp_mqtt_client_register_event failed: %s", esp_err_to_name(err));
+		esp_mqtt_client_destroy(s_mqtt_client);
+		s_mqtt_client = NULL;
 		return err;
 	}
 
@@ -404,6 +431,8 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 	if (err != ESP_OK)
 	{
 		LOGE(TAG, "esp_mqtt_client_start failed: %s", esp_err_to_name(err));
+		esp_mqtt_client_destroy(s_mqtt_client);
+		s_mqtt_client = NULL;
 		return err;
 	}
 
