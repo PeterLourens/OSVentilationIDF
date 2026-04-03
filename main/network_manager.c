@@ -252,13 +252,14 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // Always restart MQTT when Ethernet gets IP (v3)
+        update_syslog_state();
+        network_manager_request_actuals_update();
+
+        // Defer MQTT restart to network_manager_task (v3)
         s_request_mqtt_restart = true;
         if (network_manager_task_handle != NULL)
             xTaskNotifyGive(network_manager_task_handle);
 
-        update_syslog_state();
-        network_manager_request_actuals_update();
         return;
     }
 }
