@@ -7,9 +7,9 @@
 #include "task_influxdb.h"
 
 static const char *TAG = "task_influxdb";
-static StackType_t influxdb_stack[8192];  // stack buffer
+static StackType_t influxdb_stack[7168];  // stack buffer
 static StaticTask_t influxdb_tcb;         // TCB buffer
-static size_t influxdb_stack_size = 8192; // 4096 words = 16 KB
+static size_t influxdb_stack_size = 7168; // 7168 words = 28 KB
 
 void start_task_influxdb(void)
 {

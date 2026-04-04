@@ -15,6 +15,14 @@ static char mqtt_node_id[64] = {0}; // Cached node id (derived from sm_actuals.h
 
 static volatile bool s_discovery_requested = false;
 
+// Global snapshots to avoid large stack allocations
+static float s_raw_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+static float s_avg_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+static float s_discovery_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
+
+// Protects snapshot access
+static SemaphoreHandle_t s_mqtt_snapshot_mutex = NULL;
+
 // Retained publish helper
 static inline void mqtt_pubs_retained(const char *topic, const char *value)
 {
@@ -132,10 +140,7 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 }
 
 // Helper function to publish Home Assistant discovery config for one sensor
-static void mqtt_publish_discovery_for_sensor(int bus, int slot,
-											  const char *base,
-											  const char *node_id,
-											  const float snapshot[DATA_FIELDS])
+static void mqtt_publish_discovery_for_sensor(int bus, int slot, const char *base, const char *node_id, const float snapshot[DATA_FIELDS])
 {
 	if (!snapshot || snapshot[IDX_VALID] != 1.0f)
 		return;
@@ -187,10 +192,7 @@ static void mqtt_publish_discovery_for_sensor(int bus, int slot,
 		snprintf(name, sizeof(name),
 				 "Bus%d Slot%d CO2", bus, slot);
 
-		mqtt_publish_ha_sensor(node_id, object_id, name,
-							   "ppm", "carbon_dioxide",
-							   state_topic, "{{ value }}",
-							   unique_id, "mdi:molecule-co2");
+		mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id, "mdi:molecule-co2");
 	}
 }
 
@@ -301,6 +303,73 @@ static inline void mqtt_pubi(const char *topic, int value)
 static inline void mqtt_topic(char *out, size_t out_sz, const char *base, int bus, int slot, const char *type, const char *field)
 {
 	snprintf(out, out_sz, "%s/sensors/bus%d/slot%d/%s/%s", base, bus, slot, type, field);
+}
+
+static void mqtt_publish_one_sensor(int bus, int slot, const float raw[DATA_FIELDS], const float avg[DATA_FIELDS], const char *base)
+{
+	char topic[200];
+
+	if (raw[IDX_VALID] != 1)
+		return;
+
+	// RAW
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "temperature");
+	mqtt_pubf(topic, raw[IDX_TEMP]);
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
+	mqtt_pubf(topic, raw[IDX_HUMIDITY]);
+
+	if (raw[IDX_CO2] > 0)
+	{
+		mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
+		mqtt_pubf(topic, raw[IDX_CO2]);
+	}
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "pressure");
+	mqtt_pubf(topic, raw[IDX_PRESSURE]);
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "gas_resistance");
+	mqtt_pubf(topic, raw[IDX_GAS_RES]);
+
+	// AVG
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
+	mqtt_pubf(topic, avg[IDX_TEMP]);
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
+	mqtt_pubf(topic, avg[IDX_HUMIDITY]);
+
+	if (avg[IDX_CO2] > 0)
+	{
+		mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
+		mqtt_pubf(topic, avg[IDX_CO2]);
+	}
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "pressure");
+	mqtt_pubf(topic, avg[IDX_PRESSURE]);
+
+	mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "gas_resistance");
+	mqtt_pubf(topic, avg[IDX_GAS_RES]);
+}
+
+static void mqtt_publish_one_valve(int id, const char *base)
+{
+	char topic[200];
+	int32_t pos = 0;
+
+	nvs_handle_t nvs;
+	if (nvs_open("valves", NVS_READONLY, &nvs) != ESP_OK)
+		return;
+
+	char key[16];
+	snprintf(key, sizeof(key), "valve%d", id);
+	nvs_get_i32(nvs, key, &pos);
+	nvs_close(nvs);
+
+	snprintf(topic, sizeof(topic), "%s/valve%d/position", base, id);
+	mqtt_pubi(topic, pos);
+
+	snprintf(topic, sizeof(topic), "%s/valve%d/availability", base, id);
+	mqtt_pubs(topic, "online");
 }
 
 // Node id helper: prefer sm_actuals.hostname, then mqtt base topic, then MAC address, then final fallback
@@ -438,6 +507,10 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 
 	s_mqtt_started = true;
 	LOGI(TAG, "MQTT client started");
+
+	if (s_mqtt_snapshot_mutex == NULL)
+		s_mqtt_snapshot_mutex = xSemaphoreCreateMutex();
+
 	return ESP_OK;
 }
 
@@ -651,14 +724,10 @@ const char *mqtt_get_node_id(void)
 	return mqtt_node_id;
 }
 
-// Publish all sensor values
 void mqtt_publish_sensor_values(void)
 {
 	MQTT_config_t cfg;
 	mqtt_get_config_snapshot(&cfg);
-
-	char base[150] = {0};
-	char topic[200] = {0};
 
 	if (!mqtt_is_enabled(&cfg))
 		return;
@@ -669,69 +738,41 @@ void mqtt_publish_sensor_values(void)
 		return;
 	}
 
-	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-	float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-	if (xQueuePeek(sensor_queue, raw, 0) != pdTRUE)
+	// Take snapshot mutex
+	if (xSemaphoreTake(s_mqtt_snapshot_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
 	{
+		LOGW(TAG, "mqtt_publish_sensor_values: snapshot mutex busy");
+		return;
+	}
+
+	// Copy raw + avg from queues into global snapshots
+	if (xQueuePeek(sensor_queue, s_raw_snapshot, 0) != pdTRUE)
+	{
+		xSemaphoreGive(s_mqtt_snapshot_mutex);
 		LOGE(TAG, "Failed to read raw sensor queue");
 		return;
 	}
 
-	if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
+	if (xQueuePeek(sensor_avg_queue, s_avg_snapshot, 0) != pdTRUE)
 	{
+		xSemaphoreGive(s_mqtt_snapshot_mutex);
 		LOGE(TAG, "Failed to read avg sensor queue");
 		return;
 	}
 
+	xSemaphoreGive(s_mqtt_snapshot_mutex);
+
+	char base[150];
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
 	{
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
-			if (raw[bus][slot][IDX_VALID] != 1)
-				continue;
-
-			// RAW
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "temperature");
-			mqtt_pubf(topic, raw[bus][slot][IDX_TEMP]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
-			mqtt_pubf(topic, raw[bus][slot][IDX_HUMIDITY]);
-
-			// CO2 only for SCD41, and only if valid (>0)
-			if (raw[bus][slot][IDX_CO2] > 0)
-			{
-				mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
-				mqtt_pubf(topic, raw[bus][slot][IDX_CO2]);
-			}
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "pressure");
-			mqtt_pubf(topic, raw[bus][slot][IDX_PRESSURE]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "gas_resistance");
-			mqtt_pubf(topic, raw[bus][slot][IDX_GAS_RES]);
-
-			// AVG
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "temperature");
-			mqtt_pubf(topic, avg[bus][slot][IDX_TEMP]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
-			mqtt_pubf(topic, avg[bus][slot][IDX_HUMIDITY]);
-
-			// CO2
-			if (avg[bus][slot][IDX_CO2] > 0)
-			{
-				mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
-				mqtt_pubf(topic, avg[bus][slot][IDX_CO2]);
-			}
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "pressure");
-			mqtt_pubf(topic, avg[bus][slot][IDX_PRESSURE]);
-
-			mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "gas_resistance");
-			mqtt_pubf(topic, avg[bus][slot][IDX_GAS_RES]);
+			mqtt_publish_one_sensor(bus, slot,
+									s_raw_snapshot[bus][slot],
+									s_avg_snapshot[bus][slot],
+									base);
 		}
 	}
 }
@@ -740,11 +781,6 @@ void mqtt_publish_sensor_values(void)
 void mqtt_publish_valve_positions(void)
 {
 	MQTT_config_t cfg;
-	int32_t pos = 0;
-	char topic[200] = {0};
-	char base[150] = {0};
-	char key[16] = {0};
-
 	mqtt_get_config_snapshot(&cfg);
 
 	if (!mqtt_is_enabled(&cfg))
@@ -752,46 +788,17 @@ void mqtt_publish_valve_positions(void)
 
 	if (!s_mqtt_client || !s_mqtt_connected)
 	{
-		LOGW(TAG, "... not connected; skipping ...");
+		LOGW(TAG, "MQTT not connected; skipping valve publish");
 		return;
 	}
 
+	char base[150];
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	// Open NVS namespace for valve positions
-	nvs_handle_t nvs;
-	esp_err_t err = nvs_open("valves", NVS_READONLY, &nvs);
-	if (err != ESP_OK)
-	{
-		LOGE(TAG, "Failed to open NVS for valve positions: %s", esp_err_to_name(err));
-		return;
-	}
 
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
 	{
-		pos = 0;
-
-		snprintf(key, sizeof(key), "valve%d", id);
-
-		err = nvs_get_i32(nvs, key, &pos);
-		if (err != ESP_OK)
-		{
-			LOGW(TAG, "Valve %d position not found in NVS (err=%s), defaulting to 0", id, esp_err_to_name(err));
-			pos = 0;
-		}
-
-		// Publish numeric position
-		snprintf(topic, sizeof(topic), "%s/valve%d/position", base, id);
-		mqtt_pubi(topic, (int)pos);
-
-		// Publish availability
-		snprintf(topic, sizeof(topic), "%s/valve%d/availability", base, id);
-		mqtt_pubs(topic, "online");
-
-		LOGD(TAG, "Published valve %d position: %ld", id, pos);
+		mqtt_publish_one_valve(id, base);
 	}
-
-	nvs_close(nvs);
 }
 
 // Publish system state and fan speed (mutex-protected read from sm_actuals)
@@ -845,9 +852,8 @@ void mqtt_publish_state_and_fanspeed(void)
 // Home Assistant discovery helpers and publisher
 bool sensors_ready(void)
 {
-	float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
-
-	if (xQueuePeek(sensor_queue, snapshot, 0) != pdTRUE)
+	// Use discovery snapshot to avoid stack arrays
+	if (xQueuePeek(sensor_queue, s_discovery_snapshot, 0) != pdTRUE)
 		return false;
 
 	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
@@ -855,9 +861,9 @@ bool sensors_ready(void)
 		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 		{
 			if (configured_sensor(bus, slot) &&
-				snapshot[bus][slot][IDX_VALID] == 0.0f)
+				s_discovery_snapshot[bus][slot][IDX_VALID] == 0.0f)
 			{
-				return false; // at least one configured sensor not ready
+				return false;
 			}
 		}
 	}
@@ -879,151 +885,30 @@ void mqtt_publish_homeassistant_discovery(void)
 		return;
 	}
 
-	char base[120] = {0};
+	char base[120];
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	const char *node_id = mqtt_get_node_id();
 
-	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-	if (xQueuePeek(sensor_queue, raw, 0) != pdTRUE)
-	{
-		LOGW(TAG, "mqtt_publish_homeassistant_discovery: sensor_queue empty, skipping sensors");
-	}
-	else
+	// Use global discovery snapshot
+	if (xQueuePeek(sensor_queue, s_discovery_snapshot, 0) == pdTRUE)
 	{
 		for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
 		{
 			for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
 			{
-				mqtt_publish_discovery_for_sensor(bus, slot, base, node_id,
-												  raw[bus][slot]);
+				mqtt_publish_discovery_for_sensor(bus, slot,
+												  base,
+												  node_id,
+												  s_discovery_snapshot[bus][slot]);
 			}
 		}
 	}
 
 	// Valves
 	for (int id = 0; id < MAX_VALVE_COUNT; id++)
-	{
 		mqtt_publish_discovery_for_valve(id, base, node_id);
-	}
 
 	// System
 	mqtt_publish_discovery_for_system(base, node_id);
 }
-
-// Main discovery publisher — publishes retained discovery messages for HA
-/*void mqtt_publish_homeassistant_discovery(void)
-{
-	MQTT_config_t cfg;
-	char base[120] = {0};
-	const char *node_id = mqtt_get_node_id();
-	float raw[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-	mqtt_get_config_snapshot(&cfg);
-
-	if (!mqtt_is_enabled(&cfg) || !s_mqtt_client || !s_mqtt_connected)
-		return;
-
-	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
-
-	bool have_raw = xQueuePeek(sensor_queue, &raw, 0) == pdTRUE;
-
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
-		{
-			if (!have_raw || raw[bus][slot][IDX_VALID] != 1)
-				continue;
-
-			// ---------------- TEMPERATURE ----------------
-			{
-				char state_topic[200];
-				char object_id[60];
-				char unique_id[120];
-				char name[60];
-
-				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
-				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_temperature", bus, slot);
-				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-				snprintf(name, sizeof(name), "Bus%d Slot%d Temperature", bus, slot);
-
-				mqtt_publish_ha_sensor(node_id, object_id, name, "°C", "temperature", state_topic, "{{ value }}", unique_id, "mdi:thermometer");
-			}
-
-			// ---------------- HUMIDITY ----------------
-			{
-				char state_topic[200];
-				char object_id[60];
-				char unique_id[120];
-				char name[60];
-
-				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
-				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_humidity", bus, slot);
-				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-				snprintf(name, sizeof(name), "Bus%d Slot%d Humidity", bus, slot);
-
-				mqtt_publish_ha_sensor(node_id, object_id, name, "%", "humidity", state_topic, "{{ value }}", unique_id, "mdi:water-percent");
-			}
-
-			// ---------------- CO2 (ONLY SCD41) ----------------
-			if (sensor_supports_co2(bus, slot) &&
-				raw[bus][slot][IDX_CO2] > 0)
-			{
-				char state_topic[150];
-				char object_id[60];
-				char unique_id[120];
-				char name[60];
-
-				snprintf(state_topic, sizeof(state_topic), "%s/sensors/bus%d/slot%d/avg/co2", base, bus, slot);
-				snprintf(object_id, sizeof(object_id), "bus%d_slot%d_co2", bus, slot);
-				snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-				snprintf(name, sizeof(name), "Bus%d Slot%d CO2", bus, slot);
-
-				mqtt_publish_ha_sensor(node_id, object_id, name, "ppm", "carbon_dioxide", state_topic, "{{ value }}", unique_id, "mdi:molecule-co2");
-			}
-		}
-	}
-
-	// ---------------- VALVES ----------------
-	for (int id = 0; id < MAX_VALVE_COUNT; id++)
-	{
-		char state_topic[150];
-		char availability_topic[150];
-		char object_id[60];
-		char unique_id[120];
-		char name[60];
-
-		snprintf(state_topic, sizeof(state_topic), "%s/valve%d/position", base, id);
-		snprintf(availability_topic, sizeof(availability_topic), "%s/valve%d/availability", base, id);
-		snprintf(object_id, sizeof(object_id), "valve_%d_position", id);
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-		snprintf(name, sizeof(name), "Valve %d Position", id);
-
-		mqtt_publish_ha_valve_sensor(node_id, object_id, name, state_topic, availability_topic, unique_id);
-	}
-
-	// ---------------- SYSTEM STATE ----------------
-	{
-		char object_id[40] = "system_state";
-		char unique_id[120];
-		char state_topic[150];
-
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-		snprintf(state_topic, sizeof(state_topic), "%s/system/state", base);
-
-		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation System State", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:information-outline");
-	}
-
-	// ---------------- FAN SPEED ----------------
-	{
-		char object_id[40] = "system_fanspeed";
-		char unique_id[120];
-		char state_topic[150];
-
-		snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
-		snprintf(state_topic, sizeof(state_topic), "%s/system/fanspeed", base);
-
-		mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed", NULL, NULL, state_topic, "{{ value }}", unique_id, "mdi:fan");
-	}
-}*/

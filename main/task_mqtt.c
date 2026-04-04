@@ -8,12 +8,6 @@
 #include "mqtt.h"
 #include "network_functions.h"
 
-// desired stack in bytes
-#define MQTT_STACK_BYTES (9 * 1024) // try 9 KB first
-
-// compute words for StackType_t
-#define MQTT_STACK_WORDS (MQTT_STACK_BYTES / sizeof(StackType_t))
-
 static const char *TAG = "task_MQTT";
 static StackType_t mqtt_stack[7168];
 static StaticTask_t mqtt_tcb;
@@ -21,14 +15,7 @@ static size_t mqtt_stack_size = 7168;
 
 void start_task_mqtt(void)
 {
-    task_mqtt = xTaskCreateStatic(
-        task_mqtt_code,
-        "mqtt",
-        mqtt_stack_size / sizeof(StackType_t),
-        NULL,
-        9,
-        mqtt_stack,
-        &mqtt_tcb);
+    task_mqtt = xTaskCreateStatic(task_mqtt_code, "mqtt", mqtt_stack_size, NULL, 9, mqtt_stack, &mqtt_tcb);
 
     if (task_mqtt == NULL)
     {
