@@ -9,7 +9,7 @@
 
 #include <driver/i2c_master.h>
 
-#include "globals.h"
+// #include "globals.h"
 #include "general.h"
 #include "i2c_lcd.h"
 #include "logging.h"

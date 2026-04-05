@@ -109,7 +109,7 @@ void task_i2c_lcd_code(void *pvParameters)
                 strncpy(wifi_ip, sm_actuals.wifi_ip_addr, sizeof(wifi_ip));
 
             // Copy Ethernet IP if present
-            if (sm_actuals.eth_ip_addr[0] != '\0')
+            if (sm_actuals.eth_ip_addr[0] != '\0' && hw.has_ethernet)
                 strncpy(eth_ip, sm_actuals.eth_ip_addr, sizeof(eth_ip));
 
             xSemaphoreGive(statemachine_mutex);
