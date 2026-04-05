@@ -4,7 +4,6 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
-#pragma once
 #include <esp_log.h>
 #include <stdio.h>
 

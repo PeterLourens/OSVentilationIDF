@@ -10,7 +10,6 @@
 #include <esp_netif.h>
 #include <sys/socket.h>
 
-#include "globals.h"
 #include "general.h"
 #include "logging.h"
 

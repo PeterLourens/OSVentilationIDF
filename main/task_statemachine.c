@@ -15,7 +15,6 @@ static size_t sm_stack_size = 8192; // 4096 words = 16 KB
 void start_task_statemachine(void)
 {
     // Create statemachine task
-    // xTaskCreate(task_statemachine_code, "statemach", 8192, NULL, 6, &task_statemachine);
     task_statemachine = xTaskCreateStatic(task_statemachine_code, "statemach", sm_stack_size, NULL, 12, sm_stack, &sm_tcb);
 
     if (task_statemachine == NULL)

@@ -11,27 +11,21 @@ static const char *TAG = "Influxdb";
 QueueHandle_t influx_queue = NULL;
 TaskHandle_t influx_sender_task_handle = NULL;
 
-// ---------------------------------------------------------------------------
 //   Configuration
-//   ---------------------------------------------------------------------------
 #define INFLUX_QUEUE_LEN 8
 #define INFLUX_MAX_PAYLOAD 8192
 #define INFLUX_SENSORS_CHUNK 4096
 #define INFLUX_SENDER_STACK 8192
 #define INFLUX_SENDER_PRIO 5
 
-// ---------------------------------------------------------------------------
 // Queue item and globals
-// ---------------------------------------------------------------------------
 typedef struct
 {
     char *payload; // heap-allocated, null-terminated
     size_t len;
 } influx_job_t;
 
-// ---------------------------------------------------------------------------
 // Existing helpers (kept from your original file)
-// -------------------------------------------------------------------
 bool influxdb_wait_ready(TickType_t timeout_ticks)
 {
     TickType_t start = xTaskGetTickCount();
@@ -137,10 +131,7 @@ void influxdb_append_line(char *out, size_t out_size, const char *line)
     out[used + len] = '\0';
 }
 
-// ---------------------------------------------------------------------------
 // Payload builders (adapted and split)
-// ---------------------------------------------------------------------------
-
 void influxdb_build_payload_actuals(char *out, size_t out_size)
 {
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
@@ -327,9 +318,7 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
     xSemaphoreGive(sensor_cfg_mutex);
 }
 
-// ---------------------------------------------------------------------------
 // Low-level send (returns ESP_OK on HTTP 2xx)
-// ---------------------------------------------------------------------------
 static esp_err_t influxdb_send_payload_internal(const char *payload, const Influxdb_config_t *cfg)
 {
     // Abort if no network interface has an IP
@@ -414,9 +403,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     return ESP_OK;
 }
 
-// ---------------------------------------------------------------------------
 // Send with retry/backoff (synchronous, called from sender task)
-// ---------------------------------------------------------------------------
 static void influxdb_send_with_retry(const char *payload, const Influxdb_config_t *cfg)
 {
     const int max_retries = 4;
@@ -442,9 +429,7 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
     // Optional: persist payload to NVS for later retry (not implemented here)
 }
 
-// ---------------------------------------------------------------------------
 // Sender task: serializes HTTP writes
-// ---------------------------------------------------------------------------
 static void influx_sender_task(void *pv)
 {
     Influxdb_config_t cfg;
@@ -489,9 +474,7 @@ static void influx_sender_task(void *pv)
     }
 }
 
-// ---------------------------------------------------------------------------
 // Public: initialize sender (call once at startup)
-// ---------------------------------------------------------------------------
 bool influxdb_init_sender(void)
 {
     if (influx_queue != NULL)
@@ -520,9 +503,7 @@ bool influxdb_init_sender(void)
     return true;
 }
 
-// ---------------------------------------------------------------------------
 // Enqueue helper (non-blocking with short timeout)
-// ---------------------------------------------------------------------------
 bool influxdb_enqueue_payload(const char *payload, size_t len)
 {
     if (!payload || len == 0)
@@ -566,9 +547,7 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
     return true;
 }
 
-// ---------------------------------------------------------------------------
 // High-level process function (reworked to enqueue separate payloads)
-// ---------------------------------------------------------------------------
 void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
 {
     Influxdb_config_t cfg;

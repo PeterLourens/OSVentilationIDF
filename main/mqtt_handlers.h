@@ -10,7 +10,9 @@
 #include <mqtt_client.h>
 
 #include "mqtt.h"
+#include "statemachine.h"
+#include "esp_log.h"
 
 void mqtt_handle_incoming(esp_mqtt_event_handle_t);
 
-#endif // MQTT_HANDLERS_H
+#endif

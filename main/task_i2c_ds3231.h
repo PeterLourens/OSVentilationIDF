@@ -10,7 +10,6 @@
 #include "driver/i2c_master.h"
 #include <stdio.h>
 
-#include "globals.h"
 #include "i2c_ds3231.h"
 #include "logging.h"
 

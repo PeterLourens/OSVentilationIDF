@@ -17,14 +17,6 @@
 // I2C General configuration
 #define I2C_MASTER_FREQ_HZ 100000
 
-// I2C Bus0 configuration
-// #define I2C_MASTER_BUS0_SDA_IO 18
-// #define I2C_MASTER_BUS0_SCL_IO 17
-
-// I2C Bus1 configuration
-// #define I2C_MASTER_BUS1_SDA_IO 7
-// #define I2C_MASTER_BUS1_SCL_IO 6
-
 // I2C Device Addresses
 #define TCA9548_I2C_ADDR 0x70 // Default address
 #define AHT20_I2C_ADDR 0x38   // Default address
@@ -34,29 +26,8 @@
 #define DS3231_I2C_ADDR 0x68  // Default address
 #define LCD_I2C_ADDR 0x27     // Default address
 
-// SPI configuration for W5500 Ethernet
-// #define W5500_MISO_GPIO 13
-// #define W5500_MOSI_GPIO 11
-// #define W5500_SCLK_GPIO 12
-// #define W5500_CS_GPIO 10
-
-// Interrupt pin (optional)
-// #define W5500_INT_GPIO 9
-
-// Reset pin (optional, -1 if unused)
-// #define W5500_RST_GPIO 8
-
 // SPI host (VSPI_HOST or HSPI_HOST)
 #define W5500_SPI_HOST SPI2_HOST // or SPI3_HOST depending on your wiring
-
-// Define I/O for 74595 chips
-// #define CLOCKPIN1 1
-// #define LATCHPIN1 2
-// #define DATAPIN1 3
-
-// #define CLOCKPIN2 15
-// #define LATCHPIN2 16
-// #define DATAPIN2 14
 
 #define SMALL_CONFIG_ITEM 16
 #define MEDIUM_CONFIG_ITEM 32
@@ -99,7 +70,6 @@
 #define FANSPEED_HIGH 3
 
 // Number of samples for moving average calculation
-// #define SENSOR_AVG_SIZE 48
 #define SENSOR_AVG_SIZE (MAX_I2C_BUSES * CHANNELS_PER_BUS * 5) // 5 averaged fields
 
 extern const char *STATE_ERROR;
@@ -358,8 +328,6 @@ typedef struct
 
     uint32_t stack_i2c_sensors;
     uint32_t stack_i2c_ds3231;
-    // uint32_t stack_wifi;
-    // uint32_t stack_eth;
     uint32_t stack_i2c_lcd;
     uint32_t stack_rgb_leds;
     uint32_t stack_statemachine;
@@ -379,7 +347,7 @@ typedef struct
     int actual_valve_position[MAX_VALVE_COUNT];
     bool check_position;
     bool write_new_position;
-    bool valve_move_request_from_post; /* POST handler requests movement */
+    bool valve_move_request_from_post; // POST handler requests movement
 } Valve_control_data;
 
 extern bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS];

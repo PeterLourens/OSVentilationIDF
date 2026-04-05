@@ -26,7 +26,6 @@ esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t, i2c_master_dev_handle_t *);
 esp_err_t update_ds3231_from_system_time(void);
 esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t);
 uint8_t bin2bcd(uint8_t);
-esp_err_t i2c_ds3231_write_time(i2c_master_dev_handle_t, const struct tm *);
 esp_err_t ds3231_read_reg(i2c_master_dev_handle_t, uint8_t, uint8_t *);
 esp_err_t ds3231_write_reg(i2c_master_dev_handle_t, uint8_t, uint8_t);
 esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t, float *);
@@ -35,7 +34,6 @@ esp_err_t ds3231_set_time(i2c_master_dev_handle_t, const struct tm *);
 esp_err_t ds3231_get_time(i2c_master_dev_handle_t, struct tm *);
 
 void init_system_time_from_ds3231(i2c_master_dev_handle_t);
-void time_sync_cb(struct timeval *);
 void ds3231_health_monitor(i2c_master_dev_handle_t);
 void save_ds3231_diagnostics(float);
 void read_ds3231_diagnostics(void);

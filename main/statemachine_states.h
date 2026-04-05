@@ -26,9 +26,7 @@ typedef enum
     STATE_NR_MAX
 } state_nr_t;
 
-// -----------------------------
 // Fan speed levels
-// -----------------------------
 typedef enum
 {
     FAN_SPEED_ERROR = 0,

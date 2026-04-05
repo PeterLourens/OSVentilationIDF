@@ -1,8 +1,7 @@
 /*
-    eth_functions.c
-    Ethernet driver + config helpers only.
+    This file is part of the OSVentilationIDF project.
 
-    All events and LEDs are handled in network_manager.c.
+    Copyright (C) 2023-2026 Peter Lourens
 */
 
 #include "eth_functions.h"
@@ -280,169 +279,6 @@ void eth_init(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
-/*void eth_init(void)
-{
-    if (!hw.has_ethernet)
-    {
-        LOGI(TAG, "eth_init: Ethernet not present on this hardware");
-        return;
-    }
-
-    if (s_eth_initialized)
-    {
-        LOGD(TAG, "eth_init: already initialized");
-        if (eth_netif == NULL)
-        {
-            esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
-            if (existing)
-            {
-                eth_netif = existing;
-                LOGI(TAG, "eth_init: recovered existing ETH_DEF netif handle %p", (void *)eth_netif);
-            }
-        }
-        return;
-    }
-
-    LOGI(TAG, "eth_init: initializing W5500 Ethernet");
-
-    esp_err_t err = esp_netif_init();
-    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
-    {
-        LOGE(TAG, "esp_netif_init failed: %s", esp_err_to_name(err));
-        return;
-    }
-
-    // Reuse existing netif if present
-    esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
-    if (existing != NULL)
-    {
-        LOGI(TAG, "eth_init: ETH_DEF netif already exists, reusing handle %p", (void *)existing);
-        eth_netif = existing;
-    }
-    else
-    {
-        esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
-        eth_netif = esp_netif_new(&cfg);
-        if (eth_netif == NULL)
-        {
-            LOGE(TAG, "esp_netif_new(ESP_NETIF_DEFAULT_ETH) returned NULL");
-            return;
-        }
-    }
-
-    // --- SPI BUS INIT ---
-    spi_bus_config_t buscfg = {
-        .miso_io_num = hw.w5500_miso_gpio,
-        .mosi_io_num = hw.w5500_mosi_gpio,
-        .sclk_io_num = hw.w5500_sclk_gpio,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-    };
-
-    err = spi_bus_initialize(W5500_SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
-    if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
-    {
-        LOGE(TAG, "spi_bus_initialize failed: %s", esp_err_to_name(err));
-        return;
-    }
-
-    // SPI device config
-    static spi_device_interface_config_t w5500_spi_devcfg = {
-        .mode = 0,
-        .clock_speed_hz = 20 * 1000 * 1000,
-        .spics_io_num = -1,
-        .queue_size = 20,
-    };
-
-    // Runtime assignment
-    w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
-
-    // --- MAC + PHY CONFIG ---
-    eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
-    eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
-
-    if (hw.w5500_rst_gpio >= 0)
-        phy_config.reset_gpio_num = hw.w5500_rst_gpio;
-
-    phy_config.phy_addr = 0;
-
-    // --- W5500 CONFIG ---
-    eth_w5500_config_t w5500_cfg = {0};
-    w5500_cfg.spi_host_id = W5500_SPI_HOST;
-    w5500_cfg.spi_devcfg = &w5500_spi_devcfg;
-
-    if (hw.w5500_int_gpio >= 0)
-        w5500_cfg.int_gpio_num = hw.w5500_int_gpio;
-
-    // --- CREATE MAC ---
-    esp_eth_mac_t *mac = esp_eth_mac_new_w5500(&w5500_cfg, &mac_config);
-    if (mac == NULL)
-    {
-        LOGE(TAG, "esp_eth_mac_new_w5500 returned NULL — check W5500 config and GPIO pins");
-        return;
-    }
-
-    // --- CREATE PHY ---
-    esp_eth_phy_t *phy = esp_eth_phy_new_w5500(&phy_config);
-    if (phy == NULL)
-    {
-        LOGE(TAG, "esp_eth_phy_new_w5500 returned NULL");
-        return;
-    }
-
-    // --- INSTALL DRIVER ---
-    esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
-    err = esp_eth_driver_install(&eth_config, &eth_handle);
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "esp_eth_driver_install failed: %s", esp_err_to_name(err));
-        return;
-    }
-
-    // --- ATTACH NETIF ---
-    esp_eth_netif_glue_handle_t glue = esp_eth_new_netif_glue(eth_handle);
-    if (glue == NULL)
-    {
-        LOGE(TAG, "esp_eth_new_netif_glue returned NULL");
-        return;
-    }
-
-    err = esp_netif_attach(eth_netif, glue);
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "esp_netif_attach failed: %s", esp_err_to_name(err));
-        return;
-    }
-
-    LOGI(TAG, "W5500 initialized and attached to netif");
-
-    s_eth_initialized = true;
-}*/
-
-/*void eth_start(void)
-{
-    if (eth_handle == NULL)
-    {
-        LOGE(TAG, "eth_start: eth_handle is NULL, call eth_init() first");
-        return;
-    }
-    if (eth_started)
-    {
-        LOGD(TAG, "Ethernet already started");
-        return;
-    }
-    esp_err_t err = esp_eth_start(eth_handle);
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "esp_eth_start failed: %s", esp_err_to_name(err));
-    }
-    else
-    {
-        eth_started = true;
-        LOGI(TAG, "Ethernet driver started");
-    }
-}*/
-
 // Safe eth_start: idempotent and mutex-protected
 void eth_start(void)
 {
@@ -493,30 +329,6 @@ void eth_start(void)
 
     xSemaphoreGive(eth_lifecycle_mutex);
 }
-
-/*void eth_stop(void)
-{
-    if (eth_handle == NULL && hw.has_ethernet)
-    {
-        LOGW(TAG, "eth_stop: eth_handle is NULL");
-        return;
-    }
-    if (!eth_started)
-    {
-        LOGI(TAG, "Ethernet already stopped");
-        return;
-    }
-    esp_err_t err = esp_eth_stop(eth_handle);
-    if (err != ESP_OK)
-    {
-        LOGE(TAG, "esp_eth_stop failed: %s", esp_err_to_name(err));
-    }
-    else
-    {
-        eth_started = false;
-        LOGI(TAG, "Ethernet driver stopped");
-    }
-}*/
 
 // Safe eth_stop: idempotent and performs full cleanup
 void eth_stop(void)

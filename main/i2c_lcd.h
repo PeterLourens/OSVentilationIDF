@@ -9,7 +9,6 @@
 
 #include <driver/i2c_master.h>
 
-#include "globals.h"
 #include "general.h"
 #include "wifi_functions.h"
 #include "logging.h"

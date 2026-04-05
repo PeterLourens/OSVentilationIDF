@@ -8,16 +8,16 @@
 
 static const char *TAG = "i2c_LCD";
 
-/* PCF8574 / LCD bits */
+// PCF8574 / LCD bits
 #define LCD_BACKLIGHT 0x08
 #define LCD_ENABLE_BIT 0x04
 #define LCD_READ_WRITE_BIT 0x02
 #define LCD_REGISTER_SELECT 0x01
 
-/* Timeout for i2c operations */
+// Timeout for i2c operations
 #define LCD_I2C_TIMEOUT_TICKS pdMS_TO_TICKS(200)
 
-/* LCD geometry */
+// LCD geometry
 static const int LCD_COLS = 20;
 static const int LCD_ROWS = 4;
 static const uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
@@ -45,7 +45,7 @@ esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle
     return ESP_OK;
 }
 
-/* Low-level write: single-byte write to PCF8574 via dev_handle */
+// Low-level write: single-byte write to PCF8574 via dev_handle
 esp_err_t lcd_dev_write_byte(uint8_t data)
 {
     if (lcd_bus1_handle == NULL)
@@ -56,7 +56,7 @@ esp_err_t lcd_dev_write_byte(uint8_t data)
     return i2c_master_transmit(lcd_bus1_handle, &data, 1, LCD_I2C_TIMEOUT_TICKS);
 }
 
-/* Pulse enable line (data must include RS/RW/backlight) */
+// Pulse enable line (data must include RS/RW/backlight) */
 esp_err_t lcd_pulse_enable(uint8_t data)
 {
     esp_err_t err = lcd_dev_write_byte(data | LCD_ENABLE_BIT);
@@ -70,7 +70,7 @@ esp_err_t lcd_pulse_enable(uint8_t data)
     return ESP_OK;
 }
 
-/* Send nibble (lower 4 bits). Many backpacks map nibble -> P7..P4 */
+// Send nibble (lower 4 bits). Many backpacks map nibble -> P7..P4 */
 esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
 {
     uint8_t out = (uint8_t)((nibble & 0x0F) << 4);
@@ -84,7 +84,7 @@ esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
     return lcd_pulse_enable(out);
 }
 
-/* Send full byte as two nibbles */
+// Send full byte as two nibbles
 static esp_err_t lcd_write_byte(uint8_t byte, uint8_t control_flags)
 {
     esp_err_t err = lcd_write_nibble((byte >> 4) & 0x0F, control_flags);
@@ -103,7 +103,7 @@ static inline esp_err_t lcd_data(uint8_t d)
     return lcd_write_byte(d, LCD_REGISTER_SELECT);
 }
 
-/* Initialize the HD44780 via PCF8574 (4-bit init sequence), call once in task_i2c_lcd */
+// Initialize the HD44780 via PCF8574 (4-bit init sequence), call once in task_i2c_lcd
 esp_err_t i2c_lcd_init_device(void)
 {
     if (lcd_bus1_handle == NULL)
@@ -116,7 +116,7 @@ esp_err_t i2c_lcd_init_device(void)
 
     (void)lcd_dev_write_byte(LCD_BACKLIGHT); // optional quick backlight write (ignore error)
 
-    /* Init sequence: 3x 0x03 then 0x02 to set 4-bit mode */
+    // Init sequence: 3x 0x03 then 0x02 to set 4-bit mode
     lcd_write_nibble(0x03, 0);
     vTaskDelay(pdMS_TO_TICKS(5));
     lcd_write_nibble(0x03, 0);
@@ -157,7 +157,7 @@ esp_err_t i2c_lcd_set_cursor(int row, int col)
     return lcd_command(0x80 | addr);
 }
 
-/* Write a C string to display (handles '\n' and wrapping). Pads/truncates to 20 cols per row */
+// Write a C string to display (handles '\n' and wrapping). Pads/truncates to 20 cols per row
 esp_err_t i2c_lcd_write_text(const char *text)
 {
     if (!text)
@@ -231,7 +231,7 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
 {
     bus_sensor_t meta;
 
-    // --- Read metadata safely ---
+    // Read metadata safely
     if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
         const bus_sensor_t *src =
@@ -249,7 +249,7 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
         meta.co2_enabled = false;
     }
 
-    // --- Extract numeric valve index from meta.valve ---
+    // Extract numeric valve index from meta.valve
     int valve_num = 0;
     {
         const char *p = meta.valve;
@@ -259,12 +259,12 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
             valve_num = atoi(p);
     }
 
-    // --- Read sensor values ---
+    // Read sensor values
     float temp_c = avg[bus][ch][IDX_TEMP];
     float humidity = avg[bus][ch][IDX_HUMIDITY];
     float co2_ppm = avg[bus][ch][IDX_CO2];
 
-    // --- Format output (valve shown as vXX) ---
+    // Format output (valve shown as vXX)
     if (co2_ppm > 0.0f)
     {
         snprintf(out, out_size,
@@ -362,7 +362,7 @@ void build_sm_actuals_buffer(char *buf, size_t buf_size)
     Statemachine_actuals_t snap;
     size_t used = 0;
 
-    // --- Take snapshot under mutex ---
+    // Take snapshot under mutex
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
         snap = sm_actuals;
@@ -374,27 +374,27 @@ void build_sm_actuals_buffer(char *buf, size_t buf_size)
         memset(&snap, 0, sizeof(snap));
     }
 
-    // --- Line 1: State ---
+    // Line 1: State
     const char *state_str = state_nr_to_str((state_nr_t)snap.state);
     int w = snprintf(buf + used, buf_size - used, "STATE:%-12s\n", state_str);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
-    // --- Line 2: Fan speed ---
+    // Line 2: Fan speed
     const char *fan_str = fan_speed_to_str((fan_speed_t)snap.fanspeed);
     w = snprintf(buf + used, buf_size - used, "FAN:   %-12s\n", fan_str);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
-    // --- Line 3: CO2 sensors high ---
+    // Line 3: CO2 sensors high
     w = snprintf(buf + used, buf_size - used, "CO2 HIGH: %2d\n", snap.co2_sensors_high);
     if (w < 0 || w >= (int)(buf_size - used))
         return;
     used += w;
 
-    // --- Line 4: RH sensors high ---
+    // Line 4: RH sensors high
     w = snprintf(buf + used, buf_size - used, "RH HIGH:  %2d", snap.rh_sensors_high);
     if (w < 0 || w >= (int)(buf_size - used))
         return;

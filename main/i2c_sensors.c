@@ -15,9 +15,7 @@ static float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoHead[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 
-// -----------------------------------------------------------------------------
 // Sensor slot model (per bus, per channel)
-// -----------------------------------------------------------------------------
 typedef enum
 {
     SENSOR_NONE = 0,
@@ -287,7 +285,7 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
         .device_address = SCD41_I2C_ADDR,
         .scl_speed_hz = 100000,
-        .scl_wait_us = 2000, /* 2 ms clock-stretch allowance */
+        .scl_wait_us = 2000, // 2 ms clock-stretch allowance
     };
 
     esp_err_t err = i2c_master_bus_add_device(bus_handle, &scd41_cfg, dev_handle);
@@ -544,7 +542,7 @@ esp_err_t init_sensors_on_mux_channels(void)
 
     LOGW(TAG, "INIT: bus0 mux=%p bus1 mux=%p", tca9548_bus0_handle, tca9548_bus1_handle);
 
-    // --- Bus0 ---
+    // Bus0
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus0_sensor_settings[ch].type;
@@ -563,7 +561,7 @@ esp_err_t init_sensors_on_mux_channels(void)
         }
     }
 
-    // --- Bus1 ---
+    // Bus1
     for (uint8_t ch = 0; ch < CHANNELS_PER_BUS; ch++)
     {
         const char *type_str = bus1_sensor_settings[ch].type;

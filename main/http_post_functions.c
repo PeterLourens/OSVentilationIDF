@@ -15,35 +15,35 @@ cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const
 
     for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
     {
-        /* type */
+        // type
         snprintf(key, sizeof(key), "%s%d_type", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
             cJSON_AddStringToObject(obj, key, val);
         else
             cJSON_AddStringToObject(obj, key, "None");
 
-        /* valve */
+        // valve
         snprintf(key, sizeof(key), "%s%d_valve", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
             cJSON_AddStringToObject(obj, key, val);
         else
             cJSON_AddStringToObject(obj, key, "None");
 
-        /* location */
+        // location
         snprintf(key, sizeof(key), "%s%d_location", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
             cJSON_AddStringToObject(obj, key, val);
         else
             cJSON_AddStringToObject(obj, key, "");
 
-        /* RH control (On/Off) */
+        // RH control (On/Off)
         snprintf(key, sizeof(key), "%s%d_rh", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
             cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
         else
             cJSON_AddStringToObject(obj, key, "Off");
 
-        /* CO2 control (On/Off) */
+        // CO2 control (On/Off)
         snprintf(key, sizeof(key), "%s%d_co2", bus_prefix, ch);
         if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
             cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");

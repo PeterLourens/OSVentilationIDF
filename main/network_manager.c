@@ -75,7 +75,7 @@ bool network_manager_is_running(void)
     return manager_running;
 }
 
-// -------------------- Event handlers --------------------
+// Event handlers
 
 // Wi‑Fi events (STA + AP)
 static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
@@ -220,7 +220,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         update_syslog_state();
         network_manager_request_actuals_update();
 
-        // NEW: defer MQTT restart to network_manager_task
+        // Defer MQTT restart to network_manager_task
         s_request_mqtt_restart = true;
         if (network_manager_task_handle != NULL)
             xTaskNotifyGive(network_manager_task_handle);
@@ -421,8 +421,7 @@ static void unregister_event_handlers(void)
     wifi_evt_inst = ip_evt_inst = eth_evt_inst = mqtt_evt_inst = NULL;
 }
 
-// -------------------- Config evaluation --------------------
-
+// Config evaluation and application
 static void evaluate_config_and_apply(void)
 {
     bool wifi_enabled = false;
@@ -472,7 +471,7 @@ static void evaluate_config_and_apply(void)
             esp_netif_set_hostname(n, hostname);
     }
 
-    // ---------- WiFi ----------
+    // WiFi
     if (wifi_enabled)
     {
         if (wifi_manager_init() == ESP_OK)
@@ -512,7 +511,7 @@ static void evaluate_config_and_apply(void)
         wifi_led_set_mode(LED_OFF);
     }
 
-    // ---------- Ethernet ----------
+    // Ethernet
     if (hw.has_ethernet)
     {
         if (eth_enabled)
@@ -530,7 +529,7 @@ static void evaluate_config_and_apply(void)
     }
 }
 
-// -------------------- Main manager task --------------------
+// Main manager task
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;

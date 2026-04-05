@@ -5,8 +5,6 @@
 */
 
 #include "task_mqtt.h"
-#include "mqtt.h"
-#include "network_functions.h"
 
 static const char *TAG = "task_MQTT";
 static StackType_t mqtt_stack[7168];

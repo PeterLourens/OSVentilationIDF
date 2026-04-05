@@ -3,7 +3,6 @@
 
 #include <cJSON.h>
 #include <driver/i2c_master.h>
-// #include <miniz.h>
 
 #include "globals.h"
 #include "general.h"

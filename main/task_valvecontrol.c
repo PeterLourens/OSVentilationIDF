@@ -13,7 +13,6 @@ static size_t valvectrl_stack_size = 4096; // 4096 words = 16 KB
 
 void start_task_valvecontrol(void)
 {
-    // xTaskCreate(task_valvecontrol_code, "task_valvectrl", 4096, NULL, 8, &task_valvectrl);
     task_valvectrl = xTaskCreateStatic(task_valvecontrol_code, "task_valvectrl", valvectrl_stack_size, NULL, 12, valvectrl_stack, &valvectrl_tcb);
 
     if (task_valvectrl == NULL)

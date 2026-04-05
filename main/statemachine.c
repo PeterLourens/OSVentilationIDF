@@ -791,9 +791,7 @@ void high_co2_night_transitions(void)
 
         reading = co2_sensors[i].co2_reading;
 
-        // ------------------------------------------------------------
         // CASE A: No sensor is high → all CO₂ sensor valves open to 20
-        // ------------------------------------------------------------
         if (!any_high)
         {
             valve_open[valve_nr] = true;
@@ -803,9 +801,7 @@ void high_co2_night_transitions(void)
             continue;
         }
 
-        // ------------------------------------------------------------
         // CASE B: At least one sensor is high → hysteresis per valve
-        // ------------------------------------------------------------
         if (valve_open[valve_nr])
         {
             // Valve currently open → close only if below low threshold
@@ -1649,7 +1645,6 @@ void valve_cycle_night_transitions(void)
 
 void manual_high_speed_transitions(void)
 {
-    // int state = STATE_NR_MANUALHS;
     int new_time = 0;
     int state_config_index = 0;
     int state_fanspeed = FAN_SPEED_HIGH;

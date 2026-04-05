@@ -150,7 +150,7 @@ static void mqtt_publish_discovery_for_sensor(int bus, int slot, const char *bas
 	char unique_id[120];
 	char name[60];
 
-	// ---------------- TEMPERATURE ----------------
+	// TEMPERATURE
 	snprintf(state_topic, sizeof(state_topic),
 			 "%s/sensors/bus%d/slot%d/avg/temperature", base, bus, slot);
 	snprintf(object_id, sizeof(object_id),
@@ -165,7 +165,7 @@ static void mqtt_publish_discovery_for_sensor(int bus, int slot, const char *bas
 						   state_topic, "{{ value }}",
 						   unique_id, "mdi:thermometer");
 
-	// ---------------- HUMIDITY ----------------
+	// HUMIDITY
 	snprintf(state_topic, sizeof(state_topic),
 			 "%s/sensors/bus%d/slot%d/avg/humidity", base, bus, slot);
 	snprintf(object_id, sizeof(object_id),
@@ -180,7 +180,7 @@ static void mqtt_publish_discovery_for_sensor(int bus, int slot, const char *bas
 						   state_topic, "{{ value }}",
 						   unique_id, "mdi:water-percent");
 
-	// ---------------- CO2 (ONLY SCD41) ----------------
+	// CO2 (ONLY SCD40/SCD41)
 	if (sensor_supports_co2(bus, slot) && snapshot[IDX_CO2] > 0.0f)
 	{
 		snprintf(state_topic, sizeof(state_topic),
@@ -672,7 +672,7 @@ const char *mqtt_get_node_id(void)
 	if (mqtt_node_id[0] != '\0')
 		return mqtt_node_id;
 
-	// 1) Try hostname from statemachine snapshot
+	// Try hostname from statemachine snapshot
 	if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
 	{
 		/* hostname is a fixed-size array; check first char */
@@ -683,7 +683,7 @@ const char *mqtt_get_node_id(void)
 		xSemaphoreGive(statemachine_mutex);
 	}
 
-	// 2) Fallback: normalized MQTT base topic
+	// Fallback: normalized MQTT base topic
 	if (mqtt_node_id[0] == '\0')
 	{
 		MQTT_config_t cfg;
@@ -702,7 +702,7 @@ const char *mqtt_get_node_id(void)
 		}
 	}
 
-	// 3) Fallback: MAC address
+	// Fallback: MAC address
 	if (mqtt_node_id[0] == '\0')
 	{
 		uint8_t mac[6];
@@ -714,7 +714,7 @@ const char *mqtt_get_node_id(void)
 		}
 	}
 
-	// 4) Final fallback
+	// Final fallback
 	if (mqtt_node_id[0] == '\0')
 	{
 		strncpy(mqtt_node_id, "osventilation", sizeof(mqtt_node_id) - 1);

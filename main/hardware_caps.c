@@ -1,4 +1,9 @@
-// hardware_caps.c
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
 #include "hardware_caps.h"
 
 // default: build for v3 in this branch

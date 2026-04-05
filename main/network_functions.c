@@ -119,7 +119,7 @@ bool network_has_ip(void)
     return ip.ip.addr != 0;
 }
 
-// ========== Ping to gateway functions ==========
+// Ping to gateway functions
 void on_ping_end(esp_ping_handle_t hdl, void *args)
 {
     uint32_t transmitted = 0, received = 0, duration = 0, avg_time = 0;

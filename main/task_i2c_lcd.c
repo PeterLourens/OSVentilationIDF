@@ -94,14 +94,14 @@ void task_i2c_lcd_code(void *pvParameters)
         LOGI(TAG, "Update LCD...");
         i2c_lcd_backlight_set(true);
 
-        //----- Display 1 - General info -----
+        // Display 1 - General info
         formatted_uptime(uptime, sizeof(uptime));
         formatted_datetime(formatted_time, sizeof(formatted_time));
         snprintf(buf, sizeof(buf), "%s\nUp: %s", formatted_time, uptime);
         i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
         vTaskDelay(pdMS_TO_TICKS(3000));
 
-        //----- Display 2 - Network info -----
+        // Display 2 - Network info
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
         {
             // Copy WiFi IP if present
@@ -128,12 +128,12 @@ void task_i2c_lcd_code(void *pvParameters)
         i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
         vTaskDelay(pdMS_TO_TICKS(3000));
 
-        //----- Display 2 - Statemachine state -----
+        // Display 2 - Statemachine state
         build_sm_actuals_buffer(buf, sizeof(buf));
         i2c_lcd_write_text(buf); // your LCD driver handles multiline
         vTaskDelay(pdMS_TO_TICKS(3000));
 
-        //----- Display 3 - Sensors -----
+        // Display 3 - Sensors
         if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
         {
             LOGE(TAG, "Failed to read avg sensor queue");
@@ -165,21 +165,9 @@ void task_i2c_lcd_code(void *pvParameters)
             }
         }
 
-        //----- Display 4 - Valve positions -----
+        // Display 4 - Valve positions
         build_valve_positions_buffer(buf, sizeof(buf));
         i2c_lcd_write_text(buf);
         vTaskDelay(pdMS_TO_TICKS(3000));
-
-        /*float temp_c = 0;
-        ds3231_health_monitor(ds3231_bus0_handle);
-        ds3231_read_temperature(ds3231_bus0_handle, &temp_c);
-        ds3231_check_status(ds3231_bus0_handle, ds3231_status, sizeof(ds3231_status));
-
-        snprintf(lcd_contents, sizeof(lcd_contents), "DS3231 Temp: %.2f C%s", temp_c, ds3231_status);
-        i2c_lcd_write_text(lcd_contents);*/
-
-        // vTaskDelay(pdMS_TO_TICKS(10000));
-        // i2c_lcd_clear();
-        // i2c_lcd_backlight_set(false);
     }
 }

@@ -25,9 +25,8 @@ static const char *fanspeed_to_str(int s)
     }
 }
 
-/* Helper: perform a simple HTTP GET and capture the response body (truncated to out_buf_len-1)
- * Returns HTTP status code on success, or a negative error code on failure.
- */
+// Helper: perform a simple HTTP GET and capture the response body (truncated to out_buf_len-1)
+// Returns HTTP status code on success, or a negative error code on failure.
 static int do_http_get(const char *url, char *out_buf, size_t out_buf_len)
 {
     esp_http_client_config_t config = {
@@ -80,10 +79,10 @@ void set_fanspeed(int fanspeed)
     char fan_control_mqtt_topic[XLARGE_CONFIG_ITEM];
     char http_payload[XLARGE_CONFIG_ITEM] = "";
 
-    /* Use integer fanspeed passed in (0=error,1=low,2=medium,3=high) */
+    // Use integer fanspeed passed in (0=error,1=low,2=medium,3=high)
     int cur_speed = fanspeed;
 
-    /* Read fan control config under fan_config_mutex */
+    // Read fan control config under fan_config_mutex
     if (fan_config_mutex && xSemaphoreTake(fan_config_mutex, (TickType_t)50) == pdTRUE)
     {
         strncpy(fan_control_mode, fan_config.fan_control_mode, sizeof(fan_control_mode) - 1);
@@ -109,7 +108,7 @@ void set_fanspeed(int fanspeed)
     if (strcmp(fan_control_mode, "MQTT publish") == 0)
     {
         LOGD(TAG, "Using MQTT to set fan speed");
-        /* Not yet implemented: subscribe/publish to MQTT topic */
+        // Not yet implemented: subscribe/publish to MQTT topic
     }
     else if (strcmp(fan_control_mode, "HTTP API") == 0)
     {

@@ -9,7 +9,6 @@
 
 #include <driver/i2c_master.h>
 
-#include "globals.h"
 #include "general.h"
 #include "statemachine.h"
 #include "statemachine_helper.h"

@@ -16,7 +16,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
 
-#include "globals.h"
 #include "i2c_ds3231.h"
 #include "logging.h"
 
@@ -25,7 +24,6 @@ extern TaskHandle_t influx_sender_task_handle;
 
 // Function definitions
 bool influxdb_wait_ready(TickType_t);
-void influxdb_test_direct(void);
 bool influxdb_init_sender(void);
 bool influxdb_enqueue_payload(const char *payload, size_t len);
 void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q);

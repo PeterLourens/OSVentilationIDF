@@ -7,8 +7,6 @@
 #ifndef TASK_VALVECONTROL_H
 #define TASK_VALVECONTROL_H
 
-#include "globals.h"
-#include "general.h"
 #include "valvecontrol.h"
 
 // function declarations

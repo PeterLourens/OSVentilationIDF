@@ -88,7 +88,7 @@ int uart_log_output(const char *szFormat, va_list args)
     return (0);
 }
 
-/* atomic write helper — writes tmp -> rename */
+// atomic write helper — writes tmp -> rename
 bool write_json_atomic_fs(const char *path, cJSON *root)
 {
     if (!path || !root)

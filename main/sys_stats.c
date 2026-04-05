@@ -23,9 +23,6 @@ typedef struct
     bool dhcp;
 } EthSnapshot_t;
 
-// Structure to hold ethernet snapshot
-// static EthSnapshot_t eth_snapshot = {0};
-
 // Safe append macro
 #define SAFE_APPEND(fmt, ...)                                               \
     do                                                                      \
@@ -40,7 +37,7 @@ typedef struct
         used += _n;                                                         \
     } while (0)
 
-// -- -Helpers-- -
+// Helpers
 static void sys_stats_init_temp_sensor(void)
 {
     if (temp_sensor_initialized)

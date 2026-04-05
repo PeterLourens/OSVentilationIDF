@@ -18,7 +18,6 @@ static void start_network_services(void)
     start_task_statemachine();
     start_task_mqtt();
     start_task_influxdb();
-    // Start MQTT, InfluxDB, etc. AFTER HTTP server
 
     syslog_send_line("Boot complete, system running");
 }
@@ -206,8 +205,6 @@ void app_main(void)
 
     // Start tasks
     LOGI(TAG, "Starting system tasks...");
-    // start_task_wifi();
-    // start_task_eth();
     network_manager_start(); // starts network manager task which starts Wi‑Fi and Ethernet as needed
     start_task_i2c_ds3231();
     start_task_i2c_sensors();

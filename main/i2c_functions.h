@@ -10,7 +10,6 @@
 #include <driver/i2c_master.h>
 #include <esp_log.h>
 
-#include "globals.h"
 #include "logging.h"
 
 // Function declarations

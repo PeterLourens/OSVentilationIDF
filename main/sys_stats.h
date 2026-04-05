@@ -9,7 +9,6 @@
 
 #include <driver/temperature_sensor.h>
 
-#include "globals.h"
 #include "general.h"
 #include "logging.h"
 #include "http_functions.h"

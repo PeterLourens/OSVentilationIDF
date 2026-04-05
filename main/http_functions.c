@@ -236,7 +236,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-/* POST handler: save bus0 config to /data/json/bus0_sensor_config.json */
+// POST handler: save bus0 config to /data/json/bus0_sensor_config.json
 static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -288,7 +288,7 @@ static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-/* POST handler: save bus1 config to /data/json/bus1_sensor_config.json */
+// POST handler: save bus1 config to /data/json/bus1_sensor_config.json
 static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -363,30 +363,6 @@ static esp_err_t restart_esp_post_handler(httpd_req_t *req)
     esp_restart();
     return ESP_OK; // never reached
 }
-
-// POST handler: delete bus0 config file
-/*static esp_err_t delete_bus0_config_post_handler(httpd_req_t *req)
-{
-    const char *path = "/data/json/bus0_sensor_config.json";
-    remove(path); // ignore errors
-
-    // return original page body
-    httpd_resp_set_type(req, "text/html");
-    size_t len = sensor_config_html_end - sensor_config_html_start;
-    return httpd_resp_send(req, sensor_config_html_start, len);
-}*/
-
-// POST handler: delete bus1 config file
-/*static esp_err_t delete_bus1_config_post_handler(httpd_req_t *req)
-{
-    const char *path = "/data/json/bus1_sensor_config.json";
-    remove(path); // ignore errors
-
-    // return original page body
-    httpd_resp_set_type(req, "text/html");
-    size_t len = sensor_config_html_end - sensor_config_html_start;
-    return httpd_resp_send(req, sensor_config_html_start, len);
-}*/
 
 // POST handler: save wifi configuration to flash
 static esp_err_t wifi_config_post_handler(httpd_req_t *req)
@@ -1146,7 +1122,7 @@ static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
 
 static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
 {
-    // 1. Read entire uploaded file into RAM (tar is small ~23 KB)
+    // Read entire uploaded file into RAM (tar is small ~23 KB)
     size_t total = req->content_len;
     if (total == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty upload");
@@ -1167,7 +1143,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
         rec += r;
     }
 
-    // 2. Parse tar entries
+    // Parse tar entries
     size_t pos = 0;
     while (pos + 512 <= total)
     {
@@ -1230,7 +1206,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
 
     free(tarbuf);
 
-    // 3. Reload all configs
+    // Reload all configs
     load_wifi_config();
     load_ethernet_config();
     load_i2c_config();
@@ -1266,7 +1242,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
         strcpy(referer, "/config.html");
     }
 
-    // 4. Return config page
+    // Return config page
     httpd_resp_set_status(req, "303 See Other");
     httpd_resp_set_hdr(req, "Location", referer);
     return httpd_resp_send(req, NULL, 0);

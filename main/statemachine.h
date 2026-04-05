@@ -27,7 +27,7 @@ void valve_cycle_day_transitions(void);
 void valve_cycle_night_transitions(void);
 void manual_high_speed_transitions(void);
 
-/* Sensor helpers exposed so other translation units can inspect selected sensors */
+// Sensor helpers exposed so other translation units can inspect selected sensors
 typedef struct
 {
     char *valve;

@@ -1,8 +1,7 @@
 /*
-    wifi_functions.c
-    WiFi driver + config helpers only.
+    This file is part of the OSVentilationIDF project.
 
-    All events and LEDs are handled in network_manager.c.
+    Copyright (C) 2023-2026 Peter Lourens
 */
 
 #include "wifi_functions.h"
@@ -373,7 +372,6 @@ bool wifi_manager_is_connected(void)
 
     EventBits_t bits = xEventGroupGetBits(s_wifi_event_group);
     bool is_connected = (bits & WIFI_CONNECTED_BIT) != 0;
-    // bool is_ap_mode = (bits & AP_STARTED_BIT) != 0;
 
     return (is_connected);
 }

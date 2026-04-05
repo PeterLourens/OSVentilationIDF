@@ -634,9 +634,7 @@ void select_sensors(void)
             xSemaphoreGive(sensor_cfg_mutex);
         }
 
-        // -----------------------------
         // CO₂ sensors (bus 0)
-        // -----------------------------
         if (s0 && s0->co2_enabled && j < MAX_SENSORS)
         {
             const char *valve = safe_str(s0->valve);
@@ -652,9 +650,7 @@ void select_sensors(void)
             j++;
         }
 
-        // -----------------------------
         // CO₂ sensors (bus 1)
-        // -----------------------------
         if (s1 && s1->co2_enabled && j < MAX_SENSORS)
         {
             const char *valve = safe_str(s1->valve);
@@ -670,9 +666,7 @@ void select_sensors(void)
             j++;
         }
 
-        // -----------------------------
         // RH sensors (bus 0)
-        // -----------------------------
         if (s0 && s0->rh_enabled && k < MAX_SENSORS)
         {
             const char *valve = safe_str(s0->valve);
@@ -688,9 +682,7 @@ void select_sensors(void)
             k++;
         }
 
-        // -----------------------------
         // RH sensors (bus 1)
-        // -----------------------------
         if (s1 && s1->rh_enabled && k < MAX_SENSORS)
         {
             const char *valve = safe_str(s1->valve);
@@ -711,7 +703,7 @@ void select_sensors(void)
     rh_sensor_counter = k;
 }
 
-/* Consume (check-and-clear) request set by POST handler. Returns true if move was requested. */
+// Consume (check-and-clear) request set by POST handler. Returns true if move was requested.
 bool statemachine_consume_valve_move_request(void)
 {
     bool rv = false;
@@ -724,7 +716,7 @@ bool statemachine_consume_valve_move_request(void)
     else
     {
         LOGE(TAG, "Could not take valve_control_data_mutex to consume POST move request.");
-        /* conservative: avoid triggering move if mutex cannot be taken */
+        // conservative: avoid triggering move if mutex cannot be taken
         rv = false;
     }
     return rv;

@@ -14,7 +14,6 @@ static size_t influxdb_stack_size = 8192; // 8192 words = 32 KB
 void start_task_influxdb(void)
 {
     // Create influxdb task
-    // xTaskCreate(task_influxdb_code, "influxdb", 8192, NULL, 12, &task_influxdb);
     task_influxdb = xTaskCreateStatic(task_influxdb_code, "influxdb", influxdb_stack_size, NULL, 6, influxdb_stack, &influxdb_tcb);
 
     if (task_influxdb == NULL)

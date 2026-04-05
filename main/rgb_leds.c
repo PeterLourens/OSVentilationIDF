@@ -12,12 +12,8 @@ static const char *TAG = "RGB_LED";
 led_strip_handle_t rgb_leds = NULL;
 
 static uint8_t led_brightness = 16;
-
-// Local snapshot (copied by LED task)
-static Statemachine_actuals_t sm_snap;
-
+static Statemachine_actuals_t sm_snap; // Local snapshot (copied by LED task)
 static bool blink0 = false;
-// static bool blink1 = false;
 
 const Color_t COLORS[] = {
     {255, 0, 0},     // RED
@@ -123,9 +119,7 @@ esp_err_t init_rgb_led(void)
     return err;
 }
 
-// ---------------------------------------------------------------------------
 // BRIGHTNESS HELPERS
-// ---------------------------------------------------------------------------
 static uint8_t apply_brightness(uint8_t c, uint8_t b)
 {
     return (c * b) / 255;
@@ -136,9 +130,7 @@ void leds_set_brightness(uint8_t b)
     led_brightness = b;
 }
 
-// ---------------------------------------------------------------------------
 // BASIC LED SET
-// ---------------------------------------------------------------------------
 void set_led_brightness(int led, ColorName_t color, uint8_t brightness)
 {
     const Color_t *c = &COLORS[color];
@@ -161,9 +153,7 @@ void set_off(int led)
     led_strip_set_pixel(rgb_leds, led, 0, 0, 0);
 }
 
-// ---------------------------------------------------------------------------
 // BLINK TOGGLE STATE
-// ---------------------------------------------------------------------------
 void toggle_led(int led, ColorName_t color, bool *state)
 {
     *state = !*state;
@@ -174,15 +164,13 @@ void toggle_led(int led, ColorName_t color, bool *state)
         set_off(led);
 }
 
-// ---------------------------------------------------------------------------
 // MAIN LED UPDATE (called by LED task)
-// ---------------------------------------------------------------------------
 void leds_update(const Statemachine_actuals_t *sm)
 {
     // Copy snapshot
     sm_snap = *sm;
 
-    // ---------------- LED0: STATE ----------------
+    // LED0: STATE
     if (sm_snap.state == 0)
     {
         toggle_led(0, COLOR_RED, &blink0);
@@ -197,10 +185,9 @@ void leds_update(const Statemachine_actuals_t *sm)
         set_led(0, state_to_color(sm_snap.state));
     }
 
-    // --- LED1: Network status at startup, fanspeed with periodic blink when running ---
+    // LED1: Network status at startup, fanspeed with periodic blink when running
     static bool startup_mode = true;
     static bool blink_override = false;
-    // static bool net_toggle = false;
     static bool net_phase = false; // false = ETH color, true = WIFI color
 
     static int startup_counter = 0;

@@ -5,8 +5,6 @@
 */
 
 #include "mqtt_handlers.h"
-#include "statemachine.h"
-#include "esp_log.h"
 
 static const char *TAG = "mqtt_handlers";
 

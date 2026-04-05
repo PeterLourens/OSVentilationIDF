@@ -9,17 +9,12 @@
 
 #include <math.h> // For isfinite()
 
-#include "globals.h"
 #include "general.h"
 #include "statemachine.h"
-// #include "i2c_sensors.h"
 #include "logging.h"
 
 // Sensor averaging helpers
 void sensor_data_average(void);
-
-// Push sensor value into FIFO for moving average calculation
-// void fifoPush(int bus, int slot, int measurement, float value, int pos);
 
 // Return index of a state by case-insensitive name, or -1 if not found
 int find_state_index_by_name_ci(const char *name);
@@ -36,4 +31,4 @@ bool valve_cycle_times_night(void);
 // Select sensors which have high readings
 void select_sensors(void);
 
-#endif /* STATEMACHINE_HELPER_H */
+#endif

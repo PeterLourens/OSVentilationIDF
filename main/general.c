@@ -160,8 +160,8 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
         return ESP_FAIL;
     }
 
-    size_t len = fread(buffer, 1, bufferSize - 1, file); // Leave space for '\0'
-    buffer[len] = '\0';                                  // Null-terminate
+    size_t len = fread(buffer, 1, bufferSize - 1, file);
+    buffer[len] = '\0';
     fclose(file);
 
     if (len == 0)
@@ -170,7 +170,7 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
         return ESP_ERR_INVALID_SIZE;
     }
 
-    // ESP_LOGI(TAG, "Read %zu bytes from %s", len, path);
+    ESP_LOGD(TAG, "Read %zu bytes from %s", len, path);
     return ESP_OK;
 }
 
@@ -178,7 +178,6 @@ esp_err_t create_mutexes(void)
 {
     bool ok = true;
 
-    // Mutex for valve movement locking
     lock_valve_move_mutex = xSemaphoreCreateMutex();
     if (lock_valve_move_mutex == NULL)
     {
@@ -186,7 +185,6 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
-    // Mutex for sensor config settings
     sensor_cfg_mutex = xSemaphoreCreateMutex();
     if (sensor_cfg_mutex == NULL)
     {
@@ -194,7 +192,6 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
-    // Mutex for network settings
     network_config_mutex = xSemaphoreCreateMutex();
     if (network_config_mutex == NULL)
     {
@@ -202,7 +199,6 @@ esp_err_t create_mutexes(void)
         ok = false;
     }
 
-    // Mutex for time settings
     time_config_mutex = xSemaphoreCreateMutex();
     if (time_config_mutex == NULL)
     {
@@ -355,7 +351,7 @@ void init_timezone(void)
     char ntp_server[64];
     char timezone[64];
 
-    // --- Read config under mutex ---
+    // Read config under mutex
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         LOGE(TAG, "Failed to acquire time_config mutex");

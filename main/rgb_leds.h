@@ -11,7 +11,6 @@
 #include <esp_log.h>
 #include <led_strip.h>
 
-#include "globals.h"
 #include "logging.h"
 
 #define RGB_LED_NUM 2             // The number of LEDs (pixels) on WS2812B LED strip

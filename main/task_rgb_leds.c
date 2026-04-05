@@ -14,7 +14,6 @@ static size_t rgb_leds_stack_size = 5120; // 5120 words = 20 KB
 void start_task_rgb_leds(void)
 {
     // Create LCD task
-    // xTaskCreate(task_rgb_leds_code, "rgb_leds", 4096, NULL, 2, &task_rgb_leds);
     task_rgb_leds = xTaskCreateStatic(task_rgb_leds_code, "rgb_leds", rgb_leds_stack_size, NULL, 9, rgb_leds_stack, &rgb_leds_tcb);
 
     if (task_rgb_leds == NULL)

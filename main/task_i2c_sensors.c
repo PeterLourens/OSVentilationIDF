@@ -13,7 +13,6 @@ static size_t i2c_sensors_stack_size = 5120; // 5120 words = 20.480 KB
 
 void start_task_i2c_sensors(void)
 {
-    // xTaskCreate(task_i2c_sensors_code, "i2c_sensors", 4096, NULL, 10, &task_i2c_sensors);
     task_i2c_sensors = xTaskCreateStatic(task_i2c_sensors_code, "i2c_sensors", i2c_sensors_stack_size, NULL, 6, i2c_sensors_stack, &i2c_sensors_tcb);
 }
 
@@ -21,9 +20,7 @@ void task_i2c_sensors_code(void *pvParameters)
 {
     esp_err_t err = ESP_OK;
 
-    // ------------------------------------------------------------
     // Create queues for raw and averaged sensor data
-    // ------------------------------------------------------------
     size_t snap_count = MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
     size_t snapshot_bytes = sizeof(float) * snap_count;
 
@@ -46,9 +43,7 @@ void task_i2c_sensors_code(void *pvParameters)
     }
     LOGD(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
 
-    // ------------------------------------------------------------
     // Initialize both TCA9548A multiplexers
-    // ------------------------------------------------------------
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
     if (err != ESP_OK)
         LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
@@ -61,9 +56,7 @@ void task_i2c_sensors_code(void *pvParameters)
     else
         LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
 
-    // ------------------------------------------------------------
     // Main loop: read + average
-    // ------------------------------------------------------------
     while (1)
     {
         // DO NOT reinitialize sensors here — only read them

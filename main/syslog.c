@@ -57,7 +57,7 @@ void syslog_send_line(const char *line)
         return;
     }
 
-    /* ---- Read syslog config safely ---- */
+    // Read syslog config safely
     char ip[MEDIUM_CONFIG_ITEM] = {0};
     char port_str[SMALL_CONFIG_ITEM] = {0};
     char hostname[MEDIUM_CONFIG_ITEM] = {0};
@@ -68,7 +68,7 @@ void syslog_send_line(const char *line)
 
     xSemaphoreTake(syslog_config_mutex, portMAX_DELAY);
 
-    /* Master switch: "On" or "Off" */
+    // Master switch: "On" or "Off"
     enabled = (strcmp(syslog_config.enable_syslog, "On") == 0);
 
     if (enabled)
@@ -82,11 +82,11 @@ void syslog_send_line(const char *line)
 
     xSemaphoreGive(syslog_config_mutex);
 
-    /* ---- Hard disable: exit immediately ---- */
+    // Hard disable: exit immediately
     if (!enabled)
         return;
 
-    /* ---- Validate config ---- */
+    // Validate config
     int port = atoi(port_str);
     if (port <= 0 || port > 65535)
     {
@@ -109,7 +109,7 @@ void syslog_send_line(const char *line)
     if (strlen(device_id) == 0)
         snprintf(device_id, sizeof(device_id), "%s", "set device ID");
 
-    /* ---- Build syslog message ---- */
+    // Build syslog message
     char *msg = NULL;
     int n = asprintf(&msg, "<13>%s %s: %s\n", hostname, appname, line);
     if (n < 0 || !msg)
@@ -118,7 +118,7 @@ void syslog_send_line(const char *line)
         return;
     }
 
-    /* ---- Create UDP socket ---- */
+    // Create UDP socket
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0)
     {
@@ -140,7 +140,7 @@ void syslog_send_line(const char *line)
         return;
     }
 
-    /* ---- Send message ---- */
+    // Send message
     int sent = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
 
     if (sent < 0)
@@ -152,7 +152,7 @@ void syslog_send_line(const char *line)
     free(msg);
 }
 
-/* Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key) */
+// Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key)
 bool network_wait_for_ip(int max_retries, int delay_ms, const char *netif_key)
 {
     int retries = 0;

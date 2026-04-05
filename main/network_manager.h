@@ -20,11 +20,9 @@
 #include <mqtt_client.h>
 #include <mqtt5_client.h>
 
-#include "globals.h" // assumes sm_actuals, config structs, mutexes, etc. are declared here
+#include "globals.h"
 #include "network_functions.h"
 #include "mqtt.h"
-
-// Public API
 
 // Request Home Assistant discovery to be performed (non-blocking; schedules discovery in MQTT task context).
 void mqtt_request_homeassistant_discovery(void);

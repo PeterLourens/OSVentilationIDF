@@ -11,7 +11,6 @@
 #include <mqtt5_client.h>
 #include <esp_event.h>
 
-#include "globals.h"
 #include "general.h"
 #include "statemachine_states.h"
 #include "statemachine_helper.h"
@@ -30,7 +29,6 @@ bool mqtt_wait_for_connection(TickType_t);
 void mqtt_set_connected(bool state);
 bool mqtt_is_connected(void);
 esp_err_t mqtt_start(const MQTT_config_t *cfg);
-void mqtt_apply_config_change(void);
 void mqtt_publish_sensor_values(void);
 void mqtt_publish_valve_positions(void);
 void mqtt_publish_state_and_fanspeed(void);

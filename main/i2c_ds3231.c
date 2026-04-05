@@ -128,7 +128,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     char ntp_server[64];
     char timezone[64];
 
-    // --- Read config under mutex ---
+    // Read config under mutex
     if (xSemaphoreTake(time_config_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
     {
         LOGE(TAG, "Failed to acquire time_config mutex");
@@ -141,7 +141,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     timezone[sizeof(timezone) - 1] = '\0';
     xSemaphoreGive(time_config_mutex);
 
-    // --- Check network availability (Ethernet preferred, Wi-Fi fallback) ---
+    // Check network availability (Ethernet preferred, Wi-Fi fallback)
     if (!network_has_ip())
     {
         LOGW(TAG, "No network available, fallback to DS3231");
@@ -159,12 +159,12 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
         return ESP_FAIL;
     }
 
-    // --- Configure timezone ---
+    // Configure timezone
     // Set at start, not here
     // setenv("TZ", timezone, 1);
     // tzset();
 
-    // --- Configure SNTP ---
+    // Configure SNTP
     esp_sntp_stop();
     esp_sntp_setoperatingmode(ESP_SNTP_OPMODE_POLL);
     esp_sntp_setservername(0, ntp_server);
@@ -172,7 +172,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 
     LOGI(TAG, "SNTP started with server: %s, TZ: %s", ntp_server, timezone);
 
-    // --- Wait for sync ---
+    // Wait for sync
     int retry = 0;
     const int retry_count = 10;
     while (retry < retry_count)
@@ -191,7 +191,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
         return ESP_FAIL;
     }
 
-    // --- Log current time ---
+    // Log current time
     time_t now;
     struct tm timeinfo;
     time(&now);
@@ -204,7 +204,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeinfo);
     LOGI(TAG, "System time synchronized (UTC): %s", buf);
 
-    // --- Update DS3231 ---
+    // Update DS3231
     esp_err_t err = ds3231_set_time(dev_handle, &timeinfo);
     if (err == ESP_OK)
     {
@@ -219,7 +219,7 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
     return ESP_OK;
 }
 
-// --- Low-level helpers ---
+// Low-level helpers
 esp_err_t ds3231_read_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t *val)
 {
     return i2c_master_transmit_receive(dev, &reg, 1, val, 1, pdMS_TO_TICKS(100));
@@ -231,7 +231,7 @@ esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val
     return i2c_master_transmit(dev, buf, 2, pdMS_TO_TICKS(100));
 }
 
-// --- Temperature ---
+// Temperature
 esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
 {
     uint8_t reg = DS3231_REG_TEMP_MSB;
@@ -246,7 +246,7 @@ esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
     return ESP_OK;
 }
 
-// --- Status + health check ---
+// Status + health check
 esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t bufsize)
 {
     uint8_t status;
@@ -279,7 +279,7 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
     return ESP_OK;
 }
 
-// --- Combined health check ---
+// Combined health check
 void ds3231_health_monitor(i2c_master_dev_handle_t dev)
 {
     float temp_c = 0;

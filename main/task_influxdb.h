@@ -7,7 +7,6 @@
 #ifndef TASK_INFLUXDB_H
 #define TASK_INFLUXDB_H
 
-#include "globals.h"
 #include "influxdb.h"
 #include "logging.h"
 
