@@ -13,6 +13,7 @@ esp_eth_handle_t eth_handle = NULL;
 
 static bool eth_started = false;
 static bool s_eth_initialized = false;
+static volatile bool s_eth_shutting_down = false;
 
 static SemaphoreHandle_t eth_lifecycle_mutex = NULL;
 static esp_eth_netif_glue_handle_t eth_glue = NULL;
@@ -36,10 +37,7 @@ void eth_teardown_safe(void)
     eth_lifecycle_init_once();
 
     if (!hw.has_ethernet)
-    {
-        LOGI(TAG, "eth_teardown_safe: no ethernet on this hardware");
         return;
-    }
 
     if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(5000)) != pdTRUE)
     {
@@ -47,61 +45,45 @@ void eth_teardown_safe(void)
         return;
     }
 
-    LOGI(TAG, "eth_teardown_safe: begin (eth_handle=%p eth_netif=%p eth_glue=%p)",
-         (void *)eth_handle, (void *)eth_netif, (void *)eth_glue);
+    // Unregister ETH event handlers here if you registered per-device
+    // esp_event_handler_instance_unregister(ETH_EVENT, ...);
 
-    /* 1) Stop DHCP client on the netif (best effort) */
+    // Stop DHCP client (best effort)
     if (eth_netif)
     {
         esp_err_t r = esp_netif_dhcpc_stop(eth_netif);
         if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
-        {
             LOGW(TAG, "dhcpc_stop -> %s", esp_err_to_name(r));
-        }
     }
 
-    /* 2) Stop the Ethernet driver if started */
+    // Stop driver
     if (eth_handle && eth_started)
     {
         esp_err_t r = esp_eth_stop(eth_handle);
         if (r != ESP_OK)
             LOGW(TAG, "esp_eth_stop -> %s", esp_err_to_name(r));
-        else
-            LOGI(TAG, "esp_eth_stop succeeded");
         eth_started = false;
     }
 
-    /* 3) Delete glue if present (this will detach glue from netif internally) */
+    // Delete glue (if present)
     if (eth_glue)
     {
         esp_err_t r = esp_eth_del_netif_glue(eth_glue);
         if (r != ESP_OK)
             LOGW(TAG, "esp_eth_del_netif_glue -> %s", esp_err_to_name(r));
-        else
-            LOGI(TAG, "esp_eth_del_netif_glue succeeded");
         eth_glue = NULL;
     }
-    else
-    {
-        LOGD(TAG, "no eth_glue to delete");
-    }
 
-    /* 4) Uninstall driver (frees driver resources) */
+    // Uninstall driver
     if (eth_handle)
     {
         esp_err_t r = esp_eth_driver_uninstall(eth_handle);
         if (r != ESP_OK)
             LOGW(TAG, "esp_eth_driver_uninstall -> %s", esp_err_to_name(r));
-        else
-            LOGI(TAG, "esp_eth_driver_uninstall succeeded");
         eth_handle = NULL;
     }
-    else
-    {
-        LOGD(TAG, "no eth_handle to uninstall");
-    }
 
-    /* 5) Clear netif pointer and flags */
+    // Clear netif pointer only after glue removed
     eth_netif = NULL;
     s_eth_initialized = false;
     eth_started = false;
@@ -515,4 +497,15 @@ esp_err_t ethernet_config_apply(void)
 
     LOGI(TAG, "Static IP applied: %s", local.ip_address);
     return ESP_OK;
+}
+
+// Mark that ethernet is being torn down (or cleared). Use accessor functionsso other modules don't reference the static variable directly.
+void eth_set_shutting_down(bool v)
+{
+    s_eth_shutting_down = v;
+}
+
+bool eth_is_shutting_down(void)
+{
+    return s_eth_shutting_down;
 }

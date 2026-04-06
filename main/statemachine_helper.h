@@ -12,6 +12,7 @@
 #include "general.h"
 #include "statemachine.h"
 #include "logging.h"
+#include "globals.h" // for sensor queue readiness globals if needed
 
 // Sensor averaging helpers
 void sensor_data_average(void);

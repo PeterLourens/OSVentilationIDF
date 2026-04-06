@@ -20,41 +20,71 @@ void task_i2c_sensors_code(void *pvParameters)
 {
     esp_err_t err = ESP_OK;
 
-    // Create queues for raw and averaged sensor data
-    size_t snap_count = MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
-    size_t snapshot_bytes = sizeof(float) * snap_count;
+    // Compute snapshot size (must match other modules)
+    const size_t snap_count = (size_t)MAX_I2C_BUSES * (size_t)CHANNELS_PER_BUS * (size_t)DATA_FIELDS;
+    const size_t snapshot_bytes = sizeof(float) * snap_count;
 
-    sensor_queue = xQueueCreate(1, snapshot_bytes);
-    sensor_avg_queue = xQueueCreate(1, snapshot_bytes);
+    // Record item size globally so other tasks can sanity-check before peeking
+    sensor_avg_item_size = snapshot_bytes;
 
-    if (!sensor_queue)
+    ESP_LOGD(TAG, "task_i2c_sensors: snapshot_bytes=%zu, free_heap=%u", snapshot_bytes, esp_get_free_heap_size());
+
+    // Static storage must match the snapshot layout exactly
+    static uint8_t sensor_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
+    static StaticQueue_t sensor_queue_struct;
+
+    static uint8_t sensor_avg_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
+    static StaticQueue_t sensor_avg_queue_struct;
+
+    // Create static queues (1 slot each) to avoid large heap allocations
+    sensor_queue = xQueueCreateStatic(1,snapshot_bytes,sensor_queue_storage,&sensor_queue_struct);
+
+    if (sensor_queue == NULL)
     {
-        LOGE(TAG, "failed to create sensor_queue (%u bytes)", snapshot_bytes);
+        ESP_LOGE(TAG, "xQueueCreateStatic(sensor_queue) failed (item size=%zu) free_heap=%u", snapshot_bytes, esp_get_free_heap_size());
+        // Terminate task cleanly; consumers will wait for readiness flag
         vTaskDelete(NULL);
         return;
     }
-    LOGD(TAG, "created sensor_queue, item size=%u", snapshot_bytes);
+    ESP_LOGD(TAG, "created static sensor_queue, item size=%zu", snapshot_bytes);
 
-    if (!sensor_avg_queue)
+    sensor_avg_queue = xQueueCreateStatic(1,snapshot_bytes,sensor_avg_queue_storage,&sensor_avg_queue_struct);
+
+    if (sensor_avg_queue == NULL)
     {
-        LOGE(TAG, "failed to create sensor_avg_queue (%u bytes)", snapshot_bytes);
+        ESP_LOGE(TAG, "xQueueCreateStatic(sensor_avg_queue) failed (item size=%zu) free_heap=%u", snapshot_bytes, esp_get_free_heap_size());
+        // Clean up previously created queue before exiting
+        vQueueDelete(sensor_queue);
+        sensor_queue = NULL;
         vTaskDelete(NULL);
         return;
     }
-    LOGD(TAG, "created sensor_avg_queue, item size=%u", snapshot_bytes);
+    ESP_LOGD(TAG, "created static sensor_avg_queue, item size=%zu", snapshot_bytes);
 
-    // Initialize both TCA9548A multiplexers
+    // Signal readiness for consumers
+    sensors_queues_ready = true;
+    ESP_LOGI(TAG, "sensor queues ready");
+
+    // Initialize both TCA9548A multiplexers (log but continue even if one fails)
     err = i2c_init_tca9548(i2c_bus0_handle, &tca9548_bus0_handle);
     if (err != ESP_OK)
-        LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
+    {
+        ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 0: %s", esp_err_to_name(err));
+    }
     else
-        LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
+    {
+        ESP_LOGI(TAG, "TCA9548 initialized on bus 0 successfully");
+    }
 
     err = i2c_init_tca9548(i2c_bus1_handle, &tca9548_bus1_handle);
     if (err != ESP_OK)
-        LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
+    {
+        ESP_LOGE(TAG, "Failed to initialize TCA9548 on bus 1: %s", esp_err_to_name(err));
+    }
     else
-        LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
+    {
+        ESP_LOGI(TAG, "TCA9548 initialized on bus 1 successfully");
+    }
 
     // Main loop: read + average
     while (1)
@@ -63,7 +93,7 @@ void task_i2c_sensors_code(void *pvParameters)
         err = read_sensors_into_queue();
         if (err != ESP_OK)
         {
-            LOGE(TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
+            ESP_LOGE(TAG, "Failed to read sensors into queue: %s", esp_err_to_name(err));
         }
 
         sensor_data_average();

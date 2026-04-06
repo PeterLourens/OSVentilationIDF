@@ -11,6 +11,13 @@ const char *TAG = "syslog";
 // Enable syslog when wifi network is connected
 bool syslog_enabled = false;
 
+/* Diagnostic/backoff state for syslog sends.
+   We keep a single backoff timestamp to avoid tight retry loops when the
+   network or remote syslog server is unreachable. */
+static int64_t s_last_syslog_fail_ms = 0;
+#define SYSLOG_RETRY_BACKOFF_MS 5000
+
+// Enable syslog when wifi network is connected
 static bool syslog_network_ready(void)
 {
     // Ethernet preferred
@@ -42,6 +49,59 @@ static bool syslog_network_ready(void)
     }
 
     return false;
+}
+
+/*
+ * safe_syslog_send
+ *
+ * Non-blocking diagnostic wrapper around sendto() tailored for the existing
+ * syslog implementation which creates a transient UDP socket per message.
+ *
+ * - Applies a short backoff when repeated failures occur to avoid tight retry loops.
+ * - Uses MSG_DONTWAIT to avoid blocking in small-stack contexts.
+ * - Logs errno and strerror for diagnostics.
+ *
+ * Returns: number of bytes sent on success (>=0), -1 on failure (errno preserved).
+ */
+static ssize_t safe_syslog_send(int sockfd, const void *buf, size_t len, int flags,
+                                const struct sockaddr *dest, socklen_t destlen)
+{
+    if (sockfd < 0)
+    {
+        ESP_LOGD(TAG, "safe_syslog_send: invalid socket fd=%d", sockfd);
+        return -1;
+    }
+
+    int64_t now_ms = esp_timer_get_time() / 1000LL;
+    if (s_last_syslog_fail_ms != 0 &&
+        (now_ms - s_last_syslog_fail_ms) < SYSLOG_RETRY_BACKOFF_MS)
+    {
+        ESP_LOGD(TAG, "safe_syslog_send: skipping send due to backoff (elapsed=%lldms)",
+                 (long long)(now_ms - s_last_syslog_fail_ms));
+        return -1;
+    }
+
+    ssize_t r = sendto(sockfd, buf, len, flags | MSG_DONTWAIT, dest, destlen);
+    if (r >= 0)
+    {
+        s_last_syslog_fail_ms = 0;
+        return r;
+    }
+
+    int e = errno;
+    ESP_LOGW(TAG, "syslog sendto failed: fd=%d errno=%d (%s)", sockfd, e, strerror(e));
+
+    /* Treat common transient errors specially; apply backoff but keep socket open. */
+    if (e == EAGAIN || e == EWOULDBLOCK || e == EINTR)
+    {
+        s_last_syslog_fail_ms = now_ms;
+        return -1;
+    }
+
+    /* For other errors, apply backoff and return failure. The caller (which
+       creates and closes the socket per message) will close the socket. */
+    s_last_syslog_fail_ms = now_ms;
+    return -1;
 }
 
 void syslog_send_line(const char *line)
@@ -122,7 +182,7 @@ void syslog_send_line(const char *line)
     int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0)
     {
-        LOGE(TAG, "socket() failed: errno=%d", errno);
+        ESP_LOGE(TAG, "socket() failed: errno=%d (%s)", errno, strerror(errno));
         free(msg);
         return;
     }
@@ -140,13 +200,13 @@ void syslog_send_line(const char *line)
         return;
     }
 
-    // Send message
-    int sent = sendto(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
+    // Send message using diagnostic wrapper
+    ssize_t sent = safe_syslog_send(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
 
     if (sent < 0)
-        LOGE(TAG, "sendto failed: errno=%d", errno);
+        LOGE(TAG, "syslog: send failed (see earlier diagnostics)");
     else
-        LOGD(TAG, "Sent %d bytes to syslog-ng", sent);
+        LOGD(TAG, "Sent %d bytes to syslog-ng", (int)sent);
 
     close(sock);
     free(msg);

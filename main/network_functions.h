@@ -36,4 +36,6 @@ void eth_led_init(void);
 void eth_led_set_mode(led_mode_t mode);
 void wifi_led_set_mode(led_mode_t mode);
 
+void network_manager_health_check(void);
+
 #endif // NETWORK_FUNCTIONS_H

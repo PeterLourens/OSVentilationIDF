@@ -309,7 +309,14 @@ static void mqtt_publish_one_sensor(int bus, int slot, const float raw[DATA_FIEL
 {
 	char topic[200];
 
-	if (raw[IDX_VALID] != 1)
+	if (!base)
+		return;
+
+	// Validate indices and valid flag
+	if (bus < 0 || bus >= MAX_I2C_BUSES || slot < 0 || slot >= CHANNELS_PER_BUS)
+		return;
+
+	if (raw[IDX_VALID] != 1.0f)
 		return;
 
 	// RAW
@@ -319,7 +326,7 @@ static void mqtt_publish_one_sensor(int bus, int slot, const float raw[DATA_FIEL
 	mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "humidity");
 	mqtt_pubf(topic, raw[IDX_HUMIDITY]);
 
-	if (raw[IDX_CO2] > 0)
+	if (raw[IDX_CO2] > 0.0f)
 	{
 		mqtt_topic(topic, sizeof(topic), base, bus, slot, "raw", "co2");
 		mqtt_pubf(topic, raw[IDX_CO2]);
@@ -338,7 +345,7 @@ static void mqtt_publish_one_sensor(int bus, int slot, const float raw[DATA_FIEL
 	mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "humidity");
 	mqtt_pubf(topic, avg[IDX_HUMIDITY]);
 
-	if (avg[IDX_CO2] > 0)
+	if (avg[IDX_CO2] > 0.0f)
 	{
 		mqtt_topic(topic, sizeof(topic), base, bus, slot, "avg", "co2");
 		mqtt_pubf(topic, avg[IDX_CO2]);
@@ -353,17 +360,30 @@ static void mqtt_publish_one_sensor(int bus, int slot, const float raw[DATA_FIEL
 
 static void mqtt_publish_one_valve(int id, const char *base)
 {
+	if (!base)
+		return;
+
 	char topic[200];
 	int32_t pos = 0;
 
 	nvs_handle_t nvs;
 	if (nvs_open("valves", NVS_READONLY, &nvs) != ESP_OK)
+	{
+		LOGW(TAG, "mqtt_publish_one_valve: cannot open NVS for valve %d", id);
 		return;
+	}
 
 	char key[16];
 	snprintf(key, sizeof(key), "valve%d", id);
-	nvs_get_i32(nvs, key, &pos);
+	if (nvs_get_i32(nvs, key, &pos) != ESP_OK)
+		pos = 0;
 	nvs_close(nvs);
+
+	// Clamp position
+	if (pos < 0)
+		pos = 0;
+	if (pos > 24)
+		pos = 24;
 
 	snprintf(topic, sizeof(topic), "%s/valve%d/position", base, id);
 	mqtt_pubi(topic, pos);
@@ -454,7 +474,7 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		snprintf(uri, sizeof(uri), "mqtt://%s:%s", cfg->mqtt_server, cfg->mqtt_port);
 
 		// Also store into global config so future snapshots have a proper URI
-		if (xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+		if (mqtt_config_mutex && xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
 		{
 			strlcpy(mqtt_config.uri, uri, sizeof(mqtt_config.uri));
 			xSemaphoreGive(mqtt_config_mutex);
@@ -505,12 +525,19 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		return err;
 	}
 
+	// Create snapshot mutex if not already created
+	if (s_mqtt_snapshot_mutex == NULL)
+	{
+		s_mqtt_snapshot_mutex = xSemaphoreCreateMutex();
+		if (s_mqtt_snapshot_mutex == NULL)
+		{
+			LOGW(TAG, "mqtt_start: failed to create snapshot mutex");
+			// Not fatal: continue but publishing will be guarded by checks
+		}
+	}
+
 	s_mqtt_started = true;
 	LOGI(TAG, "MQTT client started");
-
-	if (s_mqtt_snapshot_mutex == NULL)
-		s_mqtt_snapshot_mutex = xSemaphoreCreateMutex();
-
 	return ESP_OK;
 }
 
@@ -738,36 +765,66 @@ void mqtt_publish_sensor_values(void)
 		return;
 	}
 
+	// Ensure queues are ready and item size matches expected layout
+	if (!sensors_queues_ready || sensor_queue == NULL || sensor_avg_queue == NULL)
+	{
+		LOGW(TAG, "mqtt_publish_sensor_values: sensor queues not ready or NULL");
+		return;
+	}
+
+	if (sensor_avg_item_size != sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]))
+	{
+		LOGE(TAG, "mqtt_publish_sensor_values: sensor_avg_item_size mismatch: expected %zu got %zu",
+			 sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]), sensor_avg_item_size);
+		return;
+	}
+
+	// Ensure snapshot mutex exists
+	if (s_mqtt_snapshot_mutex == NULL)
+	{
+		LOGW(TAG, "mqtt_publish_sensor_values: snapshot mutex not created; skipping publish");
+		return;
+	}
+
 	// Take snapshot mutex
-	if (xSemaphoreTake(s_mqtt_snapshot_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+	if (xSemaphoreTake(s_mqtt_snapshot_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
 	{
 		LOGW(TAG, "mqtt_publish_sensor_values: snapshot mutex busy");
 		return;
 	}
 
-	// Copy raw + avg from queues into global snapshots
-	if (xQueuePeek(sensor_queue, s_raw_snapshot, 0) != pdTRUE)
+	// Copy raw + avg from queues into global snapshots with short timeout
+	if (sensor_queue == NULL || sensor_avg_queue == NULL)
 	{
 		xSemaphoreGive(s_mqtt_snapshot_mutex);
-		LOGE(TAG, "Failed to read raw sensor queue");
+		LOGW(TAG, "mqtt_publish_sensor_values: sensor queues NULL");
 		return;
 	}
 
-	if (xQueuePeek(sensor_avg_queue, s_avg_snapshot, 0) != pdTRUE)
+	if (xQueuePeek(sensor_queue, s_raw_snapshot, pdMS_TO_TICKS(50)) != pdTRUE)
 	{
 		xSemaphoreGive(s_mqtt_snapshot_mutex);
-		LOGE(TAG, "Failed to read avg sensor queue");
+		LOGW(TAG, "mqtt_publish_sensor_values: Failed to read raw sensor queue");
+		return;
+	}
+
+	if (xQueuePeek(sensor_avg_queue, s_avg_snapshot, pdMS_TO_TICKS(50)) != pdTRUE)
+	{
+		xSemaphoreGive(s_mqtt_snapshot_mutex);
+		LOGW(TAG, "mqtt_publish_sensor_values: Failed to read avg sensor queue");
 		return;
 	}
 
 	xSemaphoreGive(s_mqtt_snapshot_mutex);
 
-	char base[150];
+	// Build base topic
+	char base[150] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	// Publish each sensor
+	for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
 	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		for (int slot = 0; slot < CHANNELS_PER_BUS; ++slot)
 		{
 			mqtt_publish_one_sensor(bus, slot,
 									s_raw_snapshot[bus][slot],
@@ -852,13 +909,29 @@ void mqtt_publish_state_and_fanspeed(void)
 // Home Assistant discovery helpers and publisher
 bool sensors_ready(void)
 {
-	// Use discovery snapshot to avoid stack arrays
-	if (xQueuePeek(sensor_queue, s_discovery_snapshot, 0) != pdTRUE)
-		return false;
-
-	for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+	// Ensure queues are present and item size matches
+	if (!sensors_queues_ready || sensor_queue == NULL || sensor_avg_queue == NULL)
 	{
-		for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+		LOGD(TAG, "sensors_ready: queues not ready");
+		return false;
+	}
+
+	if (sensor_avg_item_size != sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]))
+	{
+		LOGW(TAG, "sensors_ready: sensor_avg_item_size mismatch");
+		return false;
+	}
+
+	// Peek discovery snapshot with short timeout
+	if (xQueuePeek(sensor_queue, s_discovery_snapshot, pdMS_TO_TICKS(50)) != pdTRUE)
+	{
+		LOGD(TAG, "sensors_ready: cannot peek sensor_queue");
+		return false;
+	}
+
+	for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
+	{
+		for (int slot = 0; slot < CHANNELS_PER_BUS; ++slot)
 		{
 			if (configured_sensor(bus, slot) &&
 				s_discovery_snapshot[bus][slot][IDX_VALID] == 0.0f)
@@ -881,22 +954,39 @@ void mqtt_publish_homeassistant_discovery(void)
 
 	if (!s_mqtt_client || !s_mqtt_connected)
 	{
-		LOGW(TAG, "... not connected; skipping ...");
+		LOGW(TAG, "mqtt_publish_homeassistant_discovery: MQTT not connected; skipping");
 		return;
 	}
 
-	char base[120];
+	// Ensure queues ready and item size correct
+	if (!sensors_queues_ready || sensor_queue == NULL)
+	{
+		LOGW(TAG, "mqtt_publish_homeassistant_discovery: sensor queue not ready");
+		return;
+	}
+
+	if (sensor_avg_item_size != sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]))
+	{
+		LOGW(TAG, "mqtt_publish_homeassistant_discovery: sensor_avg_item_size mismatch");
+		return;
+	}
+
+	char base[120] = {0};
 	normalize_base_topic(cfg.mqtt_base_topic, base, sizeof(base));
 
 	const char *node_id = mqtt_get_node_id();
 
-	// Use global discovery snapshot
-	if (xQueuePeek(sensor_queue, s_discovery_snapshot, 0) == pdTRUE)
+	// Use global discovery snapshot; short timeout to avoid blocking
+	if (xQueuePeek(sensor_queue, s_discovery_snapshot, pdMS_TO_TICKS(50)) == pdTRUE)
 	{
-		for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+		for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
 		{
-			for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
+			for (int slot = 0; slot < CHANNELS_PER_BUS; ++slot)
 			{
+				// Only publish discovery for configured sensors
+				if (!configured_sensor(bus, slot))
+					continue;
+
 				mqtt_publish_discovery_for_sensor(bus, slot,
 												  base,
 												  node_id,
@@ -904,11 +994,18 @@ void mqtt_publish_homeassistant_discovery(void)
 			}
 		}
 	}
+	else
+	{
+		LOGW(TAG, "mqtt_publish_homeassistant_discovery: failed to peek sensor_queue");
+	}
 
 	// Valves
-	for (int id = 0; id < MAX_VALVE_COUNT; id++)
+	for (int id = 0; id < MAX_VALVE_COUNT; ++id)
 		mqtt_publish_discovery_for_valve(id, base, node_id);
 
 	// System
 	mqtt_publish_discovery_for_system(base, node_id);
+
+	// Clear discovery request flag after publishing
+	mqtt_clear_discovery_request();
 }

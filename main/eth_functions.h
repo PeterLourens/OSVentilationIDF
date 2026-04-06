@@ -26,11 +26,13 @@ extern esp_eth_handle_t eth_handle;
 
 // Lifecycle
 void eth_lifecycle_init_once(void);
-void eth_lifecycle_init(void);
+// void eth_lifecycle_init(void);
 void eth_teardown_safe(void);
 void eth_init(void);
 void eth_start(void);
 void eth_stop(void);
+void eth_set_shutting_down(bool v);
+bool eth_is_shutting_down(void);
 
 bool eth_is_connected(void);
 bool ethernet_config_is_enabled(void);

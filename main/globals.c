@@ -21,6 +21,12 @@ const char *STATE_MANUALHS = "manual_high_speed"; // state_nr = 11
 const char *STATE_STOPPED = "stopped";            // state_nr = 12
 const char *STATE_TEMP = "temp";                  // state_nr = 13
 
+// Queue handles
+QueueHandle_t sensor_queue = NULL;
+QueueHandle_t sensor_avg_queue = NULL;
+size_t sensor_avg_item_size = 0;
+volatile bool sensors_queues_ready = false;
+
 // I2C Devices new driver style
 i2c_master_bus_handle_t i2c_bus0_handle = {0};
 i2c_master_bus_handle_t i2c_bus1_handle = {0};

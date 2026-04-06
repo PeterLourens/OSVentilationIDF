@@ -87,6 +87,12 @@ extern const char *STATE_MANUALHS;
 extern const char *STATE_STOPPED;
 extern const char *STATE_TEMP;
 
+// Queue handles
+extern QueueHandle_t sensor_queue;
+extern QueueHandle_t sensor_avg_queue;
+extern size_t sensor_avg_item_size;
+extern volatile bool sensors_queues_ready;
+
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
@@ -142,6 +148,9 @@ extern EventGroupHandle_t s_wifi_event_group;
 
 // HTTP server handle
 extern httpd_handle_t http_server;
+
+// Size of each item in the sensor average queue, set at queue creation time
+extern size_t sensor_avg_item_size;
 
 // Sensor configuration structure
 typedef struct

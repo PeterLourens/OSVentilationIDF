@@ -363,6 +363,71 @@ static void set_led_mode(led_mode_t mode, gpio_num_t pin, TaskHandle_t *task_han
     }
 }
 
+// Return true if Wi‑Fi is enabled in config (thread safe)
+static bool wifi_manager_is_enabled(void)
+{
+    bool enabled = false;
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        enabled = (wifi_config.enable_wifi[0] != '\0' && strcmp(wifi_config.enable_wifi, "On") == 0);
+        xSemaphoreGive(network_config_mutex);
+    }
+    else
+    {
+        LOGW("net_func", "wifi_manager_is_enabled: could not take network_config_mutex; assuming disabled");
+    }
+    return enabled;
+}
+
+// Attempt to reinitialize/reconnect Wi‑Fi. Non‑blocking, idempotent, safe to call repeatedly.
+static void wifi_manager_reconnect(void)
+{
+    // If Wi‑Fi is disabled in config, do nothing
+    if (!wifi_manager_is_enabled())
+    {
+        LOGI("net_func", "wifi_manager_reconnect: wifi disabled in config");
+        return;
+    }
+
+    // Ensure wifi manager is initialized
+    esp_err_t r = wifi_manager_init();
+    if (r != ESP_OK)
+    {
+        LOGW("net_func", "wifi_manager_reconnect: wifi_manager_init returned %s", esp_err_to_name(r));
+        return;
+    }
+
+    // If already connected or in AP mode, nothing to do
+    if (wifi_manager_is_connected() || (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE &&
+                                        sm_actuals.wifi_ap_mode))
+    {
+        if (statemachine_mutex)
+            xSemaphoreGive(statemachine_mutex);
+        LOGD("net_func", "wifi_manager_reconnect: already connected or AP mode");
+        return;
+    }
+    if (statemachine_mutex)
+        xSemaphoreGive(statemachine_mutex);
+
+    // Select appropriate mode (STA vs AP) and trigger connect
+    r = select_wifi_mode();
+    if (r != ESP_OK)
+    {
+        LOGW("net_func", "wifi_manager_reconnect: select_wifi_mode returned %s", esp_err_to_name(r));
+    }
+
+    // Ask the Wi‑Fi stack to connect (esp_wifi_connect is safe if manager handles it)
+    esp_err_t err = esp_wifi_connect();
+    if (err != ESP_OK)
+    {
+        LOGW("net_func", "wifi_manager_reconnect: esp_wifi_connect returned %s", esp_err_to_name(err));
+    }
+    else
+    {
+        LOGI("net_func", "wifi_manager_reconnect: connect requested");
+    }
+}
+
 void eth_led_set_mode(led_mode_t mode)
 {
     if (!hw.has_eth_led)
@@ -377,4 +442,82 @@ void wifi_led_set_mode(led_mode_t mode)
         return;
 
     set_led_mode(mode, hw.pin_wifi_led, &wifi_led_task, &wifi_led_mode);
+}
+
+// Call from network_manager_task periodically
+void network_manager_health_check(void)
+{
+    static int ping_fail_count = 0;
+    const int max_ping_fail = 3;
+
+    // If no active netif or no IP, try to recover
+    if (!network_has_ip())
+    {
+        LOGW(TAG, "Health check: no active IP");
+
+        // If ethernet is configured and present, try to restart it
+        if (hw.has_ethernet && ethernet_config_is_enabled())
+        {
+            LOGI(TAG, "Attempting Ethernet recovery: restart driver");
+            eth_stop();
+            vTaskDelay(pdMS_TO_TICKS(200));
+            eth_init();
+            vTaskDelay(pdMS_TO_TICKS(200));
+            eth_start();
+            // allow time for link/IP
+            vTaskDelay(pdMS_TO_TICKS(2000));
+        }
+        else
+        {
+            // Try Wi‑Fi reconnect if Wi‑Fi enabled
+            if (wifi_manager_is_enabled()) // implement helper if needed
+            {
+                LOGI(TAG, "Attempting Wi‑Fi reconnect");
+                wifi_manager_reconnect(); // call your existing reconnect logic
+            }
+        }
+
+        // After recovery attempt, force re-evaluation of config and services
+        network_manager_request_actuals_update();
+        return;
+    }
+
+    // If we have IP, ping gateway to ensure reachability
+    if (!ping_gateway())
+    {
+        ping_fail_count++;
+        LOGW(TAG, "Health check: ping gateway failed (%d/%d)", ping_fail_count, max_ping_fail);
+        if (ping_fail_count >= max_ping_fail)
+        {
+            LOGE(TAG, "Gateway unreachable repeatedly — restarting network stack");
+            ping_fail_count = 0;
+
+            // Restart network stack for active interface
+            if (hw.has_ethernet && eth_is_connected())
+            {
+                eth_stop();
+                vTaskDelay(pdMS_TO_TICKS(200));
+                eth_init();
+                vTaskDelay(pdMS_TO_TICKS(200));
+                eth_start();
+            }
+            else
+            {
+                // Try Wi‑Fi reconnect
+                wifi_manager_reconnect();
+            }
+
+            // Restart MQTT after network restart
+            MQTT_config_t cfg;
+            mqtt_get_config_snapshot(&cfg);
+            mqtt_stop();
+            vTaskDelay(pdMS_TO_TICKS(300));
+            mqtt_start(&cfg);
+        }
+    }
+    else
+    {
+        // success: reset counter
+        ping_fail_count = 0;
+    }
 }

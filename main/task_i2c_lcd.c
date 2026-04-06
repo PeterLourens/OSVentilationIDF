@@ -60,18 +60,24 @@ void start_task_i2c_lcd(void)
 void task_i2c_lcd_code(void *pvParameters)
 {
     I2C_config_t cfg;
-
     char uptime[20] = {};
     char ping_result[20] = {};
     char formatted_time[32] = {};
     char wifi_ip[16] = "0.0.0.0";
     char eth_ip[16] = "0.0.0.0";
-    char buf[100] = {}; // 4x20 LCD + null terminator is 81 bytes so 100 is plenty
-    // char ds3231_status[30] = {};
+    char buf[200] = {};
 
-    xSemaphoreTake(i2c_config_mutex, portMAX_DELAY);
-    memcpy(&cfg, &i2c_config, sizeof(cfg));
-    xSemaphoreGive(i2c_config_mutex);
+    // Copy config under mutex if available
+    if (i2c_config_mutex && xSemaphoreTake(i2c_config_mutex, portMAX_DELAY) == pdTRUE)
+    {
+        memcpy(&cfg, &i2c_config, sizeof(cfg));
+        xSemaphoreGive(i2c_config_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "i2c_config_mutex not available; using defaults");
+        memset(&cfg, 0, sizeof(cfg));
+    }
 
     if (strcmp(cfg.enable_lcd, "Off") == 0)
     {
@@ -80,94 +86,189 @@ void task_i2c_lcd_code(void *pvParameters)
         vTaskDelete(NULL);
     }
 
-    float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    // LCD availability flag (degraded mode)
+    bool lcd_available = false;
 
-    LOGI(TAG, "LCD task started...");
+    // Try to initialize LCD device with retries and backoff.
+    const TickType_t retry_initial_delay = pdMS_TO_TICKS(1000);
+    const TickType_t retry_long_delay = pdMS_TO_TICKS(30000);
 
-    // Initialize LCD device
-    i2c_lcd_init_device();
-    i2c_lcd_clear();
-    i2c_lcd_backlight_set(false);
-
-    while (1)
+    for (;;)
     {
-        LOGI(TAG, "Update LCD...");
-        i2c_lcd_backlight_set(true);
-
-        // Display 1 - General info
-        formatted_uptime(uptime, sizeof(uptime));
-        formatted_datetime(formatted_time, sizeof(formatted_time));
-        snprintf(buf, sizeof(buf), "%s\nUp: %s", formatted_time, uptime);
-        i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
-        vTaskDelay(pdMS_TO_TICKS(3000));
-
-        // Display 2 - Network info
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+        if (!lcd_available)
         {
-            // Copy WiFi IP if present
-            if (sm_actuals.wifi_ip_addr[0] != '\0')
-                strncpy(wifi_ip, sm_actuals.wifi_ip_addr, sizeof(wifi_ip));
-
-            // Copy Ethernet IP if present
-            if (sm_actuals.eth_ip_addr[0] != '\0' && hw.has_ethernet)
-                strncpy(eth_ip, sm_actuals.eth_ip_addr, sizeof(eth_ip));
-
-            xSemaphoreGive(statemachine_mutex);
-        }
-
-        if (ping_gateway())
-        {
-            snprintf(ping_result, sizeof(ping_result), "Gateway OK");
-        }
-        else
-        {
-            snprintf(ping_result, sizeof(ping_result), "Gateway unreachable");
-        }
-
-        snprintf(buf, sizeof(buf), "Wifi:%s\nEth:%s\n%s", wifi_ip, eth_ip, ping_result);
-        i2c_lcd_write_text(buf); // The complete display contents is written in one time, not line by line
-        vTaskDelay(pdMS_TO_TICKS(3000));
-
-        // Display 2 - Statemachine state
-        build_sm_actuals_buffer(buf, sizeof(buf));
-        i2c_lcd_write_text(buf); // your LCD driver handles multiline
-        vTaskDelay(pdMS_TO_TICKS(3000));
-
-        // Display 3 - Sensors
-        if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
-        {
-            LOGE(TAG, "Failed to read avg sensor queue");
-            continue;
-        }
-
-        for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
-        {
-            for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+            if (i2c_lcd_init_device() == ESP_OK)
             {
-                bool active = false;
-
-                // Check if sensor is active (type != "None")
-                if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+                lcd_available = true;
+                LOGI(TAG, "LCD device initialized and available");
+                // Ensure display is in known state
+                i2c_lcd_clear();
+                i2c_lcd_backlight_set(false);
+            }
+            else
+            {
+                LOGW(TAG, "LCD init failed; will retry in 1s");
+                vTaskDelay(retry_initial_delay);
+                // Try again a few times quickly, then back off
+                if (i2c_lcd_init_device() != ESP_OK)
                 {
-                    const bus_sensor_t *meta = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
-
-                    active = (strcmp(meta->type, "None") != 0);
-                    xSemaphoreGive(sensor_cfg_mutex);
+                    LOGW(TAG, "LCD init retry failed; backing off 30s");
+                    vTaskDelay(retry_long_delay);
+                    continue;
                 }
-
-                if (!active)
-                    continue; // skip inactive sensors
-
-                // Format and send
-                format_sensor_overview(buf, sizeof(buf), bus, ch, avg);
-                i2c_lcd_write_text(buf);
-                vTaskDelay(pdMS_TO_TICKS(3000));
+                else
+                {
+                    lcd_available = true;
+                    LOGI(TAG, "LCD device initialized on retry");
+                    i2c_lcd_clear();
+                    i2c_lcd_backlight_set(false);
+                }
             }
         }
 
-        // Display 4 - Valve positions
-        build_valve_positions_buffer(buf, sizeof(buf));
-        i2c_lcd_write_text(buf);
-        vTaskDelay(pdMS_TO_TICKS(3000));
+        // If LCD is available, perform normal update cycle
+        if (lcd_available)
+        {
+            // Display 1 - General info
+            formatted_uptime(uptime, sizeof(uptime));
+            formatted_datetime(formatted_time, sizeof(formatted_time));
+            snprintf(buf, sizeof(buf), "%s\nUp: %s", formatted_time, uptime);
+            if (i2c_lcd_write_text(buf) != ESP_OK)
+            {
+                LOGW(TAG, "Failed to write general info to LCD; marking LCD unavailable");
+                lcd_available = false;
+                // small delay before next init attempt
+                vTaskDelay(pdMS_TO_TICKS(500));
+                continue;
+            }
+            vTaskDelay(pdMS_TO_TICKS(3000));
+
+            // Display 2 - Network info
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+            {
+                if (sm_actuals.wifi_ip_addr[0] != '\0')
+                    strncpy(wifi_ip, sm_actuals.wifi_ip_addr, sizeof(wifi_ip) - 1);
+                if (sm_actuals.eth_ip_addr[0] != '\0' && hw.has_ethernet)
+                    strncpy(eth_ip, sm_actuals.eth_ip_addr, sizeof(eth_ip) - 1);
+                xSemaphoreGive(statemachine_mutex);
+            }
+            else
+            {
+                LOGD(TAG, "statemachine_mutex not available for network info");
+            }
+
+            if (ping_gateway())
+            {
+                snprintf(ping_result, sizeof(ping_result), "Gateway OK");
+            }
+            else
+            {
+                snprintf(ping_result, sizeof(ping_result), "Gateway unreachable");
+            }
+
+            snprintf(buf, sizeof(buf), "Wifi:%s\nEth:%s\n%s", wifi_ip, eth_ip, ping_result);
+            if (i2c_lcd_write_text(buf) != ESP_OK)
+            {
+                LOGW(TAG, "Failed to write network info to LCD; marking LCD unavailable");
+                lcd_available = false;
+                vTaskDelay(pdMS_TO_TICKS(500));
+                continue;
+            }
+            vTaskDelay(pdMS_TO_TICKS(3000));
+
+            // Display 3 - Statemachine state
+            build_sm_actuals_buffer(buf, sizeof(buf));
+            if (i2c_lcd_write_text(buf) != ESP_OK)
+            {
+                LOGW(TAG, "Failed to write state info to LCD; marking LCD unavailable");
+                lcd_available = false;
+                vTaskDelay(pdMS_TO_TICKS(500));
+                continue;
+            }
+            vTaskDelay(pdMS_TO_TICKS(3000));
+
+            // Display 4 - Sensors
+            // Wait for sensor queues to be ready
+            while (!sensors_queues_ready)
+            {
+                LOGD(TAG, "Waiting for sensor queues to be ready...");
+                vTaskDelay(pdMS_TO_TICKS(50));
+            }
+
+            if (sensor_avg_item_size != sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]))
+            {
+                LOGE(TAG, "sensor_avg_queue item size mismatch: expected %zu got %zu",
+                     sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]), sensor_avg_item_size);
+                // skip sensor display but keep LCD alive
+            }
+            else
+            {
+                float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+                if (xQueuePeek(sensor_avg_queue, avg, 0) != pdTRUE)
+                {
+                    LOGW(TAG, "Failed to read avg sensor queue; skipping sensor display");
+                }
+                else
+                {
+                    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+                    {
+                        for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+                        {
+                            bool active = false;
+                            if (sensor_cfg_mutex && xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+                            {
+                                const bus_sensor_t *meta = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
+                                active = (strcmp(meta->type, "None") != 0);
+                                xSemaphoreGive(sensor_cfg_mutex);
+                            }
+                            else
+                            {
+                                LOGD(TAG, "sensor_cfg_mutex not available; assuming sensor active");
+                                active = true;
+                            }
+
+                            if (!active)
+                                continue;
+
+                            format_sensor_overview(buf, sizeof(buf), bus, ch, avg);
+                            if (i2c_lcd_write_text(buf) != ESP_OK)
+                            {
+                                LOGW(TAG, "Failed to write sensor overview for b%ds%d; marking LCD unavailable", bus, ch);
+                                lcd_available = false;
+                                break;
+                            }
+                            vTaskDelay(pdMS_TO_TICKS(3000));
+                        }
+                        if (!lcd_available)
+                            break;
+                    }
+                }
+            }
+
+            if (!lcd_available)
+            {
+                // short delay before re-init attempts
+                vTaskDelay(pdMS_TO_TICKS(500));
+                continue;
+            }
+
+            // Display 5 - Valve positions
+            build_valve_positions_buffer(buf, sizeof(buf));
+            if (i2c_lcd_write_text(buf) != ESP_OK)
+            {
+                LOGW(TAG, "Failed to write valve positions to LCD; marking LCD unavailable");
+                lcd_available = false;
+                vTaskDelay(pdMS_TO_TICKS(500));
+                continue;
+            }
+            vTaskDelay(pdMS_TO_TICKS(3000));
+        }
+        else
+        {
+            // LCD not available: wait and retry init periodically
+            LOGI(TAG, "LCD unavailable; retrying initialization in 30s");
+            vTaskDelay(retry_long_delay);
+            // next loop iteration will attempt init
+        }
     }
 }

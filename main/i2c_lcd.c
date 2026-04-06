@@ -32,7 +32,7 @@ esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle
 {
     i2c_device_config_t lcd_cfg = {
         .dev_addr_length = I2C_ADDR_BIT_LEN_7,
-        .device_address = LCD_I2C_ADDR, // 0x27
+        .device_address = LCD_I2C_ADDR,
         .scl_speed_hz = 100000,
     };
 
@@ -42,6 +42,10 @@ esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle
         LOGE(TAG, "Failed to add LCD device: %s", esp_err_to_name(err));
         return err;
     }
+
+    // Ensure the global device handle is set so other code can use it
+    lcd_bus1_handle = *dev_handle;
+    LOGD(TAG, "LCD device bound to global handle");
     return ESP_OK;
 }
 
@@ -50,10 +54,25 @@ esp_err_t lcd_dev_write_byte(uint8_t data)
 {
     if (lcd_bus1_handle == NULL)
     {
-        LOGE(TAG, "LCD device not bound");
+        LOGE(TAG, "lcd_dev_write_byte: lcd_bus1_handle == NULL");
         return ESP_ERR_INVALID_STATE;
     }
-    return i2c_master_transmit(lcd_bus1_handle, &data, 1, LCD_I2C_TIMEOUT_TICKS);
+
+    const int max_retries = 2;
+    esp_err_t err = ESP_FAIL;
+    for (int attempt = 0; attempt <= max_retries; ++attempt)
+    {
+        err = i2c_master_transmit(lcd_bus1_handle, &data, 1, LCD_I2C_TIMEOUT_TICKS);
+        if (err == ESP_OK)
+        {
+            return ESP_OK;
+        }
+        LOGW(TAG, "lcd_dev_write_byte attempt %d failed: %s", attempt + 1, esp_err_to_name(err));
+        vTaskDelay(pdMS_TO_TICKS(5 * (attempt + 1)));
+    }
+
+    LOGE(TAG, "lcd_dev_write_byte final failure: %s", esp_err_to_name(err));
+    return err;
 }
 
 // Pulse enable line (data must include RS/RW/backlight) */
@@ -66,25 +85,20 @@ esp_err_t lcd_pulse_enable(uint8_t data)
     err = lcd_dev_write_byte(data & ~LCD_ENABLE_BIT);
     if (err != ESP_OK)
         return err;
-    esp_rom_delay_us(50); // allow command to settle
+    esp_rom_delay_us(50);
     return ESP_OK;
 }
 
-// Send nibble (lower 4 bits). Many backpacks map nibble -> P7..P4 */
 esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
 {
     uint8_t out = (uint8_t)((nibble & 0x0F) << 4);
     out |= control_flags;
-
     if (s_backlight)
         out |= LCD_BACKLIGHT;
-
-    s_last_output = out; // Remember last stable output used (without E set)
-
+    s_last_output = out;
     return lcd_pulse_enable(out);
 }
 
-// Send full byte as two nibbles
 static esp_err_t lcd_write_byte(uint8_t byte, uint8_t control_flags)
 {
     esp_err_t err = lcd_write_nibble((byte >> 4) & 0x0F, control_flags);
@@ -108,29 +122,42 @@ esp_err_t i2c_lcd_init_device(void)
 {
     if (lcd_bus1_handle == NULL)
     {
-        LOGE(TAG, "No LCD device bound");
+        LOGE(TAG, "i2c_lcd_init_device: no LCD device bound");
         return ESP_ERR_INVALID_STATE;
     }
 
     vTaskDelay(pdMS_TO_TICKS(50)); // power-up delay
 
-    (void)lcd_dev_write_byte(LCD_BACKLIGHT); // optional quick backlight write (ignore error)
+    // Best-effort backlight write
+    esp_err_t r = lcd_dev_write_byte(LCD_BACKLIGHT);
+    if (r != ESP_OK)
+    {
+        LOGW(TAG, "Initial backlight write failed: %s", esp_err_to_name(r));
+    }
 
     // Init sequence: 3x 0x03 then 0x02 to set 4-bit mode
-    lcd_write_nibble(0x03, 0);
+    if (lcd_write_nibble(0x03, 0) != ESP_OK)
+        return ESP_FAIL;
     vTaskDelay(pdMS_TO_TICKS(5));
-    lcd_write_nibble(0x03, 0);
+    if (lcd_write_nibble(0x03, 0) != ESP_OK)
+        return ESP_FAIL;
     esp_rom_delay_us(150);
-    lcd_write_nibble(0x03, 0);
+    if (lcd_write_nibble(0x03, 0) != ESP_OK)
+        return ESP_FAIL;
     esp_rom_delay_us(150);
-    lcd_write_nibble(0x02, 0);
+    if (lcd_write_nibble(0x02, 0) != ESP_OK)
+        return ESP_FAIL;
     esp_rom_delay_us(150);
 
-    lcd_command(0x28); // Function set: 4-bit, 2 lines, 5x8 dots
-    lcd_command(0x0C); // Display on, cursor off, blink off
-    lcd_command(0x01); // Clear display
+    if (lcd_command(0x28) != ESP_OK)
+        return ESP_FAIL; // Function set
+    if (lcd_command(0x0C) != ESP_OK)
+        return ESP_FAIL; // Display on
+    if (lcd_command(0x01) != ESP_OK)
+        return ESP_FAIL; // Clear
     vTaskDelay(pdMS_TO_TICKS(2));
-    lcd_command(0x06); // Entry mode set: increment, no shift
+    if (lcd_command(0x06) != ESP_OK)
+        return ESP_FAIL; // Entry mode
 
     LOGD(TAG, "LCD initialized (device bound)");
     return ESP_OK;
@@ -161,8 +188,11 @@ esp_err_t i2c_lcd_set_cursor(int row, int col)
 esp_err_t i2c_lcd_write_text(const char *text)
 {
     if (!text)
+    {
         return ESP_ERR_INVALID_ARG;
+    }
 
+    // Prepare a local buffer sized to LCD geometry
     char buf[LCD_ROWS][LCD_COLS];
     for (int r = 0; r < LCD_ROWS; ++r)
         for (int c = 0; c < LCD_COLS; ++c)
@@ -185,16 +215,23 @@ esp_err_t i2c_lcd_write_text(const char *text)
         }
     }
 
+    // Write rows with error handling
     for (int r = 0; r < LCD_ROWS; ++r)
     {
         esp_err_t err = i2c_lcd_set_cursor(r, 0);
         if (err != ESP_OK)
+        {
+            LOGW(TAG, "set_cursor failed for row %d: %s", r, esp_err_to_name(err));
             return err;
+        }
         for (int c = 0; c < LCD_COLS; ++c)
         {
             err = lcd_data((uint8_t)buf[r][c]);
             if (err != ESP_OK)
+            {
+                LOGW(TAG, "lcd_data failed at r%d c%d: %s", r, c, esp_err_to_name(err));
                 return err;
+            }
         }
     }
     return ESP_OK;
@@ -214,11 +251,37 @@ esp_err_t lcd_write_backlight_state(void)
     return lcd_dev_write_byte(out);
 }
 
-// Set backlight on/off. Returns ESP_OK if the I2C write succeeded
+// Ensure a mutex is created once at system init if possible.
+// This function lazily creates a mutex if none exists.
 esp_err_t i2c_lcd_backlight_set(bool on)
 {
+    static SemaphoreHandle_t lcd_state_mutex_local = NULL;
+    if (lcd_state_mutex_local == NULL)
+    {
+        lcd_state_mutex_local = xSemaphoreCreateMutex();
+        if (lcd_state_mutex_local == NULL)
+        {
+            LOGW(TAG, "Failed to create lcd_state_mutex_local; proceeding without mutex");
+            s_backlight = on;
+            return lcd_write_backlight_state();
+        }
+    }
+
+    if (xSemaphoreTake(lcd_state_mutex_local, pdMS_TO_TICKS(50)) != pdTRUE)
+    {
+        LOGW(TAG, "Could not take lcd_state_mutex_local; skipping backlight update");
+        return ESP_ERR_TIMEOUT;
+    }
+
     s_backlight = on;
-    return lcd_write_backlight_state();
+    esp_err_t r = lcd_write_backlight_state();
+    xSemaphoreGive(lcd_state_mutex_local);
+
+    if (r != ESP_OK)
+    {
+        LOGW(TAG, "lcd_write_backlight_state failed: %s", esp_err_to_name(r));
+    }
+    return r;
 }
 
 // Public: read current cached backlight state
@@ -229,73 +292,91 @@ bool i2c_lcd_backlight_get(void)
 
 void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
 {
+    if (!out || out_size == 0)
+        return;
+
+    // Validate indices
+    if (bus < 0 || bus >= MAX_I2C_BUSES || ch < 0 || ch >= CHANNELS_PER_BUS)
+    {
+        snprintf(out, out_size, "b%ds%d <invalid index>", bus, ch);
+        return;
+    }
+
     bus_sensor_t meta;
+    memset(&meta, 0, sizeof(meta));
+    strncpy(meta.location, "<unknown>", sizeof(meta.location) - 1);
+    strncpy(meta.valve, "valve0", sizeof(meta.valve) - 1);
+    meta.rh_enabled = false;
+    meta.co2_enabled = false;
 
     // Read metadata safely
-    if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    if (sensor_cfg_mutex && xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
-        const bus_sensor_t *src =
-            (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
-
+        const bus_sensor_t *src = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
         meta = *src;
         xSemaphoreGive(sensor_cfg_mutex);
     }
     else
     {
-        memset(&meta, 0, sizeof(meta));
-        strcpy(meta.location, "<unknown>");
-        strcpy(meta.valve, "valve0");
-        meta.rh_enabled = false;
-        meta.co2_enabled = false;
+        LOGW(TAG, "Could not take sensor_cfg_mutex; using defaults for sensor b%ds%d", bus, ch);
     }
 
     // Extract numeric valve index from meta.valve
     int valve_num = 0;
-    {
-        const char *p = meta.valve;
-        while (*p && !isdigit((unsigned char)*p))
-            p++;
-        if (*p)
-            valve_num = atoi(p);
-    }
+    const char *p = meta.valve;
+    while (*p && !isdigit((unsigned char)*p))
+        p++;
+    if (*p)
+        valve_num = atoi(p);
 
     // Read sensor values
     float temp_c = avg[bus][ch][IDX_TEMP];
     float humidity = avg[bus][ch][IDX_HUMIDITY];
     float co2_ppm = avg[bus][ch][IDX_CO2];
 
-    // Format output (valve shown as vXX)
+    int ret;
     if (co2_ppm > 0.0f)
     {
-        snprintf(out, out_size,
-                 "b%ds%d %s v%d\n"
-                 "T:%.2f\xDF"
-                 "C H:%.2f%%\n"
-                 "RH: %s CO2: %s\n"
-                 "CO2:%.2fppm",
-                 bus, ch,
-                 meta.location,
-                 valve_num,
-                 temp_c,
-                 humidity,
-                 meta.rh_enabled ? "On" : "Off",
-                 meta.co2_enabled ? "On" : "Off",
-                 co2_ppm);
+        ret = snprintf(out, out_size,
+                       "b%ds%d %s v%d\n"
+                       "T:%.2f\xDF"
+                       "C H:%.2f%%\n"
+                       "RH: %s CO2: %s\n"
+                       "CO2:%.2fppm",
+                       bus, ch,
+                       meta.location,
+                       valve_num,
+                       temp_c,
+                       humidity,
+                       meta.rh_enabled ? "On" : "Off",
+                       meta.co2_enabled ? "On" : "Off",
+                       co2_ppm);
     }
     else
     {
-        snprintf(out, out_size,
-                 "b%ds%d %s v%d\n"
-                 "T:%.2f\xDF"
-                 "C H:%.2f%%\n"
-                 "RH: %s CO2: %s",
-                 bus, ch,
-                 meta.location,
-                 valve_num,
-                 temp_c,
-                 humidity,
-                 meta.rh_enabled ? "On" : "Off",
-                 meta.co2_enabled ? "On" : "Off");
+        ret = snprintf(out, out_size,
+                       "b%ds%d %s v%d\n"
+                       "T:%.2f\xDF"
+                       "C H:%.2f%%\n"
+                       "RH: %s CO2: %s",
+                       bus, ch,
+                       meta.location,
+                       valve_num,
+                       temp_c,
+                       humidity,
+                       meta.rh_enabled ? "On" : "Off",
+                       meta.co2_enabled ? "On" : "Off");
+    }
+
+    if (ret < 0)
+    {
+        LOGW(TAG, "format_sensor_overview snprintf error");
+        out[0] = '\0';
+    }
+    else if ((size_t)ret >= out_size)
+    {
+        LOGW(TAG, "format_sensor_overview output truncated (needed %d, buf %zu)", ret, out_size);
+        out[out_size - 1] = '\0';
     }
 }
 

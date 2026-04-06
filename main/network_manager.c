@@ -9,7 +9,7 @@
 static const char *TAG = "net_mgr";
 
 // Task handle and stack
-static StackType_t network_manager_stack[7168];
+static StackType_t network_manager_stack[8192]; // 32KB stack
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
@@ -26,6 +26,8 @@ static volatile bool manager_running = false;
 static volatile bool s_request_mqtt_restart = false;
 static volatile bool s_request_ha_discovery = false;
 static volatile bool s_discovery_requested = false;
+static volatile bool eth_shutting_down = false;
+static volatile bool s_request_syslog_update = false;
 
 // Forward declarations
 static void network_manager_task(void *pvParameters);
@@ -81,6 +83,15 @@ bool network_manager_is_running(void)
 static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
+
+    // If ethernet is shutting down, ignore events that might race with teardown.
+    // (This is defensive; wifi events are usually unrelated, but keep symmetry.)
+    if (eth_is_shutting_down())
+        return;
+
+    if (base != WIFI_EVENT)
+        return;
+
     if (base != WIFI_EVENT)
         return;
 
@@ -140,7 +151,11 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
             LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
         }
 
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
+
         break;
     }
 
@@ -161,7 +176,11 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
         if (task_rgb_leds != NULL)
             xTaskNotifyGive(task_rgb_leds);
 
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
+
         break;
 
     case WIFI_EVENT_AP_STACONNECTED:
@@ -187,6 +206,10 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
 static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
+
+    // If ethernet is shutting down, ignore IP events that may race with teardown.
+    if (eth_is_shutting_down())
+        return;
 
     if (base != IP_EVENT)
         return;
@@ -217,7 +240,11 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         if (task_rgb_leds != NULL)
             xTaskNotifyGive(task_rgb_leds);
 
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
+
         network_manager_request_actuals_update();
 
         // Defer MQTT restart to network_manager_task
@@ -252,7 +279,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
         network_manager_request_actuals_update();
 
         // Defer MQTT restart to network_manager_task (v3)
@@ -270,6 +300,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     (void)arg;
     (void)base;
     (void)data;
+
+    // Important: ignore ETH events while we are tearing down the driver.
+    if (eth_is_shutting_down())
+        return;
 
     switch (id)
     {
@@ -291,7 +325,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         }
 
         eth_led_set_mode(LED_FAST_BLINK);
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
@@ -304,7 +341,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         }
 
         eth_led_set_mode(LED_SLOW_BLINK); // enabled but no link
-        update_syslog_state();
+        // update_syslog_state();
+        s_request_syslog_update = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
         break;
 
     default:
@@ -535,42 +575,44 @@ static void network_manager_task(void *pvParameters)
     (void)pvParameters;
     LOGI(TAG, "Network manager starting");
 
-    // Initialize Ethernet + WiFi LED GPIO
+    /* Initialize LED GPIOs and TCP/IP stack (idempotent) */
     eth_led_init();
 
-    // Ensure TCP/IP stack initialized
     ESP_ERROR_CHECK(esp_netif_init());
 
-    // Create default event loop if not already present
+    /* Create default event loop if not already present */
     esp_err_t err = esp_event_loop_create_default();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
         LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
     }
 
-    // Register event handlers
+    /* Register event handlers (Wi‑Fi, IP, ETH, MQTT) */
     register_event_handlers();
 
-    // Initialize both managers (safe to call multiple times)
+    /* Initialize network drivers/managers (safe to call multiple times) */
     if (hw.has_ethernet)
         eth_init();
 
     wifi_manager_init();
 
     manager_running = true;
+    LOGI(TAG, "network_manager_task: manager_running = true");
 
-    // Initial evaluation and authoritative actuals update
+    /* Initial evaluation and publish of actuals */
     evaluate_config_and_apply();
     sys_stats_update_actuals();
 
     for (;;)
     {
-        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(30000));
+        /* Wait for notifications or timeout (periodic work) */
+        const TickType_t wait_ticks = pdMS_TO_TICKS(30000);
+        ulTaskNotifyTake(pdTRUE, wait_ticks);
 
-        // Re-evaluate config and apply changes
+        /* Re-evaluate configuration and apply changes */
         evaluate_config_and_apply();
 
-        // Handle deferred MQTT restart
+        /* Handle deferred MQTT restart request (set by event handlers) */
         if (s_request_mqtt_restart)
         {
             s_request_mqtt_restart = false;
@@ -578,23 +620,81 @@ static void network_manager_task(void *pvParameters)
             MQTT_config_t cfg;
             mqtt_get_config_snapshot(&cfg);
 
+            LOGI(TAG, "network_manager_task: restarting MQTT client");
             mqtt_stop();
             vTaskDelay(pdMS_TO_TICKS(300));
-            mqtt_start(&cfg);
+            if (mqtt_start(&cfg) != ESP_OK)
+            {
+                LOGW(TAG, "network_manager_task: mqtt_start failed");
+            }
+            else
+            {
+                LOGI(TAG, "network_manager_task: mqtt restarted");
+            }
         }
 
-        // Handle deferred Home Assistant discovery
+        /* Handle deferred Home Assistant discovery request */
         if (s_request_ha_discovery)
         {
             s_request_ha_discovery = false;
+            LOGI(TAG, "network_manager_task: publishing Home Assistant discovery");
             mqtt_publish_homeassistant_discovery();
         }
 
-        sys_stats_update_actuals();
+        /* Run periodic health check and recovery logic (non-blocking) */
+        network_manager_health_check();
+
+        /* If network is down and ethernet is configured, attempt guarded ethernet restart */
+        if (!network_has_ip() && hw.has_ethernet && ethernet_config_is_enabled())
+        {
+            LOGW(TAG, "network_manager_task: no IP and ethernet enabled — attempting guarded ethernet restart");
+
+            /* Mark shutting down so event handlers ignore events during teardown */
+            eth_set_shutting_down(true);
+            LOGD(TAG, "network_manager_task: eth_set_shutting_down(true)");
+
+            /* Unregister event handlers to stop callbacks while we teardown */
+            unregister_event_handlers();
+            LOGD(TAG, "network_manager_task: event handlers unregistered");
+
+            /* Perform safe teardown (idempotent, mutex-protected) */
+            eth_teardown_safe();
+            vTaskDelay(pdMS_TO_TICKS(200));
+
+            /* Reinitialize ethernet and start driver */
+            eth_init();
+            vTaskDelay(pdMS_TO_TICKS(200));
+            eth_start();
+            vTaskDelay(pdMS_TO_TICKS(2000)); /* allow link/IP to settle */
+
+            /* Re-register event handlers */
+            register_event_handlers();
+            LOGD(TAG, "network_manager_task: event handlers re-registered");
+
+            /* Clear shutting-down guard */
+            eth_set_shutting_down(false);
+            LOGD(TAG, "network_manager_task: eth_set_shutting_down(false)");
+
+            /* Ask for immediate actuals update and config re-evaluation */
+            network_manager_request_actuals_update();
+            evaluate_config_and_apply();
+            sys_stats_update_actuals();
+        }
+
+        /* If network is up, ensure dependent services are healthy (e.g., MQTT) */
+        if (network_has_ip())
+        {
+            /* Optionally: ensure hostname and actuals are up-to-date */
+            sys_stats_update_actuals();
+        }
+
+        /* Small delay to avoid tight loop if notifications are frequent */
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 
-    // Cleanup (never reached)
+    /* Cleanup (unreachable in normal operation) */
     unregister_event_handlers();
     manager_running = false;
+    LOGI(TAG, "network_manager_task: exiting");
     vTaskDelete(NULL);
 }

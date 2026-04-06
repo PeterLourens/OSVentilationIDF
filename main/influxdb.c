@@ -117,23 +117,32 @@ void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg
 
 void influxdb_append_line(char *out, size_t out_size, const char *line)
 {
-    size_t used = strlen(out);
-    size_t out_free = out_size - used - 1;
-    if (out_free == 0)
+    if (!out || out_size == 0 || !line)
         return;
+
+    size_t used = strlen(out);
+    if (used >= out_size - 1)
+        return;
+
+    size_t out_free = out_size - used - 1;
     size_t len = strlen(line);
+
     if (len > out_free)
     {
-        LOGE(TAG, "Influx payload overflow: line needs %u bytes, free %d", (unsigned)len, (int)out_free);
+        LOGE(TAG, "Influx payload overflow: line needs %zu bytes, free %zu", len, out_free);
         len = out_free;
     }
+
     memcpy(out + used, line, len);
     out[used + len] = '\0';
 }
 
-// Payload builders (adapted and split)
+// Replace influxdb_build_payload_actuals
 void influxdb_build_payload_actuals(char *out, size_t out_size)
 {
+    if (!out || out_size == 0)
+        return;
+
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
         return;
 
@@ -141,78 +150,82 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     memset(line, 0, sizeof(line));
 
     int64_t ts = influxdb_get_timestamp();
-    uint64_t uptime = esp_timer_get_time() / 1000000;
+    uint64_t uptime = (uint64_t)(esp_timer_get_time() / 1000000ULL);
 
-    snprintf(line, sizeof(line),
-             "actuals "
-             "fanspeed=%d,"
-             "state=%d,"
-             "co2_sensors_high=%d,"
-             "rh_sensors_high=%d,"
-             "valve_lock=%s,"
-             "wifi_error=%s,"
-             "wifi_connected=%s,"
-             "wifi_ap_mode=%s,"
-             "ethernet_connected=%s,"
-             "ethernet_enabled=%s,"
-             "wifi_rssi=%d,"
-             "wifi_channel=%d,"
-             "wifi_authmode=%d,"
-             "wifi_phy=%d,"
-             "wifi_bandwidth=%d,"
-             "cpu_temp=%d,"
-             "uptime=%llu,"
-             "heap_free=%u,"
-             "heap_min_ever=%u,"
-             "stack_i2c_sensors=%lu,"
-             "stack_i2c_ds3231=%lu,"
-             //"stack_wifi=%lu,"
-             "stack_network_manager=%lu,"
-             "stack_i2c_lcd=%lu,"
-             "stack_rgb_leds=%lu,"
-             "stack_statemachine=%lu,"
-             "stack_valvectrl=%lu,"
-             "stack_mqtt=%lu,"
-             "stack_influxdb=%lu"
-             " %lld\n",
-             sm_actuals.fanspeed,
-             sm_actuals.state,
-             sm_actuals.co2_sensors_high,
-             sm_actuals.rh_sensors_high,
-             sm_actuals.valve_lock ? "true" : "false",
-             sm_actuals.wifi_error ? "true" : "false",
-             sm_actuals.wifi_connected ? "true" : "false",
-             sm_actuals.wifi_ap_mode ? "true" : "false",
-             sm_actuals.eth_connected ? "true" : "false",
-             sm_actuals.ethernet_enabled ? "true" : "false",
-             sm_actuals.wifi_rssi,
-             sm_actuals.wifi_channel,
-             sm_actuals.wifi_authmode,
-             sm_actuals.wifi_phy,
-             sm_actuals.wifi_bandwidth,
-             sm_actuals.cpu_temp,
-             (unsigned long long)uptime,
-             (unsigned)sm_actuals.heap_free,
-             (unsigned)sm_actuals.heap_min_ever,
-             sm_actuals.stack_i2c_sensors,
-             sm_actuals.stack_i2c_ds3231,
-             // sm_actuals.stack_wifi,
-             sm_actuals.stack_network_manager,
-             sm_actuals.stack_i2c_lcd,
-             sm_actuals.stack_rgb_leds,
-             sm_actuals.stack_statemachine,
-             sm_actuals.stack_valvectrl,
-             sm_actuals.stack_mqtt,
-             sm_actuals.stack_influxdb,
-             (long long)ts);
+    // Use safe casts and format specifiers
+    int n = snprintf(line, sizeof(line),
+                     "actuals "
+                     "fanspeed=%d,"
+                     "state=%d,"
+                     "co2_sensors_high=%d,"
+                     "rh_sensors_high=%d,"
+                     "valve_lock=%s,"
+                     "wifi_error=%s,"
+                     "wifi_connected=%s,"
+                     "wifi_ap_mode=%s,"
+                     "ethernet_connected=%s,"
+                     "ethernet_enabled=%s,"
+                     "wifi_rssi=%d,"
+                     "wifi_channel=%d,"
+                     "wifi_authmode=%d,"
+                     "wifi_phy=%d,"
+                     "wifi_bandwidth=%d,"
+                     "cpu_temp=%d,"
+                     "uptime=%llu,"
+                     "heap_free=%u,"
+                     "heap_min_ever=%u,"
+                     "stack_i2c_sensors=%lu,"
+                     "stack_i2c_ds3231=%lu,"
+                     "stack_network_manager=%lu,"
+                     "stack_i2c_lcd=%lu,"
+                     "stack_rgb_leds=%lu,"
+                     "stack_statemachine=%lu,"
+                     "stack_valvectrl=%lu,"
+                     "stack_mqtt=%lu,"
+                     "stack_influxdb=%lu "
+                     "%lld\n",
+                     sm_actuals.fanspeed,
+                     sm_actuals.state,
+                     sm_actuals.co2_sensors_high,
+                     sm_actuals.rh_sensors_high,
+                     sm_actuals.valve_lock ? "true" : "false",
+                     sm_actuals.wifi_error ? "true" : "false",
+                     sm_actuals.wifi_connected ? "true" : "false",
+                     sm_actuals.wifi_ap_mode ? "true" : "false",
+                     sm_actuals.eth_connected ? "true" : "false",
+                     sm_actuals.ethernet_enabled ? "true" : "false",
+                     sm_actuals.wifi_rssi,
+                     sm_actuals.wifi_channel,
+                     sm_actuals.wifi_authmode,
+                     sm_actuals.wifi_phy,
+                     sm_actuals.wifi_bandwidth,
+                     sm_actuals.cpu_temp,
+                     (unsigned long long)uptime,
+                     (unsigned)sm_actuals.heap_free,
+                     (unsigned)sm_actuals.heap_min_ever,
+                     (unsigned long)sm_actuals.stack_i2c_sensors,
+                     (unsigned long)sm_actuals.stack_i2c_ds3231,
+                     (unsigned long)sm_actuals.stack_network_manager,
+                     (unsigned long)sm_actuals.stack_i2c_lcd,
+                     (unsigned long)sm_actuals.stack_rgb_leds,
+                     (unsigned long)sm_actuals.stack_statemachine,
+                     (unsigned long)sm_actuals.stack_valvectrl,
+                     (unsigned long)sm_actuals.stack_mqtt,
+                     (unsigned long)sm_actuals.stack_influxdb,
+                     (long long)ts);
+
+    if (n > 0)
+        influxdb_append_line(out, out_size, line);
 
     xSemaphoreGive(statemachine_mutex);
-
-    influxdb_append_line(out, out_size, line);
 }
 
+// Replace influxdb_build_payload_valves
 void influxdb_build_payload_valves(char *out, size_t out_size)
 {
+    if (!out || out_size == 0)
+        return;
+
     char line[256];
     char valve_name[32];
     char key[16];
@@ -229,7 +242,7 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
         return;
     }
 
-    for (int i = 0; i < MAX_VALVE_COUNT; i++)
+    for (int i = 0; i < MAX_VALVE_COUNT; ++i)
     {
         snprintf(valve_name, sizeof(valve_name), "valve%d", i);
         snprintf(key, sizeof(key), "valve%d", i);
@@ -243,8 +256,10 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
         if (pos > 24)
             pos = 24;
 
-        snprintf(line, sizeof(line), "valve_positions,valve=%s position=%ld %lld\n", valve_name, pos, (long long)ts);
-        influxdb_append_line(out, out_size, line);
+        int n = snprintf(line, sizeof(line), "valve_positions,valve=%s position=%ld %lld\n",
+                         valve_name, (long)pos, (long long)ts);
+        if (n > 0)
+            influxdb_append_line(out, out_size, line);
     }
 
     nvs_close(nvs);
@@ -253,66 +268,61 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
 // Build sensors payload for a single bus (keeps chunks small)
 void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float sensor[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], int bus)
 {
+    if (!out || out_size == 0 || bus < 0 || bus >= MAX_I2C_BUSES)
+        return;
+
     char line[512];
     memset(line, 0, sizeof(line));
 
     int64_t ts = influxdb_get_timestamp();
 
-    xSemaphoreTake(sensor_cfg_mutex, portMAX_DELAY);
+    if (xSemaphoreTake(sensor_cfg_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
+        return;
 
-    for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
+    for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
     {
-        if (sensor[bus][ch][IDX_VALID] != 1)
+        if (sensor[bus][ch][IDX_VALID] != 1.0f)
             continue;
 
         const bus_sensor_t *meta = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
 
-        char type_esc[64];
-        char valve_esc[64];
-        char loc_esc[128];
+        char type_esc[64] = {0};
+        char valve_esc[64] = {0};
+        char loc_esc[128] = {0};
 
         escape_tag(type_esc, sizeof(type_esc), meta->type);
         escape_tag(valve_esc, sizeof(valve_esc), meta->valve);
         escape_tag(loc_esc, sizeof(loc_esc), meta->location);
 
-        // If any of the fields are empty, set to "unknown" or "none" to avoid Influx tag parsing issues
         if (type_esc[0] == '\0')
-        {
             strcpy(type_esc, "None");
-        }
         if (loc_esc[0] == '\0')
-        {
             strcpy(loc_esc, "None");
-        }
         if (valve_esc[0] == '\0')
-        {
             strcpy(valve_esc, "None");
-        }
 
         char sensor_id[32];
         snprintf(sensor_id, sizeof(sensor_id), "bus%d_ch%d", bus, ch);
 
         int n = snprintf(line, sizeof(line),
-                         "sensors,"
-                         "bus=%d,"
-                         "channel=%d,"
-                         "sensor_id=%s,"
-                         "type=%s,"
-                         "location=%s,"
-                         "valve=%s "
-                         "temperature_raw=%.2f,temperature_avg=%.2f,"
-                         "humidity_raw=%.2f,humidity_avg=%.2f",
+                         "sensors,bus=%d,channel=%d,sensor_id=%s,type=%s,location=%s,valve=%s "
+                         "temperature_raw=%.2f,temperature_avg=%.2f,humidity_raw=%.2f,humidity_avg=%.2f",
                          bus, ch, sensor_id, type_esc, loc_esc, valve_esc,
                          sensor[bus][ch][IDX_TEMP], avg[bus][ch][IDX_TEMP],
                          sensor[bus][ch][IDX_HUMIDITY], avg[bus][ch][IDX_HUMIDITY]);
 
         if (sensor[bus][ch][IDX_CO2] > 0.0f)
         {
-            n += snprintf(line + n, sizeof(line) - n, ",co2_raw=%.2f,co2_avg=%.2f", sensor[bus][ch][IDX_CO2], avg[bus][ch][IDX_CO2]);
+            n += snprintf(line + n, sizeof(line) - n, ",co2_raw=%.2f,co2_avg=%.2f",
+                          sensor[bus][ch][IDX_CO2], avg[bus][ch][IDX_CO2]);
         }
 
-        snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
-        influxdb_append_line(out, out_size, line);
+        if (n > 0)
+        {
+            int m = snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
+            if (m > 0)
+                influxdb_append_line(out, out_size, line);
+        }
     }
 
     xSemaphoreGive(sensor_cfg_mutex);
@@ -321,7 +331,6 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
 // Low-level send (returns ESP_OK on HTTP 2xx)
 static esp_err_t influxdb_send_payload_internal(const char *payload, const Influxdb_config_t *cfg)
 {
-    // Abort if no network interface has an IP
     if (!network_has_ip())
     {
         LOGW(TAG, "InfluxDB: Cannot send, no active network interface");
@@ -334,13 +343,13 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
         return ESP_ERR_INVALID_ARG;
     }
 
-    char url[1024];
+    char url[1024] = {0};
     influxdb_build_url(url, sizeof(url), cfg);
 
     esp_http_client_config_t http_cfg = {
         .url = url,
         .method = HTTP_METHOD_POST,
-        .timeout_ms = 15000, // slightly larger timeout for network variability
+        .timeout_ms = 15000,
     };
 
     esp_http_client_handle_t client = esp_http_client_init(&http_cfg);
@@ -350,7 +359,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
         return ESP_FAIL;
     }
 
-    char auth_header[1024];
+    char auth_header[600] = {0};
     snprintf(auth_header, sizeof(auth_header), "Token %s", cfg->influxdb_token);
 
     esp_http_client_set_header(client, "Authorization", auth_header);
@@ -360,17 +369,23 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     LOGD(TAG, "HTTP POST to: %s", url);
     LOGD(TAG, "HTTP payload preview: %.256s", payload);
 
-    esp_http_client_set_post_field(client, payload, (int)strlen(payload));
+    esp_err_t err = esp_http_client_set_post_field(client, payload, (int)strlen(payload));
+    if (err != ESP_OK)
+    {
+        LOGW(TAG, "esp_http_client_set_post_field failed: %s", esp_err_to_name(err));
+        esp_http_client_cleanup(client);
+        return err;
+    }
 
-    esp_err_t err = esp_http_client_perform(client);
+    err = esp_http_client_perform(client);
     int status = 0;
-    char resp[512] = {0};
-
     if (err == ESP_OK)
     {
         status = esp_http_client_get_status_code(client);
         LOGD(TAG, "HTTP status: %d", status);
 
+        // Read response body safely
+        char resp[512];
         int rlen = esp_http_client_read_response(client, resp, sizeof(resp) - 1);
         if (rlen > 0)
         {
@@ -390,9 +405,7 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
     esp_http_client_cleanup(client);
 
     if (err != ESP_OK)
-    {
         return err;
-    }
 
     if (status < 200 || status >= 300)
     {
@@ -406,6 +419,9 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
 // Send with retry/backoff (synchronous, called from sender task)
 static void influxdb_send_with_retry(const char *payload, const Influxdb_config_t *cfg)
 {
+    if (!payload || !cfg)
+        return;
+
     const int max_retries = 4;
     int attempt = 0;
     int backoff_ms = 500;
@@ -426,7 +442,6 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
     }
 
     LOGE(TAG, "Influx write permanently failed after %d attempts", max_retries + 1);
-    // Optional: persist payload to NVS for later retry (not implemented here)
 }
 
 // Sender task: serializes HTTP writes
@@ -435,7 +450,6 @@ static void influx_sender_task(void *pv)
     Influxdb_config_t cfg;
     influxdb_get_config_snapshot(&cfg);
 
-    // Wait for network availability
     while (!network_has_ip())
     {
         LOGW(TAG, "InfluxDB: No network available, waiting...");
@@ -450,17 +464,14 @@ static void influx_sender_task(void *pv)
             if (!job.payload)
                 continue;
 
-            // Refresh config snapshot before each send
             influxdb_get_config_snapshot(&cfg);
 
-            // Wait for network before sending
             while (!network_has_ip())
             {
                 LOGW(TAG, "InfluxDB: No network available, waiting...");
                 vTaskDelay(pdMS_TO_TICKS(2000));
             }
 
-            // Check if InfluxDB is enabled
             if (strcmp(cfg.enable_influxdb, "On") != 0)
             {
                 LOGW(TAG, "InfluxDB disabled; dropping payload");
@@ -520,14 +531,14 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 
     if (len > INFLUX_MAX_PAYLOAD)
     {
-        LOGW(TAG, "enqueue: payload too large (%u), truncating to %u", (unsigned)len, (unsigned)INFLUX_MAX_PAYLOAD);
+        LOGW(TAG, "enqueue: payload too large (%zu), truncating to %d", len, INFLUX_MAX_PAYLOAD);
         len = INFLUX_MAX_PAYLOAD;
     }
 
     char *copy = malloc(len + 1);
     if (!copy)
     {
-        LOGE(TAG, "enqueue: malloc failed for %u bytes", (unsigned)len);
+        LOGE(TAG, "enqueue: malloc failed for %zu bytes", len);
         return false;
     }
 
@@ -538,12 +549,12 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 
     if (xQueueSend(influx_queue, &job, pdMS_TO_TICKS(100)) != pdTRUE)
     {
-        LOGW(TAG, "enqueue: queue full, dropping payload len=%u", (unsigned)len);
+        LOGW(TAG, "enqueue: queue full, dropping payload len=%zu", len);
         free(copy);
         return false;
     }
 
-    LOGD(TAG, "Enqueued Influx payload len=%u", (unsigned)len);
+    LOGD(TAG, "Enqueued Influx payload len=%zu", len);
     return true;
 }
 
@@ -578,22 +589,29 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         free(valves);
     }
 
-    // Read sensor queues into local buffers
-    float (*sensor)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
-    float (*avg)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
+    // Allocate sensor buffers
+    size_t buf_bytes = sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
+    float (*sensor)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(buf_bytes);
+    float (*avg)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(buf_bytes);
 
     if (!sensor || !avg)
     {
         LOGE(TAG, "Memory allocation failed for sensors");
-        if (sensor)
-            free(sensor);
-        if (avg)
-            free(avg);
+        free(sensor);
+        free(avg);
         return;
     }
 
-    memset(sensor, 0, sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
-    memset(avg, 0, sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS);
+    memset(sensor, 0, buf_bytes);
+    memset(avg, 0, buf_bytes);
+
+    if (!sensor_q || !avg_q)
+    {
+        LOGW(TAG, "influxdb_process: sensor queues not provided");
+        free(sensor);
+        free(avg);
+        return;
+    }
 
     if (xQueuePeek(sensor_q, sensor, 0) != pdTRUE || xQueuePeek(avg_q, avg, 0) != pdTRUE)
     {
@@ -603,8 +621,7 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         return;
     }
 
-    // Build sensors per bus and enqueue
-    for (int bus = 0; bus < MAX_I2C_BUSES; bus++)
+    for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
     {
         char *sbuf = malloc(INFLUX_SENSORS_CHUNK);
         if (!sbuf)

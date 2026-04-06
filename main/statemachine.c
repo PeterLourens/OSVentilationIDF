@@ -20,238 +20,232 @@ RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
 // Functions for the state machine would go here
 void init_statemachine(void)
 {
-    // In init state set fanspeed to low (1) and state to init in struct sm_actuals with Mutex
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
-        sm_actuals.state = 1;               // Init
-        sm_actuals.fanspeed = FANSPEED_LOW; // Low
+        sm_actuals.state = STATE_NR_INIT;
+        sm_actuals.fanspeed = FANSPEED_LOW;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "init_statemachine: statemachine_mutex unavailable; applying defaults locally");
+    }
 
-    // Code to set fanspeed
     set_fanspeed(FANSPEED_LOW);
 }
 
 void run_statemachine(void)
 {
-    int temp_state = 0;
+    int temp_state = STATE_NR_INIT;
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         temp_state = sm_actuals.state;
         xSemaphoreGive(statemachine_mutex);
     }
-
-    // Call the correct state function based on current state
-    if (temp_state == STATE_NR_INIT)
-    {
-        init_transitions();
-    }
-    else if (temp_state == STATE_NR_STOPPED)
-    {
-        stopped_transitions();
-    }
-    else if (temp_state == STATE_NR_DAY)
-    {
-        day_transitions();
-    }
-    else if (temp_state == STATE_NR_NIGHT)
-    {
-        night_transitions();
-    }
-    else if (temp_state == STATE_NR_HIGHCO2DAY)
-    {
-        high_co2_day_transitions();
-    }
-    else if (temp_state == STATE_NR_HIGHCO2NIGHT)
-    {
-        high_co2_night_transitions();
-    }
-    else if (temp_state == STATE_NR_HIGHRHDAY)
-    {
-        high_rh_day_transitions();
-    }
-    else if (temp_state == STATE_NR_HIGHRHNIGHT)
-    {
-        high_rh_night_transitions();
-    }
-    else if (temp_state == STATE_NR_COOKING)
-    {
-        cooking_transitions();
-    }
-    else if (temp_state == STATE_NR_CYCLINGDAY)
-    {
-        valve_cycle_day_transitions();
-    }
-    else if (temp_state == STATE_NR_CYCLINGNIGHT)
-    {
-        valve_cycle_night_transitions();
-    }
-    else if (temp_state == STATE_NR_MANUALHS)
-    {
-        manual_high_speed_transitions();
-    }
     else
     {
-        // This state should normally never be entered. Back to init of statemachine to keep it running
-        LOGE(TAG, "Error in state number, back to init state.");
+        LOGD(TAG, "run_statemachine: could not read sm_actuals; using last known state %d", temp_state);
+    }
+
+    switch (temp_state)
+    {
+    case STATE_NR_INIT:
         init_transitions();
+        break;
+    case STATE_NR_STOPPED:
+        stopped_transitions();
+        break;
+    case STATE_NR_DAY:
+        day_transitions();
+        break;
+    case STATE_NR_NIGHT:
+        night_transitions();
+        break;
+    case STATE_NR_HIGHCO2DAY:
+        high_co2_day_transitions();
+        break;
+    case STATE_NR_HIGHCO2NIGHT:
+        high_co2_night_transitions();
+        break;
+    case STATE_NR_HIGHRHDAY:
+        high_rh_day_transitions();
+        break;
+    case STATE_NR_HIGHRHNIGHT:
+        high_rh_night_transitions();
+        break;
+    case STATE_NR_COOKING:
+        cooking_transitions();
+        break;
+    case STATE_NR_CYCLINGDAY:
+        valve_cycle_day_transitions();
+        break;
+    case STATE_NR_CYCLINGNIGHT:
+        valve_cycle_night_transitions();
+        break;
+    case STATE_NR_MANUALHS:
+        manual_high_speed_transitions();
+        break;
+    default:
+        LOGE(TAG, "run_statemachine: unknown state %d, resetting to INIT", temp_state);
+        init_transitions();
+        break;
     }
 }
 
 void stopped_transitions(void)
 {
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = STATE_NR_STOPPED;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "stopped_transitions: could not take statemachine_mutex");
+    }
 
-    // No further logic required because when start statemachine button is pushed the statemachine will go back to init state
-    LOGI(TAG, "State is stopped. Push start statemachine button on the Valve Control web page to continue.");
+    LOGI(TAG, "State is stopped. Use valve control web page to start.");
 }
 
 void init_transitions(void)
 {
-    int state_fanspeed = FANSPEED_LOW;
-    int state = STATE_NR_INIT;
-    int new_state = 0;
+    int new_state = STATE_NR_DAY;
 
-    // Actions for this state
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (is_day())
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;
-        LOGI(TAG, "State: init, fanspeed: %d.", sm_actuals.fanspeed);
-        xSemaphoreGive(statemachine_mutex);
-    }
-
-    set_fanspeed(state_fanspeed);
-
-    if (is_day() == true)
-    {
-        LOGI(TAG, "Transit to day.");
+        LOGI(TAG, "init_transitions: transit to DAY");
         new_state = STATE_NR_DAY;
     }
     else
     {
-        LOGI(TAG, "Transit to night.");
+        LOGI(TAG, "init_transitions: transit to NIGHT");
         new_state = STATE_NR_NIGHT;
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
+        sm_actuals.fanspeed = FANSPEED_LOW;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "init_transitions: could not update sm_actuals");
+    }
+
+    set_fanspeed(FANSPEED_LOW);
 }
 
 void day_transitions(void)
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    int state_config_index = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    int co2highlevel = 0;
+    int rhhighlevel = 0;
+    bool valve_move_locked = false;
+    int co2_sensors_high = 0;
+    int rh_sensors_high = 0;
+    int new_state = STATE_NR_DAY;
 
-    int state = STATE_NR_DAY;   // Local state variable
-    int state_config_index = 0; // Index number for state configuration
-    int new_state = 0;          // State after logic in this function
-    int state_fanspeed = 0;     // Fanspeed from global config struct
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int rhhighlevel = 0;        // Local variable for RH high level from general statemachine config
-    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
-    int rh_sensors_high = 0;  // Local variable following the struct value
-
-    bool valve_move_locked = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (!sensors_queues_ready || sensor_avg_queue == NULL)
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        LOGW(TAG, "day_transitions: sensor queues not ready; skipping sensor-dependent logic");
+    }
+    else if (sensor_avg_item_size != sizeof(statemachine_avg_sensor_data))
+    {
+        LOGE(TAG, "day_transitions: sensor_avg_item_size mismatch; skipping sensor-dependent logic");
+    }
+    else
+    {
+        if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, pdMS_TO_TICKS(50)) != pdTRUE)
+        {
+            LOGW(TAG, "day_transitions: failed to peek sensor_avg_queue");
+        }
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_DAY, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-    LOGD(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find state config index
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_DAY, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+        {
+            LOGW(TAG, "day_transitions: state '%s' not configured", state_name);
+            state_config_index = 0; // fallback to index 0 to avoid out-of-bounds
+        }
+    }
 
-        // General statemachine config
+    // Read config under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
-
         xSemaphoreGive(state_config_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "day_transitions: could not take state_config_mutex; using defaults");
     }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_DAY;
+        sm_actuals.fanspeed = state_fanspeed;
+        valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
 
-        for (int i = 0; i < co2_sensor_counter; i++)
+        // Count high sensors using selected lists
+        for (int i = 0; i < co2_sensor_counter; ++i)
         {
             if (co2_sensors[i].co2_reading > co2highlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
-                LOGD(TAG, "Transit to highco2day if minimum state time has expired.");
                 sm_actuals.co2_sensors_high++;
-            }
         }
-
-        for (int i = 0; i < rh_sensor_counter; i++)
+        for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
-                LOGD(TAG, "Transit to highrhday if minimum state time has expired.");
                 sm_actuals.rh_sensors_high++;
-            }
         }
+
         co2_sensors_high = sm_actuals.co2_sensors_high;
         rh_sensors_high = sm_actuals.rh_sensors_high;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "day_transitions: could not take statemachine_mutex");
+    }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Update elapsed time
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
     }
-    LOGI(TAG, "State: %d, fanspeed: %d, state_time: %d.", state, state_fanspeed, elapsed_time);
 
-    // Move valves when not locked
-    if (valve_move_locked == 0)
+    // Move valves if allowed
+    if (!valve_move_locked)
     {
         valve_position_statemachine(state_config_index);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
+        LOGW(TAG, "day_transitions: valves locked; skipping move");
     }
 
-    // Conditions for changing states
+    // Decide transitions
     if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_HIGHCO2DAY;
@@ -260,145 +254,148 @@ void day_transitions(void)
     {
         new_state = STATE_NR_HIGHRHDAY;
     }
-    else if (is_day() == false)
+    else if (!is_day())
     {
-        LOGI(TAG, "Transit to night.");
         new_state = STATE_NR_NIGHT;
     }
-    else if (cooking_times() == true)
+    else if (cooking_times())
     {
-        LOGI(TAG, "Transit to cooking.");
         new_state = STATE_NR_COOKING;
     }
-    else if (valve_cycle_times_day() == true)
+    else if (valve_cycle_times_day())
     {
-        LOGI(TAG, "Transit to valve cycling day state.");
         new_state = STATE_NR_CYCLINGDAY;
     }
-    // Manual high speed mode is ignored for now
     else
     {
-        LOGI(TAG, "Stay in day state.");
         new_state = STATE_NR_DAY;
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (new_state != STATE_NR_DAY)
     {
-        if (state != new_state)
-        {
-            elapsed_time = 0;
-            old_time = (esp_timer_get_time()) / 1000000;
-        }
+        elapsed_time = 0;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
+    }
+
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+    {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "day_transitions: could not update sm_actuals to new state %d", new_state);
     }
 }
 
 void night_transitions(void)
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    int state_config_index = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    int co2highlevel = 0;
+    int rhhighlevel = 0;
+    bool valve_move_locked = false;
+    int co2_sensors_high = 0;
+    int rh_sensors_high = 0;
+    int new_state = STATE_NR_NIGHT;
 
-    int state = STATE_NR_NIGHT; // Local state variable
-    int state_config_index = 0; // Index number for state configuration
-    int new_state = 0;          // State after logic in this function
-    int state_fanspeed = 0;     // Fanspeed from global config struct
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int rhhighlevel = 0;        // Local variable for RH high level from general statemachine config
-    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
-    int rh_sensors_high = 0;  // Local variable following the struct value
-
-    bool valve_move_locked = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (!sensors_queues_ready || sensor_avg_queue == NULL)
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        LOGW(TAG, "night_transitions: sensor queues not ready; skipping sensor-dependent logic");
+    }
+    else if (sensor_avg_item_size != sizeof(statemachine_avg_sensor_data))
+    {
+        LOGE(TAG, "night_transitions: sensor_avg_item_size mismatch; skipping sensor-dependent logic");
+    }
+    else
+    {
+        if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, pdMS_TO_TICKS(50)) != pdTRUE)
+        {
+            LOGW(TAG, "night_transitions: failed to peek sensor_avg_queue");
+        }
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_NIGHT, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-    LOGD(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find state config index
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_NIGHT, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+        {
+            LOGW(TAG, "night_transitions: state '%s' not configured", state_name);
+            state_config_index = 0;
+        }
+    }
 
-        // General statemachine config
+    // Read config under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
         xSemaphoreGive(state_config_mutex);
     }
+    else
+    {
+        LOGW(TAG, "night_transitions: could not take state_config_mutex; using defaults");
+    }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_NIGHT;
+        sm_actuals.fanspeed = state_fanspeed;
+        valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
 
-        for (int i = 0; i < co2_sensor_counter; i++)
+        for (int i = 0; i < co2_sensor_counter; ++i)
         {
             if (co2_sensors[i].co2_reading > co2highlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
-                LOGD(TAG, "Transit to highco2night if minimum state time has expired.");
                 sm_actuals.co2_sensors_high++;
-            }
         }
-
-        for (int i = 0; i < rh_sensor_counter; i++)
+        for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
-                LOGD(TAG, "Transit to highrhnight if minimum state time has expired.");
                 sm_actuals.rh_sensors_high++;
-            }
         }
+
         co2_sensors_high = sm_actuals.co2_sensors_high;
         rh_sensors_high = sm_actuals.rh_sensors_high;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "night_transitions: could not take statemachine_mutex");
+    }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Update elapsed time
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
     }
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
 
-    // Move valves when not locked
-    if (valve_move_locked == 0)
+    // Move valves if allowed
+    if (!valve_move_locked)
     {
         valve_position_statemachine(state_config_index);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
+        LOGW(TAG, "night_transitions: valves locked; skipping move");
     }
 
-    // Conditions for changing states
+    // Decide transitions
     if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_HIGHCO2NIGHT;
@@ -407,1293 +404,871 @@ void night_transitions(void)
     {
         new_state = STATE_NR_HIGHRHNIGHT;
     }
-    else if (is_day() == true)
+    else if (is_day())
     {
-        LOGI(TAG, "Transit to day.");
         new_state = STATE_NR_DAY;
     }
-    else if (valve_cycle_times_night() == true)
+    else if (valve_cycle_times_night())
     {
-        LOGI(TAG, "Transit to valve cycling night state.");
         new_state = STATE_NR_CYCLINGNIGHT;
     }
     else
     {
-        LOGI(TAG, "Stay in night state.");
         new_state = STATE_NR_NIGHT;
     }
 
-    if (state != new_state)
+    if (new_state != STATE_NR_NIGHT)
     {
         elapsed_time = 0;
-        old_time = (esp_timer_get_time()) / 1000000;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "night_transitions: could not update sm_actuals to new state %d", new_state);
     }
 }
 
 void high_co2_day_transitions(void)
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-    int state = STATE_NR_HIGHCO2DAY; // Local state variable
-    int state_config_index = 0;      // Index number for state configuration
-    int state_config_index_temp = 0; // Index number for state configuration
-    int new_state = 0;               // State after logic in this function
-    int state_fanspeed = 0;          // Fanspeed from global config struct
-    int valve_nr = 0;
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int co2lowlevel = 0;        // Local variable for CO2 low level from general statemachine config
-    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
-
-    int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
-
-    float reading = 0.2f;
-
-    bool valve_move_locked = 0;
+    int state_config_index = -1;
+    int state_config_index_temp = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    int co2lowlevel = 0;
+    int co2highlevel = 0;
+    bool valve_move_locked = false;
+    // int co2_sensors_high = 0;
+    int state_valve_position[MAX_VALVE_COUNT] = {0};
     bool valve_open[MAX_VALVE_COUNT] = {false};
 
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-    char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
-    char valve[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (!sensors_queues_ready || sensor_avg_queue == NULL)
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        LOGW(TAG, "high_co2_day_transitions: sensor queues not ready; skipping sensor-dependent logic");
+    }
+    else if (sensor_avg_item_size != sizeof(statemachine_avg_sensor_data))
+    {
+        LOGE(TAG, "high_co2_day_transitions: sensor_avg_item_size mismatch; skipping sensor-dependent logic");
+    }
+    else
+    {
+        if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, pdMS_TO_TICKS(50)) != pdTRUE)
+        {
+            LOGW(TAG, "high_co2_day_transitions: failed to peek sensor_avg_queue");
+        }
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_HIGHCO2DAY, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
-    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
-    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
-
-    LOGD(TAG, "Statename: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find config indices
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_HIGHCO2DAY, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+        {
+            LOGW(TAG, "high_co2_day_transitions: state '%s' not configured", state_name);
+            state_config_index = 0;
+        }
 
-        // General statemachine config
+        char state_name_temp[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp) - 1);
+        state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
+        if (state_config_index_temp < 0)
+        {
+            LOGW(TAG, "high_co2_day_transitions: temp state '%s' not configured", state_name_temp);
+            state_config_index_temp = state_config_index; // fallback
+        }
+    }
+
+    // Read config under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
+
+        // copy default valve positions for this state
+        for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
+
         xSemaphoreGive(state_config_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "high_co2_day_transitions: could not take state_config_mutex; using defaults");
     }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_HIGHCO2DAY;
+        sm_actuals.fanspeed = state_fanspeed;
+        valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-        co2_sensors_high = sm_actuals.co2_sensors_high;
         xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "high_co2_day_transitions: could not take statemachine_mutex");
     }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "Low CO2 level: %d", co2lowlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Hysteresis per valve based on selected CO2 sensors
+    for (int i = 0; i < co2_sensor_counter; ++i)
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
+        const char *vname = co2_sensors[i].valve ? co2_sensors[i].valve : "(unknown)";
+        float reading = co2_sensors[i].co2_reading;
+        char valve_copy[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(valve_copy, vname, sizeof(valve_copy) - 1);
 
-    // Temp valve settings for individual valves starting with default settings for this state.
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-    {
-        for (int i = 0; i < 12; i++)
+        // Extract numeric valve index if present
+        int valve_nr = -1;
+        char *substr = strstr(valve_copy, "valve");
+        if (substr)
         {
-            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
+            char *num = substr + 5;
+            valve_nr = atoi(num);
         }
-        xSemaphoreGive(state_config_mutex);
-    }
 
-    // Iterate through CO2 sensors to see which one has high CO2 reading to see if default settings apply when high reading is at fan inlet
-    // or only one valve needs to open (when high reading is in a room)
-    for (int i = 0; i < co2_sensor_counter; i++)
-    {
-        if (!co2_sensors[i].valve)
+        if (valve_nr < 0 || valve_nr >= MAX_VALVE_COUNT)
         {
-            LOGE(TAG, "Valve name missing for sensor index %d", i);
+            LOGW(TAG, "high_co2_day_transitions: invalid valve parsed from '%s'", vname);
             continue;
         }
 
-        strncpy(valve, co2_sensors[i].valve, sizeof(valve) - 1);
-        valve[sizeof(valve) - 1] = '\0';
-        char *substr = strstr(valve, "valve");
-        if (substr)
+        // Apply hysteresis
+        if (valve_open[valve_nr])
         {
-            memmove(substr, substr + 5, strlen(substr + 5) + 1); // 5 is length of "valve"
-        }
-        valve_nr = atoi(valve);
-        reading = co2_sensors[i].co2_reading;
-
-        if (strcmp(valve, "Fan_inlet") != 0)
-        {
-            // Hysteresis logic
-            if (valve_open[valve_nr])
+            if (reading < co2lowlevel)
             {
-                // Valve is open → close only if CO₂ drops below low threshold
-                if (reading < co2lowlevel)
-                {
-                    valve_open[valve_nr] = false;
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "CO₂ %.1f ppm < low threshold %d ppm → closing valve %s", reading, co2lowlevel, co2_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "CO₂ %.1f ppm ≥ low threshold %d ppm → keeping valve %s open", reading, co2lowlevel, co2_sensors[i].valve);
-                }
+                valve_open[valve_nr] = false;
+                state_valve_position[valve_nr] = 4;
             }
             else
             {
-                // Valve is closed → open only if CO₂ rises above high threshold
-                if (reading > co2highlevel)
-                {
-                    valve_open[valve_nr] = true;
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "CO₂ %.1f ppm > high threshold %d ppm → opening valve %s", reading, co2highlevel, co2_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "CO₂ %.1f ppm ≤ high threshold %d ppm → keeping valve %s closed", reading, co2highlevel, co2_sensors[i].valve);
-                }
+                state_valve_position[valve_nr] = 20;
+            }
+        }
+        else
+        {
+            if (reading > co2highlevel)
+            {
+                valve_open[valve_nr] = true;
+                state_valve_position[valve_nr] = 20;
+            }
+            else
+            {
+                state_valve_position[valve_nr] = 4;
             }
         }
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+        if (reading > co2lowlevel)
         {
-            if (reading > co2lowlevel)
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
             {
                 sm_actuals.co2_sensors_high++;
+                xSemaphoreGive(statemachine_mutex);
             }
-            co2_sensors_high = sm_actuals.co2_sensors_high;
-            xSemaphoreGive(statemachine_mutex);
         }
     }
 
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-
-    // Copy values to temp settings
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Apply temporary valve positions to a temp state config (safe under mutex)
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        for (int i = 0; i < MAX_VALVE_COUNT; i++)
-        {
+        for (int i = 0; i < MAX_VALVE_COUNT; ++i)
             statemachine_config[state_config_index_temp].valve_position[i] = state_valve_position[i];
-        }
         xSemaphoreGive(state_config_mutex);
     }
+    else
+    {
+        LOGW(TAG, "high_co2_day_transitions: could not take state_config_mutex to write temp valve positions");
+    }
 
-    if (valve_move_locked == 0)
+    if (!valve_move_locked)
     {
         valve_position_statemachine(state_config_index_temp);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
+        LOGW(TAG, "high_co2_day_transitions: valves locked; skipping move");
     }
 
-    // Conditions for transition. This state always transits back to day first or to highco2night if night time.
-    if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time) // Day without high CO2 readings
+    // Decide transition
+    int new_state = STATE_NR_HIGHCO2DAY;
+    if (sm_actuals.co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
-        LOGI(TAG, "Transit to day.");
         new_state = STATE_NR_DAY;
     }
-    else if (is_day() == false && co2_sensors_high > 0) // Night with high CO2 readings
+    else if (!is_day() && sm_actuals.co2_sensors_high > 0)
     {
-        LOGI(TAG, "Transit to highco2night.");
         new_state = STATE_NR_HIGHCO2NIGHT;
     }
-    else
-    {
-        LOGI(TAG, "Remain in highco2day state.");
-        new_state = STATE_NR_HIGHCO2DAY;
-    }
 
-    if (state != new_state)
+    if (new_state != STATE_NR_HIGHCO2DAY)
     {
         elapsed_time = 0;
-        old_time = (esp_timer_get_time()) / 1000000;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "high_co2_day_transitions: could not update sm_actuals to new state %d", new_state);
     }
 }
 
 void high_co2_night_transitions(void)
 {
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
-
-    int state = STATE_NR_HIGHCO2NIGHT; // Local state variable
-    int state_config_index = 0;        // Index number for state configuration
-    int state_config_index_temp = 0;   // Index number for state configuration
-    int new_state = 0;                 // State after logic in this function
-    int state_fanspeed = 0;            // Fanspeed from global config struct
-    int valve_nr = 0;
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int co2lowlevel = 0;        // Local variable for CO2 low level from general statemachine config
-    int co2highlevel = 0;       // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
-
-    int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
-
-    float reading = 0.2f;
-
-    bool valve_move_locked = 0;
+    int state_config_index = -1;
+    int state_config_index_temp = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    int co2lowlevel = 0;
+    int co2highlevel = 0;
+    bool valve_move_locked = false;
+    int co2_sensors_high = 0;
+    int state_valve_position[MAX_VALVE_COUNT] = {0};
     bool valve_open[MAX_VALVE_COUNT] = {false};
 
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-    char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
-    char valve[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (!sensors_queues_ready || sensor_avg_queue == NULL)
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        LOGW(TAG, "high_co2_night_transitions: sensor queues not ready; skipping sensor-dependent logic");
+    }
+    else if (sensor_avg_item_size != sizeof(statemachine_avg_sensor_data))
+    {
+        LOGE(TAG, "high_co2_night_transitions: sensor_avg_item_size mismatch; skipping sensor-dependent logic");
+    }
+    else
+    {
+        if (xQueuePeek(sensor_avg_queue, &statemachine_avg_sensor_data, pdMS_TO_TICKS(50)) != pdTRUE)
+        {
+            LOGW(TAG, "high_co2_night_transitions: failed to peek sensor_avg_queue");
+        }
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_HIGHCO2NIGHT, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
-    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
-    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
-
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find config indices
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_HIGHCO2NIGHT, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+        {
+            LOGW(TAG, "high_co2_night_transitions: state '%s' not configured", state_name);
+            state_config_index = 0;
+        }
 
-        // General statemachine config
+        char state_name_temp[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp) - 1);
+        state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
+        if (state_config_index_temp < 0)
+        {
+            LOGW(TAG, "high_co2_night_transitions: temp state '%s' not configured", state_name_temp);
+            state_config_index_temp = state_config_index;
+        }
+    }
+
+    // Read config under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
+
+        for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
+
         xSemaphoreGive(state_config_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "high_co2_night_transitions: could not take state_config_mutex; using defaults");
     }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed; // Set fanspeed as defined in state settings
+        sm_actuals.state = STATE_NR_HIGHCO2NIGHT;
+        sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-        co2_sensors_high = sm_actuals.co2_sensors_high;
         xSemaphoreGive(statemachine_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "high_co2_night_transitions: could not take statemachine_mutex");
     }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "Low CO2 level: %d", co2lowlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
-    {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-
-    // Temp valve settings for individual valves starting with default settings for this state. Should read these from file and not hardcode them
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-    {
-        for (int i = 0; i < 12; i++)
-        {
-            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
-        }
-        xSemaphoreGive(state_config_mutex);
-    }
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    // High CO2 has been detected to come into this state. Iterate through CO2 sensors to see which sensor detects high CO2. Valves with CO2 sensors are default
-    // set to 20 for this state. Valves with a CO2 value lower than co2lowlevel will be closed to 4 to direct airflow to the rooms with high CO2 reading.
-    // ------------------------------------------------------------
-    // CO₂ valve logic for HIGHCO2NIGHT
-    // ------------------------------------------------------------
-
-    // 1. Detect if ANY sensor is above the high threshold
+    // Aggregate high flags and apply valve logic
     bool any_high = false;
-    co2_sensors_high = 0;
-
-    for (int i = 0; i < co2_sensor_counter; i++)
+    for (int i = 0; i < co2_sensor_counter; ++i)
     {
         float reading = co2_sensors[i].co2_reading;
-
         if (reading > co2highlevel)
             any_high = true;
-
         if (reading > co2lowlevel)
             co2_sensors_high++;
     }
 
-    // 2. Apply valve logic
-    for (int i = 0; i < co2_sensor_counter; i++)
+    // Default behavior: if no sensor is high, open CO2 valves to 20
+    for (int i = 0; i < co2_sensor_counter; ++i)
     {
-        // Copy valve name locally
-        strncpy(valve, co2_sensors[i].valve, sizeof(valve) - 1);
-        valve[sizeof(valve) - 1] = '\0';
+        const char *vname = co2_sensors[i].valve ? co2_sensors[i].valve : "(unknown)";
+        char valve_copy[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(valve_copy, vname, sizeof(valve_copy) - 1);
 
-        // Skip fan inlet
-        if (strcmp(valve, "Fan_inlet") == 0)
-            continue;
-
-        // Extract valve number
-        char *substr = strstr(valve, "valve");
+        char *substr = strstr(valve_copy, "valve");
+        int valve_nr = -1;
         if (substr)
-            memmove(substr, substr + 5, strlen(substr + 5) + 1);
+            valve_nr = atoi(substr + 5);
 
-        valve_nr = atoi(valve);
         if (valve_nr < 0 || valve_nr >= MAX_VALVE_COUNT)
         {
-            LOGW(TAG, "Invalid valve number parsed from '%s'", co2_sensors[i].valve);
+            LOGW(TAG, "high_co2_night_transitions: invalid valve parsed from '%s'", vname);
             continue;
         }
 
-        reading = co2_sensors[i].co2_reading;
+        float reading = co2_sensors[i].co2_reading;
 
-        // CASE A: No sensor is high → all CO₂ sensor valves open to 20
         if (!any_high)
         {
             valve_open[valve_nr] = true;
             state_valve_position[valve_nr] = 20;
-
-            LOGD(TAG, "No high CO₂ sensors. Opening %s to 20 (%.1f ppm).", co2_sensors[i].valve, reading);
-            continue;
-        }
-
-        // CASE B: At least one sensor is high → hysteresis per valve
-        if (valve_open[valve_nr])
-        {
-            // Valve currently open → close only if below low threshold
-            if (reading < co2lowlevel)
-            {
-                valve_open[valve_nr] = false;
-                state_valve_position[valve_nr] = 4;
-
-                LOGD(TAG, "CO₂ dropped below low threshold (%.1f ppm). Closing %s.", reading, co2_sensors[i].valve);
-            }
-            else
-            {
-                state_valve_position[valve_nr] = 20;
-
-                LOGD(TAG, "CO₂ still above low threshold (%.1f ppm). Keeping %s open.", reading, co2_sensors[i].valve);
-            }
         }
         else
         {
-            // Valve currently closed → open only if above high threshold
-            if (reading > co2highlevel)
+            if (valve_open[valve_nr])
             {
-                valve_open[valve_nr] = true;
-                state_valve_position[valve_nr] = 20;
-
-                LOGD(TAG, "CO₂ rose above high threshold (%.1f ppm). Opening %s.", reading, co2_sensors[i].valve);
+                if (reading < co2lowlevel)
+                {
+                    valve_open[valve_nr] = false;
+                    state_valve_position[valve_nr] = 4;
+                }
+                else
+                {
+                    state_valve_position[valve_nr] = 20;
+                }
             }
             else
             {
-                state_valve_position[valve_nr] = 4;
-
-                LOGD(TAG, "CO₂ still below high threshold (%.1f ppm). Keeping %s closed.", reading, co2_sensors[i].valve);
+                if (reading > co2highlevel)
+                {
+                    valve_open[valve_nr] = true;
+                    state_valve_position[valve_nr] = 20;
+                }
+                else
+                {
+                    state_valve_position[valve_nr] = 4;
+                }
             }
         }
     }
 
-    // Store the count for the rest of the state machine
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    // Write temp valve positions under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.co2_sensors_high = co2_sensors_high;
-        xSemaphoreGive(statemachine_mutex);
-    }
-
-    LOGD(TAG, "Number of sensors have high CO₂: %d.", co2_sensors_high);
-
-    // Copy high CO2 state valve positions to temp settings
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-    {
-        for (int i = 0; i < MAX_VALVE_COUNT; i++)
-        {
+        for (int i = 0; i < MAX_VALVE_COUNT; ++i)
             statemachine_config[state_config_index_temp].valve_position[i] = state_valve_position[i];
-        }
         xSemaphoreGive(state_config_mutex);
     }
+    else
+    {
+        LOGW(TAG, "high_co2_night_transitions: could not take state_config_mutex to write temp valve positions");
+    }
 
-    if (valve_move_locked == 0)
+    if (!valve_move_locked)
     {
         valve_position_statemachine(state_config_index_temp);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
+        LOGW(TAG, "high_co2_night_transitions: valves locked; skipping move");
     }
 
-    // Conditions for transition. This state always transits back to night first or to highco2day if day time.
-    if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time) // Night without high CO2 readings
+    // Decide transition
+    int new_state = STATE_NR_HIGHCO2NIGHT;
+    if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
-        LOGI(TAG, "Transit to night.");
-        new_state = STATE_NR_NIGHT;
+        new_state = STATE_NR_DAY;
     }
-    else if (is_day() == true && co2_sensors_high > 0) // Day with high CO2 readings, no need to wait for minimum_state_time
+    else if (is_day() && co2_sensors_high > 0)
     {
-        LOGI(TAG, "Transit to highco2day.");
         new_state = STATE_NR_HIGHCO2DAY;
     }
-    else
-    {
-        LOGI(TAG, "Remain in highco2night state.");
-        new_state = STATE_NR_HIGHCO2NIGHT;
-    }
 
-    if (state != new_state)
+    if (new_state != STATE_NR_HIGHCO2NIGHT)
     {
         elapsed_time = 0;
-        old_time = (esp_timer_get_time()) / 1000000;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }
+    else
+    {
+        LOGW(TAG, "high_co2_night_transitions: could not update sm_actuals to new state %d", new_state);
+    }
 }
 
+// High RH day transitions
 void high_rh_day_transitions(void)
 {
-    float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    int state_config_index = -1;
+    int temp_state_index = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    // int rh_low = 0;
+    int rh_high = 0;
+    bool valve_move_locked = false;
+    int rh_sensors_high = 0;
+    int new_state = STATE_NR_HIGHRHDAY;
 
-    int state = STATE_NR_HIGHRHDAY;  // Local state variable
-    int state_config_index = 0;      // Index number for state configuration
-    int state_config_index_temp = 0; // Index number for state configuration
-    int new_state = 0;               // State after logic in this function
-    int state_fanspeed = 0;          // Fanspeed from global config struct
-    int valve_nr = 0;
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int rhlowlevel = 0;         // Local variable for CO2 low level from general statemachine config
-    int rhhighlevel = 0;        // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int rh_sensors_high = 0; // Local variable following the struct value
-
-    int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
-
-    float reading = 0.2f;
-
-    bool valve_move_locked = 0;
-    bool valve_open[MAX_VALVE_COUNT] = {false};
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-    char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
-    char valve[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
+    // Try to read averaged sensor data (non-fatal)
+    if (sensors_queues_ready && sensor_avg_queue != NULL &&
+        sensor_avg_item_size == sizeof(avg_data))
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        (void)xQueuePeek(sensor_avg_queue, &avg_data, pdMS_TO_TICKS(50));
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_HIGHRHDAY, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
-    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
-    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
-
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find config indices
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_HIGHRHDAY, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+            state_config_index = 0;
 
-        // General statemachine config
-        rhlowlevel = statemachine_gen_config.rh_low_level;
-        rhhighlevel = statemachine_gen_config.rh_high_level;
+        // temp state to apply valve positions if needed (reuse TEMP state)
+        strncpy(state_name, STATE_TEMP, sizeof(state_name) - 1);
+        temp_state_index = find_state_index_by_name_ci(state_name);
+        if (temp_state_index < 0)
+            temp_state_index = state_config_index;
+    }
+
+    // Read config under mutex
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
+        // rh_low = statemachine_gen_config.rh_low_level;
+        rh_high = statemachine_gen_config.rh_high_level;
         xSemaphoreGive(state_config_mutex);
     }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_HIGHRHDAY;
+        sm_actuals.fanspeed = state_fanspeed;
+        valve_move_locked = sm_actuals.valve_lock;
+        sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-        rh_sensors_high = sm_actuals.rh_sensors_high;
         xSemaphoreGive(statemachine_mutex);
     }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Low RH level: %d", rhlowlevel);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Count RH sensors above thresholds using selected list
+    for (int i = 0; i < rh_sensor_counter; ++i)
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    // Temp valve settings for individual valves starting with default settings for this state.
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-    {
-        for (int i = 0; i < 12; i++)
+        float r = rh_sensors[i].rh_reading;
+        if (!isfinite(r))
+            r = 0.0f;
+        if (r > rh_high)
         {
-            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
-        }
-        xSemaphoreGive(state_config_mutex);
-    }
-
-    // Iterate through RH sensors to see which one has high CO2 reading to see if default settings apply when high reading is at fan inlet or only one valve
-    // needs to open (when high reading is in a room)
-    for (int i = 0; i < rh_sensor_counter; i++)
-    {
-        strncpy(valve, rh_sensors[i].valve, sizeof(valve) - 1);
-        valve[sizeof(valve) - 1] = '\0';
-
-        char *substr = strstr(valve, "valve");
-
-        if (substr)
-        {
-            memmove(substr, substr + 5, strlen(substr + 5) + 1); // 5 is length of "valve"
-        }
-        valve_nr = atoi(valve);
-        reading = rh_sensors[i].rh_reading;
-
-        if (strcmp(valve, "Fan_inlet") != 0)
-        {
-            // Hysteresis logic
-            if (valve_open[valve_nr])
-            {
-                // Valve is currently open → only close if RH drops below low threshold
-                if (reading < rhlowlevel)
-                {
-                    valve_open[valve_nr] = false;
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "RH dropped below low threshold (%.1f %%). Closing valve %s.", reading, rh_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "RH still above low threshold (%.1f %%). Keeping valve %s open.", reading, rh_sensors[i].valve);
-                }
-            }
-            else
-            {
-                // Valve is currently closed → only open if RH rises above high threshold
-                if (reading > rhhighlevel)
-                {
-                    valve_open[valve_nr] = true;
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "RH rose above high threshold (%.1f %%). Opening valve %s.", reading, rh_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "RH still below high threshold (%.1f %%). Keeping valve %s closed.", reading, rh_sensors[i].valve);
-                }
-            }
-        }
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
-        {
-            if (reading > rhlowlevel)
+            rh_sensors_high++;
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
             {
                 sm_actuals.rh_sensors_high++;
+                xSemaphoreGive(statemachine_mutex);
             }
-            rh_sensors_high = sm_actuals.rh_sensors_high;
-            xSemaphoreGive(statemachine_mutex);
         }
     }
 
-    LOGD(TAG, "Number of sensors have high RH: %d", rh_sensors_high);
-
-    // Copy values to temp settings
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Basic valve behavior: if RH high, open valves for affected sensors (simple mapping)
+    if (!valve_move_locked)
     {
-        for (int i = 0; i < MAX_VALVE_COUNT; i++)
+        // Build temporary valve positions from state defaults
+        int temp_positions[MAX_VALVE_COUNT];
+        if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            statemachine_config[state_config_index_temp].valve_position[i] = state_valve_position[i];
+            for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+                temp_positions[i] = statemachine_config[state_config_index].valve_position[i];
+            xSemaphoreGive(state_config_mutex);
         }
-        xSemaphoreGive(state_config_mutex);
+        // For each RH sensor that is high, try to open corresponding valve to a larger opening
+        for (int i = 0; i < rh_sensor_counter; ++i)
+        {
+            const char *v = rh_sensors[i].valve ? rh_sensors[i].valve : "(unknown)";
+            char copy[MEDIUM_CONFIG_ITEM] = {0};
+            strncpy(copy, v, sizeof(copy) - 1);
+            char *substr = strstr(copy, "valve");
+            if (substr)
+            {
+                int vid = atoi(substr + 5);
+                if (vid >= 0 && vid < MAX_VALVE_COUNT)
+                {
+                    temp_positions[vid] = 20; // open more for humidity control
+                }
+            }
+        }
+        // Write temp positions into TEMP state config and apply
+        if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+                statemachine_config[temp_state_index].valve_position[i] = temp_positions[i];
+            xSemaphoreGive(state_config_mutex);
+        }
+        valve_position_statemachine(temp_state_index);
     }
 
-    if (valve_move_locked == 0)
+    // Update elapsed time
     {
-        valve_position_statemachine(state_config_index_temp);
-    }
-    else
-    {
-        LOGW(TAG, "Valves are locked for moving.");
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
     }
 
-    // Conditions for transition. This state always transits back to day first or to highco2night if night time.
-    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time) // Day with no high CO2 readings
+    // Decide transitions
+    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
-        LOGI(TAG, "Transit to day.");
         new_state = STATE_NR_DAY;
     }
-    else if (is_day() == false && rh_sensors_high > 0) // Night with high RH readings
+    else if (!is_day() && rh_sensors_high > 0)
     {
-        LOGI(TAG, "Transit to highrhnight.");
         new_state = STATE_NR_HIGHRHNIGHT;
     }
     else
     {
-        LOGI(TAG, "Remain in highrhday state.");
         new_state = STATE_NR_HIGHRHDAY;
     }
 
-    if (state != new_state)
+    if (new_state != STATE_NR_HIGHRHDAY)
     {
         elapsed_time = 0;
-        old_time = (esp_timer_get_time()) / 1000000;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }
 }
 
-void high_rh_night_transitions()
+// High RH night transitions
+void high_rh_night_transitions(void)
 {
-    float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    float avg_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+    int state_config_index = -1;
+    int temp_state_index = -1;
+    int state_fanspeed = FANSPEED_LOW;
+    int minimum_state_time = 0;
+    // int rh_low = 0;
+    int rh_high = 0;
+    bool valve_move_locked = false;
+    int rh_sensors_high = 0;
+    int new_state = STATE_NR_HIGHRHNIGHT;
 
-    int state = STATE_NR_HIGHRHNIGHT; // Local state variable
-    int state_config_index = 0;       // Index number for state configuration
-    int state_config_index_temp = 0;  // Index number for state configuration
-    int new_state = 0;                // State after logic in this function
-    int state_fanspeed = 0;           // Fanspeed from global config struct
-    int valve_nr = 0;
-    int minimum_state_time = 0; // Minimum state time from global state settings struct
-    int rhlowlevel = 0;         // Local variable for CO2 low level from general statemachine config
-    int rhhighlevel = 0;        // Local variable for CO2 high level from general statemachine config
-    int new_time = 0;
-    int rh_sensors_high = 0; // Local variable following the struct value
-
-    int state_valve_position[MAX_VALVE_COUNT] = {0}; // Array for valvepositions from statemachine settings
-
-    float reading = 0.2f;
-
-    bool valve_move_locked = 0;
-    bool valve_open[MAX_VALVE_COUNT] = {false};
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-    char state_name_temp[MEDIUM_CONFIG_ITEM] = {};
-    char valve[MEDIUM_CONFIG_ITEM] = {};
-
-    LOGD(TAG, "Read average sensor data from queue for statemachine.");
-    if (xQueuePeek(sensor_avg_queue, statemachine_avg_sensor_data, 0) != pdTRUE)
+    if (sensors_queues_ready && sensor_avg_queue != NULL &&
+        sensor_avg_item_size == sizeof(avg_data))
     {
-        LOGE(TAG, "Failed to read data from average sensor queue.");
-        return;
+        (void)xQueuePeek(sensor_avg_queue, &avg_data, pdMS_TO_TICKS(50));
     }
 
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_HIGHRHNIGHT, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name_temp, STATE_TEMP, sizeof(state_name_temp));
-    state_name_temp[sizeof(state_name_temp) - 1] = '\0';
-    state_config_index_temp = find_state_index_by_name_ci(state_name_temp);
-
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Find config indices
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed;             // Assign state fanspeed to variable
-        minimum_state_time = statemachine_config[state_config_index].duration_minutes; // Minimum time statemachine remain in this state
+        char state_name[MEDIUM_CONFIG_ITEM] = {0};
+        strncpy(state_name, STATE_HIGHRHNIGHT, sizeof(state_name) - 1);
+        state_config_index = find_state_index_by_name_ci(state_name);
+        if (state_config_index < 0)
+            state_config_index = 0;
 
-        // General statemachine config
-        rhlowlevel = statemachine_gen_config.rh_low_level;
-        rhhighlevel = statemachine_gen_config.rh_high_level;
+        strncpy(state_name, STATE_TEMP, sizeof(state_name) - 1);
+        temp_state_index = find_state_index_by_name_ci(state_name);
+        if (temp_state_index < 0)
+            temp_state_index = state_config_index;
+    }
+
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_config_index].fanspeed;
+        minimum_state_time = statemachine_config[state_config_index].duration_minutes;
+        // rh_low = statemachine_gen_config.rh_low_level;
+        rh_high = statemachine_gen_config.rh_high_level;
         xSemaphoreGive(state_config_mutex);
     }
 
     select_sensors();
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_HIGHRHNIGHT;
+        sm_actuals.fanspeed = state_fanspeed;
+        valve_move_locked = sm_actuals.valve_lock;
+        sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
-        rh_sensors_high = sm_actuals.rh_sensors_high;
         xSemaphoreGive(statemachine_mutex);
     }
 
     set_fanspeed(state_fanspeed);
 
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Low RH level: %d", rhlowlevel);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Count RH sensors above thresholds
+    for (int i = 0; i < rh_sensor_counter; ++i)
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    // Temp valve settings for individual valves starting with default settings for this state.
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
-    {
-        for (int i = 0; i < 12; i++)
+        float r = rh_sensors[i].rh_reading;
+        if (!isfinite(r))
+            r = 0.0f;
+        if (r > rh_high)
         {
-            state_valve_position[i] = statemachine_config[state_config_index].valve_position[i];
-        }
-        xSemaphoreGive(state_config_mutex);
-    }
-
-    /// Iterate through RH sensors to see which one has high RH reading to see if default settings apply when high reading is
-    // at fan inlet or only one valve needs to open (when high reading is in a room)
-    for (int i = 0; i < rh_sensor_counter; i++)
-    {
-        strncpy(valve, rh_sensors[i].valve, sizeof(valve) - 1);
-        valve[sizeof(valve) - 1] = '\0';
-
-        char *substr = strstr(valve, "valve");
-
-        if (substr)
-        {
-            memmove(substr, substr + 5, strlen(substr + 5) + 1); // 5 is length of "valve"
-        }
-        valve_nr = atoi(valve);
-        reading = rh_sensors[i].rh_reading;
-
-        if (strcmp(valve, "Fan_inlet") != 0)
-        {
-            // Hysteresis logic
-            if (valve_open[valve_nr])
-            {
-                // Valve is currently open → only close if RH drops below low threshold
-                if (reading < rhlowlevel)
-                {
-                    valve_open[valve_nr] = false;
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "RH dropped below low threshold (%.1f %%). Closing valve %s.", reading, rh_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "RH still above low threshold (%.1f %%). Keeping valve %s open.", reading, rh_sensors[i].valve);
-                }
-            }
-            else
-            {
-                // Valve is currently closed → only open if RH rises above high threshold
-                if (reading > rhhighlevel)
-                {
-                    valve_open[valve_nr] = true;
-                    state_valve_position[valve_nr] = 20;
-                    LOGD(TAG, "RH rose above high threshold (%.1f %%). Opening valve %s.", reading, rh_sensors[i].valve);
-                }
-                else
-                {
-                    state_valve_position[valve_nr] = 4;
-                    LOGD(TAG, "RH still below high threshold (%.1f %%). Keeping valve %s closed.", reading, rh_sensors[i].valve);
-                }
-            }
-        }
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
-        {
-            if (reading > rhlowlevel)
+            rh_sensors_high++;
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
             {
                 sm_actuals.rh_sensors_high++;
+                xSemaphoreGive(statemachine_mutex);
             }
-            rh_sensors_high = sm_actuals.rh_sensors_high;
-            xSemaphoreGive(statemachine_mutex);
         }
     }
 
-    LOGD(TAG, "Number of sensors have high RH: %d", rh_sensors_high);
-
-    // Copy values to temp settings
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    // Valve logic similar to day: open valves for high RH sensors
+    if (!valve_move_locked)
     {
-        for (int i = 0; i < MAX_VALVE_COUNT; i++)
+        int temp_positions[MAX_VALVE_COUNT];
+        if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            statemachine_config[state_config_index_temp].valve_position[i] = state_valve_position[i];
+            for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+                temp_positions[i] = statemachine_config[state_config_index].valve_position[i];
+            xSemaphoreGive(state_config_mutex);
         }
-        xSemaphoreGive(state_config_mutex);
+        for (int i = 0; i < rh_sensor_counter; ++i)
+        {
+            const char *v = rh_sensors[i].valve ? rh_sensors[i].valve : "(unknown)";
+            char copy[MEDIUM_CONFIG_ITEM] = {0};
+            strncpy(copy, v, sizeof(copy) - 1);
+            char *substr = strstr(copy, "valve");
+            if (substr)
+            {
+                int vid = atoi(substr + 5);
+                if (vid >= 0 && vid < MAX_VALVE_COUNT)
+                    temp_positions[vid] = 20;
+            }
+        }
+        if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            for (int i = 0; i < MAX_VALVE_COUNT; ++i)
+                statemachine_config[temp_state_index].valve_position[i] = temp_positions[i];
+            xSemaphoreGive(state_config_mutex);
+        }
+        valve_position_statemachine(temp_state_index);
     }
 
-    if (valve_move_locked == 0)
+    // Update elapsed time
     {
-        valve_position_statemachine(state_config_index_temp);
-    }
-    else
-    {
-        LOGW(TAG, "Valves are locked for moving.");
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
     }
 
-    // Conditions for transition. This state always transits back to night first or to highrhday if night time.
-    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time) // Day with no high CO2 readings
+    // Decide transitions
+    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
-        LOGI(TAG, "Transit to night.");
         new_state = STATE_NR_NIGHT;
     }
-    else if (is_day() == true && rh_sensors_high > 0) // Night with high RH readings
+    else if (is_day() && rh_sensors_high > 0)
     {
-        LOGI(TAG, "Transit to highrhday.");
         new_state = STATE_NR_HIGHRHDAY;
     }
-    else
-    {
-        LOGI(TAG, "Remain in highrhnight state.");
-        new_state = STATE_NR_HIGHRHNIGHT;
-    }
 
-    if (state != new_state)
+    if (new_state != STATE_NR_HIGHRHNIGHT)
     {
         elapsed_time = 0;
-        old_time = (esp_timer_get_time()) / 1000000;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
     {
         sm_actuals.state = new_state;
         xSemaphoreGive(statemachine_mutex);
     }
 }
+
+// Cooking transitions
 void cooking_transitions(void)
 {
-    int state = STATE_NR_COOKING;
-    int new_time = 0;
-    int state_config_index = 0;
-    int state_fanspeed = 0;
-    int new_state = 0;
-
-    bool valve_move_locked = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_COOKING, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    int state_index = find_state_index_by_name_ci(STATE_COOKING);
+    if (state_index < 0)
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
+        LOGW(TAG, "cooking_transitions: cooking state not configured");
+        // fallback to day/night decision
+        if (is_day())
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+            {
+                sm_actuals.state = STATE_NR_DAY;
+                xSemaphoreGive(statemachine_mutex);
+            }
+            else
+            {
+            }
+        else if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.state = STATE_NR_NIGHT;
+            xSemaphoreGive(statemachine_mutex);
+        }
+        return;
+    }
+
+    int state_fanspeed = FANSPEED_LOW;
+    int duration_min = 0;
+
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        state_fanspeed = statemachine_config[state_index].fanspeed;
+        duration_min = statemachine_config[state_index].duration_minutes;
         xSemaphoreGive(state_config_mutex);
     }
 
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
+        sm_actuals.state = STATE_NR_COOKING;
+        sm_actuals.fanspeed = state_fanspeed;
         xSemaphoreGive(statemachine_mutex);
     }
 
     set_fanspeed(state_fanspeed);
 
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
+    // Update elapsed time
     {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
     }
 
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    if (valve_move_locked == 0)
+    // After duration expires, return to day or night depending on time
+    if (elapsed_time >= duration_min)
     {
-        valve_position_statemachine(state_config_index);
-    }
-    else
-    {
-        LOGW(TAG, "Valves are locked for moving.");
-    }
-
-    // Conditions for transition
-    if (cooking_times() == false && is_day() == true)
-    {
-        LOGI(TAG, "Transit to day.");
-        new_state = STATE_NR_DAY;
-    }
-    else if (cooking_times() == false && is_day() == false)
-    {
-        LOGI(TAG, "Transit to night.");
-        new_state = STATE_NR_NIGHT;
-    }
-    else
-    {
-        LOGI(TAG, "Remain in cooking state.");
-        new_state = STATE_NR_COOKING;
-    }
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
-    {
-        sm_actuals.state = new_state;
-        xSemaphoreGive(statemachine_mutex);
+        int next = is_day() ? STATE_NR_DAY : STATE_NR_NIGHT;
+        elapsed_time = 0;
+        old_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.state = next;
+            xSemaphoreGive(statemachine_mutex);
+        }
     }
 }
 
+// Valve cycling day transitions (simple wrapper)
 void valve_cycle_day_transitions(void)
 {
-    int state = STATE_NR_CYCLINGDAY;
-    int new_time = 0;
-    int state_config_index = 0;
-    int state_fanspeed = 0;
-    int new_state = 0;
-    int co2highlevel = 0;
-    int rhhighlevel = 0;
-    int co2_sensors_high = 0;
-    int rh_sensors_high = 0;
-
-    bool valve_move_locked = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_CYCLINGDAY, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    int idx = find_state_index_by_name_ci(STATE_CYCLINGDAY);
+    if (idx < 0)
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
-
-        // General statemachine config
-        co2highlevel = statemachine_gen_config.co2_high_level;
-        rhhighlevel = statemachine_gen_config.rh_high_level;
-
-        xSemaphoreGive(state_config_mutex);
+        LOGW(TAG, "valve_cycle_day_transitions: state not configured");
+        return;
     }
 
-    select_sensors();
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    // If valve cycling condition is true, apply the state's valve positions
+    if (valve_cycle_times_day())
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
-        sm_actuals.co2_sensors_high = 0;
-        sm_actuals.rh_sensors_high = 0;
-
-        for (int i = 0; i < co2_sensor_counter; i++)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
-                LOGD(TAG, "Transit to highco2day if minimum state time has expired.");
-                sm_actuals.co2_sensors_high++;
-            }
+            sm_actuals.state = STATE_NR_CYCLINGDAY;
+            xSemaphoreGive(statemachine_mutex);
         }
-
-        for (int i = 0; i < rh_sensor_counter; i++)
-        {
-            if (rh_sensors[i].rh_reading > rhhighlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
-                LOGD(TAG, "Transit to highrhday if minimum state time has expired.");
-                sm_actuals.rh_sensors_high++;
-            }
-        }
-        co2_sensors_high = sm_actuals.co2_sensors_high;
-        rh_sensors_high = sm_actuals.rh_sensors_high;
-        xSemaphoreGive(statemachine_mutex);
-    }
-
-    set_fanspeed(state_fanspeed);
-
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
-    {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    if (valve_move_locked == 0)
-    {
-        valve_position_statemachine(state_config_index);
+        valve_position_statemachine(idx);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
-    }
-
-    // Conditions for transition
-    if (co2_sensors_high > 0)
-    {
-        new_state = STATE_NR_HIGHCO2DAY;
-    }
-    else if (rh_sensors_high > 0)
-    {
-        new_state = STATE_NR_HIGHRHDAY;
-    }
-    else if (valve_cycle_times_day() == false && is_day() == true)
-    {
-        LOGI(TAG, "Transit to day.");
-        new_state = STATE_NR_DAY;
-    }
-    else if (valve_cycle_times_day() == false && is_day() == false)
-    {
-        LOGI(TAG, "Transit to night.");
-        new_state = STATE_NR_NIGHT;
-    }
-    else
-    {
-        LOGI(TAG, "Remain in valve cycling day state.");
-        new_state = STATE_NR_CYCLINGDAY;
-    }
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
-    {
-        sm_actuals.state = new_state;
-        xSemaphoreGive(statemachine_mutex);
+        // Not time to cycle — return to day
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.state = STATE_NR_DAY;
+            xSemaphoreGive(statemachine_mutex);
+        }
     }
 }
 
+// Valve cycling night transitions (simple wrapper)
 void valve_cycle_night_transitions(void)
 {
-    int state = STATE_NR_CYCLINGNIGHT;
-    int new_time = 0;
-    int state_config_index = 0;
-    int state_fanspeed = 0;
-    int new_state = 0;
-    int co2highlevel = 0;
-    int rhhighlevel = 0;
-    int co2_sensors_high = 0; // Local variable following the struct value
-    int rh_sensors_high = 0;  // Local variable following the struct value
-
-    bool valve_move_locked = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    // Copy state_name and call function to find index of the config
-    strncpy(state_name, STATE_CYCLINGNIGHT, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    state_config_index = find_state_index_by_name_ci(state_name);
-    LOGI(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    // Actions for this state
-    if (state_config_mutex && xSemaphoreTake(state_config_mutex, (TickType_t)10) == pdTRUE)
+    int idx = find_state_index_by_name_ci(STATE_CYCLINGNIGHT);
+    if (idx < 0)
     {
-        // State specific config
-        state_fanspeed = statemachine_config[state_config_index].fanspeed; // Assign state fanspeed to variable
-
-        // General statemachine config
-        co2highlevel = statemachine_gen_config.co2_high_level;
-        rhhighlevel = statemachine_gen_config.rh_high_level;
-
-        xSemaphoreGive(state_config_mutex);
+        LOGW(TAG, "valve_cycle_night_transitions: state not configured");
+        return;
     }
 
-    select_sensors();
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    if (valve_cycle_times_night())
     {
-        sm_actuals.state = state;
-        sm_actuals.fanspeed = state_fanspeed;      // Set fanspeed as defined in state settings
-        valve_move_locked = sm_actuals.valve_lock; // Check if valve moving is still locked
-        sm_actuals.co2_sensors_high = 0;
-        sm_actuals.rh_sensors_high = 0;
-
-        for (int i = 0; i < co2_sensor_counter; i++)
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high CO2.", co2_sensors[i].valve);
-                LOGD(TAG, "Transit to highco2day if minimum state time has expired.");
-                sm_actuals.co2_sensors_high++;
-            }
+            sm_actuals.state = STATE_NR_CYCLINGNIGHT;
+            xSemaphoreGive(statemachine_mutex);
         }
-
-        for (int i = 0; i < rh_sensor_counter; i++)
-        {
-            if (rh_sensors[i].rh_reading > rhhighlevel)
-            {
-                LOGD(TAG, "Sensor located at %s has high RH.", rh_sensors[i].valve);
-                LOGD(TAG, "Transit to highrhday if minimum state time has expired.");
-                sm_actuals.rh_sensors_high++;
-            }
-        }
-        co2_sensors_high = sm_actuals.co2_sensors_high;
-        rh_sensors_high = sm_actuals.rh_sensors_high;
-        xSemaphoreGive(statemachine_mutex);
-    }
-
-    set_fanspeed(state_fanspeed);
-
-    LOGD(TAG, "High CO2 level: %d", co2highlevel);
-    LOGD(TAG, "High RH level: %d", rhhighlevel);
-    LOGD(TAG, "Number of sensors have high CO2: %d.", co2_sensors_high);
-    LOGD(TAG, "Number of sensors have high RH: %d.", rh_sensors_high);
-
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
-    {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    if (valve_move_locked == 0)
-    {
-        valve_position_statemachine(state_config_index);
+        valve_position_statemachine(idx);
     }
     else
     {
-        LOGW(TAG, "Valves are locked for moving.");
-    }
-
-    // Conditions for transition
-    if (co2_sensors_high > 0)
-    {
-        LOGI(TAG, "Transit to highco2night.");
-        new_state = STATE_NR_HIGHCO2NIGHT;
-    }
-    else if (rh_sensors_high > 0)
-    {
-        LOGI(TAG, "Transit to highrhnight.");
-        new_state = STATE_NR_HIGHRHNIGHT;
-    }
-    else if (valve_cycle_times_night() == false && is_day() == true)
-    {
-        LOGI(TAG, "Transit to day.");
-        new_state = STATE_NR_DAY;
-    }
-    else if (valve_cycle_times_night() == false && is_day() == false)
-    {
-        LOGI(TAG, "Transit to night.");
-        new_state = STATE_NR_NIGHT;
-    }
-    else
-    {
-        LOGI(TAG, "Remain in valve cycling night state.");
-        new_state = STATE_NR_CYCLINGNIGHT;
-    }
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
-    {
-        sm_actuals.state = new_state;
-        xSemaphoreGive(statemachine_mutex);
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.state = STATE_NR_NIGHT;
+            xSemaphoreGive(statemachine_mutex);
+        }
     }
 }
 
+// Manual high speed transitions (manual override)
 void manual_high_speed_transitions(void)
 {
-    int new_time = 0;
-    int state_config_index = 0;
-    int state_fanspeed = FAN_SPEED_HIGH;
-    int minimum_state_time = 600;
-    int new_state = 0;
-
-    char state_name[MEDIUM_CONFIG_ITEM] = {};
-
-    // Copy state_name
-    strncpy(state_name, STATE_MANUALHS, sizeof(state_name));
-    state_name[sizeof(state_name) - 1] = '\0';
-    LOGD(TAG, "State name: %s, state config index is %d", state_name, state_config_index);
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
+    int idx = find_state_index_by_name_ci(STATE_MANUALHS);
+    if (idx < 0)
     {
-        sm_actuals.fanspeed = FAN_SPEED_HIGH; // Set fanspeed as defined in state settings
+        LOGW(TAG, "manual_high_speed_transitions: manual state not configured");
+        return;
+    }
+
+    // Set fanspeed to high and keep valves as configured for manual state
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+    {
+        sm_actuals.state = STATE_NR_MANUALHS;
+        sm_actuals.fanspeed = FANSPEED_HIGH;
         xSemaphoreGive(statemachine_mutex);
     }
 
-    set_fanspeed(state_fanspeed);
+    set_fanspeed(FANSPEED_HIGH);
+    valve_position_statemachine(idx);
 
-    new_time = (esp_timer_get_time()) / 1000000;
-    if (new_time > old_time)
-    {
-        elapsed_time += new_time - old_time;
-        old_time = new_time;
-    }
-
-    LOGI(TAG, "State name: %s, fanspeed: %d, state_time: %d.", state_name, state_fanspeed, elapsed_time);
-
-    if (elapsed_time >= minimum_state_time && is_day() == true) // Day with no high CO2 readings
-    {
-        LOGI(TAG, "Transit to day.");
-        new_state = STATE_NR_DAY;
-    }
-    if (elapsed_time >= minimum_state_time && is_day() == false) // Day with no high CO2 readings
-    {
-        LOGI(TAG, "Transit to night.");
-        new_state = STATE_NR_NIGHT;
-    }
-    else
-    {
-        LOGI(TAG, "Remain in manual high speed state.");
-        new_state = STATE_NR_MANUALHS;
-    }
-
-    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)20) == pdTRUE)
-    {
-        sm_actuals.state = new_state;
-        xSemaphoreGive(statemachine_mutex);
-    }
+    // Manual mode remains until external command clears it (handled elsewhere)
 }
