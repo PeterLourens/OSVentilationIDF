@@ -9,7 +9,7 @@
 static const char *TAG = "net_mgr";
 
 // Task handle and stack
-static StackType_t network_manager_stack[8192]; // 32KB stack
+static StackType_t network_manager_stack[9216]; // 32KB stack
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
