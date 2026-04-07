@@ -199,6 +199,7 @@ static void update_stack_watermarks(void)
     sm_actuals.stack_mqtt = uxTaskGetStackHighWaterMark(task_mqtt);
     sm_actuals.stack_influxdb = uxTaskGetStackHighWaterMark(task_influxdb);
     sm_actuals.stack_network_manager = uxTaskGetStackHighWaterMark(network_manager_task_handle);
+    sm_actuals.stack_pushbutton = uxTaskGetStackHighWaterMark(task_pushbutton);
 }
 
 static void update_wifi_stats(void)

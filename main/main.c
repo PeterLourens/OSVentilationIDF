@@ -211,6 +211,7 @@ void app_main(void)
     start_task_i2c_lcd();
     start_task_rgb_leds();
     start_task_valvecontrol();
+    start_task_pushbutton();
 
     // Start network services in a separate task so we can retry if no network at startup
     start_network_services();

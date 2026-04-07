@@ -121,6 +121,7 @@ extern TaskHandle_t task_valvectrl;
 extern TaskHandle_t task_mqtt;
 extern TaskHandle_t task_influxdb;
 extern TaskHandle_t network_manager_task_handle;
+extern TaskHandle_t task_pushbutton;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;
@@ -344,6 +345,7 @@ typedef struct
     uint32_t stack_mqtt;
     uint32_t stack_influxdb;
     uint32_t stack_network_manager;
+    uint32_t stack_pushbutton;
 
 } Statemachine_actuals_t;
 

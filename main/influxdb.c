@@ -146,7 +146,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
         return;
 
-    char line[1024];
+    char line[1224];
     memset(line, 0, sizeof(line));
 
     int64_t ts = influxdb_get_timestamp();
@@ -182,7 +182,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      "stack_statemachine=%lu,"
                      "stack_valvectrl=%lu,"
                      "stack_mqtt=%lu,"
-                     "stack_influxdb=%lu "
+                     "stack_influxdb=%lu,"
+                     "stack_pushbutton=%lu "
                      "%lld\n",
                      sm_actuals.fanspeed,
                      sm_actuals.state,
@@ -212,6 +213,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      (unsigned long)sm_actuals.stack_valvectrl,
                      (unsigned long)sm_actuals.stack_mqtt,
                      (unsigned long)sm_actuals.stack_influxdb,
+                     (unsigned long)sm_actuals.stack_pushbutton,
                      (long long)ts);
 
     if (n > 0)

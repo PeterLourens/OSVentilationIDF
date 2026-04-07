@@ -25,6 +25,7 @@
 #include "task_valvecontrol.h"
 #include "task_influxdb.h"
 #include "task_mqtt.h"
+#include "task_pushbutton.h"
 #include "sys_stats.h"
 #include "eth_functions.h"
 #include "network_manager.h"
