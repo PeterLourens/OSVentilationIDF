@@ -103,7 +103,7 @@ void task_i2c_lcd_code(void *pvParameters)
                 LOGI(TAG, "LCD device initialized and available");
                 // Ensure display is in known state
                 i2c_lcd_clear();
-                i2c_lcd_backlight_set(false);
+                i2c_lcd_backlight_set(true);
             }
             else
             {
@@ -121,7 +121,7 @@ void task_i2c_lcd_code(void *pvParameters)
                     lcd_available = true;
                     LOGI(TAG, "LCD device initialized on retry");
                     i2c_lcd_clear();
-                    i2c_lcd_backlight_set(false);
+                    i2c_lcd_backlight_set(true);
                 }
             }
         }

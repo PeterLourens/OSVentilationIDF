@@ -21,12 +21,11 @@ static const char *TAG = "i2c_LCD";
 static const int LCD_COLS = 20;
 static const int LCD_ROWS = 4;
 static const uint8_t row_offsets[] = {0x00, 0x40, 0x14, 0x54};
-
-// Keep track of current backlight state and last static output byte
-// last_output holds the last non-toggling control byte we sent to the expander.
-// We update it when sending commands/data so toggling backlight doesn't lose RS/E state.
 static bool s_backlight = true;
-static uint8_t s_last_output = LCD_BACKLIGHT; /* default include backlight */
+static uint8_t s_last_output = LCD_BACKLIGHT; // default include backlight
+
+// file-scope mutex for LCD state (backlight)
+static SemaphoreHandle_t s_lcd_state_mutex = NULL;
 
 esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
@@ -128,11 +127,25 @@ esp_err_t i2c_lcd_init_device(void)
 
     vTaskDelay(pdMS_TO_TICKS(50)); // power-up delay
 
-    // Best-effort backlight write
+    // Ensure state mutex exists if (s_lcd_state_mutex == NULL)
+    {
+        s_lcd_state_mutex = xSemaphoreCreateMutex();
+        if (s_lcd_state_mutex == NULL)
+        {
+            LOGW(TAG, "i2c_lcd_init_device: failed to create s_lcd_state_mutex");
+        }
+    }
+
+    // Best-effort backlight write and reflect cached state
     esp_err_t r = lcd_dev_write_byte(LCD_BACKLIGHT);
     if (r != ESP_OK)
     {
         LOGW(TAG, "Initial backlight write failed: %s", esp_err_to_name(r));
+    }
+    else
+    {
+        s_last_output = LCD_BACKLIGHT;
+        s_backlight = true;
     }
 
     // Init sequence: 3x 0x03 then 0x02 to set 4-bit mode
@@ -255,27 +268,23 @@ esp_err_t lcd_write_backlight_state(void)
 // This function lazily creates a mutex if none exists.
 esp_err_t i2c_lcd_backlight_set(bool on)
 {
-    static SemaphoreHandle_t lcd_state_mutex_local = NULL;
-    if (lcd_state_mutex_local == NULL)
+    if (s_lcd_state_mutex == NULL)
     {
-        lcd_state_mutex_local = xSemaphoreCreateMutex();
-        if (lcd_state_mutex_local == NULL)
-        {
-            LOGW(TAG, "Failed to create lcd_state_mutex_local; proceeding without mutex");
-            s_backlight = on;
-            return lcd_write_backlight_state();
-        }
+        // If mutex not created for some reason, try best-effort write but log
+        LOGW(TAG, "i2c_lcd_backlight_set: state mutex not created; doing best-effort");
+        s_backlight = on;
+        return lcd_write_backlight_state();
     }
 
-    if (xSemaphoreTake(lcd_state_mutex_local, pdMS_TO_TICKS(50)) != pdTRUE)
+    if (xSemaphoreTake(s_lcd_state_mutex, pdMS_TO_TICKS(50)) != pdTRUE)
     {
-        LOGW(TAG, "Could not take lcd_state_mutex_local; skipping backlight update");
+        LOGW(TAG, "Could not take s_lcd_state_mutex; skipping backlight update");
         return ESP_ERR_TIMEOUT;
     }
 
     s_backlight = on;
     esp_err_t r = lcd_write_backlight_state();
-    xSemaphoreGive(lcd_state_mutex_local);
+    xSemaphoreGive(s_lcd_state_mutex);
 
     if (r != ESP_OK)
     {
