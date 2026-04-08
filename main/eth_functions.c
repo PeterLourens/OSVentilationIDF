@@ -15,6 +15,11 @@ static bool eth_started = false;
 static bool s_eth_initialized = false;
 static volatile bool s_eth_shutting_down = false;
 
+static volatile bool s_deferred_eth_teardown = false;
+static int s_eth_restart_attempts = 0;
+static const int ETH_RESTART_MAX_ATTEMPTS = 3;
+static const TickType_t ETH_RESTART_BACKOFF_TICKS = pdMS_TO_TICKS(5000);
+
 static SemaphoreHandle_t eth_lifecycle_mutex = NULL;
 static esp_eth_netif_glue_handle_t eth_glue = NULL;
 
@@ -39,14 +44,19 @@ void eth_teardown_safe(void)
     if (!hw.has_ethernet)
         return;
 
-    if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(5000)) != pdTRUE)
+    // Try to take lifecycle mutex; if busy, mark deferred teardown and return quickly.
+    if (eth_lifecycle_mutex == NULL)
+        eth_lifecycle_init_once();
+
+    if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
     {
-        LOGE(TAG, "eth_teardown_safe: failed to take lifecycle mutex");
+        LOGW(TAG, "eth_teardown_safe: lifecycle mutex busy; deferring teardown");
+        s_deferred_eth_teardown = true;
         return;
     }
 
-    // Unregister ETH event handlers here if you registered per-device
-    // esp_event_handler_instance_unregister(ETH_EVENT, ...);
+    // Clear deferred flag since we now hold the mutex and will perform teardown
+    s_deferred_eth_teardown = false;
 
     // Stop DHCP client (best effort)
     if (eth_netif)
@@ -241,6 +251,7 @@ void eth_init(void)
         LOGE(TAG, "esp_eth_new_netif_glue returned NULL");
         esp_eth_driver_uninstall(eth_handle);
         eth_handle = NULL;
+        xSemaphoreGive(eth_lifecycle_mutex);
         return;
     }
     err = esp_netif_attach(eth_netif, eth_glue);
@@ -251,6 +262,7 @@ void eth_init(void)
         eth_glue = NULL;
         esp_eth_driver_uninstall(eth_handle);
         eth_handle = NULL;
+        xSemaphoreGive(eth_lifecycle_mutex);
         return;
     }
 
@@ -258,6 +270,157 @@ void eth_init(void)
     s_eth_initialized = true;
     eth_started = false; // not started yet
 
+    // If Ethernet config uses DHCP, start DHCP client now (best effort).
+    if (ethernet_config_is_dhcp_enabled())
+    {
+        esp_err_t d = esp_netif_dhcpc_start(eth_netif);
+        if (d != ESP_OK && d != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
+        {
+            LOGW(TAG, "eth_init: esp_netif_dhcpc_start failed: %s", esp_err_to_name(d));
+        }
+        else
+        {
+            LOGI(TAG, "eth_init: DHCP client started on ETH_DEF");
+        }
+    }
+
+    xSemaphoreGive(eth_lifecycle_mutex);
+}
+
+bool ethernet_link_is_up(void)
+{
+    // If we have a driver handle and the IDF exposes a PHY link ioctl, try that first.
+#if defined(ETH_CMD_G_PHY_LINK)
+    if (eth_handle != NULL)
+    {
+        int link = 0;
+        esp_err_t r = esp_eth_ioctl(eth_handle, ETH_CMD_G_PHY_LINK, &link);
+        if (r == ESP_OK)
+        {
+            return (link != 0); // non-zero means link up
+        }
+        // If ioctl failed, fall through to netif/IP check below.
+    }
+#endif
+
+    // Fallback: consider link "up" if the ETH netif exists and has a non-zero IPv4 address.
+    if (eth_netif == NULL)
+        return false;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(eth_netif, &ip) != ESP_OK)
+        return false;
+
+    return ip.ip.addr != 0;
+}
+
+// Attempt a guarded restart: only restart if link is down, apply backoff and defer teardown if busy.
+void attempt_guarded_eth_restart(void)
+{
+    // If link is up (or netif has IP), skip restart — DHCP may still be negotiating.
+    if (ethernet_link_is_up())
+    {
+        LOGI(TAG, "attempt_guarded_eth_restart: link/netif up; skipping restart");
+        s_eth_restart_attempts = 0;
+        return;
+    }
+
+    // Backoff limit to avoid restart storms
+    if (s_eth_restart_attempts >= ETH_RESTART_MAX_ATTEMPTS)
+    {
+        LOGW(TAG, "attempt_guarded_eth_restart: max attempts reached; delaying longer");
+        vTaskDelay(pdMS_TO_TICKS(60000));
+        s_eth_restart_attempts = 0;
+        return;
+    }
+
+    s_eth_restart_attempts++;
+    LOGI(TAG, "attempt_guarded_eth_restart: attempt %d/%d", s_eth_restart_attempts, ETH_RESTART_MAX_ATTEMPTS);
+
+    // Try teardown; eth_teardown_safe() will set s_deferred_eth_teardown if it cannot take the mutex.
+    eth_teardown_safe();
+
+    // If teardown was deferred, leave and let the manager retry later.
+    if (s_deferred_eth_teardown)
+    {
+        LOGW(TAG, "attempt_guarded_eth_restart: teardown deferred; will retry later");
+        return;
+    }
+
+    // Small settle delay
+    vTaskDelay(pdMS_TO_TICKS(200));
+
+    // Reinitialize and start the driver
+    eth_init();
+    vTaskDelay(pdMS_TO_TICKS(200));
+    eth_start();
+
+    // Allow link/IP to settle a bit (use the backoff constant to avoid unused warning)
+    vTaskDelay(ETH_RESTART_BACKOFF_TICKS);
+}
+
+// Called periodically from network_manager_task to retry deferred teardown
+void handle_deferred_eth_teardown_if_needed(void)
+{
+    if (!s_deferred_eth_teardown)
+        return;
+
+    LOGI(TAG, "handle_deferred_eth_teardown_if_needed: attempting deferred teardown");
+
+    if (eth_lifecycle_mutex == NULL)
+        eth_lifecycle_init_once();
+
+    // Try to take the lifecycle mutex briefly; if still busy, leave the deferred flag set.
+    if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
+    {
+        LOGW(TAG, "handle_deferred_eth_teardown_if_needed: lifecycle mutex still busy");
+        return;
+    }
+
+    // We now hold the mutex; clear deferred flag and perform teardown steps.
+    s_deferred_eth_teardown = false;
+
+    // Stop DHCP client (best effort)
+    if (eth_netif)
+    {
+        esp_err_t r = esp_netif_dhcpc_stop(eth_netif);
+        if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
+            LOGW(TAG, "dhcpc_stop -> %s", esp_err_to_name(r));
+    }
+
+    // Stop driver if running
+    if (eth_handle && eth_started)
+    {
+        esp_err_t r = esp_eth_stop(eth_handle);
+        if (r != ESP_OK)
+            LOGW(TAG, "esp_eth_stop -> %s", esp_err_to_name(r));
+        eth_started = false;
+    }
+
+    // Remove glue if present
+    if (eth_glue)
+    {
+        esp_err_t r = esp_eth_del_netif_glue(eth_glue);
+        if (r != ESP_OK)
+            LOGW(TAG, "esp_eth_del_netif_glue -> %s", esp_err_to_name(r));
+        eth_glue = NULL;
+    }
+
+    // Uninstall driver
+    if (eth_handle)
+    {
+        esp_err_t r = esp_eth_driver_uninstall(eth_handle);
+        if (r != ESP_OK)
+            LOGW(TAG, "esp_eth_driver_uninstall -> %s", esp_err_to_name(r));
+        eth_handle = NULL;
+    }
+
+    // Clear netif pointer and flags
+    eth_netif = NULL;
+    s_eth_initialized = false;
+    eth_started = false;
+
+    LOGI(TAG, "handle_deferred_eth_teardown_if_needed: deferred teardown complete");
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 

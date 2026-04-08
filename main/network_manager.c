@@ -28,6 +28,7 @@ static volatile bool s_request_ha_discovery = false;
 static volatile bool s_discovery_requested = false;
 static volatile bool eth_shutting_down = false;
 static volatile bool s_request_syslog_update = false;
+static volatile bool s_eth_restart_attempts = false;
 
 // Forward declarations
 static void network_manager_task(void *pvParameters);
@@ -258,6 +259,8 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     // Ethernet got IP
     if (id == IP_EVENT_ETH_GOT_IP)
     {
+        s_eth_restart_attempts = 0;
+
         LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
 
         eth_led_set_mode(LED_DOUBLE_BLINK);
@@ -609,10 +612,12 @@ static void network_manager_task(void *pvParameters)
         const TickType_t wait_ticks = pdMS_TO_TICKS(30000);
         ulTaskNotifyTake(pdTRUE, wait_ticks);
 
-        /* Re-evaluate configuration and apply changes */
+        handle_deferred_eth_teardown_if_needed();
+
+        // Re-evaluate configuration and apply changes
         evaluate_config_and_apply();
 
-        /* Handle deferred MQTT restart request (set by event handlers) */
+        // Handle deferred MQTT restart request (set by event handlers)
         if (s_request_mqtt_restart)
         {
             s_request_mqtt_restart = false;
@@ -633,7 +638,7 @@ static void network_manager_task(void *pvParameters)
             }
         }
 
-        /* Handle deferred Home Assistant discovery request */
+        // Handle deferred Home Assistant discovery request
         if (s_request_ha_discovery)
         {
             s_request_ha_discovery = false;
@@ -641,58 +646,51 @@ static void network_manager_task(void *pvParameters)
             mqtt_publish_homeassistant_discovery();
         }
 
-        /* Run periodic health check and recovery logic (non-blocking) */
+        // Run periodic health check and recovery logic (non-blocking)
         network_manager_health_check();
 
-        /* If network is down and ethernet is configured, attempt guarded ethernet restart */
+        // If network is down and ethernet is configured, attempt guarded ethernet restart
         if (!network_has_ip() && hw.has_ethernet && ethernet_config_is_enabled())
         {
             LOGW(TAG, "network_manager_task: no IP and ethernet enabled — attempting guarded ethernet restart");
 
-            /* Mark shutting down so event handlers ignore events during teardown */
+            // Mark shutting down so event handlers ignore events during teardown
             eth_set_shutting_down(true);
             LOGD(TAG, "network_manager_task: eth_set_shutting_down(true)");
 
-            /* Unregister event handlers to stop callbacks while we teardown */
+            // Unregister event handlers to stop callbacks while we attempt guarded restart
             unregister_event_handlers();
             LOGD(TAG, "network_manager_task: event handlers unregistered");
 
-            /* Perform safe teardown (idempotent, mutex-protected) */
-            eth_teardown_safe();
-            vTaskDelay(pdMS_TO_TICKS(200));
+            // Attempt guarded restart (will defer teardown if mutex busy)
+            attempt_guarded_eth_restart();
 
-            /* Reinitialize ethernet and start driver */
-            eth_init();
-            vTaskDelay(pdMS_TO_TICKS(200));
-            eth_start();
-            vTaskDelay(pdMS_TO_TICKS(2000)); /* allow link/IP to settle */
-
-            /* Re-register event handlers */
+            // Re-register event handlers (safe even if nothing changed)
             register_event_handlers();
             LOGD(TAG, "network_manager_task: event handlers re-registered");
 
-            /* Clear shutting-down guard */
+            // Clear shutting-down guard so event handlers will respond to new events
             eth_set_shutting_down(false);
             LOGD(TAG, "network_manager_task: eth_set_shutting_down(false)");
 
-            /* Ask for immediate actuals update and config re-evaluation */
+            // Ask for immediate actuals update and config re-evaluation
             network_manager_request_actuals_update();
             evaluate_config_and_apply();
             sys_stats_update_actuals();
         }
 
-        /* If network is up, ensure dependent services are healthy (e.g., MQTT) */
+        // If network is up, ensure dependent services are healthy (e.g., MQTT)
         if (network_has_ip())
         {
-            /* Optionally: ensure hostname and actuals are up-to-date */
+            // Optionally: ensure hostname and actuals are up-to-date
             sys_stats_update_actuals();
         }
 
-        /* Small delay to avoid tight loop if notifications are frequent */
+        // Small delay to avoid tight loop if notifications are frequent
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 
-    /* Cleanup (unreachable in normal operation) */
+    // Cleanup (unreachable in normal operation)
     unregister_event_handlers();
     manager_running = false;
     LOGI(TAG, "network_manager_task: exiting");
