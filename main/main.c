@@ -22,6 +22,18 @@ static void start_network_services(void)
     syslog_send_line("Boot complete, system running");
 }
 
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+    // Log the offending task name and handle before aborting
+    ESP_LOGE(TAG, "Stack overflow in task '%s' (handle=%p). Halting for postmortem.", pcTaskName ? pcTaskName : "<unknown>", (void *)xTask);
+
+    // Optionally yield a short time to flush logs
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    // Abort to produce the panic/backtrace (so you can decode addresses)
+    abort();
+}
+
 void app_main(void)
 {
     esp_err_t err = ESP_OK;
@@ -205,6 +217,7 @@ void app_main(void)
 
     // Start tasks
     LOGI(TAG, "Starting system tasks...");
+    syslog_queue_init();     // must be before network services to capture logs from startup
     network_manager_start(); // starts network manager task which starts Wi‑Fi and Ethernet as needed
     start_task_i2c_ds3231();
     start_task_i2c_sensors();

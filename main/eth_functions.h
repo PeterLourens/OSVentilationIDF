@@ -16,6 +16,7 @@
 #include <esp_eth_mac_spi.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <esp_idf_version.h>
 
 #include "logging.h"
 #include "globals.h"

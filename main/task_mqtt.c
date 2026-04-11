@@ -7,9 +7,9 @@
 #include "task_mqtt.h"
 
 static const char *TAG = "task_MQTT";
-static StackType_t mqtt_stack[8192];
+static StackType_t mqtt_stack[12288];
 static StaticTask_t mqtt_tcb;
-static size_t mqtt_stack_size = 8192;
+static size_t mqtt_stack_size = 12288;
 
 void start_task_mqtt(void)
 {

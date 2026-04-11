@@ -9,7 +9,7 @@
 static const char *TAG = "net_mgr";
 
 // Task handle and stack
-static StackType_t network_manager_stack[9216]; // 32KB stack
+static StackType_t network_manager_stack[12288 / sizeof(StackType_t)]; // 12288 bytes = 12 KB
 static StaticTask_t network_manager_tcb;
 static const size_t network_manager_stack_size = sizeof(network_manager_stack);
 
@@ -28,12 +28,14 @@ static volatile bool s_request_ha_discovery = false;
 static volatile bool s_discovery_requested = false;
 static volatile bool eth_shutting_down = false;
 static volatile bool s_request_syslog_update = false;
-static volatile bool s_eth_restart_attempts = false;
+static volatile int s_eth_restart_attempts = 0;
+
+static volatile bool s_request_eth_set_default = false; // set by eth event, acted on by manager
+static volatile bool s_request_update_actuals = false;  // request to refresh sm_actuals from netifs
 
 // Forward declarations
 static void network_manager_task(void *pvParameters);
 static void register_event_handlers(void);
-static void unregister_event_handlers(void);
 static void evaluate_config_and_apply(void);
 
 bool network_manager_start(void)
@@ -85,21 +87,39 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
 {
     (void)arg;
 
-    // If ethernet is shutting down, ignore events that might race with teardown.
-    // (This is defensive; wifi events are usually unrelated, but keep symmetry.)
     if (eth_is_shutting_down())
         return;
 
     if (base != WIFI_EVENT)
         return;
 
-    if (base != WIFI_EVENT)
-        return;
+    bool eth_up = false;
+    esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (eth_netif)
+    {
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(eth_netif, &ip) == ESP_OK && ip.ip.addr != 0)
+            eth_up = true;
+    }
+
+    eth_up = eth_is_connected();
 
     switch (id)
     {
     case WIFI_EVENT_STA_START:
+        if (eth_up)
+        {
+            LOGW(TAG, "Ethernet is up → suppressing WiFi STA start");
+            return;
+        }
+
         LOGI(TAG, "WIFI_EVENT_STA_START");
+
+        if (eth_up)
+        {
+            LOGW(TAG, "Ethernet is up → suppressing WiFi STA start");
+            return;
+        }
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -109,9 +129,8 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
             xSemaphoreGive(statemachine_mutex);
         }
 
-        wifi_led_set_mode(LED_SLOW_BLINK); // enabled but not connected
-
-        if (task_rgb_leds != NULL)
+        wifi_led_set_mode(LED_SLOW_BLINK);
+        if (task_rgb_leds)
             xTaskNotifyGive(task_rgb_leds);
 
         esp_wifi_connect();
@@ -119,12 +138,24 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
 
     case WIFI_EVENT_STA_CONNECTED:
         LOGI(TAG, "WIFI_EVENT_STA_CONNECTED");
-        wifi_led_set_mode(LED_FAST_BLINK); // DHCP running
+        wifi_led_set_mode(LED_FAST_BLINK);
         break;
 
     case WIFI_EVENT_STA_DISCONNECTED:
-    {
+
+        if (eth_up)
+        {
+            LOGW(TAG, "Ethernet is up → suppressing WiFi retry");
+            return;
+        }
+
         LOGW(TAG, "WIFI_EVENT_STA_DISCONNECTED");
+
+        if (eth_up)
+        {
+            LOGW(TAG, "Ethernet is up → suppressing WiFi retry");
+            return;
+        }
 
         extern int s_retry_num;
         if (s_retry_num < MAXIMUM_RETRY)
@@ -137,8 +168,7 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
             }
 
             wifi_led_set_mode(LED_SLOW_BLINK);
-
-            if (task_rgb_leds != NULL)
+            if (task_rgb_leds)
                 xTaskNotifyGive(task_rgb_leds);
 
             esp_wifi_connect();
@@ -152,19 +182,16 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
             LOGE(TAG, "Failed to connect to AP after %d retries", MAXIMUM_RETRY);
         }
 
-        // update_syslog_state();
         s_request_syslog_update = true;
-        if (network_manager_task_handle != NULL)
+        if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
 
         break;
-    }
 
     case WIFI_EVENT_AP_START:
         LOGI(TAG, "WIFI_EVENT_AP_START");
 
-        wifi_led_set_mode(LED_SOLID); // AP mode = solid
-
+        wifi_led_set_mode(LED_SOLID);
         if (s_wifi_event_group)
             xEventGroupSetBits(s_wifi_event_group, AP_STARTED_BIT);
 
@@ -174,29 +201,14 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
             xSemaphoreGive(statemachine_mutex);
         }
 
-        if (task_rgb_leds != NULL)
+        if (task_rgb_leds)
             xTaskNotifyGive(task_rgb_leds);
 
-        // update_syslog_state();
         s_request_syslog_update = true;
-        if (network_manager_task_handle != NULL)
+        if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
 
         break;
-
-    case WIFI_EVENT_AP_STACONNECTED:
-    {
-        wifi_event_ap_staconnected_t *event = (wifi_event_ap_staconnected_t *)data;
-        LOGI(TAG, "Station " MACSTR " joined, AID=%d", MAC2STR(event->mac), event->aid);
-        break;
-    }
-
-    case WIFI_EVENT_AP_STADISCONNECTED:
-    {
-        wifi_event_ap_stadisconnected_t *event_disc = (wifi_event_ap_stadisconnected_t *)data;
-        LOGI(TAG, "Station " MACSTR " left, AID=%d", MAC2STR(event_disc->mac), event_disc->aid);
-        break;
-    }
 
     default:
         break;
@@ -208,92 +220,36 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 {
     (void)arg;
 
-    // If ethernet is shutting down, ignore IP events that may race with teardown.
     if (eth_is_shutting_down())
         return;
 
     if (base != IP_EVENT)
         return;
 
-    ip_event_got_ip_t *event = (ip_event_got_ip_t *)data;
-
-    // Wi‑Fi STA got IP
-    if (id == IP_EVENT_STA_GOT_IP)
+    switch (id)
     {
-        LOGI(TAG, "IP_EVENT_STA_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
-
-        wifi_led_set_mode(LED_DOUBLE_BLINK); // IP acquired
-
-        extern int s_retry_num;
-        s_retry_num = 0;
-
-        if (s_wifi_event_group)
-            xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-        {
-            sm_actuals.wifi_connected = true;
-            sm_actuals.wifi_error = false;
-            sm_actuals.wifi_ap_mode = false;
-            xSemaphoreGive(statemachine_mutex);
-        }
-
-        if (task_rgb_leds != NULL)
-            xTaskNotifyGive(task_rgb_leds);
-
-        // update_syslog_state();
-        s_request_syslog_update = true;
-        if (network_manager_task_handle != NULL)
-            xTaskNotifyGive(network_manager_task_handle);
-
-        network_manager_request_actuals_update();
-
-        // Defer MQTT restart to network_manager_task
-        s_request_mqtt_restart = true;
-        if (network_manager_task_handle != NULL)
-            xTaskNotifyGive(network_manager_task_handle);
-
-        return;
-    }
-
-    // Ethernet got IP
-    if (id == IP_EVENT_ETH_GOT_IP)
-    {
+    case IP_EVENT_STA_GOT_IP:
+        LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
         s_eth_restart_attempts = 0;
-
-        LOGI(TAG, "IP_EVENT_ETH_GOT_IP: " IPSTR, IP2STR(&event->ip_info.ip));
-
-        eth_led_set_mode(LED_DOUBLE_BLINK);
-
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
-        {
-            sm_actuals.eth_connected = true;
-
-            snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), IPSTR, IP2STR(&event->ip_info.ip));
-            snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), IPSTR, IP2STR(&event->ip_info.netmask));
-            snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), IPSTR, IP2STR(&event->ip_info.gw));
-
-            esp_netif_dns_info_t dns;
-            if (esp_netif_get_dns_info(eth_netif, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
-                snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
-            if (esp_netif_get_dns_info(eth_netif, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
-                snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
-
-            xSemaphoreGive(statemachine_mutex);
-        }
-
-        // update_syslog_state();
+        s_request_update_actuals = true;
         s_request_syslog_update = true;
-        if (network_manager_task_handle != NULL)
-            xTaskNotifyGive(network_manager_task_handle);
-        network_manager_request_actuals_update();
-
-        // Defer MQTT restart to network_manager_task (v3)
         s_request_mqtt_restart = true;
         if (network_manager_task_handle != NULL)
             xTaskNotifyGive(network_manager_task_handle);
+        break;
 
-        return;
+    case IP_EVENT_ETH_GOT_IP:
+        LOGI(TAG, "IP_EVENT_ETH_GOT_IP (handler)");
+        s_eth_restart_attempts = 0;
+        s_request_update_actuals = true;
+        s_request_syslog_update = true;
+        s_request_mqtt_restart = true;
+        if (network_manager_task_handle != NULL)
+            xTaskNotifyGive(network_manager_task_handle);
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -304,14 +260,13 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     (void)base;
     (void)data;
 
-    // Important: ignore ETH events while we are tearing down the driver.
     if (eth_is_shutting_down())
         return;
 
     switch (id)
     {
     case ETHERNET_EVENT_CONNECTED:
-        LOGI(TAG, "ETHERNET_EVENT_CONNECTED");
+        LOGI(TAG, "ETHERNET_EVENT_CONNECTED (handler)");
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -319,23 +274,18 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // Make Ethernet the default route as soon as link is up
-        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
-        if (eth)
-        {
-            esp_netif_set_default_netif(eth);
-            LOGI(TAG, "ETH set as default route");
-        }
-
-        eth_led_set_mode(LED_FAST_BLINK);
-        // update_syslog_state();
+        // Ask manager to set ETH as default route and update actuals/syslog and restart services
+        s_request_eth_set_default = true;
+        s_request_update_actuals = true;
         s_request_syslog_update = true;
+        s_request_mqtt_restart = true;
+
         if (network_manager_task_handle != NULL)
             xTaskNotifyGive(network_manager_task_handle);
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
-        LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED");
+        LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED (handler)");
 
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -343,9 +293,11 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
 
-        eth_led_set_mode(LED_SLOW_BLINK); // enabled but no link
-        // update_syslog_state();
+        // When Ethernet goes away, let the manager re-evaluate active netif and restart services
+        s_request_update_actuals = true;
         s_request_syslog_update = true;
+        s_request_mqtt_restart = true;
+
         if (network_manager_task_handle != NULL)
             xTaskNotifyGive(network_manager_task_handle);
         break;
@@ -372,13 +324,20 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
         // Defer HA discovery to MQTT task
         mqtt_request_homeassistant_discovery();
 
-        bool eth_up = false;
+        bool eth_up = network_has_ip();
         bool wifi_up = false;
+
+        esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (wifi_netif)
+        {
+            esp_netif_ip_info_t ip;
+            if (esp_netif_get_ip_info(wifi_netif, &ip) == ESP_OK && ip.ip.addr != 0)
+                wifi_up = true;
+        }
 
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
-            eth_up = sm_actuals.eth_connected;
             wifi_up = sm_actuals.wifi_connected || sm_actuals.wifi_ap_mode;
             xSemaphoreGive(statemachine_mutex);
         }
@@ -398,15 +357,19 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
         mqtt_set_connected(false);
 
-        if (hw.has_ethernet && eth_is_connected())
+        if (network_has_ip())
         {
             eth_led_set_mode(LED_DOUBLE_BLINK);
         }
         else
         {
-            // v2 or Wi-Fi active on v3
-            if (wifi_manager_is_connected())
-                wifi_led_set_mode(LED_DOUBLE_BLINK);
+            esp_netif_t *wifi_netif_check = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+            if (wifi_netif_check)
+            {
+                esp_netif_ip_info_t ip;
+                if (esp_netif_get_ip_info(wifi_netif_check, &ip) == ESP_OK && ip.ip.addr != 0)
+                    wifi_led_set_mode(LED_DOUBLE_BLINK);
+            }
         }
         break;
 
@@ -465,6 +428,7 @@ static void unregister_event_handlers(void)
 }
 
 // Config evaluation and application
+// Replace the existing evaluate_config_and_apply in network_manager.c with this version.
 static void evaluate_config_and_apply(void)
 {
     bool wifi_enabled = false;
@@ -473,6 +437,7 @@ static void evaluate_config_and_apply(void)
     bool eth_dhcp = true;
     char hostname[64] = {0};
 
+    /* Read config snapshot under network_config_mutex */
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         wifi_enabled = (strcmp(wifi_config.enable_wifi, "On") == 0);
@@ -488,7 +453,7 @@ static void evaluate_config_and_apply(void)
         return;
     }
 
-    // Update statemachine actuals for enabled flags
+    /* Update statemachine actuals for enabled flags */
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         sm_actuals.wifi_enabled = wifi_enabled;
@@ -502,7 +467,7 @@ static void evaluate_config_and_apply(void)
         LOGW(TAG, "evaluate_config_and_apply: could not take statemachine_mutex to update actuals");
     }
 
-    // Apply hostname to both netifs if present
+    /* Apply hostname to both netifs if present */
     if (hostname[0] != '\0')
     {
         esp_netif_t *n;
@@ -514,47 +479,7 @@ static void evaluate_config_and_apply(void)
             esp_netif_set_hostname(n, hostname);
     }
 
-    // WiFi
-    if (wifi_enabled)
-    {
-        if (wifi_manager_init() == ESP_OK)
-        {
-            esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-            if (wifinet)
-            {
-                if (wifi_dhcp)
-                {
-                    esp_err_t r = esp_netif_dhcpc_start(wifinet);
-                    if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
-                        LOGW(TAG, "esp_netif_dhcpc_start (wifi) returned %s", esp_err_to_name(r));
-                }
-                else
-                {
-                    esp_err_t r = esp_netif_dhcpc_stop(wifinet);
-                    if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
-                        LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
-                }
-            }
-
-            if (!wifi_manager_is_connected())
-            {
-                esp_err_t r = select_wifi_mode();
-                if (r != ESP_OK)
-                    LOGW(TAG, "select_wifi_mode returned %s", esp_err_to_name(r));
-            }
-        }
-        else
-        {
-            LOGW(TAG, "wifi_manager_init failed or returned non-OK");
-        }
-    }
-    else
-    {
-        wifi_manager_stop();
-        wifi_led_set_mode(LED_OFF);
-    }
-
-    // Ethernet
+    /* --- Ethernet handling (initialize/stop/apply config) --- */
     if (hw.has_ethernet)
     {
         if (eth_enabled)
@@ -570,9 +495,107 @@ static void evaluate_config_and_apply(void)
             eth_led_set_mode(LED_OFF);
         }
     }
+
+    /* --- Wi‑Fi handling (manager decides STA vs AP; no automatic AP fallback inside wifi_functions) --- */
+    if (!wifi_enabled)
+    {
+        /* Wi‑Fi disabled in config: ensure it's stopped */
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    /* Ensure Wi‑Fi manager is initialized (idempotent) */
+    if (wifi_manager_init() != ESP_OK)
+    {
+        LOGW(TAG, "evaluate_config_and_apply: wifi_manager_init failed");
+        return;
+    }
+
+    /* Ensure DHCP client state for Wi‑Fi netif matches config */
+    esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (wifinet)
+    {
+        if (wifi_dhcp)
+        {
+            esp_err_t r = esp_netif_dhcpc_start(wifinet);
+            if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
+                LOGW(TAG, "esp_netif_dhcpc_start (wifi) returned %s", esp_err_to_name(r));
+        }
+        else
+        {
+            esp_err_t r = esp_netif_dhcpc_stop(wifinet);
+            if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
+                LOGW(TAG, "esp_netif_dhcpc_stop (wifi) returned %s", esp_err_to_name(r));
+        }
+    }
+
+    /* Decide Wi‑Fi mode based on Ethernet state and credentials.
+       Manager will attempt STA when Ethernet is down and credentials exist.
+       If no credentials and Ethernet is down, manager will start AP.
+       If Ethernet is up, manager will not start STA or AP (Wi‑Fi suppressed). */
+
+    bool eth_up = false;
+    if (hw.has_ethernet && eth_is_connected())
+        eth_up = true;
+
+    if (eth_up)
+    {
+        /* When Ethernet is up, prefer Ethernet. Stop AP/STA activity to avoid conflicts.
+           Keep Wi‑Fi initialized (so we can set hostname etc.), but do not start STA or AP. */
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet up → suppressing Wi‑Fi STA/AP");
+        /* If Wi‑Fi was running in AP mode, stop it to avoid dual AP when ETH is default */
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    /* At this point Ethernet is down (or not present) and Wi‑Fi is enabled in config */
+    bool have_credentials = false;
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        have_credentials = (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0);
+        xSemaphoreGive(network_config_mutex);
+    }
+
+    if (have_credentials)
+    {
+        /* Try STA connect (blocking attempt with wifi_manager_connect semantics) */
+        LOGI(TAG, "evaluate_config_and_apply: attempting Wi‑Fi STA connect");
+        esp_err_t r = wifi_manager_connect(&wifi_config);
+        if (r == ESP_OK)
+        {
+            LOGI(TAG, "evaluate_config_and_apply: Wi‑Fi STA connected or connecting");
+            /* wifi_manager_connect will set event bits and the event handlers update sm_actuals */
+            return;
+        }
+        else
+        {
+            LOGW(TAG, "evaluate_config_and_apply: Wi‑Fi STA attempt failed (%s)", esp_err_to_name(r));
+            /* Do not automatically start AP here if STA fails; allow manager loop to decide fallback.
+               If you want immediate AP fallback, set a policy here to call wifi_manager_start_ap(). */
+            return;
+        }
+    }
+    else
+    {
+        /* No credentials: start AP so user can configure device (only when Ethernet is down) */
+        LOGI(TAG, "evaluate_config_and_apply: no Wi‑Fi credentials and Ethernet down → starting AP");
+        esp_err_t ap_r = wifi_manager_start_ap();
+        if (ap_r == ESP_OK)
+            LOGI(TAG, "evaluate_config_and_apply: AP started");
+        else
+            LOGW(TAG, "evaluate_config_and_apply: AP start failed: %s", esp_err_to_name(ap_r));
+    }
 }
 
-// Main manager task
+// Complete network_manager_task implementation for network_manager.c
+// Replace the existing function with this version. It centralizes all
+// heavy network operations in the manager task, keeps event handlers tiny,
+// and processes deferred requests/teardown safely.
+
+// Replace the existing network_manager_task with this corrected version.
+// Replace the existing network_manager_task in network_manager.c with this version.
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -581,6 +604,7 @@ static void network_manager_task(void *pvParameters)
     /* Initialize LED GPIOs and TCP/IP stack (idempotent) */
     eth_led_init();
 
+    /* Ensure esp-netif is initialized (safe to call multiple times) */
     ESP_ERROR_CHECK(esp_netif_init());
 
     /* Create default event loop if not already present */
@@ -595,8 +619,9 @@ static void network_manager_task(void *pvParameters)
 
     /* Initialize network drivers/managers (safe to call multiple times) */
     if (hw.has_ethernet)
+    {
         eth_init();
-
+    }
     wifi_manager_init();
 
     manager_running = true;
@@ -606,18 +631,112 @@ static void network_manager_task(void *pvParameters)
     evaluate_config_and_apply();
     sys_stats_update_actuals();
 
+    /* Main loop: wait for notifications or periodic wakeups and process requests */
     for (;;)
     {
         /* Wait for notifications or timeout (periodic work) */
         const TickType_t wait_ticks = pdMS_TO_TICKS(30000);
+        /* Clear notification count and wait */
         ulTaskNotifyTake(pdTRUE, wait_ticks);
 
+        /* First, handle any deferred teardown that was previously deferred */
         handle_deferred_eth_teardown_if_needed();
 
-        // Re-evaluate configuration and apply changes
+        /* If requested, set ETH as default netif (do this from manager task) */
+        if (s_request_eth_set_default)
+        {
+            s_request_eth_set_default = false;
+            esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (eth)
+            {
+                esp_netif_set_default_netif(eth);
+                LOGI(TAG, "network_manager_task: ETH set as default route (manager)");
+            }
+            else
+            {
+                LOGW(TAG, "network_manager_task: requested to set ETH default but ETH_DEF not found");
+            }
+
+            /* After forcing ETH default, ensure services restart to bind to the new route */
+            s_request_update_actuals = true;
+            s_request_syslog_update = true;
+            s_request_mqtt_restart = true;
+        }
+
+        /* Re-evaluate configuration and apply changes (safe, nonblocking) */
         evaluate_config_and_apply();
 
-        // Handle deferred MQTT restart request (set by event handlers)
+        /* If requested, refresh actuals by reading netif state and DNS info */
+        if (s_request_update_actuals)
+        {
+            s_request_update_actuals = false;
+
+            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+            {
+                /* Reset fields we will update */
+                sm_actuals.wifi_connected = false;
+                sm_actuals.eth_connected = false;
+                sm_actuals.wifi_ap_mode = false;
+                sm_actuals.hostname[0] = '\0';
+
+                /* Wi‑Fi STA */
+                esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+                if (wifinet)
+                {
+                    esp_netif_ip_info_t ip;
+                    if (esp_netif_get_ip_info(wifinet, &ip) == ESP_OK && ip.ip.addr != 0)
+                    {
+                        sm_actuals.wifi_connected = true;
+                    }
+                    const char *hn = NULL;
+                    if (esp_netif_get_hostname(wifinet, &hn) == ESP_OK && hn)
+                    {
+                        snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hn);
+                    }
+                }
+
+                /* Ethernet */
+                esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
+                if (ethnet)
+                {
+                    esp_netif_ip_info_t ip;
+                    if (esp_netif_get_ip_info(ethnet, &ip) == ESP_OK && ip.ip.addr != 0)
+                    {
+                        sm_actuals.eth_connected = true;
+                        snprintf(sm_actuals.eth_ip_addr, sizeof(sm_actuals.eth_ip_addr), IPSTR, IP2STR(&ip.ip));
+                        snprintf(sm_actuals.eth_netmask, sizeof(sm_actuals.eth_netmask), IPSTR, IP2STR(&ip.netmask));
+                        snprintf(sm_actuals.eth_gateway, sizeof(sm_actuals.eth_gateway), IPSTR, IP2STR(&ip.gw));
+
+                        esp_netif_dns_info_t dns;
+                        if (esp_netif_get_dns_info(ethnet, ESP_NETIF_DNS_MAIN, &dns) == ESP_OK)
+                            snprintf(sm_actuals.eth_dns1, sizeof(sm_actuals.eth_dns1), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
+                        if (esp_netif_get_dns_info(ethnet, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
+                            snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
+                    }
+                    /* If hostname not set by Wi‑Fi, try Ethernet hostname */
+                    if (sm_actuals.hostname[0] == '\0')
+                    {
+                        const char *hn = NULL;
+                        if (esp_netif_get_hostname(ethnet, &hn) == ESP_OK && hn)
+                            snprintf(sm_actuals.hostname, sizeof(sm_actuals.hostname), "%s", hn);
+                    }
+                }
+
+                xSemaphoreGive(statemachine_mutex);
+            }
+            else
+            {
+                LOGW(TAG, "network_manager_task: could not take statemachine_mutex to update actuals");
+            }
+
+            /* Publish actuals and update syslog state */
+            sys_stats_update_actuals();
+
+            /* Ensure syslog state is updated immediately */
+            s_request_syslog_update = true;
+        }
+
+        /* Handle deferred MQTT restart request (set by event handlers or apply_active_netif_changes) */
         if (s_request_mqtt_restart)
         {
             s_request_mqtt_restart = false;
@@ -638,59 +757,18 @@ static void network_manager_task(void *pvParameters)
             }
         }
 
-        // Handle deferred Home Assistant discovery request
-        if (s_request_ha_discovery)
+        /* Process deferred syslog update */
+        if (s_request_syslog_update)
         {
-            s_request_ha_discovery = false;
-            LOGI(TAG, "network_manager_task: publishing Home Assistant discovery");
-            mqtt_publish_homeassistant_discovery();
+            s_request_syslog_update = false;
+            LOGI(TAG, "network_manager_task: processing deferred syslog update");
+            update_syslog_state();
         }
 
-        // Run periodic health check and recovery logic (non-blocking)
-        network_manager_health_check();
-
-        // If network is down and ethernet is configured, attempt guarded ethernet restart
-        if (!network_has_ip() && hw.has_ethernet && ethernet_config_is_enabled())
-        {
-            LOGW(TAG, "network_manager_task: no IP and ethernet enabled — attempting guarded ethernet restart");
-
-            // Mark shutting down so event handlers ignore events during teardown
-            eth_set_shutting_down(true);
-            LOGD(TAG, "network_manager_task: eth_set_shutting_down(true)");
-
-            // Unregister event handlers to stop callbacks while we attempt guarded restart
-            unregister_event_handlers();
-            LOGD(TAG, "network_manager_task: event handlers unregistered");
-
-            // Attempt guarded restart (will defer teardown if mutex busy)
-            attempt_guarded_eth_restart();
-
-            // Re-register event handlers (safe even if nothing changed)
-            register_event_handlers();
-            LOGD(TAG, "network_manager_task: event handlers re-registered");
-
-            // Clear shutting-down guard so event handlers will respond to new events
-            eth_set_shutting_down(false);
-            LOGD(TAG, "network_manager_task: eth_set_shutting_down(false)");
-
-            // Ask for immediate actuals update and config re-evaluation
-            network_manager_request_actuals_update();
-            evaluate_config_and_apply();
-            sys_stats_update_actuals();
-        }
-
-        // If network is up, ensure dependent services are healthy (e.g., MQTT)
-        if (network_has_ip())
-        {
-            // Optionally: ensure hostname and actuals are up-to-date
-            sys_stats_update_actuals();
-        }
-
-        // Small delay to avoid tight loop if notifications are frequent
-        vTaskDelay(pdMS_TO_TICKS(10));
+        /* Loop continues; do not unregister handlers or delete the task here */
     }
 
-    // Cleanup (unreachable in normal operation)
+    /* Cleanup path (only reached if the loop is exited intentionally) */
     unregister_event_handlers();
     manager_running = false;
     LOGI(TAG, "network_manager_task: exiting");

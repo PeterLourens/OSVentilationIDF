@@ -21,6 +21,21 @@ void update_syslog_state(void)
 
     bool ready = network_has_ip(); // Only true after DHCP/static IP is applied
 
+    // Read config snapshot under mutex to log what the config says
+    char cfg_enable[8] = {0};
+    if (syslog_config_mutex && xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+        strncpy(cfg_enable, syslog_config.enable_syslog, sizeof(cfg_enable) - 1);
+        xSemaphoreGive(syslog_config_mutex);
+    }
+    else
+    {
+        strncpy(cfg_enable, "<unknown>", sizeof(cfg_enable) - 1);
+    }
+
+    LOGI("syslog", "update_syslog_state: network_ready=%d config_enable=%s syslog_running=%d",
+         ready, cfg_enable, syslog_running);
+
     if (ready && !syslog_running)
     {
         syslog_enable();
@@ -63,25 +78,43 @@ bool wifi_has_ip(void)
     return ip_info.ip.addr != 0;
 }
 
-// Prefer Ethernet, then WiFi STA
+// Prefer Ethernet, then WiFi STA, based on actual IP presence.
 esp_netif_t *get_active_netif(void)
 {
-    // If eth connected, prefer eth_netif
-    if (hw.has_ethernet && eth_is_connected())
+    /* Prefer Ethernet only when the PHY/link is actually up and the ETH netif has a valid IP.
+       Fall back to Wi‑Fi STA only when it has a valid IP. */
+    if (hw.has_ethernet)
     {
-        if (eth_netif)
-            return eth_netif;
+        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (eth)
+        {
+            /* ethernet_link_is_up() checks PHY link (ioctl fallback to IP presence).
+               This avoids treating an attached-but-unlinked netif as "active". */
+            if (ethernet_link_is_up())
+            {
+                esp_netif_ip_info_t ip;
+                if (esp_netif_get_ip_info(eth, &ip) == ESP_OK && ip.ip.addr != 0)
+                    return eth;
+            }
+        }
     }
 
-    // WiFi STA
-    if (wifi_manager_is_connected())
+    /* Wi‑Fi STA: return if it has a valid IP */
+    esp_netif_t *wifi = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (wifi)
     {
-        esp_netif_t *w = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-        if (w)
-            return w;
+        esp_netif_ip_info_t ip;
+        if (esp_netif_get_ip_info(wifi, &ip) == ESP_OK && ip.ip.addr != 0)
+            return wifi;
     }
 
     return NULL;
+}
+
+bool network_has_ip(void)
+{
+    esp_netif_t *netif = get_active_netif();
+    return (netif != NULL);
 }
 
 void update_hostname(void)
@@ -104,19 +137,6 @@ void update_hostname(void)
 
         xSemaphoreGive(statemachine_mutex);
     }
-}
-
-bool network_has_ip(void)
-{
-    esp_netif_t *netif = get_active_netif();
-    if (!netif)
-        return false;
-
-    esp_netif_ip_info_t ip;
-    if (esp_netif_get_ip_info(netif, &ip) != ESP_OK)
-        return false;
-
-    return ip.ip.addr != 0;
 }
 
 // Ping to gateway functions
@@ -379,55 +399,6 @@ static bool wifi_manager_is_enabled(void)
     return enabled;
 }
 
-// Attempt to reinitialize/reconnect Wi‑Fi. Non‑blocking, idempotent, safe to call repeatedly.
-static void wifi_manager_reconnect(void)
-{
-    // If Wi‑Fi is disabled in config, do nothing
-    if (!wifi_manager_is_enabled())
-    {
-        LOGI("net_func", "wifi_manager_reconnect: wifi disabled in config");
-        return;
-    }
-
-    // Ensure wifi manager is initialized
-    esp_err_t r = wifi_manager_init();
-    if (r != ESP_OK)
-    {
-        LOGW("net_func", "wifi_manager_reconnect: wifi_manager_init returned %s", esp_err_to_name(r));
-        return;
-    }
-
-    // If already connected or in AP mode, nothing to do
-    if (wifi_manager_is_connected() || (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE &&
-                                        sm_actuals.wifi_ap_mode))
-    {
-        if (statemachine_mutex)
-            xSemaphoreGive(statemachine_mutex);
-        LOGD("net_func", "wifi_manager_reconnect: already connected or AP mode");
-        return;
-    }
-    if (statemachine_mutex)
-        xSemaphoreGive(statemachine_mutex);
-
-    // Select appropriate mode (STA vs AP) and trigger connect
-    r = select_wifi_mode();
-    if (r != ESP_OK)
-    {
-        LOGW("net_func", "wifi_manager_reconnect: select_wifi_mode returned %s", esp_err_to_name(r));
-    }
-
-    // Ask the Wi‑Fi stack to connect (esp_wifi_connect is safe if manager handles it)
-    esp_err_t err = esp_wifi_connect();
-    if (err != ESP_OK)
-    {
-        LOGW("net_func", "wifi_manager_reconnect: esp_wifi_connect returned %s", esp_err_to_name(err));
-    }
-    else
-    {
-        LOGI("net_func", "wifi_manager_reconnect: connect requested");
-    }
-}
-
 void eth_led_set_mode(led_mode_t mode)
 {
     if (!hw.has_eth_led)
@@ -450,39 +421,45 @@ void network_manager_health_check(void)
     static int ping_fail_count = 0;
     const int max_ping_fail = 3;
 
-    // If no active netif or no IP, try to recover
+    /* If no active netif or no IP, try to recover */
     if (!network_has_ip())
     {
         LOGW(TAG, "Health check: no active IP");
 
-        // If ethernet is configured and present, try to restart it
+        /* If ethernet is configured and present, try to restart it (guarded). */
         if (hw.has_ethernet && ethernet_config_is_enabled())
         {
-            LOGI(TAG, "Attempting Ethernet recovery: restart driver");
-            eth_stop();
-            vTaskDelay(pdMS_TO_TICKS(200));
-            eth_init();
-            vTaskDelay(pdMS_TO_TICKS(200));
-            eth_start();
-            // allow time for link/IP
-            vTaskDelay(pdMS_TO_TICKS(2000));
+            LOGI(TAG, "Attempting Ethernet recovery: guarded restart");
+            /* attempt_guarded_eth_restart() will check link and defer teardown if busy */
+            attempt_guarded_eth_restart();
         }
         else
         {
-            // Try Wi‑Fi reconnect if Wi‑Fi enabled
-            if (wifi_manager_is_enabled()) // implement helper if needed
+            /* Try Wi‑Fi reconnect if Wi‑Fi enabled in config */
+            if (wifi_manager_is_enabled())
             {
-                LOGI(TAG, "Attempting Wi‑Fi reconnect");
-                wifi_manager_reconnect(); // call your existing reconnect logic
+                LOGI(TAG, "Attempting Wi‑Fi reconnect (init + select mode)");
+                if (wifi_manager_init() == ESP_OK)
+                {
+                    esp_err_t r = select_wifi_mode();
+                    if (r != ESP_OK)
+                        LOGW(TAG, "select_wifi_mode failed: %s", esp_err_to_name(r));
+                    else
+                        LOGI(TAG, "Wi‑Fi reconnect requested via select_wifi_mode");
+                }
+                else
+                {
+                    LOGW(TAG, "wifi_manager_init failed; cannot reconnect Wi‑Fi");
+                }
             }
         }
 
-        // After recovery attempt, force re-evaluation of config and services
+        /* After recovery attempt, force re-evaluation of config and services */
         network_manager_request_actuals_update();
         return;
     }
 
-    // If we have IP, ping gateway to ensure reachability
+    /* If we have IP, ping gateway to ensure reachability */
     if (!ping_gateway())
     {
         ping_fail_count++;
@@ -492,22 +469,34 @@ void network_manager_health_check(void)
             LOGE(TAG, "Gateway unreachable repeatedly — restarting network stack");
             ping_fail_count = 0;
 
-            // Restart network stack for active interface
-            if (hw.has_ethernet && eth_is_connected())
+            /* Determine active interface and restart appropriately */
+            esp_netif_t *active = get_active_netif();
+
+            if (hw.has_ethernet && active != NULL)
             {
-                eth_stop();
-                vTaskDelay(pdMS_TO_TICKS(200));
-                eth_init();
-                vTaskDelay(pdMS_TO_TICKS(200));
-                eth_start();
+                esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+                if (eth == active)
+                {
+                    LOGI(TAG, "Restarting Ethernet stack (guarded)");
+                    attempt_guarded_eth_restart();
+                }
+                else
+                {
+                    /* Active is not Ethernet; try Wi‑Fi recovery */
+                    LOGI(TAG, "Active interface is not Ethernet; attempting Wi‑Fi recovery");
+                    if (wifi_manager_init() == ESP_OK)
+                        select_wifi_mode();
+                }
             }
             else
             {
-                // Try Wi‑Fi reconnect
-                wifi_manager_reconnect();
+                /* No ethernet or not active: try Wi‑Fi recovery */
+                LOGI(TAG, "Attempting Wi‑Fi recovery");
+                if (wifi_manager_init() == ESP_OK)
+                    select_wifi_mode();
             }
 
-            // Restart MQTT after network restart
+            /* Restart MQTT after network restart attempt */
             MQTT_config_t cfg;
             mqtt_get_config_snapshot(&cfg);
             mqtt_stop();
@@ -517,7 +506,7 @@ void network_manager_health_check(void)
     }
     else
     {
-        // success: reset counter
+        /* success: reset counter */
         ping_fail_count = 0;
     }
 }
