@@ -10,13 +10,12 @@ const char *TAG = "syslog";
 
 typedef struct
 {
-    char *line; /* heap-allocated */
+    char *line; // heap-allocated
     size_t len;
 } syslog_queue_item_t;
 
 // Static state
 static QueueHandle_t s_syslog_queue = NULL;
-static TaskHandle_t s_syslog_task = NULL;
 
 /// Forward declarations
 static void syslog_worker_task(void *pvParameters);
@@ -25,9 +24,7 @@ static int bind_socket_to_active_interface(int sock);
 // Enable syslog when wifi network is connected
 bool syslog_enabled = false;
 
-/* Diagnostic/backoff state for syslog sends.
-   We keep a single backoff timestamp to avoid tight retry loops when the
-   network or remote syslog server is unreachable. */
+// Diagnostic/backoff state for syslog sends. We keep a single backoff timestamp to avoid tight retry loops when the network or remote syslog server is unreachable. */
 static int64_t s_last_syslog_fail_ms = 0;
 #define SYSLOG_RETRY_BACKOFF_MS 5000
 
@@ -64,36 +61,10 @@ static int bind_socket_to_active_interface(int sock)
         return -1;
     }
 
-    ESP_LOGD(TAG, "bind_socket_to_active_interface: bound to %s",
-             inet_ntoa(*(struct in_addr *)&ipinfo.ip.addr));
+    ESP_LOGD(TAG, "bind_socket_to_active_interface: bound to %s", inet_ntoa(*(struct in_addr *)&ipinfo.ip.addr));
     return 0;
 }
 
-// Enable syslog when wifi network is connected
-// Return true when there is an active netif with a valid IP (Ethernet preferred).
-/*static bool syslog_network_ready(void)
-{
-    esp_netif_t *n = get_active_netif();
-    if (!n)
-        return false;
-    esp_netif_ip_info_t ip;
-    if (esp_netif_get_ip_info(n, &ip) != ESP_OK)
-        return false;
-    return ip.ip.addr != 0;
-}*/
-
-/*
- * safe_syslog_send
- *
- * Non-blocking diagnostic wrapper around sendto() tailored for the existing
- * syslog implementation which creates a transient UDP socket per message.
- *
- * - Applies a short backoff when repeated failures occur to avoid tight retry loops.
- * - Uses MSG_DONTWAIT to avoid blocking in small-stack contexts.
- * - Logs errno and strerror for diagnostics.
- *
- * Returns: number of bytes sent on success (>=0), -1 on failure (errno preserved).
- */
 static ssize_t safe_syslog_send(int sockfd, const void *buf, size_t len, int flags, const struct sockaddr *dest, socklen_t destlen)
 {
     if (sockfd < 0)
@@ -106,8 +77,7 @@ static ssize_t safe_syslog_send(int sockfd, const void *buf, size_t len, int fla
     if (s_last_syslog_fail_ms != 0 &&
         (now_ms - s_last_syslog_fail_ms) < SYSLOG_RETRY_BACKOFF_MS)
     {
-        ESP_LOGD(TAG, "safe_syslog_send: skipping send due to backoff (elapsed=%lldms)",
-                 (long long)(now_ms - s_last_syslog_fail_ms));
+        ESP_LOGD(TAG, "safe_syslog_send: skipping send due to backoff (elapsed=%lldms)", (long long)(now_ms - s_last_syslog_fail_ms));
         return -1;
     }
 
@@ -121,15 +91,14 @@ static ssize_t safe_syslog_send(int sockfd, const void *buf, size_t len, int fla
     int e = errno;
     ESP_LOGW(TAG, "syslog sendto failed: fd=%d errno=%d (%s)", sockfd, e, strerror(e));
 
-    /* Treat common transient errors specially; apply backoff but keep socket open. */
+    // Treat common transient errors specially; apply backoff but keep socket open.
     if (e == EAGAIN || e == EWOULDBLOCK || e == EINTR)
     {
         s_last_syslog_fail_ms = now_ms;
         return -1;
     }
 
-    /* For other errors, apply backoff and return failure. The caller (which
-       creates and closes the socket per message) will close the socket. */
+    // For other errors, apply backoff and return failure. The caller (which creates and closes the socket per message) will close the socket.
     s_last_syslog_fail_ms = now_ms;
     return -1;
 }
@@ -200,12 +169,9 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        /* Build syslog message */
+        // Build syslog message
         char *msg = NULL;
-        int n = asprintf(&msg, "<13>%s %s: %s\n",
-                         hostname_local[0] ? hostname_local : "set-hostname",
-                         appname_local[0] ? appname_local : "set-app",
-                         item.line);
+        int n = asprintf(&msg, "<13>%s %s: %s\n", hostname_local[0] ? hostname_local : "set-hostname", appname_local[0] ? appname_local : "set-app", item.line);
         if (n < 0 || !msg)
         {
             ESP_LOGE(TAG, "syslog_worker: asprintf failed");
@@ -213,7 +179,7 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        /* Prepare destination */
+        // Prepare destination address
         struct sockaddr_in dest;
         memset(&dest, 0, sizeof(dest));
         dest.sin_family = AF_INET;
@@ -226,7 +192,7 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        /* Create UDP socket */
+        // Create UDP socket
         int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (sock < 0)
         {
@@ -237,14 +203,14 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        /* Bind socket to active interface IP so outgoing packets use that interface */
+        // Bind socket to active interface IP so outgoing packets use that interface
         if (bind_socket_to_active_interface(sock) != 0)
         {
             ESP_LOGW(TAG, "syslog_worker: failed to bind socket to active interface; continuing (socket will use default route)");
-            /* Not fatal: continue and attempt send */
+            // Not fatal: continue and attempt send
         }
 
-        /* Try to send with a few retries for transient errors */
+        // Try to send with a few retries for transient errors
         ssize_t sent = -1;
         for (int attempt = 0; attempt < SYSLOG_SEND_RETRIES; ++attempt)
         {
@@ -277,20 +243,14 @@ void syslog_queue_init(void)
         return;
     }
 
-    BaseType_t r = xTaskCreate(
-        syslog_worker_task,
-        "syslog_worker",
-        SYSLOG_WORKER_STACK / sizeof(StackType_t),
-        NULL,
-        SYSLOG_WORKER_PRIO,
-        &s_syslog_task);
+    BaseType_t r = xTaskCreate(syslog_worker_task, "syslog_worker", SYSLOG_WORKER_STACK / sizeof(StackType_t), NULL, SYSLOG_WORKER_PRIO, &task_syslog);
 
     if (r != pdPASS)
     {
         ESP_LOGE(TAG, "syslog_queue_init: failed to create worker task");
         vQueueDelete(s_syslog_queue);
         s_syslog_queue = NULL;
-        s_syslog_task = NULL;
+        task_syslog = NULL;
     }
     else
     {
@@ -300,10 +260,10 @@ void syslog_queue_init(void)
 
 void syslog_queue_deinit(void)
 {
-    if (s_syslog_task)
+    if (task_syslog)
     {
-        vTaskDelete(s_syslog_task);
-        s_syslog_task = NULL;
+        vTaskDelete(task_syslog);
+        task_syslog = NULL;
     }
 
     if (s_syslog_queue)
@@ -326,9 +286,9 @@ void syslog_enqueue_line(const char *line)
 
     if (s_syslog_queue == NULL)
     {
-        /* Queue not initialized: fall back to synchronous send */
+        // Queue not initialized: fall back to synchronous send
         ESP_LOGW(TAG, "syslog_enqueue_line: queue not initialized, falling back to direct send");
-        /* call original synchronous implementation below */
+        // call original synchronous implementation below
         syslog_send_line(line);
         return;
     }
@@ -438,7 +398,7 @@ void syslog_send_line(const char *line)
         return;
     }
 
-    /* Bind to active interface if possible */
+    // Bind to active interface if possible
     if (bind_socket_to_active_interface(sock) != 0)
     {
         ESP_LOGW(TAG, "syslog_send_line: failed to bind socket to active interface; continuing");

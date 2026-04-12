@@ -9,9 +9,9 @@
 static const char *TAG = "net_mgr";
 
 // Task handle and stack
-static StackType_t network_manager_stack[12288 / sizeof(StackType_t)]; // 12288 bytes = 12 KB
+static StackType_t network_manager_stack[8192]; // stack buffer
 static StaticTask_t network_manager_tcb;
-static const size_t network_manager_stack_size = sizeof(network_manager_stack);
+static size_t network_manager_stack_size = 8192; // 8192 words = 32768 KB
 
 // Event handler instances
 static esp_event_handler_instance_t wifi_evt_inst = NULL;

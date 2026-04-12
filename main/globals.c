@@ -56,6 +56,8 @@ TaskHandle_t task_mqtt = NULL;
 TaskHandle_t task_influxdb = NULL;
 TaskHandle_t network_manager_task_handle = NULL;
 TaskHandle_t task_pushbutton = NULL;
+TaskHandle_t task_sys_stats = NULL;
+TaskHandle_t task_syslog = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
