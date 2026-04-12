@@ -228,23 +228,36 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
     switch (id)
     {
-    case IP_EVENT_STA_GOT_IP:
-        LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
-        s_eth_restart_attempts = 0;
-        s_request_update_actuals = true;
-        s_request_syslog_update = true;
-        s_request_mqtt_restart = true;
-        if (network_manager_task_handle != NULL)
-            xTaskNotifyGive(network_manager_task_handle);
-        break;
-
     case IP_EVENT_ETH_GOT_IP:
         LOGI(TAG, "IP_EVENT_ETH_GOT_IP (handler)");
-        s_eth_restart_attempts = 0;
+
+        /* Now Ethernet truly has an IP → mark connected */
+        if (statemachine_mutex &&
+            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        {
+            sm_actuals.eth_connected = true;
+            xSemaphoreGive(statemachine_mutex);
+        }
+
+        /* Now it is safe to set default route */
+        s_request_eth_set_default = true;
+
+        /* Restart services to bind to new interface */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
-        if (network_manager_task_handle != NULL)
+
+        if (network_manager_task_handle)
+            xTaskNotifyGive(network_manager_task_handle);
+
+        break;
+
+    case IP_EVENT_STA_GOT_IP:
+        LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
+        s_request_update_actuals = true;
+        s_request_syslog_update = true;
+        s_request_mqtt_restart = true;
+        if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
         break;
 
@@ -253,7 +266,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     }
 }
 
-// Ethernet link events
+// Ethernet link events — FIXED VERSION (no static_ip_invalid)
 static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *data)
 {
     (void)arg;
@@ -263,43 +276,71 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     if (eth_is_shutting_down())
         return;
 
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!eth)
+    {
+        LOGE(TAG, "ETHERNET_EVENT: ETH_DEF not found");
+        return;
+    }
+
     switch (id)
     {
     case ETHERNET_EVENT_CONNECTED:
         LOGI(TAG, "ETHERNET_EVENT_CONNECTED (handler)");
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        /* Do NOT mark eth_connected yet — link is up, but no IP assigned */
+        if (statemachine_mutex &&
+            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
-            sm_actuals.eth_connected = true;
+            sm_actuals.eth_link_up = true;    // NEW: link only
+            sm_actuals.eth_connected = false; // IP not yet assigned
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // Ask manager to set ETH as default route and update actuals/syslog and restart services
-        s_request_eth_set_default = true;
+        /* Check if static IP is configured */
+        esp_netif_ip_info_t ip;
+        esp_err_t r = esp_netif_get_ip_info(eth, &ip);
+
+        bool static_ip_configured =
+            (r == ESP_OK &&
+             ip.ip.addr != 0 &&
+             ip.netmask.addr != 0 &&
+             ip.gw.addr != 0);
+
+        if (!static_ip_configured)
+        {
+            LOGW(TAG, "Ethernet has no valid static IP → starting DHCP");
+            esp_netif_dhcpc_start(eth);
+        }
+
+        /* Request actuals update, but NOT default route yet */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
-        s_request_mqtt_restart = true;
 
-        if (network_manager_task_handle != NULL)
+        if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
+
         break;
 
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED (handler)");
 
-        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        if (statemachine_mutex &&
+            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
+            sm_actuals.eth_link_up = false;
             sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
 
-        // When Ethernet goes away, let the manager re-evaluate active netif and restart services
+        /* Allow Wi‑Fi again */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
 
-        if (network_manager_task_handle != NULL)
+        if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
+
         break;
 
     default:

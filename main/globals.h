@@ -332,6 +332,7 @@ typedef struct
     bool eth_dhcp_enabled;
     bool ethernet_enabled;
     bool eth_connected;
+    bool eth_link_up;
 
     int cpu_temp;
 
