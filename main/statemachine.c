@@ -1147,12 +1147,12 @@ void cooking_transitions(void)
     }
 
     int state_fanspeed = FANSPEED_LOW;
-    int duration_min = 0;
+    // int duration_min = 0;
 
     if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         state_fanspeed = statemachine_config[state_index].fanspeed;
-        duration_min = statemachine_config[state_index].duration_minutes;
+        // duration_min = statemachine_config[state_index].duration_minutes;
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -1166,21 +1166,21 @@ void cooking_transitions(void)
     set_fanspeed(state_fanspeed);
 
     // Update elapsed time
-    {
-        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
-        if (new_time > old_time)
-        {
-            elapsed_time += new_time - old_time;
-            old_time = new_time;
-        }
-    }
+    //{
+    //  int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+    // if (new_time > old_time)
+    // {
+    //   elapsed_time += new_time - old_time;
+    // old_time = new_time;
+    // }
+    //}
 
     // After duration expires, return to day or night depending on time
-    if (elapsed_time >= duration_min)
+    if (!cooking_times())
     {
         int next = is_day() ? STATE_NR_DAY : STATE_NR_NIGHT;
-        elapsed_time = 0;
-        old_time = (int)(esp_timer_get_time() / 1000000ULL);
+        // elapsed_time = 0;
+        // old_time = (int)(esp_timer_get_time() / 1000000ULL);
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
             sm_actuals.state = next;
