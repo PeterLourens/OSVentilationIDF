@@ -45,4 +45,6 @@ bool ethernet_config_is_dhcp_enabled(void);
 // Apply current Ethernet configuration (reads globals::network_config).
 esp_err_t ethernet_config_apply(void);
 
+esp_eth_handle_t eth_get_handle(void);
+
 #endif

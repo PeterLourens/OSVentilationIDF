@@ -7,6 +7,11 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
+#define ETH_WD_PERIOD_MS 5000            // watchdog tick interval
+#define ETH_WD_NO_IP_TIMEOUT_MS 30000    // link up but no IP
+#define ETH_WD_GATEWAY_FAILS_MAX 6       // 6 × 5s = 30s
+#define ETH_WD_FORCE_RESTART_DELAY_MS 50 // small delay between stop/start
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <esp_err.h>

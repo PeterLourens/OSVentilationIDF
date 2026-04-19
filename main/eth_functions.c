@@ -590,11 +590,11 @@ esp_err_t ethernet_config_apply(void)
         return ESP_ERR_INVALID_ARG;
     }
 
-    esp_err_t err = esp_netif_dhcpc_stop(eth_netif);
-    if (err != ESP_OK && err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
-    {
-        LOGW(TAG, "esp_netif_dhcpc_stop returned %s", esp_err_to_name(err));
-    }
+    // esp_err_t err = esp_netif_dhcpc_stop(eth_netif);
+    // if (err != ESP_OK && err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
+    //{
+    //  LOGW(TAG, "esp_netif_dhcpc_stop returned %s", esp_err_to_name(err));
+    //}
 
     esp_netif_ip_info_t ip_info;
     memset(&ip_info, 0, sizeof(ip_info));
@@ -651,4 +651,9 @@ void eth_set_shutting_down(bool v)
 bool eth_is_shutting_down(void)
 {
     return s_eth_shutting_down;
+}
+
+esp_eth_handle_t eth_get_handle(void)
+{
+    return eth_handle;
 }

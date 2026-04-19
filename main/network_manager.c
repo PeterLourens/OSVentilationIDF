@@ -8,6 +8,22 @@
 
 static const char *TAG = "net_mgr";
 
+typedef struct
+{
+    bool enabled_cfg;             // Ethernet enabled in settings
+    bool link_up_event;           // ETHERNET_EVENT_CONNECTED seen
+    bool has_ip_event;            // IP_EVENT_ETH_GOT_IP seen
+    TickType_t last_state_change; // last transition
+    TickType_t last_watchdog_run; // last tick
+    int gateway_fail_count;       // consecutive gateway failures
+} eth_watchdog_t;
+
+static eth_watchdog_t s_eth_wd = {0};
+
+// Forward declarations
+static void eth_watchdog_tick(void);
+static void eth_watchdog_force_restart(const char *reason);
+
 // Task handle and stack
 static StackType_t network_manager_stack[8192]; // stack buffer
 static StaticTask_t network_manager_tcb;
@@ -34,29 +50,125 @@ static volatile bool s_request_eth_set_default = false; // set by eth event, act
 static volatile bool s_request_update_actuals = false;  // request to refresh sm_actuals from netifs
 
 // Forward declarations
-static void network_manager_task(void *pvParameters);
-static void register_event_handlers(void);
-static void evaluate_config_and_apply(void);
+static void eth_watchdog_tick(void);
+static void eth_watchdog_force_restart(const char *reason);
+static bool eth_watchdog_gateway_reachable(void);
 
-bool network_manager_start(void)
+static void eth_watchdog_force_restart(const char *reason)
 {
-    if (network_manager_task_handle != NULL)
+    ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
+
+    esp_eth_handle_t h = eth_get_handle();
+    if (!h)
     {
-        LOGI(TAG, "network_manager_start: already running (task=%p)", (void *)network_manager_task_handle);
-        return true;
+        ESP_LOGE(TAG, "ETH-WD: eth_get_handle() returned NULL");
+        return;
     }
 
-    network_manager_task_handle = xTaskCreateStatic(network_manager_task, "net_mgr", network_manager_stack_size, NULL, 9, network_manager_stack, &network_manager_tcb);
+    esp_err_t e = esp_eth_stop(h);
+    if (e != ESP_OK)
+        ESP_LOGW(TAG, "ETH-WD: esp_eth_stop failed: %s", esp_err_to_name(e));
 
-    if (network_manager_task_handle == NULL)
-    {
-        LOGE(TAG, "network_manager_start: failed to create task");
+    vTaskDelay(pdMS_TO_TICKS(ETH_WD_FORCE_RESTART_DELAY_MS));
+
+    e = esp_eth_start(h);
+    if (e != ESP_OK)
+        ESP_LOGE(TAG, "ETH-WD: esp_eth_start failed: %s", esp_err_to_name(e));
+    else
+        ESP_LOGI(TAG, "ETH-WD: restart complete");
+
+    s_eth_wd.link_up_event = false;
+    s_eth_wd.has_ip_event = false;
+    s_eth_wd.gateway_fail_count = 0;
+    s_eth_wd.last_state_change = xTaskGetTickCount();
+}
+
+static bool eth_watchdog_gateway_reachable(void)
+{
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!eth)
         return false;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(eth, &ip) != ESP_OK)
+        return false;
+
+    if (ip.gw.addr == 0)
+        return false;
+
+    int s = socket(AF_INET, SOCK_STREAM, 0);
+    if (s < 0)
+        return false;
+
+    struct sockaddr_in sa = {
+        .sin_family = AF_INET,
+        .sin_port = htons(80),
+        .sin_addr.s_addr = ip.gw.addr};
+
+    struct timeval tv = {
+        .tv_sec = 0,
+        .tv_usec = 1000};
+
+    setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+
+    int r = connect(s, (struct sockaddr *)&sa, sizeof(sa));
+    close(s);
+
+    return (r == 0 || errno == EINPROGRESS);
+}
+
+static void eth_watchdog_tick(void)
+{
+    TickType_t now = xTaskGetTickCount();
+
+    if (s_eth_wd.last_watchdog_run != 0 &&
+        (now - s_eth_wd.last_watchdog_run) < pdMS_TO_TICKS(ETH_WD_PERIOD_MS))
+        return;
+
+    s_eth_wd.last_watchdog_run = now;
+
+    if (!s_eth_wd.enabled_cfg)
+        return;
+
+    if (!s_eth_wd.link_up_event)
+        return;
+
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!eth)
+        return;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(eth, &ip) != ESP_OK)
+        return;
+
+    bool has_ip_now = (ip.ip.addr != 0);
+
+    // Case 1: link up but no IP for too long
+    if (!has_ip_now)
+    {
+        if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_IP_TIMEOUT_MS))
+        {
+            eth_watchdog_force_restart("link up but no IP");
+        }
+        return;
     }
 
-    manager_running = true;
-    LOGI(TAG, "network_manager_start: started (task=%p)", (void *)network_manager_task_handle);
-    return true;
+    // Case 2: IP present but gateway unreachable repeatedly
+    if (!eth_watchdog_gateway_reachable())
+    {
+        s_eth_wd.gateway_fail_count++;
+        ESP_LOGW(TAG, "ETH-WD: gateway unreachable (%d/%d)",
+                 s_eth_wd.gateway_fail_count, ETH_WD_GATEWAY_FAILS_MAX);
+
+        if (s_eth_wd.gateway_fail_count >= ETH_WD_GATEWAY_FAILS_MAX)
+        {
+            eth_watchdog_force_restart("gateway unreachable");
+        }
+    }
+    else
+    {
+        s_eth_wd.gateway_fail_count = 0;
+    }
 }
 
 void network_manager_notify_config_change(void)
@@ -231,7 +343,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     case IP_EVENT_ETH_GOT_IP:
         LOGI(TAG, "IP_EVENT_ETH_GOT_IP (handler)");
 
-        /* Now Ethernet truly has an IP → mark connected */
+        s_eth_wd.has_ip_event = true;
+        s_eth_wd.last_state_change = xTaskGetTickCount();
+        s_eth_wd.gateway_fail_count = 0;
+
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -239,10 +354,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
-        /* Now it is safe to set default route */
         s_request_eth_set_default = true;
-
-        /* Restart services to bind to new interface */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
@@ -288,16 +400,19 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     case ETHERNET_EVENT_CONNECTED:
         LOGI(TAG, "ETHERNET_EVENT_CONNECTED (handler)");
 
-        /* Do NOT mark eth_connected yet — link is up, but no IP assigned */
+        s_eth_wd.link_up_event = true;
+        s_eth_wd.has_ip_event = false;
+        s_eth_wd.last_state_change = xTaskGetTickCount();
+        s_eth_wd.gateway_fail_count = 0;
+
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
-            sm_actuals.eth_link_up = true;    // NEW: link only
-            sm_actuals.eth_connected = false; // IP not yet assigned
+            sm_actuals.eth_link_up = true;
+            sm_actuals.eth_connected = false;
             xSemaphoreGive(statemachine_mutex);
         }
 
-        /* Check if static IP is configured */
         esp_netif_ip_info_t ip;
         esp_err_t r = esp_netif_get_ip_info(eth, &ip);
 
@@ -313,7 +428,6 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             esp_netif_dhcpc_start(eth);
         }
 
-        /* Request actuals update, but NOT default route yet */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
 
@@ -325,6 +439,11 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED (handler)");
 
+        s_eth_wd.link_up_event = false;
+        s_eth_wd.has_ip_event = false;
+        s_eth_wd.gateway_fail_count = 0;
+        s_eth_wd.last_state_change = xTaskGetTickCount();
+
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -333,7 +452,6 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
 
-        /* Allow Wi‑Fi again */
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
@@ -469,7 +587,6 @@ static void unregister_event_handlers(void)
 }
 
 // Config evaluation and application
-// Replace the existing evaluate_config_and_apply in network_manager.c with this version.
 static void evaluate_config_and_apply(void)
 {
     bool wifi_enabled = false;
@@ -494,7 +611,9 @@ static void evaluate_config_and_apply(void)
         return;
     }
 
-    /* Update statemachine actuals for enabled flags */
+    s_eth_wd.enabled_cfg = eth_enabled;
+
+    // Update statemachine actuals for enabled flags
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         sm_actuals.wifi_enabled = wifi_enabled;
@@ -576,16 +695,23 @@ static void evaluate_config_and_apply(void)
        If no credentials and Ethernet is down, manager will start AP.
        If Ethernet is up, manager will not start STA or AP (Wi‑Fi suppressed). */
 
-    bool eth_up = false;
-    if (hw.has_ethernet && eth_is_connected())
-        eth_up = true;
-
-    if (eth_up)
+    // Prefer Ethernet only when it has a valid IP address
+    bool eth_has_ip = false;
+    if (hw.has_ethernet)
     {
-        /* When Ethernet is up, prefer Ethernet. Stop AP/STA activity to avoid conflicts.
-           Keep Wi‑Fi initialized (so we can set hostname etc.), but do not start STA or AP. */
-        LOGI(TAG, "evaluate_config_and_apply: Ethernet up → suppressing Wi‑Fi STA/AP");
-        /* If Wi‑Fi was running in AP mode, stop it to avoid dual AP when ETH is default */
+        esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (ethnet)
+        {
+            esp_netif_ip_info_t ip;
+            if (esp_netif_get_ip_info(ethnet, &ip) == ESP_OK && ip.ip.addr != 0)
+                eth_has_ip = true;
+        }
+    }
+
+    if (eth_has_ip)
+    {
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → suppressing Wi‑Fi STA/AP");
+        // Stop Wi‑Fi only when Ethernet is fully usable
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
@@ -601,26 +727,26 @@ static void evaluate_config_and_apply(void)
 
     if (have_credentials)
     {
-        /* Try STA connect (blocking attempt with wifi_manager_connect semantics) */
+        // Try STA connect (blocking attempt with wifi_manager_connect semantics)
         LOGI(TAG, "evaluate_config_and_apply: attempting Wi‑Fi STA connect");
         esp_err_t r = wifi_manager_connect(&wifi_config);
         if (r == ESP_OK)
         {
             LOGI(TAG, "evaluate_config_and_apply: Wi‑Fi STA connected or connecting");
-            /* wifi_manager_connect will set event bits and the event handlers update sm_actuals */
+            // wifi_manager_connect will set event bits and the event handlers update sm_actuals
             return;
         }
         else
         {
             LOGW(TAG, "evaluate_config_and_apply: Wi‑Fi STA attempt failed (%s)", esp_err_to_name(r));
-            /* Do not automatically start AP here if STA fails; allow manager loop to decide fallback.
-               If you want immediate AP fallback, set a policy here to call wifi_manager_start_ap(). */
+            // Do not automatically start AP here if STA fails; allow manager loop to decide fallback.
+            // If you want immediate AP fallback, set a policy here to call wifi_manager_start_ap().
             return;
         }
     }
     else
     {
-        /* No credentials: start AP so user can configure device (only when Ethernet is down) */
+        // No credentials: start AP so user can configure device (only when Ethernet is down)
         LOGI(TAG, "evaluate_config_and_apply: no Wi‑Fi credentials and Ethernet down → starting AP");
         esp_err_t ap_r = wifi_manager_start_ap();
         if (ap_r == ESP_OK)
@@ -634,31 +760,28 @@ static void evaluate_config_and_apply(void)
 // Replace the existing function with this version. It centralizes all
 // heavy network operations in the manager task, keeps event handlers tiny,
 // and processes deferred requests/teardown safely.
-
-// Replace the existing network_manager_task with this corrected version.
-// Replace the existing network_manager_task in network_manager.c with this version.
 static void network_manager_task(void *pvParameters)
 {
     (void)pvParameters;
     LOGI(TAG, "Network manager starting");
 
-    /* Initialize LED GPIOs and TCP/IP stack (idempotent) */
+    // Initialize LED GPIOs and TCP/IP stack (idempotent)
     eth_led_init();
 
-    /* Ensure esp-netif is initialized (safe to call multiple times) */
+    // Ensure esp-netif is initialized (safe to call multiple times)
     ESP_ERROR_CHECK(esp_netif_init());
 
-    /* Create default event loop if not already present */
+    // Create default event loop if not already present
     esp_err_t err = esp_event_loop_create_default();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
         LOGE(TAG, "esp_event_loop_create_default failed: %s", esp_err_to_name(err));
     }
 
-    /* Register event handlers (Wi‑Fi, IP, ETH, MQTT) */
+    // Register event handlers (Wi‑Fi, IP, ETH, MQTT)
     register_event_handlers();
 
-    /* Initialize network drivers/managers (safe to call multiple times) */
+    // Initialize network drivers/managers (safe to call multiple times)
     if (hw.has_ethernet)
     {
         eth_init();
@@ -668,22 +791,106 @@ static void network_manager_task(void *pvParameters)
     manager_running = true;
     LOGI(TAG, "network_manager_task: manager_running = true");
 
-    /* Initial evaluation and publish of actuals */
+    // Initial evaluation and publish of actuals
     evaluate_config_and_apply();
     sys_stats_update_actuals();
 
-    /* Main loop: wait for notifications or periodic wakeups and process requests */
+    /* DHCP recovery/backoff state */
+    static int dhcp_restart_backoff = 0;
+    const int dhcp_backoff_max = 6;    // cap backoff exponent
+    const int dhcp_backoff_base_s = 5; // base delay seconds for backoff
+
+    // If ETH netif exists at startup and has no IP, start DHCP (idempotent)
+    if (hw.has_ethernet)
+    {
+        esp_netif_t *eth_start = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (eth_start)
+        {
+            esp_netif_ip_info_t ip;
+            if (esp_netif_get_ip_info(eth_start, &ip) == ESP_OK && ip.ip.addr == 0)
+            {
+                ESP_LOGW(TAG, "startup: ETH has no IP — starting DHCP client");
+                esp_err_t r = esp_netif_dhcpc_start(eth_start);
+                if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
+                    ESP_LOGW(TAG, "esp_netif_dhcpc_start (eth) returned %s", esp_err_to_name(r));
+                s_request_update_actuals = true;
+                if (network_manager_task_handle)
+                    xTaskNotifyGive(network_manager_task_handle);
+            }
+        }
+        else
+        {
+            ESP_LOGW(TAG, "startup: ETH_DEF netif not found");
+        }
+    }
+
+    // Main loop: wait for notifications or periodic wakeups and process requests
     for (;;)
     {
-        /* Wait for notifications or timeout (periodic work) */
         const TickType_t wait_ticks = pdMS_TO_TICKS(30000);
-        /* Clear notification count and wait */
+
+        // Clear notification count and wait
         ulTaskNotifyTake(pdTRUE, wait_ticks);
 
-        /* First, handle any deferred teardown that was previously deferred */
+        // Ethernet watchdog (non-blocking)
+        eth_watchdog_tick();
+
+        // DHCP health check and recovery. If link is up but IP is zero, attempt to start DHCP (with backoff).
+        if (hw.has_ethernet)
+        {
+            esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (eth)
+            {
+                esp_netif_ip_info_t ip;
+                esp_err_t r = esp_netif_get_ip_info(eth, &ip);
+                bool link = eth_is_connected();
+
+                if (r == ESP_OK)
+                {
+                    if (link && ip.ip.addr == 0)
+                    {
+                        ESP_LOGW(TAG, "network_manager_task: ETH link up but no IP — attempting DHCP (backoff=%d)", dhcp_restart_backoff);
+                        esp_err_t s = esp_netif_dhcpc_start(eth);
+                        if (s == ESP_OK || s == ESP_ERR_ESP_NETIF_DHCP_ALREADY_STARTED)
+                        {
+                            ESP_LOGI(TAG, "network_manager_task: dhcpc_start called");
+                            dhcp_restart_backoff = 0; // reset on success
+                        }
+                        else
+                        {
+                            ESP_LOGW(TAG, "network_manager_task: esp_netif_dhcpc_start returned %s", esp_err_to_name(s));
+                            if (dhcp_restart_backoff < dhcp_backoff_max)
+                                dhcp_restart_backoff++;
+                            int delay_s = dhcp_backoff_base_s << dhcp_restart_backoff;
+                            // Small delay to avoid tight loop; allow other tasks to run
+                            vTaskDelay(pdMS_TO_TICKS(delay_s * 1000));
+                        }
+
+                        // Request actuals/syslog update so UI reflects current state
+                        s_request_update_actuals = true;
+                        s_request_syslog_update = true;
+                    }
+                    else if (ip.ip.addr != 0)
+                    {
+                        // IP present — reset backoff in case we had previous issues
+                        dhcp_restart_backoff = 0;
+                    }
+                }
+                else
+                {
+                    ESP_LOGW(TAG, "network_manager_task: esp_netif_get_ip_info(ETH_DEF) failed: %s", esp_err_to_name(r));
+                }
+            }
+            else
+            {
+                ESP_LOGW(TAG, "network_manager_task: ETH_DEF netif not found");
+            }
+        }
+
+        // Handle any deferred teardown that was previously deferred
         handle_deferred_eth_teardown_if_needed();
 
-        /* If requested, set ETH as default netif (do this from manager task) */
+        // If requested, set ETH as default netif (do this from manager task)
         if (s_request_eth_set_default)
         {
             s_request_eth_set_default = false;
@@ -698,16 +905,16 @@ static void network_manager_task(void *pvParameters)
                 LOGW(TAG, "network_manager_task: requested to set ETH default but ETH_DEF not found");
             }
 
-            /* After forcing ETH default, ensure services restart to bind to the new route */
+            // After forcing ETH default, ensure services restart to bind to the new route
             s_request_update_actuals = true;
             s_request_syslog_update = true;
             s_request_mqtt_restart = true;
         }
 
-        /* Re-evaluate configuration and apply changes (safe, nonblocking) */
+        // Re-evaluate configuration and apply changes (safe, nonblocking)
         evaluate_config_and_apply();
 
-        /* If requested, refresh actuals by reading netif state and DNS info */
+        // If requested, refresh actuals by reading netif state and DNS info
         if (s_request_update_actuals)
         {
             s_request_update_actuals = false;
@@ -720,7 +927,7 @@ static void network_manager_task(void *pvParameters)
                 sm_actuals.wifi_ap_mode = false;
                 sm_actuals.hostname[0] = '\0';
 
-                /* Wi‑Fi STA */
+                // Wi‑Fi STA
                 esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
                 if (wifinet)
                 {
@@ -736,7 +943,7 @@ static void network_manager_task(void *pvParameters)
                     }
                 }
 
-                /* Ethernet */
+                // Ethernet
                 esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
                 if (ethnet)
                 {
@@ -754,6 +961,7 @@ static void network_manager_task(void *pvParameters)
                         if (esp_netif_get_dns_info(ethnet, ESP_NETIF_DNS_BACKUP, &dns) == ESP_OK)
                             snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
                     }
+
                     /* If hostname not set by Wi‑Fi, try Ethernet hostname */
                     if (sm_actuals.hostname[0] == '\0')
                     {
@@ -770,10 +978,10 @@ static void network_manager_task(void *pvParameters)
                 LOGW(TAG, "network_manager_task: could not take statemachine_mutex to update actuals");
             }
 
-            /* Publish actuals and update syslog state */
+            // Publish actuals and update syslog state
             sys_stats_update_actuals();
 
-            /* Ensure syslog state is updated immediately */
+            // Ensure syslog state is updated immediately after actuals change so UI reflects current network state
             s_request_syslog_update = true;
         }
 
@@ -798,7 +1006,7 @@ static void network_manager_task(void *pvParameters)
             }
         }
 
-        /* Process deferred syslog update */
+        // Process deferred syslog update
         if (s_request_syslog_update)
         {
             s_request_syslog_update = false;
@@ -806,12 +1014,33 @@ static void network_manager_task(void *pvParameters)
             update_syslog_state();
         }
 
-        /* Loop continues; do not unregister handlers or delete the task here */
+        // Loop continues; do not unregister handlers or delete the task here
     }
 
-    /* Cleanup path (only reached if the loop is exited intentionally) */
+    // Cleanup path (only reached if the loop is exited intentionally)
     unregister_event_handlers();
     manager_running = false;
     LOGI(TAG, "network_manager_task: exiting");
     vTaskDelete(NULL);
+}
+
+bool network_manager_start(void)
+{
+    if (network_manager_task_handle != NULL)
+    {
+        LOGI(TAG, "network_manager_start: already running (task=%p)", (void *)network_manager_task_handle);
+        return true;
+    }
+
+    network_manager_task_handle = xTaskCreateStatic(network_manager_task, "net_mgr", network_manager_stack_size, NULL, 9, network_manager_stack, &network_manager_tcb);
+
+    if (network_manager_task_handle == NULL)
+    {
+        LOGE(TAG, "network_manager_start: failed to create task");
+        return false;
+    }
+
+    manager_running = true;
+    LOGI(TAG, "network_manager_start: started (task=%p)", (void *)network_manager_task_handle);
+    return true;
 }

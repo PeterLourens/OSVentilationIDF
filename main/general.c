@@ -432,22 +432,18 @@ void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
     esp_log_level_set("*", ESP_LOG_INFO);
-
-    esp_log_level_set("bus_lock", ESP_LOG_NONE);
-    esp_log_level_set("spi", ESP_LOG_NONE);
-    esp_log_level_set("spi_master", ESP_LOG_NONE);
-    esp_log_level_set("scd4x", ESP_LOG_ERROR);
-    esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("aht", ESP_LOG_ERROR);
+    esp_log_level_set("bus_lock", ESP_LOG_NONE);
+    esp_log_level_set("dhcp", ESP_LOG_DEBUG);
+    esp_log_level_set("dhcpc", ESP_LOG_DEBUG);
     esp_log_level_set("esp_littlefs", ESP_LOG_ERROR);
-    esp_log_level_set("nvs", ESP_LOG_ERROR);
-    esp_log_level_set("wifi", ESP_LOG_ERROR);
+    esp_log_level_set("esp_adapter", ESP_LOG_DEBUG);
+    esp_log_level_set("esp_eth", ESP_LOG_DEBUG);
     esp_log_level_set("esp_netif_lwip", ESP_LOG_ERROR);
-    esp_log_level_set("esp_netif_handlers", ESP_LOG_ERROR);
+    esp_log_level_set("esp_netif_handlers", ESP_LOG_DEBUG);
+    esp_log_level_set("esp-tls", ESP_LOG_ERROR);
     esp_log_level_set("event", ESP_LOG_ERROR);
-    esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
-    esp_log_level_set("esp_adapter", ESP_LOG_ERROR);
-    esp_log_level_set("DS3231", ESP_LOG_INFO);
+    esp_log_level_set("gdma", ESP_LOG_NONE);
     esp_log_level_set("gpio", ESP_LOG_ERROR);
     esp_log_level_set("httpd", ESP_LOG_ERROR);
     esp_log_level_set("httpd_txrx", ESP_LOG_ERROR);
@@ -455,22 +451,27 @@ void set_log_levels(void)
     esp_log_level_set("httpd_parse", ESP_LOG_ERROR);
     esp_log_level_set("httpd_sess", ESP_LOG_ERROR);
     esp_log_level_set("httpd_uri", ESP_LOG_ERROR);
-    esp_log_level_set("mqtt_client", ESP_LOG_ERROR);
-    esp_log_level_set("transport_base", ESP_LOG_ERROR);
-    esp_log_level_set("outbox", ESP_LOG_ERROR);
-    esp_log_level_set("esp-tls", ESP_LOG_ERROR);
     esp_log_level_set("HTTP_CLIENT", ESP_LOG_ERROR);
+    esp_log_level_set("HTTP_server", ESP_LOG_INFO);
+    esp_log_level_set("mqtt_client", ESP_LOG_ERROR);
+    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);      // Nothing is logged now
+    esp_log_level_set("nvs", ESP_LOG_ERROR);
+    esp_log_level_set("outbox", ESP_LOG_ERROR);
+    esp_log_level_set("scd4x", ESP_LOG_ERROR);
+    esp_log_level_set("spi", ESP_LOG_NONE);
+    esp_log_level_set("spi_master", ESP_LOG_NONE);
+    esp_log_level_set("tca9548", ESP_LOG_ERROR);
+    esp_log_level_set("transport_base", ESP_LOG_ERROR);
     esp_log_level_set("w5500.mac", ESP_LOG_NONE);
-    esp_log_level_set("esp_eth", ESP_LOG_NONE);
-    esp_log_level_set("gdma", ESP_LOG_NONE);
+    esp_log_level_set("wifi", ESP_LOG_DEBUG);
+    esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
 
     // Custom TAG sttings
     esp_log_level_set("Config", ESP_LOG_INFO);
+    esp_log_level_set("DS3231", ESP_LOG_INFO);
     esp_log_level_set("Eth_func", ESP_LOG_INFO);
     esp_log_level_set("Fan_control", ESP_LOG_INFO);
     esp_log_level_set("General", ESP_LOG_INFO);
-    esp_log_level_set("HTTP_server", ESP_LOG_INFO);
-    // esp_log_level_set("HTTP_POST_functions", ESP_LOG_INFO);      // Nothing is logged now
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
     esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
     esp_log_level_set("i2c_functions", ESP_LOG_INFO);
@@ -499,8 +500,6 @@ void set_log_levels(void)
     esp_log_level_set("control_valves", ESP_LOG_INFO);
     esp_log_level_set("Eth_func", ESP_LOG_INFO);
     esp_log_level_set("task_eth", ESP_LOG_INFO);
-
-    // esp_log_level_set("*", ESP_LOG_INFO);       // Set all log levels
 }
 
 void print_html_file(const char *filepath)

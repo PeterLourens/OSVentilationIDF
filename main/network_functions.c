@@ -22,7 +22,7 @@ void update_syslog_state(void)
     bool ready = network_has_ip(); // Only true after DHCP/static IP is applied
 
     // Read config snapshot under mutex to log what the config says
-    char cfg_enable[8] = {0};
+    char cfg_enable[11] = {0};
     if (syslog_config_mutex && xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
     {
         strncpy(cfg_enable, syslog_config.enable_syslog, sizeof(cfg_enable) - 1);
