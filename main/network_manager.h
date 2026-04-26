@@ -12,6 +12,10 @@
 #define ETH_WD_GATEWAY_FAILS_MAX 6       // 6 × 5s = 30s
 #define ETH_WD_FORCE_RESTART_DELAY_MS 50 // small delay between stop/start
 
+// Thresholds
+#define ETH_WD_NO_ACTIVITY_TIMEOUT_MS 30000 // 30s without any successful activity -> restart
+#define ETH_WD_ACTIVITY_GRACE_MS 5000       // 5s grace after events before considering stale
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <esp_err.h>
@@ -43,5 +47,6 @@ void network_manager_request_actuals_update(void);
 
 // Query whether manager is running
 bool network_manager_is_running(void);
+void net_mgr_notify_eth_activity(void);
 
 #endif // NETWORK_MANAGER_H

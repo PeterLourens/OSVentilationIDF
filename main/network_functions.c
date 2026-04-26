@@ -162,6 +162,11 @@ void on_ping_end(esp_ping_handle_t hdl, void *args)
     g_ping_summary.duration_ms = (int)duration;
     g_ping_summary.success = (received > 0);
 
+    if (g_ping_summary.success)
+    {
+        net_mgr_notify_eth_activity();
+    }
+
     LOGD(TAG, "Ping finished: tx=%d rx=%d loss=%d%% avg_rtt=%d ms duration=%d ms",
          g_ping_summary.transmitted, g_ping_summary.received,
          g_ping_summary.loss_percent, g_ping_summary.avg_time_ms,

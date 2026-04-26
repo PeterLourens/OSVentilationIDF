@@ -6,7 +6,7 @@
 
 #include "statemachine_helper.h"
 
-static const char *TAG = "SM_helpers";
+static const char *TAG = "sm_helpers";
 
 // Find state index by name (case-insensitive). Returns -1 if not found.
 int find_state_index_by_name_ci(const char *name)

@@ -6,7 +6,7 @@
 
 #include "statemachine.h"
 
-static const char *TAG = "SM";
+static const char *TAG = "sm";
 
 int old_time = 0;
 int elapsed_time = 0;

@@ -52,6 +52,7 @@ static esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
     size_t len = pure_min_css_end - pure_min_css_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, pure_min_css_start, len);
 }
 
@@ -60,6 +61,7 @@ static esp_err_t styles_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
     size_t len = styles_css_end - styles_css_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, styles_css_start, len);
 }
 
@@ -68,6 +70,7 @@ static esp_err_t ui_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
     size_t len = ui_js_end - ui_js_start - 1;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, ui_js_start, len);
 }
 
@@ -76,6 +79,7 @@ static esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
     size_t len = send_json_ws_js_end - send_json_ws_js_start - 1;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, send_json_ws_js_start, len);
 }
 
@@ -84,6 +88,7 @@ static esp_err_t favicon_ico_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "image/x-icon");
     size_t len = favicon_ico_end - favicon_ico_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, (const char *)favicon_ico_start, len);
 }
 
@@ -92,6 +97,7 @@ static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = index_html_end - index_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, index_html_start, len);
 }
 
@@ -100,6 +106,7 @@ static esp_err_t sensor_config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = sensor_config_html_end - sensor_config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
@@ -108,6 +115,7 @@ static esp_err_t config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = config_html_end - config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, config_html_start, len);
 }
 
@@ -116,6 +124,7 @@ static esp_err_t statemachine_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = statemachine_html_end - statemachine_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
@@ -124,6 +133,7 @@ static esp_err_t valvecontrol_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = valvecontrol_html_end - valvecontrol_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
@@ -132,6 +142,7 @@ static esp_err_t webserial_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = webserial_html_end - webserial_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, webserial_html_start, len);
 }
 
@@ -140,6 +151,7 @@ static esp_err_t stats_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
     size_t len = stats_html_end - stats_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, stats_html_start, len);
 }
 
@@ -155,6 +167,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
     {
         LOGD(TAG, "Handshake done, the new connection was opened");
         http_server = req->handle;
+        net_mgr_notify_eth_activity(); // count handshake as activity
         return ESP_OK;
     }
 
@@ -285,6 +298,7 @@ static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
     len = sensor_config_html_end - sensor_config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
@@ -346,6 +360,7 @@ static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     // return the page body (original sensor_config.html)
     httpd_resp_set_type(req, "text/html");
     len = sensor_config_html_end - sensor_config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
@@ -412,6 +427,7 @@ static esp_err_t wifi_config_post_handler(httpd_req_t *req)
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
     len = config_html_end - config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, config_html_start, len);
 }
 
@@ -463,6 +479,7 @@ static esp_err_t ethernet_config_post_handler(httpd_req_t *req)
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
     len = config_html_end - config_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, config_html_start, len);
 }
 
@@ -513,6 +530,7 @@ static esp_err_t i2c_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -562,6 +580,7 @@ static esp_err_t fan_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -611,6 +630,7 @@ static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -660,6 +680,7 @@ static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -709,6 +730,7 @@ static esp_err_t syslog_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -758,6 +780,7 @@ static esp_err_t time_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = config_html_end - config_html_start;
     return httpd_resp_send(req, config_html_start, len);
 }
@@ -806,6 +829,7 @@ static esp_err_t state_gen_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = statemachine_html_end - statemachine_html_start;
     return httpd_resp_send(req, statemachine_html_start, len);
 }
@@ -862,6 +886,7 @@ static esp_err_t state_config_post_handler(httpd_req_t *req)
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     len = statemachine_html_end - statemachine_html_start;
     return httpd_resp_send(req, statemachine_html_start, len);
 }
@@ -895,6 +920,7 @@ static esp_err_t reset_valves_handler(httpd_req_t *req)
 
     // Return the original valvecontrol.html page
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     size_t len = valvecontrol_html_end - valvecontrol_html_start;
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
@@ -913,6 +939,7 @@ static esp_err_t stop_statemachine_handler(httpd_req_t *req)
     // return valvecontrol page so UI stays consistent
     httpd_resp_set_type(req, "text/html");
     size_t plen = valvecontrol_html_end - valvecontrol_html_start;
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
@@ -929,6 +956,7 @@ static esp_err_t start_statemachine_handler(httpd_req_t *req)
 
     // return valvecontrol page so UI stays consistent
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     size_t plen = valvecontrol_html_end - valvecontrol_html_start;
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
@@ -1037,6 +1065,7 @@ static esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 
     // Return the original valvecontrol.html page
     httpd_resp_set_type(req, "text/html");
+    net_mgr_notify_eth_activity();
     size_t plen = valvecontrol_html_end - valvecontrol_html_start;
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
@@ -1117,6 +1146,7 @@ static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
     httpd_resp_send_chunk(req, (const char *)buf, 512);
 
     httpd_resp_send_chunk(req, NULL, 0);
+    net_mgr_notify_eth_activity();
     return ESP_OK;
 }
 
@@ -1245,6 +1275,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
     // Return config page
     httpd_resp_set_status(req, "303 See Other");
     httpd_resp_set_hdr(req, "Location", referer);
+    net_mgr_notify_eth_activity();
     return httpd_resp_send(req, NULL, 0);
 }
 

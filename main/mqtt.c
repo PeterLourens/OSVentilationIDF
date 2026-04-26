@@ -6,7 +6,7 @@
 
 #include "mqtt.h"
 
-static const char *TAG = "mqtt_drv";
+static const char *TAG = "mqtt";
 
 static esp_mqtt_client_handle_t s_mqtt_client = NULL;
 static bool s_mqtt_started = false;
@@ -40,6 +40,11 @@ static inline void mqtt_pubs_retained(const char *topic, const char *value)
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
+	}
+	else
+	{
+		// Successful publish queued/sent — count as network activity
+		net_mgr_notify_eth_activity();
 	}
 }
 
@@ -257,6 +262,10 @@ static inline void mqtt_pubf(const char *topic, float value)
 	{
 		LOGW(TAG, "mqtt_pubf: publish failed for topic %s", topic);
 	}
+	else
+	{
+		net_mgr_notify_eth_activity();
+	}
 }
 
 // Publish string value to MQTT
@@ -279,6 +288,10 @@ static inline void mqtt_pubs(const char *topic, const char *value)
 	{
 		LOGW(TAG, "mqtt_pubs: publish failed for topic %s", topic);
 	}
+	else
+	{
+		net_mgr_notify_eth_activity();
+	}
 }
 
 // Publish integer value to MQTT
@@ -297,6 +310,10 @@ static inline void mqtt_pubi(const char *topic, int value)
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubi: publish failed for topic %s", topic);
+	}
+	else
+	{
+		net_mgr_notify_eth_activity();
 	}
 }
 
@@ -594,6 +611,12 @@ int mqtt_subscribe(const char *topic, int qos)
 void mqtt_event_forwarder(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
 	esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+
+	// Treat connect/publish events as network activity
+	if (event_id == MQTT_EVENT_CONNECTED || event_id == MQTT_EVENT_PUBLISHED)
+	{
+		net_mgr_notify_eth_activity();
+	}
 
 	// Handle incoming data here
 	if (event_id == MQTT_EVENT_DATA)

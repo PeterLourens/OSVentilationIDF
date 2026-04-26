@@ -84,6 +84,107 @@ static void eth_teardown_locked(void)
     eth_set_shutting_down(false);
 }
 
+// ---------------------------------------------------------------------------
+// Hardware reset helper for W5500
+// ---------------------------------------------------------------------------
+
+esp_err_t eth_hardware_reset(void)
+{
+    // Ensure lifecycle mutex exists
+    eth_lifecycle_init_once();
+
+    // Try to take lifecycle mutex; if busy, defer and return busy
+    if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(500)) != pdTRUE)
+    {
+        LOGW(TAG, "eth_hardware_reset: lifecycle mutex busy; cannot perform hardware reset now");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    LOGI(TAG, "eth_hardware_reset: starting guarded hardware reset");
+
+    // Mark shutting down to prevent event handlers from racing
+    eth_set_shutting_down(true);
+
+    // Stop DHCP client (best effort)
+    if (eth_netif)
+    {
+        esp_err_t r = esp_netif_dhcpc_stop(eth_netif);
+        if (r != ESP_OK && r != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
+            LOGW(TAG, "eth_hardware_reset: dhcpc_stop -> %s", esp_err_to_name(r));
+    }
+
+    // Stop driver if running
+    if (eth_handle && eth_started)
+    {
+        esp_err_t r = esp_eth_stop(eth_handle);
+        if (r != ESP_OK)
+            LOGW(TAG, "eth_hardware_reset: esp_eth_stop -> %s", esp_err_to_name(r));
+        eth_started = false;
+    }
+
+    // Optionally toggle reset GPIO if configured
+    if (hw.w5500_rst_gpio >= 0)
+    {
+        gpio_config_t io_conf = {
+            .mode = GPIO_MODE_OUTPUT,
+            .pin_bit_mask = (1ULL << hw.w5500_rst_gpio),
+            .pull_down_en = 0,
+            .pull_up_en = 0,
+            .intr_type = GPIO_INTR_DISABLE};
+        gpio_config(&io_conf);
+
+        LOGI(TAG, "eth_hardware_reset: asserting W5500 reset GPIO %d", hw.w5500_rst_gpio);
+        gpio_set_level((gpio_num_t)hw.w5500_rst_gpio, 0); // assert reset (active low)
+        vTaskDelay(pdMS_TO_TICKS(100));                   // hold reset (100 ms recommended)
+
+        LOGI(TAG, "eth_hardware_reset: releasing W5500 reset GPIO %d", hw.w5500_rst_gpio);
+        gpio_set_level((gpio_num_t)hw.w5500_rst_gpio, 1); // release reset
+        vTaskDelay(pdMS_TO_TICKS(300));                   // allow W5500 to boot (300 ms)
+    }
+    else
+    {
+        LOGW(TAG, "eth_hardware_reset: no reset GPIO configured; performing software reinit only");
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+
+    // Reinitialize driver and netif if needed.
+    if (!s_eth_initialized || eth_handle == NULL || eth_netif == NULL)
+    {
+        LOGI(TAG, "eth_hardware_reset: calling eth_init()");
+        eth_init();
+        // eth_init releases the mutex; reacquire to continue if needed
+        if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
+        {
+            LOGW(TAG, "eth_hardware_reset: failed to re-take lifecycle mutex after eth_init");
+            eth_set_shutting_down(false);
+            xSemaphoreGive(eth_lifecycle_mutex);
+            return ESP_ERR_TIMEOUT;
+        }
+    }
+
+    // Start driver if not started
+    if (!eth_started && eth_handle != NULL)
+    {
+        esp_err_t r = esp_eth_start(eth_handle);
+        if (r != ESP_OK)
+        {
+            LOGW(TAG, "eth_hardware_reset: esp_eth_start -> %s", esp_err_to_name(r));
+        }
+        else
+        {
+            eth_started = true;
+            LOGI(TAG, "eth_hardware_reset: esp_eth_start succeeded");
+        }
+    }
+
+    // Clear shutting down flag and release mutex
+    eth_set_shutting_down(false);
+    xSemaphoreGive(eth_lifecycle_mutex);
+
+    LOGI(TAG, "eth_hardware_reset: complete");
+    return ESP_OK;
+}
+
 // Call once early in startup (after RTOS running)
 void eth_lifecycle_init_once(void)
 {

@@ -27,7 +27,7 @@ extern esp_eth_handle_t eth_handle;
 
 // Lifecycle
 void eth_lifecycle_init_once(void);
-// void eth_lifecycle_init(void);
+esp_err_t eth_hardware_reset(void);
 void eth_teardown_safe(void);
 void attempt_guarded_eth_restart(void);
 void handle_deferred_eth_teardown_if_needed(void);

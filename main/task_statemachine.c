@@ -6,7 +6,7 @@
 
 #include "task_statemachine.h"
 
-static const char *TAG = "task_SM";
+static const char *TAG = "task_sm";
 static StackType_t sm_stack[8192];  // stack buffer
 static StaticTask_t sm_tcb;         // TCB buffer
 static size_t sm_stack_size = 8192; // 4096 words = 16 KB

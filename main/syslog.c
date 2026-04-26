@@ -221,9 +221,15 @@ static void syslog_worker_task(void *pvParameters)
         }
 
         if (sent < 0)
+        {
             ESP_LOGE(TAG, "syslog_worker: send failed after %d attempts", SYSLOG_SEND_RETRIES);
+        }
         else
+        {
             ESP_LOGD(TAG, "syslog_worker: sent %d bytes", (int)sent);
+            // Notify network manager that Ethernet activity occurred
+            net_mgr_notify_eth_activity();
+        }
 
         close(sock);
         free(msg);
@@ -420,9 +426,15 @@ void syslog_send_line(const char *line)
     ssize_t sent = safe_syslog_send(sock, msg, strlen(msg), 0, (struct sockaddr *)&dest, sizeof(dest));
 
     if (sent < 0)
+    {
         LOGE(TAG, "syslog: send failed (see earlier diagnostics)");
+    }
     else
+    {
         LOGD(TAG, "Sent %d bytes to syslog-ng", (int)sent);
+        // Notify network manager that Ethernet activity occurred
+        net_mgr_notify_eth_activity();
+    }
 
     close(sock);
     free(msg);

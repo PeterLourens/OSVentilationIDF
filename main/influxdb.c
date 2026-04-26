@@ -6,7 +6,7 @@
 
 #include "influxdb.h"
 
-static const char *TAG = "Influxdb";
+static const char *TAG = "influxdb";
 
 QueueHandle_t influx_queue = NULL;
 TaskHandle_t influx_sender_task_handle = NULL;

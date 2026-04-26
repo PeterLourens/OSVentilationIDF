@@ -7,7 +7,7 @@
 #include "sys_stats.h"
 #include "globals.h"
 
-static const char *TAG = "Sys_stats";
+static const char *TAG = "sys_stats";
 
 // CPU Temperature
 static temperature_sensor_handle_t temp_sensor = NULL;

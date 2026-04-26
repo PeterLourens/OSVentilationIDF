@@ -6,7 +6,7 @@
 
 #include "i2c_ds3231.h"
 
-static const char *TAG = "I2C_DS3231";
+static const char *TAG = "i2c_DS3231";
 
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {

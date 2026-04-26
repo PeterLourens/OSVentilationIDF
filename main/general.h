@@ -12,6 +12,7 @@
 #include <nvs_flash.h>
 #include <ping/ping_sock.h>
 #include <sys/socket.h>
+#include <esp_log_level.h>
 
 #include "i2c_ds3231.h"
 #include "http_functions.h"

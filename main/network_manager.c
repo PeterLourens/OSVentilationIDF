@@ -10,15 +10,21 @@ static const char *TAG = "net_mgr";
 
 typedef struct
 {
-    bool enabled_cfg;             // Ethernet enabled in settings
-    bool link_up_event;           // ETHERNET_EVENT_CONNECTED seen
-    bool has_ip_event;            // IP_EVENT_ETH_GOT_IP seen
-    TickType_t last_state_change; // last transition
-    TickType_t last_watchdog_run; // last tick
-    int gateway_fail_count;       // consecutive gateway failures
+    bool enabled_cfg;                    // Ethernet enabled in settings
+    bool link_up_event;                  // ETHERNET_EVENT_CONNECTED seen
+    bool has_ip_event;                   // IP_EVENT_ETH_GOT_IP seen
+    TickType_t last_state_change;        // last transition
+    TickType_t last_watchdog_run;        // last tick
+    int gateway_fail_count;              // consecutive gateway failures
+    TickType_t last_successful_activity; // last time we saw a successful L2/L3 exchange
+    TickType_t last_gateway_probe;       // last time we probed gateway successfully
 } eth_watchdog_t;
 
 static eth_watchdog_t s_eth_wd = {0};
+
+// Add to eth_watchdog_t
+TickType_t last_successful_activity; // last time we saw a successful L2/L3 exchange
+TickType_t last_gateway_probe;       // last time we probed gateway successfully
 
 // Forward declarations
 static void eth_watchdog_tick(void);
@@ -58,25 +64,46 @@ static void eth_watchdog_force_restart(const char *reason)
 {
     ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
 
+    // Try software stop/start first using eth_get_handle()
     esp_eth_handle_t h = eth_get_handle();
-    if (!h)
+    if (h)
     {
-        ESP_LOGE(TAG, "ETH-WD: eth_get_handle() returned NULL");
-        return;
+        esp_err_t e = esp_eth_stop(h);
+        if (e != ESP_OK)
+            ESP_LOGW(TAG, "ETH-WD: esp_eth_stop failed: %s", esp_err_to_name(e));
+        vTaskDelay(pdMS_TO_TICKS(ETH_WD_FORCE_RESTART_DELAY_MS));
+        e = esp_eth_start(h);
+        if (e == ESP_OK)
+        {
+            ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
+            s_eth_wd.link_up_event = false;
+            s_eth_wd.has_ip_event = false;
+            s_eth_wd.gateway_fail_count = 0;
+            s_eth_wd.last_state_change = xTaskGetTickCount();
+            return;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "ETH-WD: esp_eth_start failed: %s; falling back to hardware reset", esp_err_to_name(e));
+        }
+    }
+    else
+    {
+        ESP_LOGW(TAG, "ETH-WD: eth_get_handle() returned NULL; will attempt hardware reset");
     }
 
-    esp_err_t e = esp_eth_stop(h);
-    if (e != ESP_OK)
-        ESP_LOGW(TAG, "ETH-WD: esp_eth_stop failed: %s", esp_err_to_name(e));
-
-    vTaskDelay(pdMS_TO_TICKS(ETH_WD_FORCE_RESTART_DELAY_MS));
-
-    e = esp_eth_start(h);
-    if (e != ESP_OK)
-        ESP_LOGE(TAG, "ETH-WD: esp_eth_start failed: %s", esp_err_to_name(e));
+    // Fallback: perform guarded hardware reset (if available)
+    esp_err_t hr = eth_hardware_reset();
+    if (hr == ESP_OK)
+    {
+        ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
+    }
     else
-        ESP_LOGI(TAG, "ETH-WD: restart complete");
+    {
+        ESP_LOGE(TAG, "ETH-WD: hardware reset failed: %s", esp_err_to_name(hr));
+    }
 
+    // Reset watchdog state regardless
     s_eth_wd.link_up_event = false;
     s_eth_wd.has_ip_event = false;
     s_eth_wd.gateway_fail_count = 0;
@@ -92,7 +119,6 @@ static bool eth_watchdog_gateway_reachable(void)
     esp_netif_ip_info_t ip;
     if (esp_netif_get_ip_info(eth, &ip) != ESP_OK)
         return false;
-
     if (ip.gw.addr == 0)
         return false;
 
@@ -105,16 +131,20 @@ static bool eth_watchdog_gateway_reachable(void)
         .sin_port = htons(80),
         .sin_addr.s_addr = ip.gw.addr};
 
-    struct timeval tv = {
-        .tv_sec = 0,
-        .tv_usec = 1000};
-
+    struct timeval tv = {.tv_sec = 0, .tv_usec = 1000}; // 1 ms
     setsockopt(s, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
 
     int r = connect(s, (struct sockaddr *)&sa, sizeof(sa));
     close(s);
 
-    return (r == 0 || errno == EINPROGRESS);
+    bool ok = (r == 0 || errno == EINPROGRESS);
+    if (ok)
+    {
+        s_eth_wd.last_gateway_probe = xTaskGetTickCount();
+        // Also treat gateway reachability as activity
+        s_eth_wd.last_successful_activity = s_eth_wd.last_gateway_probe;
+    }
+    return ok;
 }
 
 static void eth_watchdog_tick(void)
@@ -124,12 +154,10 @@ static void eth_watchdog_tick(void)
     if (s_eth_wd.last_watchdog_run != 0 &&
         (now - s_eth_wd.last_watchdog_run) < pdMS_TO_TICKS(ETH_WD_PERIOD_MS))
         return;
-
     s_eth_wd.last_watchdog_run = now;
 
     if (!s_eth_wd.enabled_cfg)
         return;
-
     if (!s_eth_wd.link_up_event)
         return;
 
@@ -143,7 +171,7 @@ static void eth_watchdog_tick(void)
 
     bool has_ip_now = (ip.ip.addr != 0);
 
-    // Case 1: link up but no IP for too long
+    // 1) Link up but no IP for too long
     if (!has_ip_now)
     {
         if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_IP_TIMEOUT_MS))
@@ -153,22 +181,75 @@ static void eth_watchdog_tick(void)
         return;
     }
 
-    // Case 2: IP present but gateway unreachable repeatedly
+    // 2) If we have IP, but no successful activity for a while -> restart
+    if (s_eth_wd.last_successful_activity != 0)
+    {
+        if ((now - s_eth_wd.last_successful_activity) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+        {
+            ESP_LOGW(TAG, "ETH-WD: IP present but no successful activity for %u ms; restarting", ETH_WD_NO_ACTIVITY_TIMEOUT_MS);
+            eth_watchdog_force_restart("ip present but no activity");
+            return;
+        }
+    }
+    else
+    {
+        // No recorded activity yet; allow a short grace window after IP assignment
+        if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+        {
+            ESP_LOGW(TAG, "ETH-WD: IP present but never saw activity; restarting");
+            eth_watchdog_force_restart("ip present but never active");
+            return;
+        }
+    }
+
+    // 3) Gateway unreachable repeated failures (existing logic)
     if (!eth_watchdog_gateway_reachable())
     {
         s_eth_wd.gateway_fail_count++;
         ESP_LOGW(TAG, "ETH-WD: gateway unreachable (%d/%d)",
                  s_eth_wd.gateway_fail_count, ETH_WD_GATEWAY_FAILS_MAX);
-
         if (s_eth_wd.gateway_fail_count >= ETH_WD_GATEWAY_FAILS_MAX)
         {
             eth_watchdog_force_restart("gateway unreachable");
+            return;
         }
     }
     else
     {
         s_eth_wd.gateway_fail_count = 0;
     }
+
+    // 4) Active netif mismatch (existing check)
+    esp_netif_t *active = get_active_netif();
+    if (active != NULL && active != eth)
+    {
+        const TickType_t grace = pdMS_TO_TICKS(15000);
+        if ((now - s_eth_wd.last_state_change) > grace)
+        {
+            ESP_LOGW(TAG, "ETH-WD: eth has IP but is not active netif for >15s; forcing restart");
+            eth_watchdog_force_restart("eth has IP but not active");
+            return;
+        }
+    }
+    else
+    {
+        s_eth_wd.last_state_change = now;
+    }
+
+#if defined(ETH_CMD_G_PHY_LINK)
+    // Optional PHY ioctl sanity check
+    esp_eth_handle_t h = eth_get_handle();
+    if (h)
+    {
+        int link = 0;
+        if (esp_eth_ioctl(h, ETH_CMD_G_PHY_LINK, &link) == ESP_OK && link == 0)
+        {
+            ESP_LOGW(TAG, "ETH-WD: ioctl reports PHY link down despite events; forcing restart");
+            eth_watchdog_force_restart("phy ioctl link down");
+            return;
+        }
+    }
+#endif
 }
 
 void network_manager_notify_config_change(void)
@@ -346,6 +427,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         s_eth_wd.has_ip_event = true;
         s_eth_wd.last_state_change = xTaskGetTickCount();
         s_eth_wd.gateway_fail_count = 0;
+        s_eth_wd.last_successful_activity = xTaskGetTickCount(); // treat IP assignment as activity
 
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
@@ -442,6 +524,7 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         s_eth_wd.link_up_event = false;
         s_eth_wd.has_ip_event = false;
         s_eth_wd.gateway_fail_count = 0;
+        s_eth_wd.last_successful_activity = 0; // clear activity
         s_eth_wd.last_state_change = xTaskGetTickCount();
 
         if (statemachine_mutex &&
@@ -506,6 +589,8 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
         if (wifi_up)
             wifi_led_set_mode(LED_SOLID);
+
+        net_mgr_notify_eth_activity();
 
         break;
     }
@@ -1043,4 +1128,20 @@ bool network_manager_start(void)
     manager_running = true;
     LOGI(TAG, "network_manager_start: started (task=%p)", (void *)network_manager_task_handle);
     return true;
+}
+
+// Call this from other modules when a real network exchange succeeded on Ethernet
+void net_mgr_notify_eth_activity(void)
+{
+    // Only update when Ethernet is enabled in config
+    if (!s_eth_wd.enabled_cfg)
+        return;
+
+    // Only update when we believe Ethernet is the active netif
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!eth)
+        return;
+
+    // Update timestamp
+    s_eth_wd.last_successful_activity = xTaskGetTickCount();
 }

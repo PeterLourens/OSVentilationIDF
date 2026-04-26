@@ -5,9 +5,8 @@
 */
 
 #include "general.h"
-#include "esp_log_level.h"
 
-static const char *TAG = "General";
+static const char *TAG = "general";
 
 const char *state_nr_to_str(state_nr_t state)
 {
@@ -467,39 +466,38 @@ void set_log_levels(void)
     esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
 
     // Custom TAG sttings
-    esp_log_level_set("Config", ESP_LOG_INFO);
+    esp_log_level_set("config", ESP_LOG_INFO);
     esp_log_level_set("DS3231", ESP_LOG_INFO);
-    esp_log_level_set("Eth_func", ESP_LOG_INFO);
-    esp_log_level_set("Fan_control", ESP_LOG_INFO);
-    esp_log_level_set("General", ESP_LOG_INFO);
+    esp_log_level_set("fan_control", ESP_LOG_INFO);
+    esp_log_level_set("general", ESP_LOG_INFO);
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
-    esp_log_level_set("I2C_DS3231", ESP_LOG_INFO);
+    esp_log_level_set("i2c_DS3231", ESP_LOG_INFO);
     esp_log_level_set("i2c_functions", ESP_LOG_INFO);
     esp_log_level_set("i2c_LCD", ESP_LOG_INFO);
     esp_log_level_set("i2c_sensors", ESP_LOG_INFO);
-    esp_log_level_set("Influxdb", ESP_LOG_INFO);
-    esp_log_level_set("main", ESP_LOG_INFO);
-    esp_log_level_set("MQTT", ESP_LOG_INFO);
-    esp_log_level_set("RGB_LED", ESP_LOG_INFO);
-    esp_log_level_set("SM_helpers", ESP_LOG_INFO);
-    esp_log_level_set("SM", ESP_LOG_INFO);
-    esp_log_level_set("Sys_stats", ESP_LOG_INFO);
-    esp_log_level_set("Syslog", ESP_LOG_INFO);
+    esp_log_level_set("influxdb", ESP_LOG_INFO);
+    esp_log_level_set("main", ESP_LOG_DEBUG);
+    esp_log_level_set("mqtt", ESP_LOG_INFO);
+    esp_log_level_set("mqtt_handlers", ESP_LOG_INFO);
+    esp_log_level_set("rgb_leds", ESP_LOG_INFO);
+    esp_log_level_set("sm_helpers", ESP_LOG_INFO);
+    esp_log_level_set("sm", ESP_LOG_INFO);
+    esp_log_level_set("sys_stats", ESP_LOG_INFO);
+    esp_log_level_set("syslog", ESP_LOG_INFO);
     esp_log_level_set("task_DS3231_sync", ESP_LOG_INFO);
-    esp_log_level_set("task_eth", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_LCD", ESP_LOG_INFO);
     esp_log_level_set("task_i2c_sensors", ESP_LOG_INFO);
     esp_log_level_set("task_influxdb", ESP_LOG_INFO);
-    esp_log_level_set("task_MQTT", ESP_LOG_INFO);
+    esp_log_level_set("task_mqtt", ESP_LOG_INFO);
     esp_log_level_set("task_rgb_leds", ESP_LOG_INFO);
-    esp_log_level_set("task_SM", ESP_LOG_INFO);
+    esp_log_level_set("task_sm", ESP_LOG_INFO);
     esp_log_level_set("task_wifi", ESP_LOG_INFO);
     esp_log_level_set("valve_control", ESP_LOG_INFO);
     esp_log_level_set("wifi_functions", ESP_LOG_INFO);
-    esp_log_level_set("syslog", ESP_LOG_WARN);
     esp_log_level_set("control_valves", ESP_LOG_INFO);
-    esp_log_level_set("Eth_func", ESP_LOG_INFO);
-    esp_log_level_set("task_eth", ESP_LOG_INFO);
+    esp_log_level_set("eth_func", ESP_LOG_DEBUG);
+    esp_log_level_set("task_eth", ESP_LOG_DEBUG);
+    esp_log_level_set("net_mgr", ESP_LOG_DEBUG);
 }
 
 void print_html_file(const char *filepath)

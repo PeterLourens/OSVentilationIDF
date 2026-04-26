@@ -6,7 +6,7 @@
 
 #include "config_files.h"
 
-static const char *TAG = "Config";
+static const char *TAG = "config";
 
 esp_err_t load_sensor_config(const char *config_name)
 {

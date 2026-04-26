@@ -6,7 +6,7 @@
 
 #include "rgb_leds.h"
 
-static const char *TAG = "RGB_LED";
+static const char *TAG = "rgb_leds";
 
 // RGB LED handle
 led_strip_handle_t rgb_leds = NULL;
