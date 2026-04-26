@@ -680,7 +680,7 @@ static void evaluate_config_and_apply(void)
     bool eth_dhcp = true;
     char hostname[64] = {0};
 
-    /* Read config snapshot under network_config_mutex */
+    // Read config snapshot under network_config_mutex
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         wifi_enabled = (strcmp(wifi_config.enable_wifi, "On") == 0);
@@ -712,7 +712,7 @@ static void evaluate_config_and_apply(void)
         LOGW(TAG, "evaluate_config_and_apply: could not take statemachine_mutex to update actuals");
     }
 
-    /* Apply hostname to both netifs if present */
+    // Apply hostname to both netifs if present
     if (hostname[0] != '\0')
     {
         esp_netif_t *n;
@@ -724,7 +724,7 @@ static void evaluate_config_and_apply(void)
             esp_netif_set_hostname(n, hostname);
     }
 
-    /* --- Ethernet handling (initialize/stop/apply config) --- */
+    // Ethernet handling (initialize/stop/apply config)
     if (hw.has_ethernet)
     {
         if (eth_enabled)
@@ -741,23 +741,23 @@ static void evaluate_config_and_apply(void)
         }
     }
 
-    /* --- Wi‑Fi handling (manager decides STA vs AP; no automatic AP fallback inside wifi_functions) --- */
+    // Wi‑Fi handling (manager decides STA vs AP; no automatic AP fallback inside wifi_functions)
     if (!wifi_enabled)
     {
-        /* Wi‑Fi disabled in config: ensure it's stopped */
+        // Wi‑Fi disabled in config: ensure it's stopped and LED off
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
     }
 
-    /* Ensure Wi‑Fi manager is initialized (idempotent) */
+    // Ensure Wi‑Fi manager is initialized (idempotent)
     if (wifi_manager_init() != ESP_OK)
     {
         LOGW(TAG, "evaluate_config_and_apply: wifi_manager_init failed");
         return;
     }
 
-    /* Ensure DHCP client state for Wi‑Fi netif matches config */
+    // Ensure DHCP client state for Wi‑Fi netif matches config
     esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (wifinet)
     {
@@ -775,10 +775,10 @@ static void evaluate_config_and_apply(void)
         }
     }
 
-    /* Decide Wi‑Fi mode based on Ethernet state and credentials.
-       Manager will attempt STA when Ethernet is down and credentials exist.
-       If no credentials and Ethernet is down, manager will start AP.
-       If Ethernet is up, manager will not start STA or AP (Wi‑Fi suppressed). */
+    // Decide Wi‑Fi mode based on Ethernet state and credentials.
+    // Manager will attempt STA when Ethernet is down and credentials exist.
+    // If no credentials and Ethernet is down, manager will start AP.
+    // If Ethernet is up, manager will not start STA or AP (Wi‑Fi suppressed).
 
     // Prefer Ethernet only when it has a valid IP address
     bool eth_has_ip = false;
@@ -802,7 +802,7 @@ static void evaluate_config_and_apply(void)
         return;
     }
 
-    /* At this point Ethernet is down (or not present) and Wi‑Fi is enabled in config */
+    // At this point Ethernet is down (or not present) and Wi‑Fi is enabled in config
     bool have_credentials = false;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
@@ -880,7 +880,7 @@ static void network_manager_task(void *pvParameters)
     evaluate_config_and_apply();
     sys_stats_update_actuals();
 
-    /* DHCP recovery/backoff state */
+    // DHCP recovery/backoff state
     static int dhcp_restart_backoff = 0;
     const int dhcp_backoff_max = 6;    // cap backoff exponent
     const int dhcp_backoff_base_s = 5; // base delay seconds for backoff
@@ -1006,7 +1006,7 @@ static void network_manager_task(void *pvParameters)
 
             if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
             {
-                /* Reset fields we will update */
+                // Reset fields we will update
                 sm_actuals.wifi_connected = false;
                 sm_actuals.eth_connected = false;
                 sm_actuals.wifi_ap_mode = false;
@@ -1047,7 +1047,7 @@ static void network_manager_task(void *pvParameters)
                             snprintf(sm_actuals.eth_dns2, sizeof(sm_actuals.eth_dns2), IPSTR, IP2STR(&dns.ip.u_addr.ip4));
                     }
 
-                    /* If hostname not set by Wi‑Fi, try Ethernet hostname */
+                    // If hostname not set by Wi‑Fi, try Ethernet hostname (they should be the same, but just in case)
                     if (sm_actuals.hostname[0] == '\0')
                     {
                         const char *hn = NULL;
@@ -1070,7 +1070,7 @@ static void network_manager_task(void *pvParameters)
             s_request_syslog_update = true;
         }
 
-        /* Handle deferred MQTT restart request (set by event handlers or apply_active_netif_changes) */
+        // Handle deferred MQTT restart request (set by event handlers or apply_active_netif_changes)
         if (s_request_mqtt_restart)
         {
             s_request_mqtt_restart = false;

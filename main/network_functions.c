@@ -426,21 +426,21 @@ void network_manager_health_check(void)
     static int ping_fail_count = 0;
     const int max_ping_fail = 3;
 
-    /* If no active netif or no IP, try to recover */
+    // If no active netif or no IP, try to recover
     if (!network_has_ip())
     {
         LOGW(TAG, "Health check: no active IP");
 
-        /* If ethernet is configured and present, try to restart it (guarded). */
+        // If ethernet is configured and present, try to restart it (guarded).
         if (hw.has_ethernet && ethernet_config_is_enabled())
         {
             LOGI(TAG, "Attempting Ethernet recovery: guarded restart");
-            /* attempt_guarded_eth_restart() will check link and defer teardown if busy */
+            // attempt_guarded_eth_restart() will check link and defer teardown if busy, and will also trigger Wi‑Fi recovery if Ethernet is not healthy. This is preferred over a blind Wi‑Fi restart when Ethernet is configured, to avoid unnecessary Wi‑Fi disruptions when Ethernet is just slow to recover.
             attempt_guarded_eth_restart();
         }
         else
         {
-            /* Try Wi‑Fi reconnect if Wi‑Fi enabled in config */
+            // Try Wi‑Fi reconnect if Wi‑Fi enabled in config
             if (wifi_manager_is_enabled())
             {
                 LOGI(TAG, "Attempting Wi‑Fi reconnect (init + select mode)");
@@ -459,12 +459,12 @@ void network_manager_health_check(void)
             }
         }
 
-        /* After recovery attempt, force re-evaluation of config and services */
+        // After recovery attempt, force re-evaluation of config and services
         network_manager_request_actuals_update();
         return;
     }
 
-    /* If we have IP, ping gateway to ensure reachability */
+    // If we have IP, ping gateway to ensure reachability
     if (!ping_gateway())
     {
         ping_fail_count++;
@@ -474,7 +474,7 @@ void network_manager_health_check(void)
             LOGE(TAG, "Gateway unreachable repeatedly — restarting network stack");
             ping_fail_count = 0;
 
-            /* Determine active interface and restart appropriately */
+            // Determine active interface and restart appropriately
             esp_netif_t *active = get_active_netif();
 
             if (hw.has_ethernet && active != NULL)
@@ -487,7 +487,7 @@ void network_manager_health_check(void)
                 }
                 else
                 {
-                    /* Active is not Ethernet; try Wi‑Fi recovery */
+                    // Active is not Ethernet; try Wi‑Fi recovery
                     LOGI(TAG, "Active interface is not Ethernet; attempting Wi‑Fi recovery");
                     if (wifi_manager_init() == ESP_OK)
                         select_wifi_mode();
@@ -495,13 +495,13 @@ void network_manager_health_check(void)
             }
             else
             {
-                /* No ethernet or not active: try Wi‑Fi recovery */
+                // No ethernet or not active: try Wi‑Fi recovery
                 LOGI(TAG, "Attempting Wi‑Fi recovery");
                 if (wifi_manager_init() == ESP_OK)
                     select_wifi_mode();
             }
 
-            /* Restart MQTT after network restart attempt */
+            // Restart MQTT after network restart attempt
             MQTT_config_t cfg;
             mqtt_get_config_snapshot(&cfg);
             mqtt_stop();
@@ -511,7 +511,7 @@ void network_manager_health_check(void)
     }
     else
     {
-        /* success: reset counter */
+        // success: reset counter
         ping_fail_count = 0;
     }
 }

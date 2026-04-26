@@ -25,12 +25,12 @@ static esp_eth_netif_glue_handle_t eth_glue = NULL;
 
 static void eth_teardown_locked(void)
 {
-    /* Caller must hold eth_lifecycle_mutex */
-    /* Clear deferred flag and mark shutting down */
+    // Caller must hold eth_lifecycle_mutex
+    // Clear deferred flag and mark shutting down
     s_deferred_eth_teardown = false;
     eth_set_shutting_down(true);
 
-    /* Stop DHCP client (best effort) */
+    // Stop DHCP client (best effort)
     if (eth_netif)
     {
         esp_err_t r = esp_netif_dhcpc_stop(eth_netif);
@@ -38,7 +38,7 @@ static void eth_teardown_locked(void)
             LOGW(TAG, "dhcpc_stop -> %s", esp_err_to_name(r));
     }
 
-    /* Stop driver if running */
+    // Stop driver if running
     if (eth_handle && eth_started)
     {
         esp_err_t r = esp_eth_stop(eth_handle);
@@ -47,7 +47,7 @@ static void eth_teardown_locked(void)
         eth_started = false;
     }
 
-    /* Defensive: remove any GPIO ISR for W5500 interrupt pin (if used) */
+    // Defensive: remove any GPIO ISR for W5500 interrupt pin (if used)
     if (hw.w5500_int_gpio >= 0)
     {
         esp_err_t r = gpio_isr_handler_remove((gpio_num_t)hw.w5500_int_gpio);
@@ -55,7 +55,7 @@ static void eth_teardown_locked(void)
             LOGW(TAG, "gpio_isr_handler_remove(w5500_int) -> %s", esp_err_to_name(r));
     }
 
-    /* Delete glue if present */
+    // Delete glue if present
     if (eth_glue)
     {
         esp_err_t r = esp_eth_del_netif_glue(eth_glue);
@@ -64,7 +64,7 @@ static void eth_teardown_locked(void)
         eth_glue = NULL;
     }
 
-    /* Uninstall driver */
+    // Uninstall driver
     if (eth_handle)
     {
         esp_err_t r = esp_eth_driver_uninstall(eth_handle);
@@ -73,21 +73,18 @@ static void eth_teardown_locked(void)
         eth_handle = NULL;
     }
 
-    /* Clear netif pointer and flags */
+    // Clear netif pointer and flags
     eth_netif = NULL;
     s_eth_initialized = false;
     eth_started = false;
 
     LOGI(TAG, "eth_teardown_locked: complete");
 
-    /* Clear shutting down flag (caller will release mutex) */
+    // Clear shutting down flag (caller will release mutex)
     eth_set_shutting_down(false);
 }
 
-// ---------------------------------------------------------------------------
 // Hardware reset helper for W5500
-// ---------------------------------------------------------------------------
-
 esp_err_t eth_hardware_reset(void)
 {
     // Ensure lifecycle mutex exists
@@ -203,7 +200,7 @@ void eth_teardown_safe(void)
 {
     eth_lifecycle_init_once();
 
-    /* Try to take lifecycle mutex briefly; if busy, mark deferred and return */
+    // Try to take lifecycle mutex briefly; if busy, mark deferred and return
     if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
     {
         LOGW(TAG, "eth_teardown_safe: lifecycle mutex busy; deferring teardown");
@@ -211,10 +208,10 @@ void eth_teardown_safe(void)
         return;
     }
 
-    /* We hold the mutex now; perform locked teardown */
+    // We hold the mutex now; perform locked teardown
     eth_teardown_locked();
 
-    /* Release mutex */
+    // Release mutex
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
@@ -272,7 +269,7 @@ void eth_init(void)
         return;
     }
 
-    /* Reuse or create ETH_DEF netif */
+    // Reuse or create ETH_DEF netif
     esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (existing != NULL)
     {
@@ -292,7 +289,7 @@ void eth_init(void)
         LOGI(TAG, "eth_init: created new ETH_DEF netif %p", (void *)eth_netif);
     }
 
-    /* SPI bus init (idempotent) */
+    // SPI bus init (idempotent)
     spi_bus_config_t buscfg = {
         .miso_io_num = hw.w5500_miso_gpio,
         .mosi_io_num = hw.w5500_mosi_gpio,
@@ -309,7 +306,7 @@ void eth_init(void)
         return;
     }
 
-    /* SPI device config */
+    // SPI device config
     static spi_device_interface_config_t w5500_spi_devcfg = {
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
@@ -318,7 +315,7 @@ void eth_init(void)
     };
     w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
 
-    /* MAC + PHY */
+    // MAC + PHY
     eth_mac_config_t mac_config = ETH_MAC_DEFAULT_CONFIG();
     eth_phy_config_t phy_config = ETH_PHY_DEFAULT_CONFIG();
     if (hw.w5500_rst_gpio >= 0)
@@ -347,7 +344,7 @@ void eth_init(void)
         return;
     }
 
-    /* Install driver */
+    // Install driver with default config (MAC and PHY are already configured)
     esp_eth_config_t eth_config = ETH_DEFAULT_CONFIG(mac, phy);
     err = esp_eth_driver_install(&eth_config, &eth_handle);
     if (err != ESP_OK)
@@ -358,7 +355,7 @@ void eth_init(void)
         return;
     }
 
-    /* Attach netif glue */
+    // Attach netif glue
     eth_glue = esp_eth_new_netif_glue(eth_handle);
     if (eth_glue == NULL)
     {
@@ -389,7 +386,7 @@ void eth_init(void)
     s_eth_initialized = true;
     eth_started = false;
 
-    /* Start DHCP client if configured for DHCP */
+    // Start DHCP client if configured for DHCP
     if (ethernet_config_is_dhcp_enabled())
     {
         esp_err_t d = esp_netif_dhcpc_start(eth_netif);
@@ -430,7 +427,7 @@ bool ethernet_link_is_up(void)
 // Attempt a guarded restart: only restart if link is down, apply backoff and defer teardown if busy.
 void attempt_guarded_eth_restart(void)
 {
-    /* If link/netif appears up, skip restart (DHCP may still be negotiating) */
+    // If link/netif appears up, skip restart (DHCP may still be negotiating)
     if (ethernet_link_is_up())
     {
         LOGI(TAG, "attempt_guarded_eth_restart: link/netif up; skipping restart");
@@ -438,7 +435,7 @@ void attempt_guarded_eth_restart(void)
         return;
     }
 
-    /* Backoff limit to avoid restart storms */
+    // Backoff limit to avoid restart storms
     if (s_eth_restart_attempts >= ETH_RESTART_MAX_ATTEMPTS)
     {
         LOGW(TAG, "attempt_guarded_eth_restart: max attempts reached; delaying longer");
@@ -450,7 +447,7 @@ void attempt_guarded_eth_restart(void)
     s_eth_restart_attempts++;
     LOGI(TAG, "attempt_guarded_eth_restart: attempt %d/%d", s_eth_restart_attempts, ETH_RESTART_MAX_ATTEMPTS);
 
-    /* Try teardown; eth_teardown_safe() will set s_deferred_eth_teardown if it cannot take the mutex */
+    // Try teardown; eth_teardown_safe() will set s_deferred_eth_teardown if it cannot take the mutex
     eth_teardown_safe();
 
     if (s_deferred_eth_teardown)
@@ -459,15 +456,15 @@ void attempt_guarded_eth_restart(void)
         return;
     }
 
-    /* Small settle delay */
+    // Small settle delay before reinit to allow any pending events to clear and avoid tight restart loops
     vTaskDelay(pdMS_TO_TICKS(200));
 
-    /* Reinitialize and start */
+    // Reinitialize and start
     eth_init();
     vTaskDelay(pdMS_TO_TICKS(200));
     eth_start();
 
-    /* Allow link/IP to settle a bit */
+    // Allow link/IP to settle a bit before any further attempts
     vTaskDelay(ETH_RESTART_BACKOFF_TICKS);
 }
 
@@ -488,7 +485,7 @@ void handle_deferred_eth_teardown_if_needed(void)
         return;
     }
 
-    /* Clear deferred flag and perform locked teardown */
+    // Clear deferred flag and perform locked teardown
     s_deferred_eth_teardown = false;
     eth_teardown_locked();
 
@@ -583,7 +580,7 @@ void eth_stop(void)
 
     LOGI(TAG, "eth_stop: tearing down Ethernet safely");
 
-    /* We already hold the mutex, call locked teardown directly */
+    // We already hold the mutex, call locked teardown directly
     eth_teardown_locked();
 
     LOGI(TAG, "eth_stop: teardown complete");
@@ -690,12 +687,6 @@ esp_err_t ethernet_config_apply(void)
         LOGE(TAG, "Invalid static IP configuration; not applying");
         return ESP_ERR_INVALID_ARG;
     }
-
-    // esp_err_t err = esp_netif_dhcpc_stop(eth_netif);
-    // if (err != ESP_OK && err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
-    //{
-    //  LOGW(TAG, "esp_netif_dhcpc_stop returned %s", esp_err_to_name(err));
-    //}
 
     esp_netif_ip_info_t ip_info;
     memset(&ip_info, 0, sizeof(ip_info));
