@@ -36,10 +36,18 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 
 void app_main(void)
 {
+    esp_reset_reason_t reason = esp_reset_reason();
+    ESP_LOGI("boot", "Reset reason: %d", reason);
+    // Optionally print more human-friendly:
+    // ESP_LOGI("boot", "Reset reason string: %s", esp_reset_reason_to_name(reason));
+
     esp_err_t err = ESP_OK;
 
     // Initialize hardware capabilities based on hardware version defined in hardware_caps.c
     hw_init();
+
+    // Start UART sender task early so we can log from the start (including hw_init)
+    start_task_uart_sender();
 
     // Initialize lifecycle mutex for Ethernet operations
     eth_lifecycle_init_once();

@@ -62,7 +62,25 @@ static bool eth_watchdog_gateway_reachable(void);
 
 static void eth_watchdog_force_restart(const char *reason)
 {
+    static int software_fail_count = 0;
+    static TickType_t last_attempt_tick = 0;
+
     ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
+
+    // Optional: decay the failure counter if last attempt was long ago.
+    // Uncomment if you want the counter to slowly reset after inactivity.
+#if 1
+    if (last_attempt_tick != 0)
+    {
+        TickType_t now = xTaskGetTickCount();
+        if ((now - last_attempt_tick) > pdMS_TO_TICKS(SOFTWARE_RESTART_DECAY_MS))
+        {
+            software_fail_count = 0;
+        }
+    }
+#endif
+
+    last_attempt_tick = xTaskGetTickCount();
 
     // Try software stop/start first using eth_get_handle()
     esp_eth_handle_t h = eth_get_handle();
@@ -70,27 +88,49 @@ static void eth_watchdog_force_restart(const char *reason)
     {
         esp_err_t e = esp_eth_stop(h);
         if (e != ESP_OK)
+        {
             ESP_LOGW(TAG, "ETH-WD: esp_eth_stop failed: %s", esp_err_to_name(e));
+        }
+
         vTaskDelay(pdMS_TO_TICKS(ETH_WD_FORCE_RESTART_DELAY_MS));
+
         e = esp_eth_start(h);
         if (e == ESP_OK)
         {
             ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
+            // reset watchdog state and software failure counter
             s_eth_wd.link_up_event = false;
             s_eth_wd.has_ip_event = false;
             s_eth_wd.gateway_fail_count = 0;
             s_eth_wd.last_state_change = xTaskGetTickCount();
+            software_fail_count = 0;
+            last_attempt_tick = 0;
             return;
         }
         else
         {
-            ESP_LOGW(TAG, "ETH-WD: esp_eth_start failed: %s; falling back to hardware reset", esp_err_to_name(e));
+            ESP_LOGW(TAG, "ETH-WD: esp_eth_start failed: %s", esp_err_to_name(e));
+            software_fail_count++;
+            ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
         }
     }
     else
     {
-        ESP_LOGW(TAG, "ETH-WD: eth_get_handle() returned NULL; will attempt hardware reset");
+        ESP_LOGW(TAG, "ETH-WD: eth_get_handle() returned NULL; will attempt hardware reset if threshold reached");
+        // Count this as a failure toward the hardware-reset threshold
+        software_fail_count++;
+        ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
     }
+
+    // Only perform hardware reset after N consecutive software failures
+    if (software_fail_count < SOFTWARE_RESTART_MAX_ATTEMPTS)
+    {
+        ESP_LOGW(TAG, "ETH-WD: not yet at hardware reset threshold (%d/%d); deferring hardware reset", software_fail_count, SOFTWARE_RESTART_MAX_ATTEMPTS);
+        // leave watchdog state as-is so subsequent calls can retry
+        return;
+    }
+
+    ESP_LOGW(TAG, "ETH-WD: reached %d software failures; performing hardware reset", SOFTWARE_RESTART_MAX_ATTEMPTS);
 
     // Fallback: perform guarded hardware reset (if available)
     esp_err_t hr = eth_hardware_reset();
@@ -103,11 +143,13 @@ static void eth_watchdog_force_restart(const char *reason)
         ESP_LOGE(TAG, "ETH-WD: hardware reset failed: %s", esp_err_to_name(hr));
     }
 
-    // Reset watchdog state regardless
+    // Reset watchdog state and failure counter after hardware reset
     s_eth_wd.link_up_event = false;
     s_eth_wd.has_ip_event = false;
     s_eth_wd.gateway_fail_count = 0;
     s_eth_wd.last_state_change = xTaskGetTickCount();
+    software_fail_count = 0;
+    last_attempt_tick = 0;
 }
 
 static bool eth_watchdog_gateway_reachable(void)
@@ -206,8 +248,8 @@ static void eth_watchdog_tick(void)
     if (!eth_watchdog_gateway_reachable())
     {
         s_eth_wd.gateway_fail_count++;
-        ESP_LOGW(TAG, "ETH-WD: gateway unreachable (%d/%d)",
-                 s_eth_wd.gateway_fail_count, ETH_WD_GATEWAY_FAILS_MAX);
+        LOGW(TAG, "ETH-WD: gateway unreachable (%d/%d)",
+             s_eth_wd.gateway_fail_count, ETH_WD_GATEWAY_FAILS_MAX);
         if (s_eth_wd.gateway_fail_count >= ETH_WD_GATEWAY_FAILS_MAX)
         {
             eth_watchdog_force_restart("gateway unreachable");
@@ -226,7 +268,7 @@ static void eth_watchdog_tick(void)
         const TickType_t grace = pdMS_TO_TICKS(15000);
         if ((now - s_eth_wd.last_state_change) > grace)
         {
-            ESP_LOGW(TAG, "ETH-WD: eth has IP but is not active netif for >15s; forcing restart");
+            LOGW(TAG, "ETH-WD: eth has IP but is not active netif for >15s; forcing restart");
             eth_watchdog_force_restart("eth has IP but not active");
             return;
         }
@@ -244,7 +286,7 @@ static void eth_watchdog_tick(void)
         int link = 0;
         if (esp_eth_ioctl(h, ETH_CMD_G_PHY_LINK, &link) == ESP_OK && link == 0)
         {
-            ESP_LOGW(TAG, "ETH-WD: ioctl reports PHY link down despite events; forcing restart");
+            LOGW(TAG, "ETH-WD: ioctl reports PHY link down despite events; forcing restart");
             eth_watchdog_force_restart("phy ioctl link down");
             return;
         }

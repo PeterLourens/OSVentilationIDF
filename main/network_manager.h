@@ -16,6 +16,9 @@
 #define ETH_WD_NO_ACTIVITY_TIMEOUT_MS 30000 // 30s without any successful activity -> restart
 #define ETH_WD_ACTIVITY_GRACE_MS 5000       // 5s grace after events before considering stale
 
+#define SOFTWARE_RESTART_MAX_ATTEMPTS 5
+#define SOFTWARE_RESTART_DECAY_MS (60 * 1000) /* optional: decay counter after 60s */
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <esp_err.h>

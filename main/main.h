@@ -30,6 +30,7 @@
 #include "eth_functions.h"
 #include "network_manager.h"
 #include "task_sys_stats.h"
+#include "task_uart_sender.h"
 
 #define PROJECT_LOG_LEVEL ESP_LOG_INFO
 

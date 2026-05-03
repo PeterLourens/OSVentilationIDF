@@ -124,6 +124,7 @@ extern TaskHandle_t network_manager_task_handle;
 extern TaskHandle_t task_pushbutton;
 extern TaskHandle_t task_sys_stats;
 extern TaskHandle_t task_syslog;
+extern TaskHandle_t task_uart_sender;
 
 // Sensor readings queue
 extern QueueHandle_t sensor_queue;

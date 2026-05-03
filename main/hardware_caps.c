@@ -29,6 +29,9 @@ static const hw_caps_t hw_v2 = {
     .w5500_int_gpio = -1,
     .w5500_rst_gpio = -1,
 
+    .uart0_tx_gpio = -1,
+    .uart0_rx_gpio = -1,
+
     .clockpin1 = 11,
     .latchpin1 = 12,
     .datapin1 = 13,
@@ -62,6 +65,9 @@ static const hw_caps_t hw_v3 = {
     .w5500_cs_gpio = 10,
     .w5500_int_gpio = 9,
     .w5500_rst_gpio = 8,
+
+    .uart0_tx_gpio = 37,
+    .uart0_rx_gpio = 36,
 
     .clockpin1 = 1,
     .latchpin1 = 2,

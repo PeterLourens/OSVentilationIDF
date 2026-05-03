@@ -134,7 +134,7 @@ void start_task_pushbutton(void)
         return;
     }
 
-    task_pushbutton = xTaskCreateStatic(task_pushbutton_code, "pushbtn", pushbutton_stack_size, NULL, 5, pushbutton_stack, &pushbutton_tcb);
+    task_pushbutton = xTaskCreateStatic(task_pushbutton_code, "pushbtn", pushbutton_stack_size, NULL, 9, pushbutton_stack, &pushbutton_tcb);
     if (!task_pushbutton)
         LOGE(TAG, "Failed to create pushbutton task");
     else

@@ -36,6 +36,10 @@ typedef struct
     int w5500_int_gpio;
     int w5500_rst_gpio;
 
+    // UART0 hardware configuration
+    int uart0_tx_gpio;
+    int uart0_rx_gpio;
+
     // 74595 pins circuit 1
     int clockpin1;
     int latchpin1;
