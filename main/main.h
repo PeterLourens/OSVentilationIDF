@@ -7,7 +7,6 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-// #include "globals.h"
 #include "general.h"
 #include "config_files.h"
 #include "i2c_functions.h"

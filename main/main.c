@@ -38,16 +38,22 @@ void app_main(void)
 {
     esp_reset_reason_t reason = esp_reset_reason();
     ESP_LOGI("boot", "Reset reason: %d", reason);
-    // Optionally print more human-friendly:
-    // ESP_LOGI("boot", "Reset reason string: %s", esp_reset_reason_to_name(reason));
+    ESP_LOGI("boot", "Printing saved backtrace (if any):");
+    // esp_backtrace_print(ESP_LOG_INFO);
+
+    // dump task list and free heap
+    char tbuf[1024];
+    vTaskList(tbuf);
+    ESP_LOGI("boot", "Task list:\n%s", tbuf);
+    ESP_LOGI("boot", "Free heap: %u", esp_get_free_heap_size());
+
+    UBaseType_t high = uxTaskGetStackHighWaterMark(NULL);
+    ESP_LOGI("boot", "Main task stack high water mark: %u", (unsigned)high);
 
     esp_err_t err = ESP_OK;
 
     // Initialize hardware capabilities based on hardware version defined in hardware_caps.c
     hw_init();
-
-    // Start UART sender task early so we can log from the start (including hw_init)
-    start_task_uart_sender();
 
     // Initialize lifecycle mutex for Ethernet operations
     eth_lifecycle_init_once();
@@ -126,6 +132,9 @@ void app_main(void)
         LOGE(TAG, "Failed to load bus 1 sensor configuration");
         return;
     }
+
+    // Start UART sender task early so we can log from the start (including hw_init)
+    start_task_uart_sender();
 
     // Load wifi configuration
     err = load_wifi_config();
@@ -241,8 +250,8 @@ void app_main(void)
     // Initialize sensors based on current configuration
     reload_and_init_sensors();
 
-    esp_log_set_vprintf(uart_log_output);
-    LOGI(TAG, "System startup, logs go to UART");
+    esp_log_set_vprintf(uart_log_vprintf);
+    LOGI(TAG, "System startup, logs go to UART1");
 
     while (1)
     {

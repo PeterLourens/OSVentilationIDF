@@ -20,7 +20,7 @@
 
 // Configuration
 #ifndef SENDER_UART_NUM
-#define SENDER_UART_NUM UART_NUM_0
+#define SENDER_UART_NUM UART_NUM_1
 #endif
 
 #ifndef SENDER_UART_BAUD
@@ -28,22 +28,33 @@
 #endif
 
 #ifndef SENDER_UART_RX_BUF_SIZE
-#define SENDER_UART_RX_BUF_SIZE 256 /* must be > UART HW FIFO (128 on many chips) */
+#define SENDER_UART_RX_BUF_SIZE 256 // must be > UART HW FIFO (128 on many chips)
 #endif
 
 #ifndef SENDER_TX_BUF_SIZE
-#define SENDER_TX_BUF_SIZE 2048
+#define SENDER_TX_BUF_SIZE 2048 // must be >= max line length to avoid truncation; increased for safety
 #endif
 
-/* Queue settings */
-#define UART_SENDER_QUEUE_LEN 32 /* number of pending messages */
-#define UART_SENDER_MAX_LINE 512 /* max bytes per line (including CRLF) */
+// Queue settings
+#define UART_SENDER_QUEUE_LEN 128 // increased for log redirection
+#define UART_SENDER_MAX_LINE 512  // max bytes per line (including CRLF)
 
-/* Static task storage for the user-visible task */
-#define UART_SENDER_STACK_WORDS 4096
+// Static task storage for the user-visible task
+#ifndef UART_SENDER_STACK_WORDS
+#define UART_SENDER_STACK_WORDS 2048
+#endif
+
+/* Fixed buffer pool configuration */
+#ifndef UART_POOL_COUNT
+#define UART_POOL_COUNT 64 // increased for log redirection
+#endif
+#ifndef UART_POOL_BUF_SIZE
+#define UART_POOL_BUF_SIZE 512
+#endif
 
 // function declarations
 void uart_sender_sendf(const char *fmt, ...);
+int uart_log_vprintf(const char *fmt, va_list args);
 void start_task_uart_sender(void);
 void task_uart_sender_code(void *pvParameters);
 

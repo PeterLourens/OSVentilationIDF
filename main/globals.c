@@ -59,6 +59,7 @@ TaskHandle_t task_pushbutton = NULL;
 TaskHandle_t task_sys_stats = NULL;
 TaskHandle_t task_syslog = NULL;
 TaskHandle_t task_uart_sender = NULL;
+TaskHandle_t task_uart_tx_sender = NULL;
 
 // Mutex handles
 SemaphoreHandle_t network_config_mutex = NULL;
