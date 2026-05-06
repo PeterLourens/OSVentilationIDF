@@ -139,17 +139,38 @@ int uart_log_vprintf(const char *fmt, va_list args)
     char *parsed_msg = buf;
     int parsed_len = n;
 
+    // Skip ANSI escape codes at the beginning
+    char *start = buf;
+    while (start < buf + n && *start == '\033')
+    {
+        char *m = strchr(start, 'm');
+        if (m)
+        {
+            start = m + 1;
+        }
+        else
+        {
+            break;
+        }
+    }
+
     // ESP-IDF format: "L (timestamp) tag: message"
-    if (n > 0 && buf[0] >= 'A' && buf[0] <= 'Z' && buf[1] == ' ' && buf[2] == '(')
+    if (start < buf + n && *start >= 'A' && *start <= 'Z' && start[1] == ' ' && start[2] == '(')
     {
         // Find the closing ) after timestamp
-        char *close_paren = strchr(buf + 2, ')');
+        char *close_paren = strchr(start + 2, ')');
         if (close_paren && close_paren[1] == ' ')
         {
             // Skip "L (timestamp) " and keep "tag: message"
             parsed_msg = close_paren + 2;
             parsed_len = n - (parsed_msg - buf);
         }
+    }
+    else
+    {
+        // Not a standard ESP-IDF log, use the message after skipping ANSI codes
+        parsed_msg = start;
+        parsed_len = n - (start - buf);
     }
 
     // Skip if message is empty or just whitespace/newlines
