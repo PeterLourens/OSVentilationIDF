@@ -135,31 +135,31 @@ int uart_log_vprintf(const char *fmt, va_list args)
         fflush(stdout);
     }
 
-    /* Parse ESP-IDF log format and extract tag:message without timestamp */
+    // Parse ESP-IDF log format and extract tag:message without timestamp
     char *parsed_msg = buf;
     int parsed_len = n;
 
-    /* ESP-IDF format: "L (timestamp) tag: message" */
+    // ESP-IDF format: "L (timestamp) tag: message"
     if (n > 0 && buf[0] >= 'A' && buf[0] <= 'Z' && buf[1] == ' ' && buf[2] == '(')
     {
-        /* Find the closing ) after timestamp */
+        // Find the closing ) after timestamp
         char *close_paren = strchr(buf + 2, ')');
         if (close_paren && close_paren[1] == ' ')
         {
-            /* Skip "L (timestamp) " and keep "tag: message" */
+            // Skip "L (timestamp) " and keep "tag: message"
             parsed_msg = close_paren + 2;
             parsed_len = n - (parsed_msg - buf);
         }
     }
 
-    /* Skip if message is empty or just whitespace/newlines */
+    // Skip if message is empty or just whitespace/newlines
     if (parsed_len <= 1 || (parsed_len == 2 && parsed_msg[0] == '\r' && parsed_msg[1] == '\n'))
     {
         uart_pool_free(buf);
-        return n; /* Return original length for ESP-IDF */
+        return n; // Return original length for ESP-IDF
     }
 
-    /* Trim trailing whitespace/newlines */
+    // Trim trailing whitespace/newlines
     while (parsed_len > 0 && (parsed_msg[parsed_len - 1] == '\n' || parsed_msg[parsed_len - 1] == '\r' || parsed_msg[parsed_len - 1] == ' '))
     {
         parsed_len--;
@@ -171,11 +171,11 @@ int uart_log_vprintf(const char *fmt, va_list args)
         return n;
     }
 
-    /* Copy parsed message back to buffer */
+    // Copy parsed message back to buffer
     memmove(buf, parsed_msg, parsed_len);
     buf[parsed_len] = '\0';
 
-    /* Add CRLF for UART */
+    // Add CRLF for UART
     if (parsed_len + 2 < UART_POOL_BUF_SIZE)
     {
         buf[parsed_len++] = '\r';
