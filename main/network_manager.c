@@ -18,6 +18,7 @@ typedef struct
     int gateway_fail_count;              // consecutive gateway failures
     TickType_t last_successful_activity; // last time we saw a successful L2/L3 exchange
     TickType_t last_gateway_probe;       // last time we probed gateway successfully
+    TickType_t last_restart_time;        // last time watchdog performed a restart (for grace period)
 } eth_watchdog_t;
 
 static eth_watchdog_t s_eth_wd = {0};
@@ -103,6 +104,7 @@ static void eth_watchdog_force_restart(const char *reason)
             s_eth_wd.has_ip_event = false;
             s_eth_wd.gateway_fail_count = 0;
             s_eth_wd.last_state_change = xTaskGetTickCount();
+            s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
             software_fail_count = 0;
             last_attempt_tick = 0;
             return;
@@ -148,6 +150,7 @@ static void eth_watchdog_force_restart(const char *reason)
     s_eth_wd.has_ip_event = false;
     s_eth_wd.gateway_fail_count = 0;
     s_eth_wd.last_state_change = xTaskGetTickCount();
+    s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
     software_fail_count = 0;
     last_attempt_tick = 0;
 }
@@ -216,31 +219,49 @@ static void eth_watchdog_tick(void)
     // 1) Link up but no IP for too long
     if (!has_ip_now)
     {
-        if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_IP_TIMEOUT_MS))
+        // Check if we're still in the grace period after a restart (be patient with DHCP)
+        bool in_grace_period = (s_eth_wd.last_restart_time != 0 &&
+                                (now - s_eth_wd.last_restart_time) < pdMS_TO_TICKS(ETH_WD_RESTART_GRACE_MS));
+
+        TickType_t timeout_ms = in_grace_period ? ETH_WD_RESTART_GRACE_MS : ETH_WD_NO_IP_TIMEOUT_MS;
+
+        if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(timeout_ms))
         {
+            if (in_grace_period)
+            {
+                ESP_LOGW(TAG, "ETH-WD: link up but no IP for %u ms (still in grace period; threshold=%u ms)",
+                         pdTICKS_TO_MS(now - s_eth_wd.last_state_change), timeout_ms);
+            }
             eth_watchdog_force_restart("link up but no IP");
         }
         return;
     }
 
     // 2) If we have IP, but no successful activity for a while -> restart
-    if (s_eth_wd.last_successful_activity != 0)
+    // (Skip this check during restart grace period to allow services to settle)
+    bool in_grace_period = (s_eth_wd.last_restart_time != 0 &&
+                            (now - s_eth_wd.last_restart_time) < pdMS_TO_TICKS(ETH_WD_RESTART_GRACE_MS));
+
+    if (!in_grace_period)
     {
-        if ((now - s_eth_wd.last_successful_activity) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+        if (s_eth_wd.last_successful_activity != 0)
         {
-            ESP_LOGW(TAG, "ETH-WD: IP present but no successful activity for %u ms; restarting", ETH_WD_NO_ACTIVITY_TIMEOUT_MS);
-            eth_watchdog_force_restart("ip present but no activity");
-            return;
+            if ((now - s_eth_wd.last_successful_activity) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+            {
+                ESP_LOGW(TAG, "ETH-WD: IP present but no successful activity for %u ms; restarting", ETH_WD_NO_ACTIVITY_TIMEOUT_MS);
+                eth_watchdog_force_restart("ip present but no activity");
+                return;
+            }
         }
-    }
-    else
-    {
-        // No recorded activity yet; allow a short grace window after IP assignment
-        if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+        else
         {
-            ESP_LOGW(TAG, "ETH-WD: IP present but never saw activity; restarting");
-            eth_watchdog_force_restart("ip present but never active");
-            return;
+            // No recorded activity yet; allow a short grace window after IP assignment
+            if ((now - s_eth_wd.last_state_change) > pdMS_TO_TICKS(ETH_WD_NO_ACTIVITY_TIMEOUT_MS))
+            {
+                ESP_LOGW(TAG, "ETH-WD: IP present but never saw activity; restarting");
+                eth_watchdog_force_restart("ip present but never active");
+                return;
+            }
         }
     }
 

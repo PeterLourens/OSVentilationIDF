@@ -7,14 +7,15 @@
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 
-#define ETH_WD_PERIOD_MS 5000            // watchdog tick interval
-#define ETH_WD_NO_IP_TIMEOUT_MS 30000    // link up but no IP
-#define ETH_WD_GATEWAY_FAILS_MAX 6       // 6 × 5s = 30s
-#define ETH_WD_FORCE_RESTART_DELAY_MS 50 // small delay between stop/start
+#define ETH_WD_PERIOD_MS 5000             // watchdog tick interval
+#define ETH_WD_NO_IP_TIMEOUT_MS 60000     // link up but no IP (increased: DHCP needs time after restart)
+#define ETH_WD_GATEWAY_FAILS_MAX 6        // 6 × 5s = 30s
+#define ETH_WD_FORCE_RESTART_DELAY_MS 500 // delay between stop/start (increased from 50ms)
 
 // Thresholds
-#define ETH_WD_NO_ACTIVITY_TIMEOUT_MS 30000 // 30s without any successful activity -> restart
+#define ETH_WD_NO_ACTIVITY_TIMEOUT_MS 45000 // 45s without any successful activity -> restart (increased from 30s)
 #define ETH_WD_ACTIVITY_GRACE_MS 5000       // 5s grace after events before considering stale
+#define ETH_WD_RESTART_GRACE_MS 120000      // 120s grace period after restart before aggressive timeouts (new)
 
 #define SOFTWARE_RESTART_MAX_ATTEMPTS 5
 #define SOFTWARE_RESTART_DECAY_MS (60 * 1000) /* optional: decay counter after 60s */
