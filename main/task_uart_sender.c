@@ -33,17 +33,19 @@ static void uart_tx_task(void *pvParameters);
 static void uart_pool_init(void);
 static char *uart_pool_alloc(void);
 static void uart_pool_free(char *buf);
-int uart_log_vprintf(const char *fmt, va_list args);
-void task_uart_sender_code(void *pvParameters);
-void start_task_uart_sender(void);
 
-/* Diagnostics accessors */
-size_t uart_sender_get_dropped_count(void) { return uart_sender_dropped_msgs; }
-size_t uart_sender_get_pool_exhaust_count(void) { return uart_sender_pool_exhaust; }
+// Diagnostics accessors
+size_t uart_sender_get_dropped_count(void)
+{
+    return uart_sender_dropped_msgs;
+}
 
-// Initialize UART0 using pins from hw
+size_t uart_sender_get_pool_exhaust_count(void)
+{
+    return uart_sender_pool_exhaust;
+}
 
-/* Initialize pool free list; must be called before using pool */
+// Initialize pool free list; must be called before using pool
 static void uart_pool_init(void)
 {
     if (uart_pool_lock == NULL)
@@ -65,7 +67,7 @@ static void uart_pool_init(void)
     xSemaphoreGive(uart_pool_lock);
 }
 
-/* Non-blocking allocate: returns pointer to buffer or NULL if none available */
+// Non-blocking allocate: returns pointer to buffer or NULL if none available
 static char *uart_pool_alloc(void)
 {
     char *ret = NULL;
@@ -84,13 +86,13 @@ static char *uart_pool_alloc(void)
     return ret;
 }
 
-/* Free buffer previously allocated from pool */
+// Free buffer previously allocated from pool
 static void uart_pool_free(char *buf)
 {
     if (buf == NULL || uart_pool_lock == NULL)
         return;
 
-    /* compute index */
+    // compute index
     ptrdiff_t offset = buf - (char *)uart_pool_buf;
     if (offset < 0)
         return;
@@ -110,7 +112,7 @@ int uart_log_vprintf(const char *fmt, va_list args)
     if (uart_tx_queue == NULL)
         return 0;
 
-    /* Allocate buffer from pool (non-blocking) */
+    // Allocate buffer from pool (non-blocking)
     char *buf = uart_pool_alloc();
     if (!buf)
         return 0;
@@ -128,7 +130,7 @@ int uart_log_vprintf(const char *fmt, va_list args)
         buf[n] = '\0';
     }
 
-    /* Keep the original log output on the JTAG/serial monitor */
+    // Keep the original log output on the JTAG/serial monitor
     if (n > 0)
     {
         fwrite(buf, 1, n, stdout);
@@ -204,7 +206,7 @@ int uart_log_vprintf(const char *fmt, va_list args)
         buf[parsed_len] = '\0';
     }
 
-    /* Enqueue pointer; non-blocking */
+    // Enqueue pointer; non-blocking
     BaseType_t ok = xQueueSend(uart_tx_queue, &buf, 0);
     if (ok != pdTRUE)
     {
@@ -215,7 +217,7 @@ int uart_log_vprintf(const char *fmt, va_list args)
     return n;
 }
 
-/* -------------------- Hardware init -------------------- */
+// -------------------- Hardware init -------------------- //
 static esp_err_t uart_sender_hw_init(void)
 {
     ESP_LOGI(TAG, "hw_init: start");
@@ -237,7 +239,7 @@ static esp_err_t uart_sender_hw_init(void)
 
     ESP_LOGI(TAG, "uart_sender_hw_init: configuring UART%d (TX=%d RX=%d) @%d", SENDER_UART_NUM, hw.uart0_tx_gpio, hw.uart0_rx_gpio, SENDER_UART_BAUD);
 
-    /* Configure UART parameters first (safe to call before driver install) */
+    // Configure UART parameters first (safe to call before driver install)
     esp_err_t err = uart_param_config(SENDER_UART_NUM, &uart_config);
     if (err != ESP_OK)
     {
@@ -245,7 +247,7 @@ static esp_err_t uart_sender_hw_init(void)
         return err;
     }
 
-    /* Set pins (use GPIO numbers, not physical pad indices) */
+    // Set pins (use GPIO numbers, not physical pad indices)
     err = uart_set_pin(SENDER_UART_NUM, hw.uart0_tx_gpio, hw.uart0_rx_gpio, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     if (err != ESP_OK)
     {
@@ -253,10 +255,10 @@ static esp_err_t uart_sender_hw_init(void)
         return err;
     }
 
-    /* Small delay to let pin matrix settle before driver install */
+    // Small delay to let pin matrix settle before driver install
     vTaskDelay(pdMS_TO_TICKS(10));
 
-    /* Install driver. Try default flags first; if it fails, try IRAM flag (if available). */
+    // Install driver. Try default flags first; if it fails, try IRAM flag (if available).
     ESP_LOGI(TAG, "uart_sender_hw_init: installing driver rx=%d tx=%d", SENDER_UART_RX_BUF_SIZE, SENDER_TX_BUF_SIZE);
 
     err = uart_driver_install(SENDER_UART_NUM, SENDER_UART_RX_BUF_SIZE, SENDER_TX_BUF_SIZE, 0, NULL, 0);
@@ -277,32 +279,31 @@ static esp_err_t uart_sender_hw_init(void)
 #endif
     }
 
-    /* Mark driver installed for runtime checks */
+    // Mark driver installed for runtime checks
     uart_driver_installed_flag = true;
 
-    /* Small delay to allow driver/interrupts to settle */
+    // Small delay to allow driver/interrupts to settle
     vTaskDelay(pdMS_TO_TICKS(20));
 
-    ESP_LOGI(TAG, "UART initialized UART%d TX=%d RX=%d @%d",
-             SENDER_UART_NUM, hw.uart0_tx_gpio, hw.uart0_rx_gpio, SENDER_UART_BAUD);
+    ESP_LOGI(TAG, "UART initialized UART%d TX=%d RX=%d @%d", SENDER_UART_NUM, hw.uart0_tx_gpio, hw.uart0_rx_gpio, SENDER_UART_BAUD);
 
     return ESP_OK;
 }
 
-/* -------------------- Public send API (pool-backed) -------------------- */
+// -------------------- Public send API (pool-backed) -------------------- //
 void uart_sender_sendf(const char *fmt, ...)
 {
     if (fmt == NULL)
         return;
 
-    /* If queue not created yet, drop message */
+    // If queue not created yet, drop message
     if (uart_tx_queue == NULL)
     {
         uart_sender_dropped_msgs++;
         return;
     }
 
-    /* Allocate buffer from pool (non-blocking) */
+    // Allocate buffer from pool (non-blocking)
     char *buf = uart_pool_alloc();
     if (!buf)
     {
@@ -318,7 +319,7 @@ void uart_sender_sendf(const char *fmt, ...)
 
     if (n < 0)
     {
-        /* return buffer to pool */
+        // return buffer to pool
         uart_pool_free(buf);
         return;
     }
@@ -329,22 +330,22 @@ void uart_sender_sendf(const char *fmt, ...)
         buf[n] = '\0';
     }
 
-    /* Append CRLF */
+    // Append CRLF
     buf[n++] = '\r';
     buf[n++] = '\n';
     buf[n] = '\0';
 
-    /* Enqueue pointer; non-blocking */
+    // Enqueue pointer; non-blocking
     BaseType_t ok = xQueueSend(uart_tx_queue, &buf, 0);
     if (ok != pdTRUE)
     {
-        /* queue full: return buffer to pool and count drop */
+        // queue full: return buffer to pool and count drop
         uart_pool_free(buf);
         uart_sender_dropped_msgs++;
     }
 }
 
-/* -------------------- TX worker (diagnostic, defensive) -------------------- */
+// -------------------- TX worker (diagnostic, defensive) -------------------- //
 static void uart_tx_task(void *pvParameters)
 {
     (void)pvParameters;
@@ -361,11 +362,11 @@ static void uart_tx_task(void *pvParameters)
 
     for (;;)
     {
-        /* Periodic diagnostics every 5s */
+        // Periodic diagnostics every 5s
         if ((xTaskGetTickCount() - last_report) > pdMS_TO_TICKS(5000))
         {
             UBaseType_t high = uxTaskGetStackHighWaterMark(NULL);
-            ESP_LOGI(TAG, "TX task HWM=%u free_heap=%u pool_free=%d dropped=%u pool_exhaust=%u",
+            ESP_LOGD(TAG, "TX task HWM=%u free_heap=%u pool_free=%d dropped=%u pool_exhaust=%u",
                      (unsigned)high,
                      (unsigned)esp_get_free_heap_size(),
                      uart_pool_free_top,
@@ -393,18 +394,18 @@ static void uart_tx_task(void *pvParameters)
                 ESP_LOGW(TAG, "uart_tx_task: partial write %d/%u", written, (unsigned)len);
             }
 
-            /* Wait for TX to finish at driver level (timeout 2s) */
+            // Wait for TX to finish at driver level (timeout 2s)
             esp_err_t wait_err = uart_wait_tx_done(SENDER_UART_NUM, pdMS_TO_TICKS(2000));
             if (wait_err != ESP_OK)
             {
                 ESP_LOGW(TAG, "uart_tx_task: uart_wait_tx_done %s", esp_err_to_name(wait_err));
             }
 
-            /* Return buffer to pool */
+            // Return buffer to pool
             uart_pool_free(line);
             line = NULL;
 
-            /* Yield briefly so interrupts and watchdog can run */
+            // Yield briefly so interrupts and watchdog can run
             vTaskDelay(pdMS_TO_TICKS(1));
         }
     }
@@ -417,10 +418,10 @@ void task_uart_sender_code(void *pvParameters)
 {
     (void)pvParameters;
 
-    /* Give system and TX worker time to initialize */
+    // Give system and TX worker time to initialize
     vTaskDelay(pdMS_TO_TICKS(2000));
 
-    /* Keep task alive but idle - logs are redirected by main.c */
+    // Keep task alive but idle - logs are redirected by main.c
     for (;;)
     {
         vTaskDelay(pdMS_TO_TICKS(10000)); // Check every 10 seconds
@@ -430,17 +431,17 @@ void task_uart_sender_code(void *pvParameters)
 // -------------------- Start function --------------------
 void start_task_uart_sender(void)
 {
-    /* Initialize pool first */
+    // Initialize pool first
     uart_pool_init();
 
-    /* Initialize hardware first */
+    // Initialize hardware first
     if (uart_sender_hw_init() != ESP_OK)
     {
         ESP_LOGE(TAG, "UART hardware init failed; not starting sender tasks");
         return;
     }
 
-    /* Create queue for pointers to pool buffers */
+    // Create queue for pointers to pool buffers
     if (uart_tx_queue == NULL)
     {
         uart_tx_queue = xQueueCreate(UART_SENDER_QUEUE_LEN, sizeof(char *));
@@ -452,17 +453,10 @@ void start_task_uart_sender(void)
         }
     }
 
-    /* Create TX worker task (pinned to core 0, low priority) */
+    // Create TX worker task (pinned to core 0, low priority)
     if (task_uart_tx_sender == NULL)
     {
-        BaseType_t r = xTaskCreatePinnedToCore(
-            uart_tx_task,
-            "uart_tx_task",
-            8192,
-            NULL,
-            tskIDLE_PRIORITY + 1,
-            &task_uart_tx_sender,
-            1);
+        BaseType_t r = xTaskCreatePinnedToCore(uart_tx_task, "uart_tx_task", 8192, NULL, tskIDLE_PRIORITY + 1, &task_uart_tx_sender, 1);
         if (r != pdPASS)
         {
             ESP_LOGE(TAG, "Failed to create uart_tx_task");
@@ -477,16 +471,10 @@ void start_task_uart_sender(void)
         }
     }
 
-    /* Create the user-visible sender task as a static task (one-time) */
+    // Create the user-visible sender task as a static task (one-time)
     if (task_uart_sender == NULL)
     {
-        task_uart_sender = xTaskCreateStatic(
-            task_uart_sender_code,
-            "uart_sender",
-            UART_SENDER_STACK_WORDS,
-            NULL,
-            tskIDLE_PRIORITY + 1,
-            uart_sender_stack, &uart_sender_tcb);
+        task_uart_sender = xTaskCreateStatic(task_uart_sender_code, "uart_sender", UART_SENDER_STACK_WORDS, NULL, tskIDLE_PRIORITY + 1, uart_sender_stack, &uart_sender_tcb);
 
         if (task_uart_sender == NULL)
         {

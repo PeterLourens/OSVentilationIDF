@@ -36,25 +36,27 @@
 #endif
 
 // Queue settings
-#define UART_SENDER_QUEUE_LEN 128 // increased for log redirection
-#define UART_SENDER_MAX_LINE 512  // max bytes per line (including CRLF)
+#define UART_SENDER_QUEUE_LEN 128
+#define UART_SENDER_MAX_LINE 512 // max bytes per line (including CRLF)
 
 // Static task storage for the user-visible task
 #ifndef UART_SENDER_STACK_WORDS
 #define UART_SENDER_STACK_WORDS 2048
 #endif
 
-/* Fixed buffer pool configuration */
+// Fixed buffer pool configuration
 #ifndef UART_POOL_COUNT
-#define UART_POOL_COUNT 64 // increased for log redirection
+#define UART_POOL_COUNT 64
 #endif
 #ifndef UART_POOL_BUF_SIZE
 #define UART_POOL_BUF_SIZE 512
 #endif
 
 // function declarations
-void uart_sender_sendf(const char *fmt, ...);
+size_t uart_sender_get_dropped_count(void);
+size_t uart_sender_get_pool_exhaust_count(void);
 int uart_log_vprintf(const char *fmt, va_list args);
+void uart_sender_sendf(const char *fmt, ...);
 void start_task_uart_sender(void);
 void task_uart_sender_code(void *pvParameters);
 
