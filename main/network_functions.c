@@ -33,7 +33,7 @@ void update_syslog_state(void)
         strncpy(cfg_enable, "<unknown>", sizeof(cfg_enable) - 1);
     }
 
-    LOGI("syslog", "update_syslog_state: network_ready=%d config_enable=%s syslog_running=%d",
+    LOGD("syslog", "update_syslog_state: network_ready=%d config_enable=%s syslog_running=%d",
          ready, cfg_enable, syslog_running);
 
     if (ready && !syslog_running)

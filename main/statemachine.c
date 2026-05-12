@@ -45,7 +45,7 @@ void run_statemachine(void)
     }
     else
     {
-        LOGD(TAG, "run_statemachine: could not read sm_actuals; using last known state %d", temp_state);
+        LOGW(TAG, "run_statemachine: could not read sm_actuals; using last known state %d", temp_state);
     }
 
     switch (temp_state)

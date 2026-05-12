@@ -457,11 +457,11 @@ void set_log_levels(void)
     esp_log_level_set("nvs", ESP_LOG_ERROR);
     esp_log_level_set("outbox", ESP_LOG_ERROR);
     esp_log_level_set("scd4x", ESP_LOG_ERROR);
-    esp_log_level_set("spi", ESP_LOG_NONE);
-    esp_log_level_set("spi_master", ESP_LOG_NONE);
+    esp_log_level_set("spi", ESP_LOG_ERROR);
+    esp_log_level_set("spi_master", ESP_LOG_ERROR);
     esp_log_level_set("tca9548", ESP_LOG_ERROR);
     esp_log_level_set("transport_base", ESP_LOG_ERROR);
-    esp_log_level_set("w5500.mac", ESP_LOG_NONE);
+    esp_log_level_set("w5500.mac", ESP_LOG_ERROR);
     esp_log_level_set("wifi", ESP_LOG_DEBUG);
     esp_log_level_set("wifi_init_default", ESP_LOG_ERROR);
 

@@ -202,6 +202,7 @@ static void update_stack_watermarks(void)
     sm_actuals.stack_pushbutton = uxTaskGetStackHighWaterMark(task_pushbutton);
     sm_actuals.stack_sys_stats = uxTaskGetStackHighWaterMark(task_sys_stats);
     sm_actuals.stack_syslog = uxTaskGetStackHighWaterMark(task_syslog);
+    sm_actuals.stack_uart_sender = uxTaskGetStackHighWaterMark(task_uart_sender);
 }
 
 static void update_wifi_stats(void)
@@ -340,13 +341,7 @@ static size_t append_task_table(char *out, size_t used, size_t buf_size)
         uint32_t hw = ts->usStackHighWaterMark * sizeof(StackType_t);
         float pct = total ? (100.0f * ts->ulRunTimeCounter) / total : 0.0f;
 
-        SAFE_APPEND("%-20s %-4s %4u %12ld %12u %6.2f\n",
-                    ts->pcTaskName ? ts->pcTaskName : "<no-name>",
-                    state_char_from_enum(ts->eCurrentState),
-                    (unsigned)ts->uxCurrentPriority,
-                    hw,
-                    (unsigned)ts->ulRunTimeCounter,
-                    pct);
+        SAFE_APPEND("%-20s %-4s %4u %12ld %12u %6.2f\n", ts->pcTaskName ? ts->pcTaskName : "<no-name>", state_char_from_enum(ts->eCurrentState), (unsigned)ts->uxCurrentPriority, hw, (unsigned)ts->ulRunTimeCounter, pct);
     }
 
     vPortFree(tasks);
@@ -379,10 +374,8 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     xSemaphoreGive(statemachine_mutex);
 
     // Debug: log the snapshot we will print
-    LOGD(TAG, "append_system_stats snapshot: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d\n",
-         snapshot.wifi_enabled, snapshot.wifi_connected, snapshot.ethernet_enabled, snapshot.eth_connected);
-    LOGD(TAG, "append_system_stats snapshot values: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s",
-         snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway, snapshot.wifi_ip_addr);
+    LOGD(TAG, "append_system_stats snapshot: wifi_enabled=%d wifi_connected=%d ethernet_enabled=%d eth_connected=%d\n", snapshot.wifi_enabled, snapshot.wifi_connected, snapshot.ethernet_enabled, snapshot.eth_connected);
+    LOGD(TAG, "append_system_stats snapshot values: eth_ip=%s eth_netmask=%s eth_gw=%s wifi_ip=%s", snapshot.eth_ip_addr, snapshot.eth_netmask, snapshot.eth_gateway, snapshot.wifi_ip_addr);
 
     // Now format using the snapshot (no mutex held)
     SAFE_APPEND("\nHardware Stats:\nCPU Temp: %d C\n", snapshot.cpu_temp);
@@ -391,9 +384,8 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
     {
         SAFE_APPEND("\nWiFi Stats:\n"
                     "SSID: %s\nBSSID: %s\nRSSI: %d dBm\nChannel: %d\nPHY: %s\nBandwidth: %d MHz\nAuthmode: %s\n",
-                    snapshot.wifi_ssid, snapshot.wifi_bssid, snapshot.wifi_rssi,
-                    snapshot.wifi_channel, wifi_phy_to_str(snapshot.wifi_phy),
-                    snapshot.wifi_bandwidth, wifi_authmode_to_str(snapshot.wifi_authmode));
+                    snapshot.wifi_ssid, snapshot.wifi_bssid, snapshot.wifi_rssi, snapshot.wifi_channel,
+                    wifi_phy_to_str(snapshot.wifi_phy), snapshot.wifi_bandwidth, wifi_authmode_to_str(snapshot.wifi_authmode));
     }
 
     if (snapshot.wifi_enabled || snapshot.wifi_connected)
@@ -424,7 +416,7 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 
 void show_system_and_task_stats(void)
 {
-    const size_t buf_size = 16 * 1024;
+    const size_t buf_size = 20 * 1024;
     char *out = malloc(buf_size);
     if (!out)
         return;

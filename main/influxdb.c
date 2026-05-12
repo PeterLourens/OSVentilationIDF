@@ -185,7 +185,8 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      "stack_influxdb=%lu,"
                      "stack_pushbutton=%lu,"
                      "stack_sys_stats=%lu,"
-                     "stack_syslog=%lu "
+                     "stack_syslog=%lu,"
+                     "stack_uart_sender=%lu "
                      "%lld\n",
                      sm_actuals.fanspeed,
                      sm_actuals.state,
@@ -218,6 +219,7 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      (unsigned long)sm_actuals.stack_pushbutton,
                      (unsigned long)sm_actuals.stack_sys_stats,
                      (unsigned long)sm_actuals.stack_syslog,
+                     (unsigned long)sm_actuals.stack_uart_sender,
                      (long long)ts);
 
     if (n > 0)

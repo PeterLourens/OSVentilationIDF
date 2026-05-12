@@ -41,7 +41,7 @@
 
 // Static task storage for the user-visible task
 #ifndef UART_SENDER_STACK_WORDS
-#define UART_SENDER_STACK_WORDS 2048
+#define UART_SENDER_STACK_WORDS 3072
 #endif
 
 // Fixed buffer pool configuration

@@ -353,6 +353,7 @@ typedef struct
     uint32_t stack_pushbutton;
     uint32_t stack_sys_stats;
     uint32_t stack_syslog;
+    uint32_t stack_uart_sender;
 
 } Statemachine_actuals_t;
 
