@@ -462,16 +462,18 @@ void send_statemachine_config_json_ws(void)
 
 void send_stats_json_ws(void)
 {
-    const int PAGE_SIZE = 10; /* conservative default; tune to device memory (10-80) */
+    const int PAGE_SIZE = 10;
 
-    /* allocate a sequence number for this send operation */
+    LOGI(TAG, "send_stats_json_ws start: free_heap=%u, dma_free=%u", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+
+    // allocate a sequence number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
 
-    /* Get number of tasks */
+    // Get number of tasks
     UBaseType_t count = uxTaskGetNumberOfTasks();
     if (count == 0)
     {
-        /* send an empty page message */
+        // send an empty page message
         cJSON *empty = cJSON_CreateObject();
         if (!empty)
         {
@@ -487,7 +489,7 @@ void send_stats_json_ws(void)
         return;
     }
 
-    /* Snapshot tasks into an array */
+    // Snapshot tasks into an array
     TaskStatus_t *tasks = pvPortMalloc(count * sizeof(TaskStatus_t));
     if (!tasks)
     {
@@ -506,11 +508,11 @@ void send_stats_json_ws(void)
         return;
     }
 
-    /* Fill snapshot and sort */
+    // Fill snapshot and sort
     uint32_t total_run = uxTaskGetSystemState(tasks, count, NULL);
     qsort(tasks, count, sizeof(TaskStatus_t), compare_tasks);
 
-    /* Optional: send start message with total count */
+    // Optional: send start message with total count
     cJSON *start = cJSON_CreateObject();
     if (start)
     {
@@ -524,7 +526,7 @@ void send_stats_json_ws(void)
         ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for start failed (OOM)");
     }
 
-    /* Send pages */
+    // Send pages
     for (int start_idx = 0; start_idx < (int)count; start_idx += PAGE_SIZE)
     {
         int end_idx = start_idx + PAGE_SIZE;
@@ -563,24 +565,24 @@ void send_stats_json_ws(void)
                 goto cleanup_tasks;
             }
 
-            /* name */
+            // name
             if (ts->pcTaskName && ts->pcTaskName[0] != '\0')
                 cJSON_AddStringToObject(t, "name", ts->pcTaskName);
             else
                 cJSON_AddStringToObject(t, "name", "<no-name>");
 
-            /* state */
+            // state
             cJSON_AddStringToObject(t, "state", state_char_from_enum(ts->eCurrentState));
 
-            /* priority */
+            // priority
             cJSON_AddNumberToObject(t, "prio", ts->uxCurrentPriority);
 
-            /* run ticks and cpu percent */
+            // run ticks and cpu percent
             cJSON_AddNumberToObject(t, "run_ticks", ts->ulRunTimeCounter);
             float pct = total_run ? (100.0f * ts->ulRunTimeCounter) / total_run : 0.0f;
             cJSON_AddNumberToObject(t, "cpu_pct", pct);
 
-            /* stack high water mark */
+            // stack high water mark
             cJSON_AddNumberToObject(t, "stack_high_water", ts->usStackHighWaterMark);
 
             cJSON_AddItemToArray(arr, t);
@@ -588,7 +590,7 @@ void send_stats_json_ws(void)
 
         cJSON_AddItemToObject(page, "tasks", arr);
 
-        /* Print and send page; if printing fails, log and break to avoid infinite loop */
+        // Print and send page; if printing fails, log and break to avoid infinite loop
         char *page_out = cJSON_PrintUnformatted(page);
         cJSON_Delete(page);
         if (!page_out)
@@ -601,7 +603,7 @@ void send_stats_json_ws(void)
         free(page_out);
     }
 
-    /* Optional: send end message */
+    // Optional: send end message
     cJSON *end = cJSON_CreateObject();
     if (end)
     {
