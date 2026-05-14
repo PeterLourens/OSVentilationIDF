@@ -216,8 +216,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
-            LOGD(TAG, "Stats requested via WebSocket");
-            show_system_and_task_stats();
+            send_stats_json_ws(); // summary + tasks_full (as implemented)
         }
 
         if (strcmp((char *)ws_pkt.payload, "index") == 0)
@@ -242,7 +241,6 @@ static esp_err_t websocket_handler(httpd_req_t *req)
             LOGD(TAG, "Statemachine config requested via WebSocket");
             send_statemachine_config_json_ws();
         }
-
         free(buf);
     }
 
@@ -1279,7 +1277,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
     return httpd_resp_send(req, NULL, 0);
 }
 
-void ws_async_send(char *buf, size_t len)
+void ws_async_send(const char *buf, size_t len)
 {
 
     LOGD(TAG, "ws_async_send: called with %zu bytes", len);

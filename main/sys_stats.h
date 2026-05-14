@@ -19,5 +19,10 @@ const char *state_char_from_enum(eTaskState);
 const char *reset_reason_str(esp_reset_reason_t);
 void show_system_and_task_stats(void);
 void sys_stats_update_actuals(void);
+size_t append_heap_stats(char *out, size_t used, size_t buf_size);
+size_t append_system_stats(char *out, size_t used, size_t buf_size);
+size_t append_task_table(char *out, size_t used, size_t buf_size);
+size_t append_header(char *out, size_t used, size_t buf_size);
+int compare_tasks(const void *a, const void *b);
 
 #endif

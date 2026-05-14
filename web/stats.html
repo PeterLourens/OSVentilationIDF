@@ -2,26 +2,54 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="The front-end for configuration of the open source demand controlled ventilation system">
-    <title>Open Source demand driven ventilation system &ndash; Configuration and Monitoring</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="pure_min.css">
-    <link rel="stylesheet" href="styles.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OSVentilation — System stats</title>
+    <link rel="stylesheet" href="/pure_min.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+        /* Minimal page-specific tweaks only; layout and visual styling come from styles.css */
+        #stat_tasks {
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        #stat_tasks_full {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: monospace;
+        }
+
+        #stat_tasks_full th,
+        #stat_tasks_full td {
+            border: 1px solid #ddd;
+            padding: 6px;
+        }
+
+        #stat_tasks_full th {
+            background: #f4f4f4;
+            text-align: left;
+        }
+
+        .page_name {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
+
     <div id="layout">
         <!-- Menu toggle -->
         <a href="#menu" id="menuLink" class="menu-link">
-            <!-- Hamburger icon -->
             <span></span>
         </a>
 
         <div id="menu">
             <div class="pure-menu">
-                <div class="pure-menu-heading">OSVentilation</div>
+                <li class="pure-menu-heading">OSVentilation</li>
                 <ul class="pure-menu-list">
                     <li class="pure-menu-item"><a href="/" class="pure-menu-link">Status</a></li>
                     <li class="pure-menu-item"><a href="/configuration" class="pure-menu-link">Configuration</a></li>
@@ -35,16 +63,75 @@
         </div>
 
         <div id="main">
-            <H2>System Statistics</H2>
-            <div class="container">
-                <pre id="stats">Waiting for stats...</pre>
+            <h2>System statistics</h2>
+
+            <div class="card pure-g">
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <div><strong>Time</strong>: <span id="stat_time">—</span></div>
+                    <div><strong>Uptime</strong>: <span id="stat_uptime">—</span></div>
+                    <div><strong>CPU Temp</strong>: <span id="stat_cpu_temp">—</span></div>
+                    <div><strong>Heap free</strong>: <span id="stat_heap_free">—</span></div>
+                    <div><strong>Heap min ever</strong>: <span id="stat_heap_min">—</span></div>
+                </div>
+
+                <div class="pure-u-1 pure-u-md-1-2">
+                    <div><strong>Statemachine</strong></div>
+                    <div>State: <span id="stat_sm_state">—</span></div>
+                    <div>Fanspeed: <span id="stat_fanspeed">—</span></div>
+                    <div>CO2 sensors high: <span id="stat_co2_high">—</span></div>
+                    <div>RH sensors high: <span id="stat_rh_high">—</span></div>
+                </div>
+
+                <div class="pure-u-1 pure-u-md-1-2" style="margin-top:12px;">
+                    <div><strong>WiFi</strong></div>
+                    <div>SSID: <span id="stat_wifi_ssid">—</span></div>
+                    <div>BSSID: <span id="stat_wifi_bssid">—</span></div>
+                    <div>RSSI: <span id="stat_wifi_rssi">—</span></div>
+                    <div>IP: <span id="stat_wifi_ip">—</span></div>
+                </div>
+
+                <div class="pure-u-1 pure-u-md-1-2" style="margin-top:12px;">
+                    <div><strong>Ethernet</strong></div>
+                    <div>IP: <span id="stat_eth_ip">—</span></div>
+                    <div>Netmask: <span id="stat_eth_netmask">—</span></div>
+                </div>
             </div>
+
+            <div class="card">
+                <div><strong>Top tasks (summary)</strong></div>
+                <pre id="stat_tasks">Waiting for tasks...</pre>
+            </div>
+
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div><strong>All tasks (full table)</strong></div>
+                    <div>Total: <span id="tasks_total">—</span></div>
+                </div>
+
+                <div style="overflow:auto; max-height:420px; margin-top:8px;">
+                    <table id="stat_tasks_full" aria-describedby="All tasks table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>State</th>
+                                <th>Prio</th>
+                                <th>RunTicks</th>
+                                <th>CPU%</th>
+                                <th>StackHighWater</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stat_tasks_full_body"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
-        <div class="page_name" id="page_name">stats</div>
     </div>
-    <script src="ui.js"></script>
-    <script src="send_json_ws.js"></script>
-    <!-- <script src="stats.js"></script> -->
+
+    <div class="page_name" id="page_name">stats</div>
+
+    <script src="/ui.js"></script>
+    <script src="/send_json_ws.js"></script>
 </body>
 
 </html>

@@ -7,9 +7,25 @@
 #include "http_send_ws_data.h"
 #include "statemachine_states.h"
 
-// Functions to send configuration as JSON via WebSocket
-
 static const char *TAG = "HTTP_JSON_ws";
+
+static uint32_t ws_msg_seq = 0u;
+
+static void send_cjson_and_free(cJSON *obj)
+{
+    if (!obj)
+        return;
+    char *out = cJSON_PrintUnformatted(obj);
+    cJSON_Delete(obj);
+    if (!out)
+    {
+        ESP_LOGW(TAG, "send_cjson_and_free: cJSON_PrintUnformatted returned NULL (OOM). free heap=%u",
+                 esp_get_free_heap_size());
+        return;
+    }
+    ws_async_send(out, strlen(out));
+    free(out);
+}
 
 // Replace send_index_html_ws with this robust version
 void send_index_html_ws(void)
@@ -442,4 +458,158 @@ void send_statemachine_config_json_ws(void)
         ws_async_send(out, strlen(out));
         free(out);
     }
+}
+
+void send_stats_json_ws(void)
+{
+    const int PAGE_SIZE = 10; /* conservative default; tune to device memory (10-80) */
+
+    /* allocate a sequence number for this send operation */
+    uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
+
+    /* Get number of tasks */
+    UBaseType_t count = uxTaskGetNumberOfTasks();
+    if (count == 0)
+    {
+        /* send an empty page message */
+        cJSON *empty = cJSON_CreateObject();
+        if (!empty)
+        {
+            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject failed (OOM)");
+            return;
+        }
+        cJSON_AddStringToObject(empty, "type", "tasks_page");
+        cJSON_AddNumberToObject(empty, "seq", seq);
+        cJSON_AddNumberToObject(empty, "start", 0);
+        cJSON_AddNumberToObject(empty, "count", 0);
+        cJSON_AddItemToObject(empty, "tasks", cJSON_CreateArray());
+        send_cjson_and_free(empty);
+        return;
+    }
+
+    /* Snapshot tasks into an array */
+    TaskStatus_t *tasks = pvPortMalloc(count * sizeof(TaskStatus_t));
+    if (!tasks)
+    {
+        ESP_LOGW(TAG, "send_stats_json_ws: pvPortMalloc tasks failed (OOM). free heap=%u", esp_get_free_heap_size());
+        /* send an error page so client knows */
+        cJSON *err = cJSON_CreateObject();
+        if (err)
+        {
+            cJSON_AddStringToObject(err, "type", "tasks_page");
+            cJSON_AddNumberToObject(err, "seq", seq);
+            cJSON_AddNumberToObject(err, "start", 0);
+            cJSON_AddNumberToObject(err, "count", 0);
+            cJSON_AddStringToObject(err, "error", "oom");
+            send_cjson_and_free(err);
+        }
+        return;
+    }
+
+    /* Fill snapshot and sort */
+    uint32_t total_run = uxTaskGetSystemState(tasks, count, NULL);
+    qsort(tasks, count, sizeof(TaskStatus_t), compare_tasks);
+
+    /* Optional: send start message with total count */
+    cJSON *start = cJSON_CreateObject();
+    if (start)
+    {
+        cJSON_AddStringToObject(start, "type", "tasks_start");
+        cJSON_AddNumberToObject(start, "seq", seq);
+        cJSON_AddNumberToObject(start, "total", (int)count);
+        send_cjson_and_free(start);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for start failed (OOM)");
+    }
+
+    /* Send pages */
+    for (int start_idx = 0; start_idx < (int)count; start_idx += PAGE_SIZE)
+    {
+        int end_idx = start_idx + PAGE_SIZE;
+        if (end_idx > (int)count)
+            end_idx = count;
+
+        cJSON *page = cJSON_CreateObject();
+        if (!page)
+        {
+            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for page failed (OOM)");
+            break;
+        }
+        cJSON_AddStringToObject(page, "type", "tasks_page");
+        cJSON_AddNumberToObject(page, "seq", seq);
+        cJSON_AddNumberToObject(page, "start", start_idx);
+        cJSON_AddNumberToObject(page, "count", end_idx - start_idx);
+
+        cJSON *arr = cJSON_CreateArray();
+        if (!arr)
+        {
+            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateArray failed (OOM)");
+            cJSON_Delete(page);
+            break;
+        }
+
+        for (int i = start_idx; i < end_idx; ++i)
+        {
+            TaskStatus_t *ts = &tasks[i];
+            cJSON *t = cJSON_CreateObject();
+            if (!t)
+            {
+                ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for task failed (OOM)");
+                /* free arr/page and break out */
+                cJSON_Delete(arr);
+                cJSON_Delete(page);
+                goto cleanup_tasks;
+            }
+
+            /* name */
+            if (ts->pcTaskName && ts->pcTaskName[0] != '\0')
+                cJSON_AddStringToObject(t, "name", ts->pcTaskName);
+            else
+                cJSON_AddStringToObject(t, "name", "<no-name>");
+
+            /* state */
+            cJSON_AddStringToObject(t, "state", state_char_from_enum(ts->eCurrentState));
+
+            /* priority */
+            cJSON_AddNumberToObject(t, "prio", ts->uxCurrentPriority);
+
+            /* run ticks and cpu percent */
+            cJSON_AddNumberToObject(t, "run_ticks", ts->ulRunTimeCounter);
+            float pct = total_run ? (100.0f * ts->ulRunTimeCounter) / total_run : 0.0f;
+            cJSON_AddNumberToObject(t, "cpu_pct", pct);
+
+            /* stack high water mark */
+            cJSON_AddNumberToObject(t, "stack_high_water", ts->usStackHighWaterMark);
+
+            cJSON_AddItemToArray(arr, t);
+        }
+
+        cJSON_AddItemToObject(page, "tasks", arr);
+
+        /* Print and send page; if printing fails, log and break to avoid infinite loop */
+        char *page_out = cJSON_PrintUnformatted(page);
+        cJSON_Delete(page);
+        if (!page_out)
+        {
+            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_PrintUnformatted failed for page start=%d (OOM). free heap=%u",
+                     start_idx, esp_get_free_heap_size());
+            break;
+        }
+        ws_async_send(page_out, strlen(page_out));
+        free(page_out);
+    }
+
+    /* Optional: send end message */
+    cJSON *end = cJSON_CreateObject();
+    if (end)
+    {
+        cJSON_AddStringToObject(end, "type", "tasks_end");
+        cJSON_AddNumberToObject(end, "seq", seq);
+        send_cjson_and_free(end);
+    }
+
+cleanup_tasks:
+    vPortFree(tasks);
 }

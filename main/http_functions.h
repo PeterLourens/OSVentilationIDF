@@ -20,11 +20,15 @@
 #include "logging.h"
 #include "statemachine.h"
 #include "network_manager.h"
+#include "stats_worker.h"
+#include "ws_broadcaster.h"
+#include "sys_stats.h"
 
 #define LOG_BUF_SIZE 256
 
 // Function declarations
-void ws_async_send(char *, size_t);
+// void ws_async_send(char *, size_t);
+void ws_async_send(const char *buf, size_t len);
 void register_http_handlers(httpd_handle_t server);
 
 esp_err_t http_server_start(void);

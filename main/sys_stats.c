@@ -65,7 +65,7 @@ static void sys_stats_init_temp_sensor(void)
 }
 
 // Sorting tasks by CPU usage
-static int compare_tasks(const void *a, const void *b)
+int compare_tasks(const void *a, const void *b)
 {
     const TaskStatus_t *ta = a;
     const TaskStatus_t *tb = b;
@@ -298,7 +298,7 @@ void sys_stats_update_actuals(void)
     xSemaphoreGive(statemachine_mutex);
 }
 
-static size_t append_header(char *out, size_t used, size_t buf_size)
+size_t append_header(char *out, size_t used, size_t buf_size)
 {
     char uptime[64];
     char timestr[64];
@@ -312,7 +312,7 @@ static size_t append_header(char *out, size_t used, size_t buf_size)
     return used;
 }
 
-static size_t append_task_table(char *out, size_t used, size_t buf_size)
+size_t append_task_table(char *out, size_t used, size_t buf_size)
 {
     UBaseType_t count = uxTaskGetNumberOfTasks();
 
@@ -348,7 +348,7 @@ static size_t append_task_table(char *out, size_t used, size_t buf_size)
     return used;
 }
 
-static size_t append_heap_stats(char *out, size_t used, size_t buf_size)
+size_t append_heap_stats(char *out, size_t used, size_t buf_size)
 {
     size_t free_heap = esp_get_free_heap_size();
     size_t min_free = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
@@ -361,7 +361,7 @@ static size_t append_heap_stats(char *out, size_t used, size_t buf_size)
     return used;
 }
 
-static size_t append_system_stats(char *out, size_t used, size_t buf_size)
+size_t append_system_stats(char *out, size_t used, size_t buf_size)
 {
     Statemachine_actuals_t snapshot;
 
