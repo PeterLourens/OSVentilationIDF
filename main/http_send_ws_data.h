@@ -15,6 +15,7 @@
 #include "general.h"
 #include "http_functions.h"
 #include "logging.h"
+#include "esp_timer.h"
 
 // Function definitions
 void send_sensor_config_json_ws(void);

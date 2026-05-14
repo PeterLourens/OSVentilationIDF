@@ -466,6 +466,17 @@ void send_stats_json_ws(void)
 
     LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu", (unsigned long)esp_get_free_heap_size(), (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
+    static uint64_t last_stats_sent_us = 0;
+    const uint64_t MIN_INTERVAL_US = 10ULL * 1000000ULL; // 30 seconds
+
+    uint64_t now = esp_timer_get_time();
+    if (last_stats_sent_us != 0 && (now - last_stats_sent_us) < MIN_INTERVAL_US)
+    {
+        ESP_LOGI(TAG, "send_stats_json_ws: rate-limited, skipping send");
+        return;
+    }
+    last_stats_sent_us = now;
+
     // allocate a sequence number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
 

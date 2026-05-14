@@ -7,6 +7,39 @@
     const REFRESH_MS = 30000;
 
     let websocket = null;
+
+    // Single-tab leader election to avoid multiple tabs polling
+    const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('osv_stats_channel') : null;
+    let isLeader = true;
+
+    function announceLeader() {
+        if (!bc) return;
+        bc.postMessage({ type: 'hello', ts: Date.now() });
+    }
+
+    if (bc) {
+        // When a new tab opens, it will ask who is leader; existing leader responds
+        bc.onmessage = (ev) => {
+            const msg = ev.data || {};
+            if (msg.type === 'hello') {
+                // another tab exists; if we are leader, tell them
+                if (isLeader) bc.postMessage({ type: 'leader', ts: Date.now() });
+            } else if (msg.type === 'leader') {
+                // someone else is leader; we become follower
+                isLeader = false;
+            } else if (msg.type === 'i_am_closing') {
+                // leader closed; try to become leader
+                isLeader = true;
+            }
+        };
+
+        // announce presence and wait briefly for leader replies
+        announceLeader();
+        setTimeout(() => { if (isLeader) announceLeader(); }, 200);
+        // when unloading, tell others
+        window.addEventListener('beforeunload', () => { if (bc) bc.postMessage({ type: 'i_am_closing' }); });
+    }
+
     let lastSeq = 0;
     let currentSeq = 0;
 
@@ -25,7 +58,9 @@
         const page = document.getElementById('page_name');
         if (!page) return;
         const name = page.textContent || page.innerHTML;
-        if (name === 'stats') setInterval(requestPageData, REFRESH_MS);
+        if (name === 'stats') {
+            setInterval(() => { if (isLeader) requestPageData(); }, REFRESH_MS);
+        }
     }
 
     function onClose() { setTimeout(initWebSocket, RECONNECT_MS); }
