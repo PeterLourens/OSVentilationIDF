@@ -8,7 +8,19 @@
     <link rel="stylesheet" href="/pure_min.css" />
     <link rel="stylesheet" href="/styles.css" />
     <style>
-        /* Minimal page-specific tweaks only; layout and visual styling come from styles.css */
+        /* Minimal page-specific tweaks only; visual styling comes from styles.css / pure_min.css */
+        #main {
+            padding: 18px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            margin-bottom: 12px;
+        }
+
         #stat_tasks {
             white-space: pre-wrap;
             font-family: monospace;
@@ -16,21 +28,16 @@
             overflow: auto;
         }
 
+        /* Use Pure table styling; keep header visible when page scrolls */
         #stat_tasks_full {
             width: 100%;
-            border-collapse: collapse;
-            font-family: monospace;
         }
 
-        #stat_tasks_full th,
-        #stat_tasks_full td {
-            border: 1px solid #ddd;
-            padding: 6px;
-        }
-
-        #stat_tasks_full th {
+        #stat_tasks_full thead th {
+            position: sticky;
+            top: 0;
             background: #f4f4f4;
-            text-align: left;
+            z-index: 2;
         }
 
         .page_name {
@@ -98,18 +105,13 @@
             </div>
 
             <div class="card">
-                <div><strong>Top tasks (summary)</strong></div>
-                <pre id="stat_tasks">Waiting for tasks...</pre>
-            </div>
-
-            <div class="card">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                     <div><strong>All tasks (full table)</strong></div>
                     <div>Total: <span id="tasks_total">—</span></div>
                 </div>
 
-                <div style="overflow:auto; max-height:420px; margin-top:8px;">
-                    <table id="stat_tasks_full" aria-describedby="All tasks table">
+                <div style="margin-top:8px;">
+                    <table id="stat_tasks_full" class="pure-table pure-table-striped pure-table-bordered" aria-describedby="All tasks table">
                         <thead>
                             <tr>
                                 <th>Name</th>

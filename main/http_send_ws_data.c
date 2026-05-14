@@ -464,7 +464,7 @@ void send_stats_json_ws(void)
 {
     const int PAGE_SIZE = 10;
 
-    LOGI(TAG, "send_stats_json_ws start: free_heap=%u, dma_free=%u", esp_get_free_heap_size(), heap_caps_get_free_size(MALLOC_CAP_DMA));
+    LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu", (unsigned long)esp_get_free_heap_size(), (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
     // allocate a sequence number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
