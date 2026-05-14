@@ -416,7 +416,7 @@ static size_t append_system_stats(char *out, size_t used, size_t buf_size)
 
 void show_system_and_task_stats(void)
 {
-    const size_t buf_size = 20 * 1024;
+    const size_t buf_size = 16 * 1024;
     char *out = malloc(buf_size);
     if (!out)
         return;

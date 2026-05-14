@@ -26,11 +26,11 @@ function onOpen(event) {
     const page = document.getElementById("page_name");
 
     if (page && page.innerHTML === "index") {
-        //console.log('Page is index so refresh every 30sec')
+        console.log('Page is index so refresh every 30sec')
         setInterval(get_json, 30000);
     }
     if (page && page.innerHTML === "stats") {
-        //console.log('Page is stats so refresh every 30sec');
+        console.log('Page is stats so refresh every 30sec');
         setInterval(get_json, 30000);
     }
 }
@@ -50,7 +50,7 @@ function get_json() {
 
 function onClose(event) {
 
-    //console.log('Connection closed');
+    console.log('Connection closed');
     setTimeout(initWebSocket, 2000);
 }
 
@@ -59,7 +59,7 @@ function onMessage(event) {
 
     const page = document.getElementById("page_name");
 
-    //console.log(event.data);
+    console.log(event.data);
 
     if (page && page.innerHTML === "stats") {
 

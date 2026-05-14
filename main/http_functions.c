@@ -1355,6 +1355,7 @@ esp_err_t http_server_start(void)
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     config.server_port = 80;
     config.max_uri_handlers = 50;
+    config.max_open_sockets = 16;
     config.stack_size = 6144;
     config.task_priority = tskIDLE_PRIORITY + 20;
 
