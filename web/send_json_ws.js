@@ -1,10 +1,10 @@
 // send_json_ws.js
-// Robust WebSocket client for OSVentilation
+// Robust WebSocket client for OSVentilation without client-side rate limiting
 // - Single requestPageData function
 // - Only polls when tab is visible and this tab is the leader
 // - Triggers on load, visibility change, popstate, and page_name mutations
 // - Prefers slot_index for statemachine messages and falls back to state_index
-// - Conservative local rate limiting and debug logging
+// - No local debounce/rate-limiter (server-side rate limiting should remain)
 
 (function () {
     'use strict';
@@ -13,7 +13,6 @@
     const GATEWAY = (location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
     const RECONNECT_MS = 2000;
     const POLL_MS = 60000; // periodic poll interval when leader and visible
-    const MIN_REQUEST_INTERVAL_MS = 2000; // local debounce for requestPageData
 
     // Page -> server command mapping
     const PAGE_TO_CMD = {
@@ -30,7 +29,6 @@
     // State
     let websocket = null;
     let pollIntervalId = null;
-    let lastRequestTs = 0;
 
     // Leader election (single-tab polling) using BroadcastChannel when available
     const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('osv_stats_channel') : null;
@@ -113,7 +111,7 @@
         logError('WS error', e);
     }
 
-    // Single request function (no duplicates)
+    // Single request function (no client-side rate limiting)
     function requestPageData() {
         try {
             // Leader-only: prevents multiple tabs polling
@@ -127,14 +125,6 @@
                 logDebug('requestPageData: page hidden, skipping');
                 return;
             }
-
-            // Rate-limit local requests
-            const now = Date.now();
-            if (now - lastRequestTs < MIN_REQUEST_INTERVAL_MS) {
-                logDebug('requestPageData: rate-limited locally, skipping');
-                return;
-            }
-            lastRequestTs = now;
 
             if (!websocket || websocket.readyState !== WebSocket.OPEN) {
                 logDebug('requestPageData: websocket not open, state=', websocket ? websocket.readyState : 'null');
@@ -214,17 +204,7 @@
         }
         if (obj.uptime_s !== undefined) {
             const el = document.getElementById('stat_uptime');
-            if (el) {
-                const s = Number(obj.uptime_s) || 0;
-                const days = Math.floor(s / 86400);
-                const hours = Math.floor((s % 86400) / 3600);
-                const mins = Math.floor((s % 3600) / 60);
-                const secs = s % 60;
-                let human = '';
-                if (days) human += days + 'd ';
-                human += String(hours).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
-                el.textContent = human;
-            }
+            if (el) el.textContent = formatUptime(obj.uptime_s);
         }
         if (obj.cpu_temp_c !== undefined) {
             const el = document.getElementById('stat_cpu_temp');
@@ -246,6 +226,18 @@
             const el = document.getElementById('stat_eth_ip');
             if (el) el.textContent = obj.stat_eth_ip;
         }
+    }
+
+    function formatUptime(s) {
+        const sec = Number(s) || 0;
+        const days = Math.floor(sec / 86400);
+        const hours = Math.floor((sec % 86400) / 3600);
+        const mins = Math.floor((sec % 3600) / 60);
+        const secs = sec % 60;
+        let human = '';
+        if (days) human += days + 'd ';
+        human += String(hours).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        return human;
     }
 
     // Tasks messages handler (start/page/end)
@@ -528,8 +520,7 @@
     // Expose small API for debugging
     window.OSV_WS = {
         requestPageData,
-        isLeader: () => isLeader,
-        lastRequestTs: () => lastRequestTs
+        isLeader: () => isLeader
     };
 
     // Ensure requestPageData is triggered on load, visibility change, popstate, and page_name changes
@@ -573,6 +564,19 @@
             }, 500);
         }
     })();
+
+    // Optional: attach nav click hooks to force request after navigation
+    document.addEventListener('click', (ev) => {
+        const target = ev.target;
+        if (!target) return;
+        // adjust selector to match your nav links if needed
+        if (target.matches && target.matches('.nav-link, .nav-link *')) {
+            setTimeout(() => {
+                const name = document.getElementById('page_name')?.textContent?.trim().toLowerCase();
+                if (name) requestPageData();
+            }, 50);
+        }
+    });
 
     // Start WebSocket
     window.addEventListener('load', initWebSocket);

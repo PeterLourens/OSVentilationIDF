@@ -430,19 +430,6 @@ void send_config_json_ws(httpd_req_t *req)
         ESP_LOGW(TAG, "send_config_json_ws: could not take syslog_config_mutex");
     }
 
-    /*char *out = cJSON_PrintUnformatted(root);
-    ESP_LOGD(TAG, "Config JSON: %s", out ? out : "null");
-    cJSON_Delete(root);
-    if (out)
-    {
-        // ws_async_send(out, strlen(out));
-        send_cjson_to_req_and_free(root, req);
-        free(out);
-    }
-    else
-    {
-        ESP_LOGE(TAG, "send_config_json_ws: cJSON_PrintUnformatted returned NULL");
-    }*/
     send_cjson_to_req_and_free(root, req);
 }
 
@@ -580,22 +567,20 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
 void send_stats_json_ws(httpd_req_t *req)
 {
     const int PAGE_SIZE = 10;
-    const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5 seconds, tune as needed
+    // const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5 seconds, tune as needed
 
-    uint64_t now = esp_timer_get_time();
+    // uint64_t now = esp_timer_get_time();
 
     // per-connection rate limit
-    uint64_t last_for_client = client_last_us(req);
-    if (last_for_client != 0 && (now - last_for_client) < MIN_INTERVAL_US)
-    {
-        ESP_LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(now - last_for_client));
-        return;
-    }
-    client_set_last_us(req, now);
+    // uint64_t last_for_client = client_last_us(req);
+    // if (last_for_client != 0 && (now - last_for_client) < MIN_INTERVAL_US)
+    //{
+    //   ESP_LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(now - last_for_client));
+    // return;
+    //}
+    // client_set_last_us(req, now);
 
-    LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu",
-         (unsigned long)esp_get_free_heap_size(),
-         (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
+    // LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu", (unsigned long)esp_get_free_heap_size(), (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
     // allocate a sequence number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
