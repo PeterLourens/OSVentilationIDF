@@ -443,7 +443,7 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
         return;
     }
     cJSON_AddStringToObject(start, "type", "statemachine_start");
-    cJSON_AddNumberToObject(start, "total_states", MAX_NR_STATES);
+    cJSON_AddNumberToObject(start, "total_states", MAX_STATE_CONFIG_FILES);
     send_cjson_to_req_and_free(start, req);
 
     // 2) Send general settings as a small object

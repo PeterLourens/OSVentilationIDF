@@ -62,6 +62,7 @@
 
 // statemachine settings
 #define MAX_NR_STATES 15
+#define MAX_STATE_CONFIG_FILES 10
 
 // Fanspeed values
 #define FANSPEED_ERROR 0
