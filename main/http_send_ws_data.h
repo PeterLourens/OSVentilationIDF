@@ -8,6 +8,7 @@
 #define HTTP_SEND_WS_DATA_H
 
 #define DETAILS_CHUNK_SIZE 1024
+#define MAX_WS_CLIENTS_TRACK 16
 
 #include <stdint.h>
 
@@ -18,11 +19,10 @@
 #include "esp_timer.h"
 
 // Function definitions
-void send_sensor_config_json_ws(void);
-void send_config_json_ws(void);
-void send_index_html_ws(void);
-// void send_statemachine_config_json_ws(void);
+void send_index_html_ws(httpd_req_t *req);
+void send_sensor_config_json_ws(httpd_req_t *req);
+void send_config_json_ws(httpd_req_t *req);
 void send_statemachine_config_json_ws(httpd_req_t *req);
-void send_stats_json_ws(void);
+void send_stats_json_ws(httpd_req_t *req);
 
 #endif

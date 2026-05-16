@@ -163,6 +163,8 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
     memset(&ws_pkt, 0, sizeof(httpd_ws_frame_t));
 
+    // LOGD(TAG, "WS payload received: '%s' (req=%p)", (char *)ws_pkt.payload, (void *)req);
+
     if (req->method == HTTP_GET)
     {
         LOGD(TAG, "Handshake done, the new connection was opened");
@@ -216,32 +218,26 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
-            // send_stats_json_ws();
+            send_stats_json_ws(req);
         }
 
         if (strcmp((char *)ws_pkt.payload, "index") == 0)
         {
             LOGD(TAG, "Index data requested via WebSocket");
-            send_index_html_ws();
+            send_index_html_ws(req);
         }
 
         if (strcmp((char *)ws_pkt.payload, "sensor_config") == 0)
         {
             LOGD(TAG, "Sensor config requested via WebSocket");
-            send_sensor_config_json_ws();
+            send_sensor_config_json_ws(req);
         }
 
         if (strcmp((char *)ws_pkt.payload, "config") == 0)
         {
             LOGD(TAG, "Config requested via WebSocket");
-            send_config_json_ws();
+            send_config_json_ws(req);
         }
-
-        /*if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
-        {
-            LOGD(TAG, "Statemachine config requested via WebSocket");
-            send_statemachine_config_json_ws();
-        }*/
 
         if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
         {

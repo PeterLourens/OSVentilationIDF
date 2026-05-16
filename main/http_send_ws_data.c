@@ -11,10 +11,41 @@ static const char *TAG = "HTTP_JSON_ws";
 
 static uint32_t ws_msg_seq = 0u;
 
-// send a cJSON object directly to the requesting websocket connection (req).
-// If req is NULL, fall back to ws_async_send() to preserve previous behavior.
-// send a cJSON object directly to the requesting websocket connection (req).
-// If req is NULL, fall back to ws_async_send() to preserve previous behavior.
+static struct
+{
+    httpd_req_t *req;
+    uint64_t last_us;
+} stats_client_last[MAX_WS_CLIENTS_TRACK];
+
+static uint64_t client_last_us(httpd_req_t *req)
+{
+    for (int i = 0; i < MAX_WS_CLIENTS_TRACK; ++i)
+    {
+        if (stats_client_last[i].req == req)
+            return stats_client_last[i].last_us;
+    }
+    return 0;
+}
+
+static void client_set_last_us(httpd_req_t *req, uint64_t us)
+{
+    for (int i = 0; i < MAX_WS_CLIENTS_TRACK; ++i)
+    {
+        if (stats_client_last[i].req == req || stats_client_last[i].req == NULL)
+        {
+            stats_client_last[i].req = req;
+            stats_client_last[i].last_us = us;
+            return;
+        }
+    }
+    // if table full, overwrite a random slot (simple fallback)
+    int idx = (int)(us % MAX_WS_CLIENTS_TRACK);
+    stats_client_last[idx].req = req;
+    stats_client_last[idx].last_us = us;
+}
+
+// helper: send a cJSON object to the requesting websocket connection (req).
+// Falls back to ws_async_send() if req is NULL or direct send fails.
 static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
 {
     if (!obj)
@@ -25,8 +56,7 @@ static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
 
     if (!out)
     {
-        ESP_LOGW(TAG, "send_cjson_to_req_and_free: cJSON_PrintUnformatted returned NULL (OOM). free_heap=%u",
-                 esp_get_free_heap_size());
+        ESP_LOGW(TAG, "send_cjson_to_req_and_free: cJSON_PrintUnformatted returned NULL");
         return;
     }
 
@@ -38,47 +68,27 @@ static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
         out_pkt.payload = (uint8_t *)out;
         out_pkt.len = strlen(out);
 
-        // NOTE: httpd_ws_send_frame signature in this IDF is:
-        // esp_err_t httpd_ws_send_frame(httpd_req_t *req, httpd_ws_frame_t *pkt);
         esp_err_t r = httpd_ws_send_frame(req, &out_pkt);
         if (r != ESP_OK)
         {
-            ESP_LOGW(TAG, "send_cjson_to_req_and_free: httpd_ws_send_frame failed: %d", r);
-            // fallback: broadcast if direct send fails
+            ESP_LOGW(TAG, "httpd_ws_send_frame failed: %d - falling back to broadcast", r);
             ws_async_send(out, strlen(out));
         }
         else
         {
-            ESP_LOGD(TAG, "send_cjson_to_req_and_free: sent %u bytes to requesting client", (unsigned)out_pkt.len);
+            ESP_LOGD(TAG, "Sent %u bytes to requesting client", (unsigned)out_pkt.len);
         }
     }
     else
     {
-        // defensive fallback: broadcast
         ws_async_send(out, strlen(out));
     }
 
     free(out);
 }
 
-static void send_cjson_and_free(cJSON *obj)
-{
-    if (!obj)
-        return;
-    char *out = cJSON_PrintUnformatted(obj);
-    cJSON_Delete(obj);
-    if (!out)
-    {
-        ESP_LOGW(TAG, "send_cjson_and_free: cJSON_PrintUnformatted returned NULL (OOM). free heap=%u",
-                 esp_get_free_heap_size());
-        return;
-    }
-    ws_async_send(out, strlen(out));
-    free(out);
-}
-
 // Replace send_index_html_ws with this robust version
-void send_index_html_ws(void)
+void send_index_html_ws(httpd_req_t *req)
 {
     char key[64];
     char buf[32];
@@ -220,21 +230,23 @@ void send_index_html_ws(void)
     cJSON_AddStringToObject(root, "uptime", uptime);
     cJSON_AddStringToObject(root, "date_time", date_time);
 
-    char *out = cJSON_PrintUnformatted(root);
+    /*char *out = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
     if (out)
     {
-        ws_async_send(out, strlen(out));
+        // ws_async_send(out, strlen(out));
+        send_cjson_to_req_and_free(root, req);
         free(out);
     }
     else
     {
         ESP_LOGE(TAG, "send_index_html_ws: cJSON_PrintUnformatted returned NULL");
-    }
+    }*/
+    send_cjson_to_req_and_free(root, req);
 }
 
 // Replace send_sensor_config_json_ws with this safe version
-void send_sensor_config_json_ws(void)
+void send_sensor_config_json_ws(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateObject();
     if (!root)
@@ -278,21 +290,23 @@ void send_sensor_config_json_ws(void)
         ESP_LOGW(TAG, "send_sensor_config_json_ws: could not take sensor_cfg_mutex");
     }
 
-    char *out = cJSON_PrintUnformatted(root);
+    /*char *out = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
     if (out)
     {
-        ws_async_send(out, strlen(out));
+        // ws_async_send(out, strlen(out));
+        send_cjson_to_req_and_free(root, req);
         free(out);
     }
     else
     {
         ESP_LOGE(TAG, "send_sensor_config_json_ws: cJSON_PrintUnformatted returned NULL");
-    }
+    }*/
+    send_cjson_to_req_and_free(root, req);
 }
 
 // Replace send_config_json_ws with this robust version
-void send_config_json_ws(void)
+void send_config_json_ws(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateObject();
     if (!root)
@@ -416,30 +430,30 @@ void send_config_json_ws(void)
         ESP_LOGW(TAG, "send_config_json_ws: could not take syslog_config_mutex");
     }
 
-    char *out = cJSON_PrintUnformatted(root);
+    /*char *out = cJSON_PrintUnformatted(root);
     ESP_LOGD(TAG, "Config JSON: %s", out ? out : "null");
     cJSON_Delete(root);
     if (out)
     {
-        ws_async_send(out, strlen(out));
+        // ws_async_send(out, strlen(out));
+        send_cjson_to_req_and_free(root, req);
         free(out);
     }
     else
     {
         ESP_LOGE(TAG, "send_config_json_ws: cJSON_PrintUnformatted returned NULL");
-    }
+    }*/
+    send_cjson_to_req_and_free(root, req);
 }
 
 // send_statemachine_config_json_ws - send statemachine config in small chunks to the requesting websocket
-// Sends: statemachine_start, statemachine_general, multiple statemachine_state messages, statemachine_end
 void send_statemachine_config_json_ws(httpd_req_t *req)
 {
     // 1) Send start message with totals
     cJSON *start = cJSON_CreateObject();
     if (!start)
     {
-        ESP_LOGW(TAG, "send_statemachine_config_json_ws: start cJSON_CreateObject failed (OOM). free_heap=%u",
-                 esp_get_free_heap_size());
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: start cJSON_CreateObject failed (OOM). free_heap=%u", esp_get_free_heap_size());
         return;
     }
     cJSON_AddStringToObject(start, "type", "statemachine_start");
@@ -450,8 +464,7 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
     cJSON *gen = cJSON_CreateObject();
     if (!gen)
     {
-        ESP_LOGW(TAG, "send_statemachine_config_json_ws: gen cJSON_CreateObject failed (OOM). free_heap=%u",
-                 esp_get_free_heap_size());
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: gen cJSON_CreateObject failed (OOM). free_heap=%u", esp_get_free_heap_size());
         return;
     }
 
@@ -483,13 +496,12 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
     send_cjson_to_req_and_free(gen, req);
 
     // 3) Send each state as a separate small JSON message
-    for (int i = 0; i < MAX_NR_STATES; ++i)
+    for (int i = 0; i < MAX_STATE_CONFIG_FILES; ++i)
     {
         cJSON *s = cJSON_CreateObject();
         if (!s)
         {
-            ESP_LOGW(TAG, "send_statemachine_config_json_ws: state %d cJSON_CreateObject failed (OOM). free_heap=%u",
-                     i, esp_get_free_heap_size());
+            ESP_LOGW(TAG, "send_statemachine_config_json_ws: state %d cJSON_CreateObject failed (OOM). free_heap=%u", i, esp_get_free_heap_size());
             // continue trying next states
             continue;
         }
@@ -549,7 +561,6 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
 
         // Debug: log heap before printing
         ESP_LOGD(TAG, "send_statemachine_config_json_ws: about to send state %d, free_heap=%u", i, esp_get_free_heap_size());
-
         send_cjson_to_req_and_free(s, req);
     }
 
@@ -562,117 +573,29 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
     }
     else
     {
-        ESP_LOGW(TAG, "send_statemachine_config_json_ws: end cJSON_CreateObject failed (OOM). free_heap=%u",
-                 esp_get_free_heap_size());
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: end cJSON_CreateObject failed (OOM). free_heap=%u", esp_get_free_heap_size());
     }
 }
 
-/*void send_statemachine_config_json_ws(void)
-{
-    cJSON *root = cJSON_CreateObject();
-    char key[32];
-    char fanspeed_val[16];
-
-    if (!root)
-        return;
-
-    // --- General settings ---
-    if (xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
-    {
-        cJSON_AddNumberToObject(root, "wday_d_h_start", statemachine_gen_config.wday_d_h_start);
-        cJSON_AddNumberToObject(root, "wday_d_m_start", statemachine_gen_config.wday_d_m_start);
-        cJSON_AddNumberToObject(root, "wday_n_h_start", statemachine_gen_config.wday_n_h_start);
-        cJSON_AddNumberToObject(root, "wday_n_m_start", statemachine_gen_config.wday_n_m_start);
-        cJSON_AddNumberToObject(root, "wkend_d_h_start", statemachine_gen_config.wkend_d_h_start);
-        cJSON_AddNumberToObject(root, "wkend_d_m_start", statemachine_gen_config.wkend_d_m_start);
-        cJSON_AddNumberToObject(root, "wkend_n_h_start", statemachine_gen_config.wkend_n_h_start);
-        cJSON_AddNumberToObject(root, "wkend_n_m_start", statemachine_gen_config.wkend_n_m_start);
-        cJSON_AddStringToObject(root, "wkend_d1", statemachine_gen_config.wkend_d1);
-        cJSON_AddStringToObject(root, "wkend_d2", statemachine_gen_config.wkend_d2);
-        cJSON_AddNumberToObject(root, "rh_l", statemachine_gen_config.rh_low_level);
-        cJSON_AddNumberToObject(root, "rh_h", statemachine_gen_config.rh_high_level);
-        cJSON_AddNumberToObject(root, "co2_l", statemachine_gen_config.co2_low_level);
-        cJSON_AddNumberToObject(root, "co2_h", statemachine_gen_config.co2_high_level);
-
-        // other state settings go here
-        for (int i = 0; i < MAX_NR_STATES; i++)
-        {
-            snprintf(key, sizeof(key), "s%d_en", i);
-            cJSON_AddBoolToObject(root, key, statemachine_config[i].enable_state);
-
-            // Fanspeed is stored as int so requires conversion to string
-            snprintf(key, sizeof(key), "s%d_fanspeed", i);
-            if (statemachine_config[i].fanspeed == 1)
-                snprintf(fanspeed_val, sizeof(fanspeed_val), "Low");
-            else if (statemachine_config[i].fanspeed == 2)
-                snprintf(fanspeed_val, sizeof(fanspeed_val), "Medium");
-            else if (statemachine_config[i].fanspeed == 3)
-                snprintf(fanspeed_val, sizeof(fanspeed_val), "High");
-            else
-                snprintf(fanspeed_val, sizeof(fanspeed_val), "0");
-            cJSON_AddStringToObject(root, key, fanspeed_val);
-
-            snprintf(key, sizeof(key), "s%d_name", i);
-            cJSON_AddStringToObject(root, key, statemachine_config[i].state_name);
-            snprintf(key, sizeof(key), "s%d_st_h", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_start_hour);
-            snprintf(key, sizeof(key), "s%d_st_m", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_start_minute);
-            snprintf(key, sizeof(key), "s%d_end_h", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_end_hour);
-            snprintf(key, sizeof(key), "s%d_end_m", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].state_end_minute);
-            snprintf(key, sizeof(key), "s%d_dur_m", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].duration_minutes);
-            snprintf(key, sizeof(key), "s%d_cycl_int_m", i);
-            cJSON_AddNumberToObject(root, key, statemachine_config[i].cycling_interval_min);
-
-            for (int j = 0; j < MAX_VALVE_COUNT; j++)
-            {
-                snprintf(key, sizeof(key), "s%d_v%d_pos", i, j);
-                cJSON_AddNumberToObject(root, key, statemachine_config[i].valve_position[j]);
-            }
-        }
-        xSemaphoreGive(state_config_mutex);
-    }
-
-    // Serialize to string
-    char *out = cJSON_PrintUnformatted(root);
-
-    // Debug: log the JSON (or NULL) so we can see what was created
-    LOGD(TAG, "Statemachine JSON: %s", out ? out : "NULL");
-
-    // Defensive: if out is NULL, log heap and bail
-    if (!out)
-    {
-        ESP_LOGW(TAG, "send_statemachine_config_json_ws: cJSON_PrintUnformatted returned NULL (OOM). free_heap=%lu",(unsigned long)esp_get_free_heap_size());
-        cJSON_Delete(root);
-        return;
-    }
-
-    ws_async_send(out, strlen(out));
-    //LOGD(TAG, "send_statemachine_config_json_ws: ws_async_send called (ret=%d)", send_ret);
-
-    free(out);
-    cJSON_Delete(root);
-}*/
-
-void send_stats_json_ws(void)
+void send_stats_json_ws(httpd_req_t *req)
 {
     const int PAGE_SIZE = 10;
-
-    LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu", (unsigned long)esp_get_free_heap_size(), (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
-
-    static uint64_t last_stats_sent_us = 0;
-    const uint64_t MIN_INTERVAL_US = 10ULL * 1000000ULL; // 30 seconds
+    const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5 seconds, tune as needed
 
     uint64_t now = esp_timer_get_time();
-    if (last_stats_sent_us != 0 && (now - last_stats_sent_us) < MIN_INTERVAL_US)
+
+    // per-connection rate limit
+    uint64_t last_for_client = client_last_us(req);
+    if (last_for_client != 0 && (now - last_for_client) < MIN_INTERVAL_US)
     {
-        ESP_LOGI(TAG, "send_stats_json_ws: rate-limited, skipping send");
+        ESP_LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(now - last_for_client));
         return;
     }
-    last_stats_sent_us = now;
+    client_set_last_us(req, now);
+
+    LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu",
+         (unsigned long)esp_get_free_heap_size(),
+         (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
     // allocate a sequence number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
@@ -693,7 +616,7 @@ void send_stats_json_ws(void)
         cJSON_AddNumberToObject(empty, "start", 0);
         cJSON_AddNumberToObject(empty, "count", 0);
         cJSON_AddItemToObject(empty, "tasks", cJSON_CreateArray());
-        send_cjson_and_free(empty);
+        send_cjson_to_req_and_free(empty, req);
         return;
     }
 
@@ -711,7 +634,8 @@ void send_stats_json_ws(void)
             cJSON_AddNumberToObject(err, "start", 0);
             cJSON_AddNumberToObject(err, "count", 0);
             cJSON_AddStringToObject(err, "error", "oom");
-            send_cjson_and_free(err);
+            // send_cjson_and_free(err);
+            send_cjson_to_req_and_free(err, req);
         }
         return;
     }
@@ -727,7 +651,8 @@ void send_stats_json_ws(void)
         cJSON_AddStringToObject(start, "type", "tasks_start");
         cJSON_AddNumberToObject(start, "seq", seq);
         cJSON_AddNumberToObject(start, "total", (int)count);
-        send_cjson_and_free(start);
+        // send_cjson_and_free(start);
+        send_cjson_to_req_and_free(start, req);
     }
     else
     {
@@ -797,18 +722,7 @@ void send_stats_json_ws(void)
         }
 
         cJSON_AddItemToObject(page, "tasks", arr);
-
-        // Print and send page; if printing fails, log and break to avoid infinite loop
-        char *page_out = cJSON_PrintUnformatted(page);
-        cJSON_Delete(page);
-        if (!page_out)
-        {
-            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_PrintUnformatted failed for page start=%d (OOM). free heap=%u",
-                     start_idx, esp_get_free_heap_size());
-            break;
-        }
-        ws_async_send(page_out, strlen(page_out));
-        free(page_out);
+        send_cjson_to_req_and_free(page, req);
     }
 
     // Optional: send end message
@@ -817,7 +731,8 @@ void send_stats_json_ws(void)
     {
         cJSON_AddStringToObject(end, "type", "tasks_end");
         cJSON_AddNumberToObject(end, "seq", seq);
-        send_cjson_and_free(end);
+        // send_cjson_and_free(end);
+        send_cjson_to_req_and_free(end, req);
     }
 
 cleanup_tasks:

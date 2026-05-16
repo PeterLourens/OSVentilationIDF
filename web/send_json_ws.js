@@ -1,23 +1,51 @@
 // send_json_ws.js
-// Complete WebSocket client for OSVentilation with debug logging and statemachine handling.
+// Robust WebSocket client for OSVentilation
+// - Single requestPageData function
+// - Only polls when tab is visible and this tab is the leader
+// - Triggers on load, visibility change, popstate, and page_name mutations
+// - Prefers slot_index for statemachine messages and falls back to state_index
+// - Conservative local rate limiting and debug logging
 
 (function () {
     'use strict';
 
-    // WebSocket endpoint (uses same host and port as page)
-    const GATEWAY = 'ws://' + window.location.host + '/ws';
+    // Configuration
+    const GATEWAY = (location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws';
     const RECONNECT_MS = 2000;
-    const REFRESH_MS = 60000; // 60 seconds
+    const POLL_MS = 60000; // periodic poll interval when leader and visible
+    const MIN_REQUEST_INTERVAL_MS = 2000; // local debounce for requestPageData
 
+    // Page -> server command mapping
+    const PAGE_TO_CMD = {
+        'stats': 'stats',
+        'status': 'stats',
+        'index': 'index',
+        'sensor_config': 'sensor_config',
+        'config': 'config',
+        'statemachine': 'statemachine',
+        'valvecontrol': 'valvecontrol',
+        'webserial': 'webserial'
+    };
+
+    // State
     let websocket = null;
-    let lastSeq = 0;
-    let currentSeq = 0;
     let pollIntervalId = null;
+    let lastRequestTs = 0;
 
-    // Single-tab leader election to avoid multiple tabs polling
+    // Leader election (single-tab polling) using BroadcastChannel when available
     const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('osv_stats_channel') : null;
     let isLeader = true;
 
+    // Small dedupe store for statemachine messages
+    if (!window._sm_dedupe) window._sm_dedupe = {};
+
+    // Safe console wrappers
+    function logDebug(...args) { try { console.debug(...args); } catch (e) { } }
+    function logInfo(...args) { try { console.info(...args); } catch (e) { } }
+    function logWarn(...args) { try { console.warn(...args); } catch (e) { } }
+    function logError(...args) { try { console.error(...args); } catch (e) { } }
+
+    // BroadcastChannel leader protocol
     function announceLeader() {
         if (!bc) return;
         bc.postMessage({ type: 'hello', ts: Date.now() });
@@ -40,38 +68,13 @@
         window.addEventListener('beforeunload', () => { if (bc) bc.postMessage({ type: 'i_am_closing' }); });
     }
 
-    // Map visible page names to server command tokens
-    const PAGE_TO_CMD = {
-        'stats': 'stats',
-        'status': 'stats',
-        'index': 'index',
-        'sensor_config': 'sensor_config',
-        'sensor-config': 'sensor_config',
-        'sensorconfig': 'sensor_config',
-        'configuration': 'config',
-        'config': 'config',
-        'settings': 'config',
-        'statemachine': 'statemachine',
-        'valvecontrol': 'valvecontrol',
-        'webserial': 'webserial'
-    };
-
-    // Statemachine cache for assembling chunked messages
-    const statemachineCache = {
-        totalStates: 0,
-        received: {},
-        order: []
-    };
-
-    // Simple dedupe store for statemachine messages
-    if (!window._sm_dedupe) window._sm_dedupe = {};
-
+    // WebSocket lifecycle
     function initWebSocket() {
         try {
             websocket = new WebSocket(GATEWAY);
         } catch (e) {
-            console.error('WS init failed', e);
-            setTimeout(initWebSocket, RECONNECT_MS);
+            logError('WS init failed', e);
+            scheduleReconnect();
             return;
         }
 
@@ -81,74 +84,104 @@
         websocket.onerror = onError;
     }
 
-    window.addEventListener('load', initWebSocket);
+    function scheduleReconnect() {
+        setTimeout(initWebSocket, RECONNECT_MS);
+    }
 
     function onOpen() {
-        console.info('WS open', GATEWAY);
-        if (isLeader) requestPageData();
-
+        logInfo('WS open', GATEWAY);
+        // Immediately request page data if leader and visible
+        if (isLeader && !document.hidden) requestPageData();
+        // Start poll interval only if leader
         if (!pollIntervalId) {
             pollIntervalId = setInterval(() => {
-                if (isLeader) requestPageData();
-            }, REFRESH_MS);
+                if (isLeader && !document.hidden) requestPageData();
+            }, POLL_MS);
         }
     }
 
     function onClose() {
-        console.warn('WS closed, reconnecting in', RECONNECT_MS, 'ms');
+        logWarn('WS closed, reconnecting in', RECONNECT_MS, 'ms');
         if (pollIntervalId) {
             clearInterval(pollIntervalId);
             pollIntervalId = null;
         }
-        setTimeout(initWebSocket, RECONNECT_MS);
+        scheduleReconnect();
     }
 
     function onError(e) {
-        console.error('WS error', e);
+        logError('WS error', e);
     }
 
-    // Send the page name mapped to server command tokens
+    // Single request function (no duplicates)
     function requestPageData() {
-        const page = document.getElementById('page_name');
-        if (!page || !websocket || websocket.readyState !== WebSocket.OPEN) return;
-
-        const raw = (page.textContent || page.innerText || page.innerHTML || '').trim();
-        if (!raw) return;
-
-        const key = raw.toLowerCase();
-        const cmd = PAGE_TO_CMD[key] || key;
-
         try {
+            // Leader-only: prevents multiple tabs polling
+            if (!isLeader) {
+                logDebug('requestPageData: not leader, skipping');
+                return;
+            }
+
+            // Visibility: don't poll when page is hidden
+            if (document.hidden) {
+                logDebug('requestPageData: page hidden, skipping');
+                return;
+            }
+
+            // Rate-limit local requests
+            const now = Date.now();
+            if (now - lastRequestTs < MIN_REQUEST_INTERVAL_MS) {
+                logDebug('requestPageData: rate-limited locally, skipping');
+                return;
+            }
+            lastRequestTs = now;
+
+            if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+                logDebug('requestPageData: websocket not open, state=', websocket ? websocket.readyState : 'null');
+                return;
+            }
+
+            const pageEl = document.getElementById('page_name');
+            if (!pageEl) {
+                logDebug('requestPageData: page_name element not found');
+                return;
+            }
+
+            const raw = (pageEl.textContent || pageEl.innerText || pageEl.innerHTML || '').trim();
+            if (!raw) {
+                logDebug('requestPageData: page_name empty');
+                return;
+            }
+
+            const key = raw.toLowerCase();
+            const cmd = PAGE_TO_CMD[key] || key;
+
+            // Debug line where cmd is defined
+            logDebug('requestPageData: sending', cmd, 'isLeader=', isLeader, 'visible=', !document.hidden, 'wsState=', websocket && websocket.readyState);
+
             websocket.send(cmd);
-            console.info('WS sent command:', cmd, '(page:', raw, ')');
-        } catch (e) {
-            console.error('WS send failed for command', cmd, e);
+            logInfo('WS sent command:', cmd, '(page:', raw, ')');
+        } catch (err) {
+            logError('requestPageData: unexpected error', err);
         }
     }
 
-    // Main incoming message handler with debug logging
+    // Message handling
     function onMessage(evt) {
-        try { console.debug('WS raw:', evt.data); } catch (e) { /* ignore logging errors */ }
+        let raw = evt.data;
+        logDebug('WS incoming raw:', raw);
 
-        const raw = evt.data;
         let obj;
         try {
             obj = JSON.parse(raw);
         } catch (e) {
-            console.debug('WS: non-JSON message received:', raw);
+            logDebug('WS: non-JSON message received:', raw);
             return;
         }
 
-        try { console.debug('WS parsed:', obj); } catch (e) { /* ignore logging errors */ }
+        logDebug('WS parsed:', obj);
 
         const type = obj.type || null;
-        const seq = Number.isFinite(obj.seq) ? obj.seq : 0;
-
-        if (seq && seq < lastSeq) {
-            console.debug('WS: ignoring stale seq', seq, 'lastSeq', lastSeq);
-            return;
-        }
-        if (seq) lastSeq = seq;
 
         if (type && type.startsWith('statemachine')) {
             handleStatemachineMessage(obj);
@@ -160,29 +193,8 @@
             return;
         }
 
-        if (type === 'tasks_start') {
-            currentSeq = obj.seq || 0;
-            clearTasksTable();
-            if (obj.total !== undefined) {
-                const totalEl = document.getElementById('tasks_total');
-                if (totalEl) totalEl.textContent = obj.total;
-            }
-            return;
-        }
-
-        if (type === 'tasks_page') {
-            if (obj.seq && currentSeq && obj.seq !== currentSeq) {
-                console.debug('WS: tasks_page seq mismatch', obj.seq, 'currentSeq', currentSeq);
-                return;
-            }
-            if (Array.isArray(obj.tasks)) {
-                appendTasksRows(obj.tasks);
-            }
-            return;
-        }
-
-        if (type === 'tasks_end') {
-            console.debug('WS: tasks_end received seq', obj.seq);
+        if (type === 'tasks_start' || type === 'tasks_page' || type === 'tasks_end') {
+            handleTasksMessages(obj);
             return;
         }
 
@@ -194,7 +206,7 @@
         applyPayloadToDOM(obj);
     }
 
-    // Summary handler: update small status spans
+    // Summary handler
     function handleSummary(obj) {
         if (obj.time !== undefined) {
             const el = document.getElementById('stat_time');
@@ -236,7 +248,32 @@
         }
     }
 
-    // Settings/config handler: map known fields to DOM
+    // Tasks messages handler (start/page/end)
+    let tasksSeq = 0;
+    function handleTasksMessages(obj) {
+        const type = obj.type;
+        if (type === 'tasks_start') {
+            tasksSeq = obj.seq || 0;
+            clearTasksTable();
+            const totalEl = document.getElementById('tasks_total');
+            if (totalEl && obj.total !== undefined) totalEl.textContent = obj.total;
+            return;
+        }
+        if (type === 'tasks_page') {
+            if (obj.seq && tasksSeq && obj.seq !== tasksSeq) {
+                logDebug('WS: tasks_page seq mismatch', obj.seq, tasksSeq);
+                return;
+            }
+            if (Array.isArray(obj.tasks)) appendTasksRows(obj.tasks);
+            return;
+        }
+        if (type === 'tasks_end') {
+            logDebug('WS: tasks_end received seq', obj.seq);
+            return;
+        }
+    }
+
+    // Settings handler
     function handleSettings(obj) {
         if (obj.device_name !== undefined) {
             const el = document.getElementById('cfg_device_name');
@@ -253,7 +290,9 @@
         applyPayloadToDOM(obj);
     }
 
-    // Statemachine message handling
+    // Statemachine handling
+    const statemachineCache = { totalStates: 0, received: {}, order: [] };
+
     function handleStatemachineMessage(obj) {
         const type = obj.type || '';
 
@@ -263,29 +302,31 @@
             statemachineCache.order = [];
             const container = document.getElementById('statemachine_container');
             if (container) container.innerHTML = '';
-            console.info('Statemachine start, expecting', statemachineCache.totalStates, 'states');
+            logInfo('Statemachine start, expecting', statemachineCache.totalStates, 'states');
             return;
         }
 
         if (type === 'statemachine_general') {
             applyPayloadToDOM(obj);
-            console.debug('Statemachine general received', obj);
+            logDebug('Statemachine general received', obj);
             return;
         }
 
         if (type === 'statemachine_state') {
-            const idx = (typeof obj.state_index !== 'undefined') ? Number(obj.state_index) : null;
+            // prefer slot_index, fall back to state_index
+            const idx = (typeof obj.slot_index !== 'undefined') ? Number(obj.slot_index) :
+                (typeof obj.state_index !== 'undefined') ? Number(obj.state_index) : null;
             if (idx === null) {
-                console.warn('statemachine_state without state_index', obj);
+                logWarn('statemachine_state without index', obj);
                 return;
             }
 
-            // dedupe: skip identical messages for same index arriving quickly
+            // dedupe identical messages arriving quickly
             const dedupeKey = 'sm_' + idx;
             const payloadStr = JSON.stringify(obj);
             const prev = window._sm_dedupe[dedupeKey];
             if (prev && prev.str === payloadStr && (Date.now() - prev.ts) < 1000) {
-                console.debug('Duplicate statemachine_state ignored for index', idx);
+                logDebug('Duplicate statemachine_state ignored for index', idx);
                 return;
             }
             window._sm_dedupe[dedupeKey] = { str: payloadStr, ts: Date.now() };
@@ -294,56 +335,103 @@
             statemachineCache.order.push(idx);
 
             renderStatemachineState(idx, obj);
-            console.debug('Statemachine state received index', idx, obj);
+            logDebug('Statemachine state received index', idx, obj);
             return;
         }
 
         if (type === 'statemachine_end') {
-            console.info('Statemachine end received. States received:', Object.keys(statemachineCache.received).length);
+            logInfo('Statemachine end received. States received:', Object.keys(statemachineCache.received).length);
             finalizeStatemachineUI();
             return;
         }
 
-        console.debug('Unhandled statemachine message type', type);
+        logDebug('Unhandled statemachine message type', type);
     }
 
-    // Render a single state object into the UI, filling form placeholders if present
+    function finalizeStatemachineUI() {
+        const total = statemachineCache.totalStates || 0;
+        if (total > 0) {
+            const missing = [];
+            for (let i = 0; i < total; ++i) {
+                if (!Object.prototype.hasOwnProperty.call(statemachineCache.received, i)) missing.push(i);
+            }
+            if (missing.length) logWarn('Statemachine missing states:', missing);
+            else logInfo('All statemachine states received');
+        }
+    }
+
+    // DOM helpers
+    function clearTasksTable() {
+        const tbody = document.getElementById('stat_tasks_full_body');
+        if (tbody) tbody.innerHTML = '';
+    }
+
+    function appendTasksRows(tasks) {
+        const tbody = document.getElementById('stat_tasks_full_body');
+        if (!tbody) return;
+        tasks.forEach(t => {
+            const tr = document.createElement('tr');
+
+            const tdName = document.createElement('td'); tdName.textContent = t.name || ''; tr.appendChild(tdName);
+            const tdState = document.createElement('td'); tdState.textContent = t.state || ''; tr.appendChild(tdState);
+            const tdPrio = document.createElement('td'); tdPrio.textContent = t.prio !== undefined ? t.prio : ''; tr.appendChild(tdPrio);
+            const tdRun = document.createElement('td'); tdRun.textContent = t.run_ticks !== undefined ? t.run_ticks : ''; tr.appendChild(tdRun);
+            const tdCpu = document.createElement('td'); tdCpu.textContent = t.cpu_pct !== undefined ? Number(t.cpu_pct).toFixed(2) : ''; tr.appendChild(tdCpu);
+            const tdStack = document.createElement('td'); tdStack.textContent = t.stack_high_water !== undefined ? t.stack_high_water : ''; tr.appendChild(tdStack);
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Generic payload -> DOM mapping
+    function applyPayloadToDOM(payload) {
+        if (!payload || typeof payload !== 'object') return;
+        for (const key in payload) {
+            if (!Object.prototype.hasOwnProperty.call(payload, key)) continue;
+            const el = document.getElementById(key);
+            if (!el) continue;
+            const val = payload[key];
+            if (el.tagName === 'INPUT' && el.type === 'checkbox') el.checked = Boolean(val);
+            else if (el.tagName === 'SELECT') {
+                el.value = val;
+                if (!Array.from(el.options).some(o => o.value === el.value)) {
+                    for (let o of el.options) if (o.text === val) { o.selected = true; break; }
+                }
+            } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
+            else el.textContent = val;
+        }
+    }
+
+    // Render a single statemachine state into the UI (fills s{index}_* placeholders or creates dynamic block)
     function renderStatemachineState(index, stateObj) {
         try {
-            console.debug('renderStatemachineState: filling state', index, stateObj);
+            logDebug('renderStatemachineState: filling state', index, stateObj);
 
-            // Helper to safely set element text/value and log it
             function setElementValue(id, value) {
                 const el = document.getElementById(id);
-                if (!el) {
-                    return false;
-                }
+                if (!el) return false;
                 if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
                     el.value = (value === null || typeof value === 'undefined') ? '' : String(value);
                 } else {
                     el.textContent = (value === null || typeof value === 'undefined') ? '' : String(value);
                 }
-                console.debug('renderStatemachineState: set', id, '=>', value);
+                logDebug('renderStatemachineState: set', id, '=>', value);
                 return true;
             }
 
-            // s_en: boolean -> "On"/"Off" select
             if (typeof stateObj.s_en !== 'undefined') {
                 const enVal = stateObj.s_en ? 'On' : 'Off';
                 setElementValue('s' + index + '_en', enVal);
             }
 
-            // fanspeed
             if (typeof stateObj.s_fanspeed !== 'undefined') {
                 setElementValue('s' + index + '_fanspeed', stateObj.s_fanspeed);
             }
 
-            // name
             if (typeof stateObj.s_name !== 'undefined') {
                 setElementValue('s' + index + '_name', stateObj.s_name);
             }
 
-            // numeric fields mapping
             const numericFields = {
                 s_st_h: 's' + index + '_st_h',
                 s_st_m: 's' + index + '_st_m',
@@ -359,7 +447,6 @@
                 }
             }
 
-            // valves: s_valves -> s{index}_v{j}_pos
             if (Array.isArray(stateObj.s_valves)) {
                 stateObj.s_valves.forEach((v, j) => {
                     const vid = 's' + index + '_v' + j + '_pos';
@@ -367,7 +454,6 @@
                 });
             }
 
-            // If no placeholders exist, create/update a dynamic block as fallback
             const anyPlaceholder = !!document.getElementById('s' + index + '_name') ||
                 !!document.getElementById('s' + index + '_fanspeed') ||
                 !!document.getElementById('s' + index + '_v0_pos');
@@ -380,7 +466,7 @@
                         container.id = 'statemachine_container';
                         const main = document.getElementById('main') || document.body;
                         main.appendChild(container);
-                        console.debug('renderStatemachineState: created statemachine_container');
+                        logDebug('renderStatemachineState: created statemachine_container');
                     }
 
                     const rowId = 'sm_state_' + index;
@@ -392,7 +478,7 @@
                         row.innerHTML = `<h4 class="sm-state-title">State ${index}</h4>
                              <div class="sm-state-body"></div>`;
                         container.appendChild(row);
-                        console.debug('renderStatemachineState: created dynamic row', rowId);
+                        logDebug('renderStatemachineState: created dynamic row', rowId);
                     }
 
                     const body = row.querySelector('.sm-state-body');
@@ -431,76 +517,64 @@
                         body.appendChild(p);
                     });
 
-                    console.debug('renderStatemachineState: rendered dynamic block for', rowId);
+                    logDebug('renderStatemachineState: rendered dynamic block for', rowId);
                 }, 0);
             }
         } catch (err) {
-            console.error('renderStatemachineState: unexpected error', err);
-        }
-    }
-
-    // Finalize UI after all states arrived
-    function finalizeStatemachineUI() {
-        const total = statemachineCache.totalStates || 0;
-        if (total > 0) {
-            const missing = [];
-            for (let i = 0; i < total; ++i) {
-                if (!Object.prototype.hasOwnProperty.call(statemachineCache.received, i)) missing.push(i);
-            }
-            if (missing.length) {
-                console.warn('Statemachine missing states:', missing);
-            } else {
-                console.info('All statemachine states received');
-            }
-        }
-    }
-
-    function clearTasksTable() {
-        const tbody = document.getElementById('stat_tasks_full_body');
-        if (tbody) tbody.innerHTML = '';
-    }
-
-    function appendTasksRows(tasks) {
-        const tbody = document.getElementById('stat_tasks_full_body');
-        if (!tbody) return;
-        tasks.forEach(t => {
-            const tr = document.createElement('tr');
-
-            const tdName = document.createElement('td'); tdName.textContent = t.name || ''; tr.appendChild(tdName);
-            const tdState = document.createElement('td'); tdState.textContent = t.state || ''; tr.appendChild(tdState);
-            const tdPrio = document.createElement('td'); tdPrio.textContent = t.prio !== undefined ? t.prio : ''; tr.appendChild(tdPrio);
-            const tdRun = document.createElement('td'); tdRun.textContent = t.run_ticks !== undefined ? t.run_ticks : ''; tr.appendChild(tdRun);
-            const tdCpu = document.createElement('td'); tdCpu.textContent = t.cpu_pct !== undefined ? Number(t.cpu_pct).toFixed(2) : ''; tr.appendChild(tdCpu);
-            const tdStack = document.createElement('td'); tdStack.textContent = t.stack_high_water !== undefined ? t.stack_high_water : ''; tr.appendChild(tdStack);
-
-            tbody.appendChild(tr);
-        });
-    }
-
-    // Generic helper: map payload keys to DOM elements by id
-    function applyPayloadToDOM(payload) {
-        if (!payload || typeof payload !== 'object') return;
-        for (const key in payload) {
-            if (!Object.prototype.hasOwnProperty.call(payload, key)) continue;
-            const el = document.getElementById(key);
-            if (!el) continue;
-            const val = payload[key];
-            if (el.tagName === 'INPUT' && el.type === 'checkbox') el.checked = Boolean(val);
-            else if (el.tagName === 'SELECT') {
-                el.value = val;
-                if (!Array.from(el.options).some(o => o.value === el.value)) {
-                    for (let o of el.options) if (o.text === val) { o.selected = true; break; }
-                }
-            } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
-            else el.textContent = val;
+            logError('renderStatemachineState: unexpected error', err);
         }
     }
 
     // Expose small API for debugging
     window.OSV_WS = {
-        requestPageData: requestPageData,
-        getLastSeq: () => lastSeq,
-        isLeader: () => isLeader
+        requestPageData,
+        isLeader: () => isLeader,
+        lastRequestTs: () => lastRequestTs
     };
+
+    // Ensure requestPageData is triggered on load, visibility change, popstate, and page_name changes
+    window.addEventListener('load', () => {
+        try { requestPageData(); } catch (e) { logDebug('requestPageData on load failed', e); }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && isLeader) {
+            logDebug('visibilitychange: visible and leader, requesting page data');
+            requestPageData();
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        logDebug('popstate: navigation detected, requesting page data');
+        requestPageData();
+    });
+
+    (function observePageName() {
+        const pageNameEl = document.getElementById('page_name');
+        if (pageNameEl) {
+            const mo = new MutationObserver((mutations) => {
+                for (const m of mutations) {
+                    if (m.type === 'characterData' || m.type === 'childList' || m.type === 'subtree') {
+                        logDebug('page_name changed, requesting page data');
+                        requestPageData();
+                        break;
+                    }
+                }
+            });
+            mo.observe(pageNameEl, { childList: true, subtree: true, characterData: true });
+        } else {
+            // fallback: try again shortly (in case page_name is created later)
+            setTimeout(() => {
+                const el = document.getElementById('page_name');
+                if (el) {
+                    const mo2 = new MutationObserver(() => { requestPageData(); });
+                    mo2.observe(el, { childList: true, subtree: true, characterData: true });
+                }
+            }, 500);
+        }
+    })();
+
+    // Start WebSocket
+    window.addEventListener('load', initWebSocket);
 
 })();
