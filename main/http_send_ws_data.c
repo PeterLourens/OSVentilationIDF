@@ -11,6 +11,56 @@ static const char *TAG = "HTTP_JSON_ws";
 
 static uint32_t ws_msg_seq = 0u;
 
+// send a cJSON object directly to the requesting websocket connection (req).
+// If req is NULL, fall back to ws_async_send() to preserve previous behavior.
+// send a cJSON object directly to the requesting websocket connection (req).
+// If req is NULL, fall back to ws_async_send() to preserve previous behavior.
+static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
+{
+    if (!obj)
+        return;
+
+    char *out = cJSON_PrintUnformatted(obj);
+    cJSON_Delete(obj);
+
+    if (!out)
+    {
+        ESP_LOGW(TAG, "send_cjson_to_req_and_free: cJSON_PrintUnformatted returned NULL (OOM). free_heap=%u",
+                 esp_get_free_heap_size());
+        return;
+    }
+
+    if (req != NULL)
+    {
+        httpd_ws_frame_t out_pkt;
+        memset(&out_pkt, 0, sizeof(out_pkt));
+        out_pkt.type = HTTPD_WS_TYPE_TEXT;
+        out_pkt.payload = (uint8_t *)out;
+        out_pkt.len = strlen(out);
+
+        // NOTE: httpd_ws_send_frame signature in this IDF is:
+        // esp_err_t httpd_ws_send_frame(httpd_req_t *req, httpd_ws_frame_t *pkt);
+        esp_err_t r = httpd_ws_send_frame(req, &out_pkt);
+        if (r != ESP_OK)
+        {
+            ESP_LOGW(TAG, "send_cjson_to_req_and_free: httpd_ws_send_frame failed: %d", r);
+            // fallback: broadcast if direct send fails
+            ws_async_send(out, strlen(out));
+        }
+        else
+        {
+            ESP_LOGD(TAG, "send_cjson_to_req_and_free: sent %u bytes to requesting client", (unsigned)out_pkt.len);
+        }
+    }
+    else
+    {
+        // defensive fallback: broadcast
+        ws_async_send(out, strlen(out));
+    }
+
+    free(out);
+}
+
 static void send_cjson_and_free(cJSON *obj)
 {
     if (!obj)
@@ -380,7 +430,144 @@ void send_config_json_ws(void)
     }
 }
 
-void send_statemachine_config_json_ws(void)
+// send_statemachine_config_json_ws - send statemachine config in small chunks to the requesting websocket
+// Sends: statemachine_start, statemachine_general, multiple statemachine_state messages, statemachine_end
+void send_statemachine_config_json_ws(httpd_req_t *req)
+{
+    // 1) Send start message with totals
+    cJSON *start = cJSON_CreateObject();
+    if (!start)
+    {
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: start cJSON_CreateObject failed (OOM). free_heap=%u",
+                 esp_get_free_heap_size());
+        return;
+    }
+    cJSON_AddStringToObject(start, "type", "statemachine_start");
+    cJSON_AddNumberToObject(start, "total_states", MAX_NR_STATES);
+    send_cjson_to_req_and_free(start, req);
+
+    // 2) Send general settings as a small object
+    cJSON *gen = cJSON_CreateObject();
+    if (!gen)
+    {
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: gen cJSON_CreateObject failed (OOM). free_heap=%u",
+                 esp_get_free_heap_size());
+        return;
+    }
+
+    // take mutex briefly to read general settings
+    if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        cJSON_AddNumberToObject(gen, "wday_d_h_start", statemachine_gen_config.wday_d_h_start);
+        cJSON_AddNumberToObject(gen, "wday_d_m_start", statemachine_gen_config.wday_d_m_start);
+        cJSON_AddNumberToObject(gen, "wday_n_h_start", statemachine_gen_config.wday_n_h_start);
+        cJSON_AddNumberToObject(gen, "wday_n_m_start", statemachine_gen_config.wday_n_m_start);
+        cJSON_AddNumberToObject(gen, "wkend_d_h_start", statemachine_gen_config.wkend_d_h_start);
+        cJSON_AddNumberToObject(gen, "wkend_d_m_start", statemachine_gen_config.wkend_d_h_start);
+        cJSON_AddNumberToObject(gen, "wkend_n_h_start", statemachine_gen_config.wkend_n_h_start);
+        cJSON_AddNumberToObject(gen, "wkend_n_m_start", statemachine_gen_config.wkend_n_m_start);
+        cJSON_AddStringToObject(gen, "wkend_d1", statemachine_gen_config.wkend_d1);
+        cJSON_AddStringToObject(gen, "wkend_d2", statemachine_gen_config.wkend_d2);
+        cJSON_AddNumberToObject(gen, "rh_l", statemachine_gen_config.rh_low_level);
+        cJSON_AddNumberToObject(gen, "rh_h", statemachine_gen_config.rh_high_level);
+        cJSON_AddNumberToObject(gen, "co2_l", statemachine_gen_config.co2_low_level);
+        cJSON_AddNumberToObject(gen, "co2_h", statemachine_gen_config.co2_high_level);
+        xSemaphoreGive(state_config_mutex);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: could not take state_config_mutex for general settings");
+    }
+
+    cJSON_AddStringToObject(gen, "type", "statemachine_general");
+    send_cjson_to_req_and_free(gen, req);
+
+    // 3) Send each state as a separate small JSON message
+    for (int i = 0; i < MAX_NR_STATES; ++i)
+    {
+        cJSON *s = cJSON_CreateObject();
+        if (!s)
+        {
+            ESP_LOGW(TAG, "send_statemachine_config_json_ws: state %d cJSON_CreateObject failed (OOM). free_heap=%u",
+                     i, esp_get_free_heap_size());
+            // continue trying next states
+            continue;
+        }
+
+        // Acquire mutex briefly to read this state's config
+        if (state_config_mutex && xSemaphoreTake(state_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            char fanspeed_val[16];
+
+            cJSON_AddBoolToObject(s, "s_en", statemachine_config[i].enable_state);
+
+            if (statemachine_config[i].fanspeed == 1)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "Low");
+            else if (statemachine_config[i].fanspeed == 2)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "Medium");
+            else if (statemachine_config[i].fanspeed == 3)
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "High");
+            else
+                snprintf(fanspeed_val, sizeof(fanspeed_val), "0");
+
+            cJSON_AddStringToObject(s, "s_fanspeed", fanspeed_val);
+            cJSON_AddStringToObject(s, "s_name", statemachine_config[i].state_name);
+            cJSON_AddNumberToObject(s, "s_st_h", statemachine_config[i].state_start_hour);
+            cJSON_AddNumberToObject(s, "s_st_m", statemachine_config[i].state_start_minute);
+            cJSON_AddNumberToObject(s, "s_end_h", statemachine_config[i].state_end_hour);
+            cJSON_AddNumberToObject(s, "s_end_m", statemachine_config[i].state_end_minute);
+            cJSON_AddNumberToObject(s, "s_dur_m", statemachine_config[i].duration_minutes);
+            cJSON_AddNumberToObject(s, "s_cycl_int_m", statemachine_config[i].cycling_interval_min);
+
+            // valves positions as small array
+            cJSON *varr = cJSON_CreateArray();
+            if (varr)
+            {
+                for (int j = 0; j < MAX_VALVE_COUNT; ++j)
+                {
+                    cJSON_AddItemToArray(varr, cJSON_CreateNumber(statemachine_config[i].valve_position[j]));
+                }
+                cJSON_AddItemToObject(s, "s_valves", varr);
+            }
+            else
+            {
+                ESP_LOGW(TAG, "send_statemachine_config_json_ws: could not create valves array for state %d", i);
+            }
+
+            xSemaphoreGive(state_config_mutex);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "send_statemachine_config_json_ws: could not take state_config_mutex for state %d", i);
+            // still send minimal info
+            cJSON_AddStringToObject(s, "s_name", "<locked>");
+        }
+
+        // Add metadata and send
+        cJSON_AddNumberToObject(s, "state_index", i);
+        cJSON_AddStringToObject(s, "type", "statemachine_state");
+
+        // Debug: log heap before printing
+        ESP_LOGD(TAG, "send_statemachine_config_json_ws: about to send state %d, free_heap=%u", i, esp_get_free_heap_size());
+
+        send_cjson_to_req_and_free(s, req);
+    }
+
+    // 4) Send end message
+    cJSON *end = cJSON_CreateObject();
+    if (end)
+    {
+        cJSON_AddStringToObject(end, "type", "statemachine_end");
+        send_cjson_to_req_and_free(end, req);
+    }
+    else
+    {
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: end cJSON_CreateObject failed (OOM). free_heap=%u",
+                 esp_get_free_heap_size());
+    }
+}
+
+/*void send_statemachine_config_json_ws(void)
 {
     cJSON *root = cJSON_CreateObject();
     char key[32];
@@ -451,14 +638,24 @@ void send_statemachine_config_json_ws(void)
 
     // Serialize to string
     char *out = cJSON_PrintUnformatted(root);
-    cJSON_Delete(root);
 
-    if (out)
+    // Debug: log the JSON (or NULL) so we can see what was created
+    LOGD(TAG, "Statemachine JSON: %s", out ? out : "NULL");
+
+    // Defensive: if out is NULL, log heap and bail
+    if (!out)
     {
-        ws_async_send(out, strlen(out));
-        free(out);
+        ESP_LOGW(TAG, "send_statemachine_config_json_ws: cJSON_PrintUnformatted returned NULL (OOM). free_heap=%lu",(unsigned long)esp_get_free_heap_size());
+        cJSON_Delete(root);
+        return;
     }
-}
+
+    ws_async_send(out, strlen(out));
+    //LOGD(TAG, "send_statemachine_config_json_ws: ws_async_send called (ret=%d)", send_ret);
+
+    free(out);
+    cJSON_Delete(root);
+}*/
 
 void send_stats_json_ws(void)
 {

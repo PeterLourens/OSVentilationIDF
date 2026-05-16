@@ -21,7 +21,8 @@
 void send_sensor_config_json_ws(void);
 void send_config_json_ws(void);
 void send_index_html_ws(void);
-void send_statemachine_config_json_ws(void);
+// void send_statemachine_config_json_ws(void);
+void send_statemachine_config_json_ws(httpd_req_t *req);
 void send_stats_json_ws(void);
 
 #endif

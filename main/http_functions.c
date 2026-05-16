@@ -6,7 +6,7 @@
 
 #include "http_functions.h"
 
-static const char *TAG = "HTTP_server";
+static const char *TAG = "http_functions";
 
 extern const char pure_min_css_start[] asm("_binary_pure_min_css_start");
 extern const char pure_min_css_end[] asm("_binary_pure_min_css_end");
@@ -216,7 +216,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
-            send_stats_json_ws(); // summary + tasks_full (as implemented)
+            // send_stats_json_ws();
         }
 
         if (strcmp((char *)ws_pkt.payload, "index") == 0)
@@ -236,10 +236,17 @@ static esp_err_t websocket_handler(httpd_req_t *req)
             LOGD(TAG, "Config requested via WebSocket");
             send_config_json_ws();
         }
-        if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
+
+        /*if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
         {
             LOGD(TAG, "Statemachine config requested via WebSocket");
             send_statemachine_config_json_ws();
+        }*/
+
+        if (strcmp((char *)ws_pkt.payload, "statemachine") == 0)
+        {
+            LOGD(TAG, "Statemachine config requested via WebSocket");
+            send_statemachine_config_json_ws(req);
         }
         free(buf);
     }
