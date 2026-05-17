@@ -9,6 +9,7 @@
 
 #define DETAILS_CHUNK_SIZE 1024
 #define MAX_WS_CLIENTS_TRACK 16
+// #define ENABLE_PER_CONN_RATE_LIMIT 0 // enable optional per-connection rate limiting (define before including this header)
 
 #include <stdint.h>
 
