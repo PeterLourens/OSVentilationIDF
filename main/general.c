@@ -471,7 +471,8 @@ void set_log_levels(void)
     esp_log_level_set("fan_control", ESP_LOG_INFO);
     esp_log_level_set("general", ESP_LOG_INFO);
     esp_log_level_set("HTTP_JSON_ws", ESP_LOG_INFO);
-    esp_log_level_set("http_functions", ESP_LOG_DEBUG);
+    esp_log_level_set("http_functions", ESP_LOG_INFO);
+    esp_log_level_set("http_send_ws_data", ESP_LOG_INFO);
     esp_log_level_set("i2c_DS3231", ESP_LOG_INFO);
     esp_log_level_set("i2c_functions", ESP_LOG_INFO);
     esp_log_level_set("i2c_LCD", ESP_LOG_INFO);

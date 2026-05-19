@@ -14,9 +14,15 @@ TaskHandle_t influx_sender_task_handle = NULL;
 //   Configuration
 #define INFLUX_QUEUE_LEN 8
 #define INFLUX_MAX_PAYLOAD 8192
-#define INFLUX_SENSORS_CHUNK 4096
+#define INFLUX_SENSORS_CHUNK 2048
 #define INFLUX_SENDER_STACK 8192
 #define INFLUX_SENDER_PRIO 5
+
+// --- DMA monitor configuration (influxdb.c) ---
+uint32_t g_influx_task_interval_ms = 20000;   // keep default 20s (matches existing vTaskDelay)
+uint32_t g_dma_monitor_interval_ms = 5000;    // default 5s for DMA monitor
+uint32_t g_monitor_tick_resolution_ms = 1000; // resolution for the integrated loop (1s)
+static int g_dma_monitor_multiplier = 1;
 
 // Queue item and globals
 typedef struct
@@ -25,7 +31,6 @@ typedef struct
     size_t len;
 } influx_job_t;
 
-// Existing helpers (kept from your original file)
 bool influxdb_wait_ready(TickType_t timeout_ticks)
 {
     TickType_t start = xTaskGetTickCount();
@@ -36,6 +41,124 @@ bool influxdb_wait_ready(TickType_t timeout_ticks)
         vTaskDelay(pdMS_TO_TICKS(50));
     }
     return true;
+}
+
+static void escape_tag(char *dst, size_t dst_size, const char *src)
+{
+    size_t j = 0;
+    for (size_t i = 0; src[i] != '\0' && j + 2 < dst_size; i++)
+    {
+        char c = src[i];
+        if (c == ' ' || c == ',' || c == '=')
+        {
+            dst[j++] = '\\';
+        }
+        dst[j++] = c;
+    }
+    dst[j] = '\0';
+}
+
+bool influxdb_enqueue_sensor_line(int bus, int ch, float sensor_val[DATA_FIELDS], float avg_val[DATA_FIELDS])
+{
+    if (ch < 0)
+        return false;
+
+    // Small stack buffer per sensor; increase if you expect very long tag strings.
+    char line[512];
+    memset(line, 0, sizeof(line));
+
+    // Prepare tags (escaped)
+    char type_esc[64] = {0};
+    char valve_esc[64] = {0};
+    char loc_esc[128] = {0};
+
+    // You must provide a way to get meta for the sensor (same as in build_payload_sensors_for_bus)
+    const bus_sensor_t *meta = (bus == 0) ? &bus0_sensor_settings[ch] : &bus1_sensor_settings[ch];
+
+    escape_tag(type_esc, sizeof(type_esc), meta->type);
+    escape_tag(valve_esc, sizeof(valve_esc), meta->valve);
+    escape_tag(loc_esc, sizeof(loc_esc), meta->location);
+
+    if (type_esc[0] == '\0')
+        strcpy(type_esc, "None");
+    if (loc_esc[0] == '\0')
+        strcpy(loc_esc, "None");
+    if (valve_esc[0] == '\0')
+        strcpy(valve_esc, "None");
+
+    char sensor_id[32];
+    snprintf(sensor_id, sizeof(sensor_id), "bus%d_ch%d", bus, ch);
+
+    int64_t ts = influxdb_get_timestamp();
+
+    // Build the line. Keep format consistent with your existing code.
+    // If CO2 is present, append those fields.
+    int n = snprintf(line, sizeof(line),
+                     "sensors,bus=%d,channel=%d,sensor_id=%s,type=%s,location=%s,valve=%s "
+                     "temperature_raw=%.2f,temperature_avg=%.2f,humidity_raw=%.2f,humidity_avg=%.2f",
+                     bus, ch, sensor_id, type_esc, loc_esc, valve_esc,
+                     sensor_val[IDX_TEMP], avg_val[IDX_TEMP],
+                     sensor_val[IDX_HUMIDITY], avg_val[IDX_HUMIDITY]);
+
+    if (n < 0 || n >= (int)sizeof(line))
+    {
+        ESP_LOGW(TAG, "sensor line truncated for bus=%d ch=%d (n=%d buf=%zu)", bus, ch, n, sizeof(line));
+        // If truncated, still attempt to enqueue what we have (or skip)
+    }
+    else
+    {
+        // Append CO2 fields if present
+        if (sensor_val[IDX_CO2] > 0.0f)
+        {
+            int m = snprintf(line + n, sizeof(line) - n, ",co2_raw=%.2f,co2_avg=%.2f", sensor_val[IDX_CO2], avg_val[IDX_CO2]);
+            if (m < 0 || m >= (int)(sizeof(line) - n))
+            {
+                ESP_LOGW(TAG, "sensor CO2 append truncated for bus=%d ch=%d", bus, ch);
+            }
+            else
+            {
+                n += m;
+            }
+        }
+
+        // Append timestamp and newline
+        int t = snprintf(line + n, sizeof(line) - n, " %lld\n", (long long)ts);
+        if (t < 0 || t >= (int)(sizeof(line) - n))
+        {
+            ESP_LOGW(TAG, "sensor timestamp append truncated for bus=%d ch=%d", bus, ch);
+        }
+    }
+
+    // Enqueue the single-line payload
+    if (strlen(line) == 0)
+        return false;
+    return influxdb_enqueue_payload(line, strlen(line));
+}
+
+// Setter/getter for runtime configuration
+void influxdb_set_dma_monitor_interval_ms(uint32_t ms)
+{
+    if (ms < 100)
+        ms = 100; // enforce a sane minimum
+    g_dma_monitor_interval_ms = ms;
+}
+
+uint32_t influxdb_get_dma_monitor_interval_ms(void)
+{
+    return g_dma_monitor_interval_ms;
+}
+
+// Optional: set the base influx task interval if you want to change it programmatically
+void influxdb_set_influx_task_interval_ms(uint32_t ms)
+{
+    if (ms < 1000)
+        ms = 1000;
+    g_influx_task_interval_ms = ms;
+}
+
+uint32_t influxdb_get_influx_task_interval_ms(void)
+{
+    return g_influx_task_interval_ms;
 }
 
 // Mutex-protected config snapshot
@@ -92,21 +215,6 @@ static void normalize_influx_url(char *url)
     }
 }
 
-static void escape_tag(char *dst, size_t dst_size, const char *src)
-{
-    size_t j = 0;
-    for (size_t i = 0; src[i] != '\0' && j + 2 < dst_size; i++)
-    {
-        char c = src[i];
-        if (c == ' ' || c == ',' || c == '=')
-        {
-            dst[j++] = '\\';
-        }
-        dst[j++] = c;
-    }
-    dst[j] = '\0';
-}
-
 void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg)
 {
     char base[256];
@@ -135,6 +243,72 @@ void influxdb_append_line(char *out, size_t out_size, const char *line)
 
     memcpy(out + used, line, len);
     out[used + len] = '\0';
+}
+
+void influxdb_build_payload_dma(char *out, size_t out_size, const char *host_tag)
+{
+    if (!out || out_size == 0)
+        return;
+
+    uint32_t dma_free = heap_caps_get_free_size(MALLOC_CAP_DMA);
+    uint32_t heap_free = esp_get_free_heap_size();
+    uint32_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL);
+    int64_t ts = influxdb_get_timestamp();
+
+    int n = snprintf(out, out_size,
+                     "esp_dma,host=%s dma_free=%u,heap_free=%u,largest=%u %lld\n",
+                     host_tag ? host_tag : "osvent",
+                     (unsigned)dma_free, (unsigned)heap_free, (unsigned)largest,
+                     (long long)ts);
+    if (n < 0 || (size_t)n >= out_size)
+        out[0] = '\0';
+}
+
+// Build and enqueue a DMA metric payload using existing enqueue helper.
+// Returns true if enqueue succeeded.
+bool influxdb_enqueue_dma_metrics(const char *host_tag)
+{
+    char buf[DMA_MONITOR_PAYLOAD_SZ];
+    memset(buf, 0, sizeof(buf));
+    influxdb_build_payload_dma(buf, sizeof(buf), host_tag);
+    if (buf[0] == '\0')
+        return false;
+
+    // influxdb_enqueue_payload copies the payload into the queue, so passing stack buffer is fine.
+    return influxdb_enqueue_payload(buf, strlen(buf));
+}
+
+// Called from the InfluxDB task loop. Maintains an internal counter and enqueues DMA metrics
+// only when the configured multiplier condition is met. Returns true if a DMA metric was enqueued.
+bool influxdb_dma_monitor_tick(void)
+{
+    static uint32_t tick = 0;
+    tick++;
+
+    // Avoid division by zero
+    int mult = g_dma_monitor_multiplier > 0 ? g_dma_monitor_multiplier : 1;
+
+    if ((tick % (uint32_t)mult) == 0)
+    {
+        // Use a short host tag; replace with dynamic node id if you want (ensure thread-safety)
+        const char *host_tag = "osvent";
+        bool ok = influxdb_enqueue_dma_metrics(host_tag);
+
+        // Local debug log (keeps output small)
+        uint32_t dma_free = heap_caps_get_free_size(MALLOC_CAP_DMA);
+        uint32_t heap_free = esp_get_free_heap_size();
+        uint32_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL);
+        ESP_LOGD("influxdb", "dma_monitor_tick: enqueued=%d dma_free=%u heap_free=%u largest=%u", ok ? 1 : 0, dma_free, heap_free, largest);
+
+        if (dma_free < 8000)
+        {
+            ESP_LOGW("influxdb", "dma_monitor_tick: DMA low: %u bytes", dma_free);
+        }
+
+        return ok;
+    }
+
+    return false;
 }
 
 // Replace influxdb_build_payload_actuals
@@ -629,19 +803,22 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         return;
     }
 
+    // Send each sensor as a separate Influx line to avoid large allocations
     for (int bus = 0; bus < MAX_I2C_BUSES; ++bus)
     {
-        char *sbuf = malloc(INFLUX_SENSORS_CHUNK);
-        if (!sbuf)
+        for (int ch = 0; ch < CHANNELS_PER_BUS; ++ch)
         {
-            LOGE(TAG, "Failed to allocate sensors chunk for bus %d", bus);
-            continue;
+            // Skip invalid sensors (same check as before)
+            if (sensor[bus][ch][IDX_VALID] != 1.0f)
+                continue;
+
+            // Build and enqueue one sensor line
+            bool ok = influxdb_enqueue_sensor_line(bus, ch, sensor[bus][ch], avg[bus][ch]);
+            if (!ok)
+            {
+                ESP_LOGW(TAG, "Failed to enqueue sensor line bus=%d ch=%d", bus, ch);
+            }
         }
-        memset(sbuf, 0, INFLUX_SENSORS_CHUNK);
-        influxdb_build_payload_sensors_for_bus(sbuf, INFLUX_SENSORS_CHUNK, sensor, avg, bus);
-        if (strlen(sbuf) > 0)
-            influxdb_enqueue_payload(sbuf, strlen(sbuf));
-        free(sbuf);
     }
 
     free(sensor);

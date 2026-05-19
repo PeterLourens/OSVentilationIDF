@@ -543,11 +543,11 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
 
 void send_stats_json_ws(httpd_req_t *req)
 {
-    const int PAGE_SIZE = 5; // reduced page size to lower memory/DMA pressure and speed up first page
-    LOGI(TAG, "send_stats_json_ws called (req=%p)", (void *)req);
+    const int PAGE_SIZE = 3; // reduced page size to lower memory/DMA pressure and speed up first page
+    LOGD(TAG, "send_stats_json_ws called (req=%p)", (void *)req);
 
     uint64_t t0 = esp_timer_get_time();
-    LOGI(TAG, "send_stats_json_ws start: t0_us=%llu free_heap=%u dma_free=%u", (unsigned long long)t0, (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
+    LOGD(TAG, "send_stats_json_ws start: t0_us=%llu free_heap=%u dma_free=%u", (unsigned long long)t0, (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
 // Optional: per-connection rate limiting (if you added client_last_us helpers)
 #ifdef ENABLE_PER_CONN_RATE_LIMIT
@@ -619,7 +619,7 @@ void send_stats_json_ws(httpd_req_t *req)
     qsort(tasks, count, sizeof(TaskStatus_t), compare_tasks);
 
     uint64_t t1 = esp_timer_get_time();
-    LOGI(TAG, "send_stats_json_ws: snapshot+sort done delta_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t1 - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
+    LOGD(TAG, "Snapshot+sort done delta_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t1 - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
     // Now we have a stable seq number for this send operation
     uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
@@ -723,7 +723,7 @@ cleanup_tasks:
     vPortFree(tasks);
 
     uint64_t t_end = esp_timer_get_time();
-    LOGI(TAG, "send_stats_json_ws finished total_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t_end - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
+    LOGD(TAG, "send_stats_json_ws finished total_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t_end - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
 }
 
 /*void send_stats_json_ws(httpd_req_t *req)
