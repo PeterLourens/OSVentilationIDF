@@ -562,19 +562,8 @@ void send_stats_json_ws(httpd_req_t *req)
     formatted_daydatetime(date_time, sizeof(date_time));
     formatted_uptime(uptime, sizeof(uptime));
 
-    uint32_t heap_free = esp_get_free_heap_size();
+    uint32_t heap_free = 0;
     uint32_t heap_min_ever = 0;
-
-#if defined(heap_caps_get_minimum_free_size)
-    heap_min_ever = (uint32_t)heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
-#endif
-
-#if defined(esp_get_minimum_free_heap_size)
-    if (heap_min_ever == 0)
-    {
-        heap_min_ever = (uint32_t)esp_get_minimum_free_heap_size();
-    }
-#endif
 
     float cpu_temp_c = 0.0f;
     /* If you have a board-specific CPU temp function, replace this call */
@@ -592,6 +581,8 @@ void send_stats_json_ws(httpd_req_t *req)
         sm_fanspeed_str = fan_speed_to_str(sm_actuals.fanspeed);
         sm_co2_high = sm_actuals.co2_sensors_high;
         sm_rh_high = sm_actuals.rh_sensors_high;
+        heap_free = (uint32_t)sm_actuals.heap_free;
+        heap_min_ever = (uint32_t)sm_actuals.heap_min_ever;
         xSemaphoreGive(statemachine_mutex);
     }
 

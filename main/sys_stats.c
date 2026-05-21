@@ -186,6 +186,13 @@ static void update_heap_stats(void)
 {
     sm_actuals.heap_free = heap_caps_get_free_size(MALLOC_CAP_DEFAULT);
     sm_actuals.heap_min_ever = heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
+
+#if defined(esp_get_minimum_free_heap_size)
+    if (sm_actuals.heap_min_ever == 0)
+    {
+        sm_actuals.heap_min_ever = esp_get_minimum_free_heap_size();
+    }
+#endif
 }
 
 static void update_stack_watermarks(void)
