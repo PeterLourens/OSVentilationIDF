@@ -88,7 +88,14 @@ static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
     free(out);
 }
 
-// Replace send_index_html_ws with this robust version
+// Return the latest CPU temperature sampled by the sys_stats task.
+float get_cpu_temp_c(void)
+{
+    if (sm_actuals.cpu_temp >= 0)
+        return (float)sm_actuals.cpu_temp;
+    return 0.0f;
+}
+
 void send_index_html_ws(httpd_req_t *req)
 {
     char key[64];
@@ -544,33 +551,123 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
 void send_stats_json_ws(httpd_req_t *req)
 {
     const int PAGE_SIZE = 3; // reduced page size to lower memory/DMA pressure and speed up first page
-    LOGD(TAG, "send_stats_json_ws called (req=%p)", (void *)req);
+    LOGI(TAG, "send_stats_json_ws called (req=%p)", (void *)req);
 
     uint64_t t0 = esp_timer_get_time();
     LOGD(TAG, "send_stats_json_ws start: t0_us=%llu free_heap=%u dma_free=%u", (unsigned long long)t0, (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
 
-// Optional: per-connection rate limiting (if you added client_last_us helpers)
-#ifdef ENABLE_PER_CONN_RATE_LIMIT
-    const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5s
-    uint64_t last_for_client = client_last_us(req);
-    if (last_for_client != 0 && (t0 - last_for_client) < MIN_INTERVAL_US)
-    {
-        LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(t0 - last_for_client));
-        return;
-    }
-    client_set_last_us(req, t0);
+    /* --- runtime status fields for the HTML dashboard --- */
+    char date_time[64] = "";
+    char uptime[32] = "";
+    formatted_daydatetime(date_time, sizeof(date_time));
+    formatted_uptime(uptime, sizeof(uptime));
+
+    uint32_t heap_free = esp_get_free_heap_size();
+    uint32_t heap_min_ever = 0;
+
+#if defined(heap_caps_get_minimum_free_size)
+    heap_min_ever = (uint32_t)heap_caps_get_minimum_free_size(MALLOC_CAP_DEFAULT);
 #endif
+
+#if defined(esp_get_minimum_free_heap_size)
+    if (heap_min_ever == 0)
+    {
+        heap_min_ever = (uint32_t)esp_get_minimum_free_heap_size();
+    }
+#endif
+
+    float cpu_temp_c = 0.0f;
+    /* If you have a board-specific CPU temp function, replace this call */
+    extern float get_cpu_temp_c(void);
+    cpu_temp_c = get_cpu_temp_c();
+
+    /* statemachine snapshot */
+    const char *sm_state_str = "UNKNOWN";
+    const char *sm_fanspeed_str = "UNKNOWN";
+    int sm_co2_high = 0;
+    int sm_rh_high = 0;
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+    {
+        sm_state_str = state_nr_to_str(sm_actuals.state);
+        sm_fanspeed_str = fan_speed_to_str(sm_actuals.fanspeed);
+        sm_co2_high = sm_actuals.co2_sensors_high;
+        sm_rh_high = sm_actuals.rh_sensors_high;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    /* WiFi / Ethernet placeholders and best-effort retrieval */
+    char wifi_ssid[33] = "<none>";
+    char wifi_bssid[32] = "<none>";
+    int wifi_rssi = 0;
+    char wifi_ip[32] = "<no-ip>";
+    char eth_ip[32] = "<no-ip>";
+    char eth_netmask[32] = "<no-netmask>";
+
+#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3
+    /* Try to get station info and IP (best-effort; ignore failures) */
+    esp_netif_ip_info_t ip_info;
+    esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (netif && esp_netif_get_ip_info(netif, &ip_info) == ESP_OK)
+    {
+        snprintf(wifi_ip, sizeof(wifi_ip), IPSTR, IP2STR(&ip_info.ip));
+    }
+    wifi_ap_record_t apinfo;
+    if (esp_wifi_sta_get_ap_info(&apinfo) == ESP_OK)
+    {
+        snprintf((char *)wifi_ssid, sizeof(wifi_ssid), "%s", apinfo.ssid);
+        snprintf((char *)wifi_bssid, sizeof(wifi_bssid), MACSTR, MAC2STR(apinfo.bssid));
+        wifi_rssi = apinfo.rssi;
+    }
+    /* Ethernet IP */
+    esp_netif_t *ethif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (ethif && esp_netif_get_ip_info(ethif, &ip_info) == ESP_OK)
+    {
+        snprintf(eth_ip, sizeof(eth_ip), IPSTR, IP2STR(&ip_info.ip));
+        snprintf(eth_netmask, sizeof(eth_netmask), IPSTR, IP2STR(&ip_info.netmask));
+    }
+#endif
+
+    // Optional: per-connection rate limiting (if you added client_last_us helpers)
+    // #ifdef ENABLE_PER_CONN_RATE_LIMIT
+    //   const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5s
+    //    uint64_t last_for_client = client_last_us(req);
+    //    if (last_for_client != 0 && (t0 - last_for_client) < MIN_INTERVAL_US)
+    //    {
+    //       LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(t0 - last_for_client));
+    //       return;
+    //   }
+    //  client_set_last_us(req, t0);
+    // #endif
 
     // 0) Quick immediate start summary so client can show a header/spinner
     cJSON *start = cJSON_CreateObject();
     if (start)
     {
         cJSON_AddStringToObject(start, "type", "tasks_start");
-        // seq will be assigned below; include a placeholder now if needed
-        // We'll compute seq after we have a stable seq value; for now set seq=0 (client should accept)
         cJSON_AddNumberToObject(start, "seq", 0);
-        // total will be filled after we know count; set -1 as unknown placeholder
         cJSON_AddNumberToObject(start, "total", -1);
+
+        /* runtime fields */
+        cJSON_AddStringToObject(start, "date_time", date_time);
+        cJSON_AddStringToObject(start, "uptime", uptime);
+        cJSON_AddNumberToObject(start, "heap_free", (int)heap_free);
+        cJSON_AddNumberToObject(start, "heap_min_ever", (int)heap_min_ever);
+        cJSON_AddNumberToObject(start, "cpu_temp_c", cpu_temp_c);
+
+        /* statemachine snapshot */
+        cJSON_AddStringToObject(start, "statemachine_state", sm_state_str);
+        cJSON_AddStringToObject(start, "statemachine_fanspeed", sm_fanspeed_str);
+        cJSON_AddNumberToObject(start, "co2_sensors_high", sm_co2_high);
+        cJSON_AddNumberToObject(start, "rh_sensors_high", sm_rh_high);
+
+        /* network */
+        cJSON_AddStringToObject(start, "wifi_ssid", wifi_ssid);
+        cJSON_AddStringToObject(start, "wifi_bssid", wifi_bssid);
+        cJSON_AddNumberToObject(start, "wifi_rssi", wifi_rssi);
+        cJSON_AddStringToObject(start, "wifi_ip", wifi_ip);
+        cJSON_AddStringToObject(start, "eth_ip", eth_ip);
+        cJSON_AddStringToObject(start, "eth_netmask", eth_netmask);
+
         send_cjson_to_req_and_free(start, req);
     }
     else
@@ -631,6 +728,26 @@ void send_stats_json_ws(httpd_req_t *req)
         cJSON_AddStringToObject(start2, "type", "tasks_start");
         cJSON_AddNumberToObject(start2, "seq", seq);
         cJSON_AddNumberToObject(start2, "total", (int)count);
+
+        /* repeat runtime fields so client receives them with the real seq */
+        cJSON_AddStringToObject(start2, "date_time", date_time);
+        cJSON_AddStringToObject(start2, "uptime", uptime);
+        cJSON_AddNumberToObject(start2, "heap_free", (int)heap_free);
+        cJSON_AddNumberToObject(start2, "heap_min_ever", (int)heap_min_ever);
+        cJSON_AddNumberToObject(start2, "cpu_temp_c", cpu_temp_c);
+
+        cJSON_AddStringToObject(start2, "statemachine_state", sm_state_str);
+        cJSON_AddStringToObject(start2, "statemachine_fanspeed", sm_fanspeed_str);
+        cJSON_AddNumberToObject(start2, "co2_sensors_high", sm_co2_high);
+        cJSON_AddNumberToObject(start2, "rh_sensors_high", sm_rh_high);
+
+        cJSON_AddStringToObject(start2, "wifi_ssid", wifi_ssid);
+        cJSON_AddStringToObject(start2, "wifi_bssid", wifi_bssid);
+        cJSON_AddNumberToObject(start2, "wifi_rssi", wifi_rssi);
+        cJSON_AddStringToObject(start2, "wifi_ip", wifi_ip);
+        cJSON_AddStringToObject(start2, "eth_ip", eth_ip);
+        cJSON_AddStringToObject(start2, "eth_netmask", eth_netmask);
+
         send_cjson_to_req_and_free(start2, req);
     }
 
@@ -725,163 +842,3 @@ cleanup_tasks:
     uint64_t t_end = esp_timer_get_time();
     LOGD(TAG, "send_stats_json_ws finished total_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t_end - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));
 }
-
-/*void send_stats_json_ws(httpd_req_t *req)
-{
-    const int PAGE_SIZE = 10;
-    // const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5 seconds, tune as needed
-
-    // uint64_t now = esp_timer_get_time();
-
-    // per-connection rate limit
-    // uint64_t last_for_client = client_last_us(req);
-    // if (last_for_client != 0 && (now - last_for_client) < MIN_INTERVAL_US)
-    //{
-    //   ESP_LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(now - last_for_client));
-    // return;
-    //}
-    // client_set_last_us(req, now);
-
-    // LOGI(TAG, "send_stats_json_ws start: free_heap=%lu, dma_free=%lu", (unsigned long)esp_get_free_heap_size(), (unsigned long)heap_caps_get_free_size(MALLOC_CAP_DMA));
-
-    // allocate a sequence number for this send operation
-    uint32_t seq = __atomic_add_fetch(&ws_msg_seq, 1u, __ATOMIC_RELAXED);
-
-    // Get number of tasks
-    UBaseType_t count = uxTaskGetNumberOfTasks();
-    if (count == 0)
-    {
-        // send an empty page message
-        cJSON *empty = cJSON_CreateObject();
-        if (!empty)
-        {
-            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject failed (OOM)");
-            return;
-        }
-        cJSON_AddStringToObject(empty, "type", "tasks_page");
-        cJSON_AddNumberToObject(empty, "seq", seq);
-        cJSON_AddNumberToObject(empty, "start", 0);
-        cJSON_AddNumberToObject(empty, "count", 0);
-        cJSON_AddItemToObject(empty, "tasks", cJSON_CreateArray());
-        send_cjson_to_req_and_free(empty, req);
-        return;
-    }
-
-    // Snapshot tasks into an array
-    TaskStatus_t *tasks = pvPortMalloc(count * sizeof(TaskStatus_t));
-    if (!tasks)
-    {
-        ESP_LOGW(TAG, "send_stats_json_ws: pvPortMalloc tasks failed (OOM). free heap=%u", esp_get_free_heap_size());
-        // send an error page so client knows
-        cJSON *err = cJSON_CreateObject();
-        if (err)
-        {
-            cJSON_AddStringToObject(err, "type", "tasks_page");
-            cJSON_AddNumberToObject(err, "seq", seq);
-            cJSON_AddNumberToObject(err, "start", 0);
-            cJSON_AddNumberToObject(err, "count", 0);
-            cJSON_AddStringToObject(err, "error", "oom");
-            // send_cjson_and_free(err);
-            send_cjson_to_req_and_free(err, req);
-        }
-        return;
-    }
-
-    // Fill snapshot and sort
-    uint32_t total_run = uxTaskGetSystemState(tasks, count, NULL);
-    qsort(tasks, count, sizeof(TaskStatus_t), compare_tasks);
-
-    // Optional: send start message with total count
-    cJSON *start = cJSON_CreateObject();
-    if (start)
-    {
-        cJSON_AddStringToObject(start, "type", "tasks_start");
-        cJSON_AddNumberToObject(start, "seq", seq);
-        cJSON_AddNumberToObject(start, "total", (int)count);
-        // send_cjson_and_free(start);
-        send_cjson_to_req_and_free(start, req);
-    }
-    else
-    {
-        ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for start failed (OOM)");
-    }
-
-    // Send pages
-    for (int start_idx = 0; start_idx < (int)count; start_idx += PAGE_SIZE)
-    {
-        int end_idx = start_idx + PAGE_SIZE;
-        if (end_idx > (int)count)
-            end_idx = count;
-
-        cJSON *page = cJSON_CreateObject();
-        if (!page)
-        {
-            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for page failed (OOM)");
-            break;
-        }
-        cJSON_AddStringToObject(page, "type", "tasks_page");
-        cJSON_AddNumberToObject(page, "seq", seq);
-        cJSON_AddNumberToObject(page, "start", start_idx);
-        cJSON_AddNumberToObject(page, "count", end_idx - start_idx);
-
-        cJSON *arr = cJSON_CreateArray();
-        if (!arr)
-        {
-            ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateArray failed (OOM)");
-            cJSON_Delete(page);
-            break;
-        }
-
-        for (int i = start_idx; i < end_idx; ++i)
-        {
-            TaskStatus_t *ts = &tasks[i];
-            cJSON *t = cJSON_CreateObject();
-            if (!t)
-            {
-                ESP_LOGW(TAG, "send_stats_json_ws: cJSON_CreateObject for task failed (OOM)");
-                // free arr/page and break out
-                cJSON_Delete(arr);
-                cJSON_Delete(page);
-                goto cleanup_tasks;
-            }
-
-            // name
-            if (ts->pcTaskName && ts->pcTaskName[0] != '\0')
-                cJSON_AddStringToObject(t, "name", ts->pcTaskName);
-            else
-                cJSON_AddStringToObject(t, "name", "<no-name>");
-
-            // state
-            cJSON_AddStringToObject(t, "state", state_char_from_enum(ts->eCurrentState));
-
-            // priority
-            cJSON_AddNumberToObject(t, "prio", ts->uxCurrentPriority);
-
-            // run ticks and cpu percent
-            cJSON_AddNumberToObject(t, "run_ticks", ts->ulRunTimeCounter);
-            float pct = total_run ? (100.0f * ts->ulRunTimeCounter) / total_run : 0.0f;
-            cJSON_AddNumberToObject(t, "cpu_pct", pct);
-
-            // stack high water mark
-            cJSON_AddNumberToObject(t, "stack_high_water", ts->usStackHighWaterMark);
-
-            cJSON_AddItemToArray(arr, t);
-        }
-
-        cJSON_AddItemToObject(page, "tasks", arr);
-        send_cjson_to_req_and_free(page, req);
-    }
-
-    // Optional: send end message
-    cJSON *end = cJSON_CreateObject();
-    if (end)
-    {
-        cJSON_AddStringToObject(end, "type", "tasks_end");
-        cJSON_AddNumberToObject(end, "seq", seq);
-        // send_cjson_and_free(end);
-        send_cjson_to_req_and_free(end, req);
-    }
-
-cleanup_tasks:
-    vPortFree(tasks);
-}*/

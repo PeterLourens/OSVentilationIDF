@@ -196,36 +196,39 @@
         applyPayloadToDOM(obj);
     }
 
+    function applyRuntimeStats(payload) {
+        const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = (value === null || typeof value === 'undefined') ? '' : String(value);
+        };
+
+        if (payload.date_time !== undefined) setText('stat_time', payload.date_time);
+        else if (payload.time !== undefined) setText('stat_time', payload.time);
+
+        if (payload.uptime !== undefined) setText('stat_uptime', payload.uptime);
+        else if (payload.uptime_s !== undefined) setText('stat_uptime', formatUptime(payload.uptime_s));
+
+        if (payload.cpu_temp_c !== undefined) {
+            const value = (typeof payload.cpu_temp_c === 'number') ? payload.cpu_temp_c.toFixed(1) + ' °C' : payload.cpu_temp_c;
+            setText('stat_cpu_temp', value);
+        }
+        if (payload.heap_free !== undefined) setText('stat_heap_free', payload.heap_free);
+        if (payload.heap_min_ever !== undefined) setText('stat_heap_min', payload.heap_min_ever);
+        if (payload.statemachine_state !== undefined) setText('stat_sm_state', payload.statemachine_state);
+        if (payload.statemachine_fanspeed !== undefined) setText('stat_fanspeed', payload.statemachine_fanspeed);
+        if (payload.co2_sensors_high !== undefined) setText('stat_co2_high', payload.co2_sensors_high);
+        if (payload.rh_sensors_high !== undefined) setText('stat_rh_high', payload.rh_sensors_high);
+        if (payload.wifi_ssid !== undefined) setText('stat_wifi_ssid', payload.wifi_ssid);
+        if (payload.wifi_bssid !== undefined) setText('stat_wifi_bssid', payload.wifi_bssid);
+        if (payload.wifi_rssi !== undefined) setText('stat_wifi_rssi', payload.wifi_rssi);
+        if (payload.wifi_ip !== undefined) setText('stat_wifi_ip', payload.wifi_ip);
+        if (payload.eth_ip !== undefined) setText('stat_eth_ip', payload.eth_ip);
+        if (payload.eth_netmask !== undefined) setText('stat_eth_netmask', payload.eth_netmask);
+    }
+
     // Summary handler
     function handleSummary(obj) {
-        if (obj.time !== undefined) {
-            const el = document.getElementById('stat_time');
-            if (el) el.textContent = obj.time;
-        }
-        if (obj.uptime_s !== undefined) {
-            const el = document.getElementById('stat_uptime');
-            if (el) el.textContent = formatUptime(obj.uptime_s);
-        }
-        if (obj.cpu_temp_c !== undefined) {
-            const el = document.getElementById('stat_cpu_temp');
-            if (el) el.textContent = (typeof obj.cpu_temp_c === 'number') ? obj.cpu_temp_c.toFixed(1) + ' °C' : obj.cpu_temp_c;
-        }
-        if (obj.heap_free !== undefined) {
-            const el = document.getElementById('stat_heap_free');
-            if (el) el.textContent = obj.heap_free;
-        }
-        if (obj.stat_sm_state !== undefined) {
-            const el = document.getElementById('stat_sm_state');
-            if (el) el.textContent = obj.stat_sm_state;
-        }
-        if (obj.stat_wifi_ip !== undefined) {
-            const el = document.getElementById('stat_wifi_ip');
-            if (el) el.textContent = obj.stat_wifi_ip;
-        }
-        if (obj.stat_eth_ip !== undefined) {
-            const el = document.getElementById('stat_eth_ip');
-            if (el) el.textContent = obj.stat_eth_ip;
-        }
+        applyRuntimeStats(obj);
     }
 
     function formatUptime(s) {
@@ -247,8 +250,9 @@
         if (type === 'tasks_start') {
             tasksSeq = obj.seq || 0;
             clearTasksTable();
+            applyRuntimeStats(obj);
             const totalEl = document.getElementById('tasks_total');
-            if (totalEl && obj.total !== undefined) totalEl.textContent = obj.total;
+            if (totalEl && typeof obj.total === 'number' && obj.total >= 0) totalEl.textContent = obj.total;
             return;
         }
         if (type === 'tasks_page') {

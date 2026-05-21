@@ -20,6 +20,7 @@
 #include "esp_timer.h"
 
 // Function definitions
+float get_cpu_temp_c(void);
 void send_index_html_ws(httpd_req_t *req);
 void send_sensor_config_json_ws(httpd_req_t *req);
 void send_config_json_ws(httpd_req_t *req);

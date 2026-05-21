@@ -218,7 +218,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
         if (strcmp((char *)ws_pkt.payload, "stats") == 0)
         {
-            // send_stats_json_ws(req);
+            send_stats_json_ws(req);
         }
 
         if (strcmp((char *)ws_pkt.payload, "index") == 0)
