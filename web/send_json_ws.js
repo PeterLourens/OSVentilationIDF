@@ -29,6 +29,7 @@
     // State
     let websocket = null;
     let pollIntervalId = null;
+    let buttonsWired = false;
 
     // Leader election (single-tab polling) using BroadcastChannel when available
     const bc = ('BroadcastChannel' in window) ? new BroadcastChannel('osv_stats_channel') : null;
@@ -86,8 +87,45 @@
         setTimeout(initWebSocket, RECONNECT_MS);
     }
 
+    // Simple onClick wiring for Start/Stop/Save/Clear
+    function wireSimpleButtons() {
+        const map = { start: 'Start', stop: 'Stop', save: 'Save', clear: 'Clear' };
+
+        Object.keys(map).forEach((id) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                const payload = map[id];
+                if (websocket && websocket.readyState === WebSocket.OPEN) {
+                    websocket.send(payload);
+                    console.debug('WS sent:', payload);
+                } else {
+                    console.warn('WS not open; dropping command:', payload);
+                }
+                btn.setAttribute('data-ws-sent', '1');
+                setTimeout(() => btn.removeAttribute('data-ws-sent'), 250);
+            };
+        });
+    }
+
     function onOpen() {
+
         logInfo('WS open', GATEWAY);
+
+        if (!buttonsWired) {
+            // ensure DOM exists (optional if script runs after DOM)
+            if (document.readyState !== 'loading') {
+                wireSimpleButtons();
+                buttonsWired = true;
+            } else {
+                document.addEventListener('DOMContentLoaded', () => {
+                    wireSimpleButtons();
+                    buttonsWired = true;
+                }, { once: true });
+            }
+        }
+
         // Immediately request page data if leader and visible
         if (isLeader && !document.hidden) requestPageData();
         // Start poll interval only if leader
@@ -158,43 +196,139 @@
 
     // Message handling
     function onMessage(evt) {
-        let raw = evt.data;
+        // Normalize incoming payload to a string
+        let raw;
+        try {
+            if (evt && evt.data instanceof ArrayBuffer) {
+                raw = new TextDecoder().decode(evt.data);
+            } else if (evt && typeof evt.data === 'string') {
+                raw = evt.data;
+            } else if (evt && evt.data && typeof evt.data === 'object' && evt.data.toString) {
+                // Some libs wrap data; fall back to toString
+                raw = String(evt.data);
+            } else {
+                raw = '';
+            }
+        } catch (err) {
+            logError('onMessage: failed to decode incoming data', err);
+            return;
+        }
+
         logDebug('WS incoming raw:', raw);
 
-        let obj;
+        // Try to parse JSON; if parse succeeds, route to existing handlers
+        let obj = null;
         try {
             obj = JSON.parse(raw);
         } catch (e) {
+            // Not JSON — display raw log line(s) in the UI
             logDebug('WS: non-JSON message received:', raw);
+            displayRawLog(raw);
+            return;
+        }
+
+        // If parsed JSON is not an object, treat as raw text
+        if (!obj || typeof obj !== 'object') {
+            logDebug('WS parsed non-object JSON, treating as raw:', obj);
+            displayRawLog(raw);
             return;
         }
 
         logDebug('WS parsed:', obj);
 
+        // Route JSON messages using your existing handlers
         const type = obj.type || null;
 
         if (type && type.startsWith('statemachine')) {
-            handleStatemachineMessage(obj);
-            return;
+            if (typeof handleStatemachineMessage === 'function') {
+                handleStatemachineMessage(obj);
+                return;
+            }
         }
 
         if (type === 'summary') {
-            handleSummary(obj);
-            return;
+            if (typeof handleSummary === 'function') {
+                handleSummary(obj);
+                return;
+            }
         }
 
         if (type === 'tasks_start' || type === 'tasks_page' || type === 'tasks_end') {
-            handleTasksMessages(obj);
-            return;
+            if (typeof handleTasksMessages === 'function') {
+                handleTasksMessages(obj);
+                return;
+            }
         }
 
         if (type === 'settings' || type === 'config' || type === 'configuration') {
-            handleSettings(obj);
+            if (typeof handleSettings === 'function') {
+                handleSettings(obj);
+                return;
+            }
+        }
+
+        // Fallback: apply payload to DOM if you have that function
+        if (typeof applyPayloadToDOM === 'function') {
+            applyPayloadToDOM(obj);
             return;
         }
 
-        applyPayloadToDOM(obj);
+        // If no handler matched, log the object to console and show a compact representation in the UI
+        logDebug('WS: unhandled JSON message:', obj);
+        displayRawLog(JSON.stringify(obj));
     }
+
+    /* ---------- Helpers for rendering raw logs into #log ---------- */
+
+    function escapeHtml(s) {
+        if (s == null) return '';
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function displayRawLog(text) {
+        const logEl = document.getElementById('log');
+        if (!logEl) {
+            // Fallback to console if #log not present
+            console.debug('displayRawLog: #log element not found; raw:', text);
+            return;
+        }
+
+        // Normalize and split into lines (some messages contain multiple lines)
+        const lines = String(text).split(/\r?\n/).filter(l => l.trim().length > 0);
+
+        for (const rawLine of lines) {
+            const line = escapeHtml(rawLine.trim());
+
+            // Detect severity prefix (common format in your logs: I/D/W/E)
+            let cls = 'log-info';
+            const m = line.match(/^\s*([IDEW])\b/);
+            if (m) {
+                const sev = m[1];
+                if (sev === 'D') cls = 'log-debug';
+                else if (sev === 'W') cls = 'log-warn';
+                else if (sev === 'E') cls = 'log-error';
+                else cls = 'log-info';
+            }
+
+            const div = document.createElement('div');
+            div.className = cls;
+            div.innerHTML = line;
+            logEl.appendChild(div);
+        }
+
+        // Keep log size reasonable: remove oldest if > maxLines
+        const maxLines = 500;
+        while (logEl.children.length > maxLines) {
+            logEl.removeChild(logEl.firstChild);
+        }
+
+        // Auto-scroll to bottom
+        logEl.scrollTop = logEl.scrollHeight;
+    }
+
 
     function applyRuntimeStats(payload) {
         const setText = (id, value) => {

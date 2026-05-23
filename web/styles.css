@@ -231,7 +231,24 @@ small screens.
 }
 
 #log {
+    font-family: monospace;
     white-space: pre-wrap;
+}
+
+.log-debug {
+    color: #6c757d;
+}
+
+.log-info {
+    color: #0b5ed7;
+}
+
+.log-warn {
+    color: #d97706;
+}
+
+.log-error {
+    color: #d32f2f;
 }
 
 .spinner {
