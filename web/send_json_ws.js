@@ -240,7 +240,7 @@
             return;
         }
 
-        logDebug('WS incoming raw:', raw);
+        //logDebug('WS incoming raw:', raw);
 
         // Try to parse JSON; if parse succeeds, route to existing handlers
         let obj = null;
@@ -571,7 +571,7 @@
                 } else {
                     el.textContent = (value === null || typeof value === 'undefined') ? '' : String(value);
                 }
-                logDebug('renderStatemachineState: set', id, '=>', value);
+                //logDebug('renderStatemachineState: set', id, '=>', value);
                 return true;
             }
 
