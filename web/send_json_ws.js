@@ -89,46 +89,72 @@
 
     // Simple onClick wiring for Start/Stop/Save/Clear
     function wireSimpleButtons() {
-        const map = { start: 'Start', stop: 'Stop', save: 'Save', clear: 'Clear' };
+        if (buttonsWired) return; // already wired
+
+        const map = {
+            start: 'Start',
+            stop: 'Stop',
+            save: 'Save',
+            clear: 'Clear'
+        };
 
         Object.keys(map).forEach((id) => {
             const btn = document.getElementById(id);
             if (!btn) return;
-            btn.onclick = (ev) => {
+
+            // avoid double-attaching if this function is called again
+            if (btn.dataset.wsWired === '1') return;
+
+            btn.addEventListener('click', (ev) => {
                 ev.preventDefault();
                 const payload = map[id];
+
+                // Local UI actions for Save / Clear
+                if (id === 'clear') {
+                    const logEl = document.getElementById('log');
+                    if (logEl) while (logEl.firstChild) logEl.removeChild(logEl.firstChild);
+                } else if (id === 'save') {
+                    const logEl = document.getElementById('log');
+                    if (logEl) {
+                        const lines = Array.from(logEl.children).map(n => n.textContent || '');
+                        const content = lines.join('\n');
+                        const now = new Date();
+                        const pad = n => String(n).padStart(2, '0');
+                        const fname = `osvent_log_${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}.txt`;
+                        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url; a.download = fname; document.body.appendChild(a); a.click(); a.remove();
+                        URL.revokeObjectURL(url);
+                    }
+                }
+
+                // Send command over websocket (use the correct variable)
                 if (websocket && websocket.readyState === WebSocket.OPEN) {
                     websocket.send(payload);
-                    console.debug('WS sent:', payload);
+                    logDebug('WS sent:', payload);
                 } else {
-                    console.warn('WS not open; dropping command:', payload);
+                    logWarn('WS not open; dropping command:', payload);
                 }
+
+                // brief visual feedback
                 btn.setAttribute('data-ws-sent', '1');
                 setTimeout(() => btn.removeAttribute('data-ws-sent'), 250);
-            };
+            });
+
+            btn.dataset.wsWired = '1';
         });
+
+        buttonsWired = true;
     }
 
     function onOpen() {
-
         logInfo('WS open', GATEWAY);
 
-        if (!buttonsWired) {
-            // ensure DOM exists (optional if script runs after DOM)
-            if (document.readyState !== 'loading') {
-                wireSimpleButtons();
-                buttonsWired = true;
-            } else {
-                document.addEventListener('DOMContentLoaded', () => {
-                    wireSimpleButtons();
-                    buttonsWired = true;
-                }, { once: true });
-            }
-        }
+        wireSimpleButtons(); // safe: will only attach once
 
-        // Immediately request page data if leader and visible
         if (isLeader && !document.hidden) requestPageData();
-        // Start poll interval only if leader
+
         if (!pollIntervalId) {
             pollIntervalId = setInterval(() => {
                 if (isLeader && !document.hidden) requestPageData();
