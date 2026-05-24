@@ -213,7 +213,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
         if (strcmp((char *)ws_pkt.payload, "Stop") == 0)
         {
             LOGD(TAG, "Stopped redirecting console to websocket");
-            esp_log_set_vprintf(uart_log_output);
+            esp_log_set_vprintf(uart_log_vprintf);
         }
 
         if (strcmp((char *)ws_pkt.payload, "stats") == 0)

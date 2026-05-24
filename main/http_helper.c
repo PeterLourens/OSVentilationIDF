@@ -5,6 +5,7 @@
 */
 
 #include "http_helper.h"
+#include "task_uart_sender.h"
 
 // Used to concact two log lines of the log output
 static bool ws_prefix_pending = false;
@@ -42,19 +43,19 @@ size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
 
 int websocket_log_output(const char *fmt, va_list args)
 {
+    va_list uart_args;
+    va_copy(uart_args, args);
+    uart_log_vprintf(fmt, uart_args);
+    va_end(uart_args);
+
     static char log_print_buffer[512];
     int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), fmt, args);
 
     if (ret > 0)
     {
-        // Always print to UART as-is
-        fwrite(log_print_buffer, 1, ret, stdout);
-
         // Strip ANSI codes for WebSocket
         static char clean_buf[512];
-        // size_t clean_len = remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
         remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
-        // ws_async_send(clean_buf, sizeof(clean_buf));
 
         // Detect prefix vs message
         if (!ws_prefix_pending && strstr(clean_buf, ":"))
