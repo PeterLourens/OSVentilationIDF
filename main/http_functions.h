@@ -21,7 +21,6 @@
 #include "statemachine.h"
 #include "network_manager.h"
 #include "stats_worker.h"
-#include "ws_broadcaster.h"
 #include "sys_stats.h"
 #include "task_uart_sender.h"
 

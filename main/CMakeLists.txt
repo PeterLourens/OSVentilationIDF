@@ -8,7 +8,7 @@ idf_component_register(SRCS "task_uart_sender.c" "task_pushbutton.c" "pushbutton
                     "i2c_lcd.c" "config_files.c" "rgb_leds.c" "task_rgb_leds.c" "valvecontrol.c" "http_functions.c" "syslog.c" "sys_stats.c" "http_send_ws_data.c" "http_post_functions.c"
                     "http_helper.c" "task_statemachine" "statemachine.c" "statemachine_helper.c" "task_valvecontrol.c" "task_mqtt.c" "mqtt.c" "task_influxdb.c" "influxdb.c"
                     "eth_functions.c" "network_functions.c" "network_manager.c" "mqtt_handlers.c" "wifi_functions.c" "task_i2c_ds3231.c" "i2c_functions.c" "hardware_caps.c"
-                    "pushbutton.c" "task_pushbutton.c" "task_sys_stats.c" "task_uart_sender.c" "ws_broadcaster.c" "stats_worker.c"
+                    "pushbutton.c" "task_pushbutton.c" "task_sys_stats.c" "task_uart_sender.c" "stats_worker.c"
                     INCLUDE_DIRS "."
                     EMBED_TXTFILES "../web/index.html" "../web/webserial.html" "../web/pure_min.css" "../web/styles.css" "../web/ui.js" "../web/stats.html" 
                                     "../web/sensor_config.html" "../web/config.html" "../web/statemachine.html" "../web/valvecontrol.html" "../web/send_json_ws.js"

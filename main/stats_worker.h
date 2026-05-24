@@ -10,7 +10,6 @@
 #include "stats_worker.h"
 #include "sys_stats.h"         // sys_stats_build_json()
 #include "http_send_ws_data.h" // if you have existing send_* helpers
-#include "ws_broadcaster.h"
 #include "cJSON.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
