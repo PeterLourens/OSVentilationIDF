@@ -5,7 +5,6 @@
 */
 
 #include "sys_stats.h"
-#include "globals.h"
 
 static const char *TAG = "sys_stats";
 
@@ -329,7 +328,7 @@ size_t append_task_table(char *out, size_t used, size_t buf_size)
         return used;
     }
 
-    TaskStatus_t *tasks = pvPortMalloc(count * sizeof(TaskStatus_t));
+    TaskStatus_t *tasks = heap_caps_malloc(count * sizeof(TaskStatus_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!tasks)
     {
         SAFE_APPEND("Out of memory getting tasks\n\n");
@@ -351,7 +350,7 @@ size_t append_task_table(char *out, size_t used, size_t buf_size)
         SAFE_APPEND("%-20s %-4s %4u %12ld %12u %6.2f\n", ts->pcTaskName ? ts->pcTaskName : "<no-name>", state_char_from_enum(ts->eCurrentState), (unsigned)ts->uxCurrentPriority, hw, (unsigned)ts->ulRunTimeCounter, pct);
     }
 
-    vPortFree(tasks);
+    heap_caps_free(tasks);
     return used;
 }
 
@@ -424,7 +423,7 @@ size_t append_system_stats(char *out, size_t used, size_t buf_size)
 void show_system_and_task_stats(void)
 {
     const size_t buf_size = 16 * 1024;
-    char *out = malloc(buf_size);
+    char *out = heap_caps_malloc(buf_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!out)
         return;
 
@@ -437,5 +436,5 @@ void show_system_and_task_stats(void)
 
     LOGD(TAG, "Sending sys_stats over websocket, %zu bytes", used);
     ws_async_send(out, used);
-    free(out);
+    heap_caps_free(out);
 }

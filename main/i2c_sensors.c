@@ -9,7 +9,7 @@
 static const char *TAG = "i2c_sensors";
 
 // FIFO buffer for sensor moving average calculation
-static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][5][MAX_FIFO_SIZE];
+EXT_RAM_BSS_ATTR static float sensor_fifo[MAX_I2C_BUSES][CHANNELS_PER_BUS][5][MAX_FIFO_SIZE];
 static float sum[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};

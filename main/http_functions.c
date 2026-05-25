@@ -186,7 +186,7 @@ static esp_err_t websocket_handler(httpd_req_t *req)
 
     if (ws_pkt.len)
     {
-        buf = calloc(1, ws_pkt.len + 1);
+        buf = heap_caps_calloc(1, ws_pkt.len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
         if (buf == NULL)
         {
             LOGE(TAG, "Failed to calloc memory for buf");
@@ -1158,7 +1158,7 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
     if (total == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty upload");
 
-    uint8_t *tarbuf = malloc(total);
+    uint8_t *tarbuf = heap_caps_malloc(total, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!tarbuf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "no memory");
 

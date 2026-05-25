@@ -657,12 +657,12 @@ static void influx_sender_task(void *pv)
             if (strcmp(cfg.enable_influxdb, "On") != 0)
             {
                 LOGW(TAG, "InfluxDB disabled; dropping payload");
-                free(job.payload);
+                heap_caps_free(job.payload);
                 continue;
             }
 
             influxdb_send_with_retry(job.payload, &cfg);
-            free(job.payload);
+            heap_caps_free(job.payload);
         }
     }
 }
@@ -717,10 +717,10 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
         len = INFLUX_MAX_PAYLOAD;
     }
 
-    char *copy = malloc(len + 1);
+    char *copy = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!copy)
     {
-        LOGE(TAG, "enqueue: malloc failed for %zu bytes", len);
+        LOGE(TAG, "enqueue: heap_caps_malloc failed for %zu bytes", len);
         return false;
     }
 
@@ -732,7 +732,7 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
     if (xQueueSend(influx_queue, &job, pdMS_TO_TICKS(100)) != pdTRUE)
     {
         LOGW(TAG, "enqueue: queue full, dropping payload len=%zu", len);
-        free(copy);
+        heap_caps_free(copy);
         return false;
     }
 
@@ -750,37 +750,37 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         return;
 
     // Build and enqueue actuals
-    char *actuals = malloc(2048);
+    char *actuals = heap_caps_malloc(2048, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (actuals)
     {
         memset(actuals, 0, 2048);
         influxdb_build_payload_actuals(actuals, 2048);
         if (strlen(actuals) > 0)
             influxdb_enqueue_payload(actuals, strlen(actuals));
-        free(actuals);
+        heap_caps_free(actuals);
     }
 
     // Build and enqueue valves
-    char *valves = malloc(2048);
+    char *valves = heap_caps_malloc(2048, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (valves)
     {
         memset(valves, 0, 2048);
         influxdb_build_payload_valves(valves, 2048);
         if (strlen(valves) > 0)
             influxdb_enqueue_payload(valves, strlen(valves));
-        free(valves);
+        heap_caps_free(valves);
     }
 
     // Allocate sensor buffers
     size_t buf_bytes = sizeof(float) * MAX_I2C_BUSES * CHANNELS_PER_BUS * DATA_FIELDS;
-    float (*sensor)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(buf_bytes);
-    float (*avg)[CHANNELS_PER_BUS][DATA_FIELDS] = malloc(buf_bytes);
+    float (*sensor)[CHANNELS_PER_BUS][DATA_FIELDS] = heap_caps_malloc(buf_bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    float (*avg)[CHANNELS_PER_BUS][DATA_FIELDS] = heap_caps_malloc(buf_bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 
     if (!sensor || !avg)
     {
         LOGE(TAG, "Memory allocation failed for sensors");
-        free(sensor);
-        free(avg);
+        heap_caps_free(sensor);
+        heap_caps_free(avg);
         return;
     }
 
@@ -790,16 +790,16 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
     if (!sensor_q || !avg_q)
     {
         LOGW(TAG, "influxdb_process: sensor queues not provided");
-        free(sensor);
-        free(avg);
+        heap_caps_free(sensor);
+        heap_caps_free(avg);
         return;
     }
 
     if (xQueuePeek(sensor_q, sensor, 0) != pdTRUE || xQueuePeek(avg_q, avg, 0) != pdTRUE)
     {
         LOGW(TAG, "Failed to read sensor queues");
-        free(sensor);
-        free(avg);
+        heap_caps_free(sensor);
+        heap_caps_free(avg);
         return;
     }
 
@@ -821,6 +821,6 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         }
     }
 
-    free(sensor);
-    free(avg);
+    heap_caps_free(sensor);
+    heap_caps_free(avg);
 }

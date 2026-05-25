@@ -22,7 +22,7 @@ esp_err_t load_sensor_config(const char *config_name)
     snprintf(path, sizeof(path), "/data/json/%s.json", config_name);
     LOGD(TAG, "Attempting to read config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -33,7 +33,7 @@ esp_err_t load_sensor_config(const char *config_name)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -42,7 +42,7 @@ esp_err_t load_sensor_config(const char *config_name)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -60,7 +60,7 @@ esp_err_t load_sensor_config(const char *config_name)
     {
         LOGE(TAG, "Unknown bus prefix in config name: %s", config_name);
         cJSON_Delete(json);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -72,7 +72,7 @@ esp_err_t load_sensor_config(const char *config_name)
         {
             LOGE(TAG, "Failed to acquire sensor config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -130,7 +130,7 @@ esp_err_t load_sensor_config(const char *config_name)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Bus%d sensor config loaded from %s", bus_index, path);
     return ESP_OK;
@@ -143,7 +143,7 @@ esp_err_t load_wifi_config(void)
 
     LOGD(TAG, "Attempting to read network config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -154,7 +154,7 @@ esp_err_t load_wifi_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -163,7 +163,7 @@ esp_err_t load_wifi_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -186,7 +186,7 @@ esp_err_t load_wifi_config(void)
         {
             LOGE(TAG, "Failed to acquire sensor config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -233,7 +233,7 @@ esp_err_t load_wifi_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Wifi config loaded from %s", path);
 
@@ -247,7 +247,7 @@ esp_err_t load_ethernet_config(void)
 
     LOGD(TAG, "Attempting to read network config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -258,7 +258,7 @@ esp_err_t load_ethernet_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -267,7 +267,7 @@ esp_err_t load_ethernet_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -287,7 +287,7 @@ esp_err_t load_ethernet_config(void)
         {
             LOGE(TAG, "Failed to acquire sensor config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -325,7 +325,7 @@ esp_err_t load_ethernet_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Ethernet config loaded from %s", path);
 
@@ -345,7 +345,7 @@ esp_err_t load_time_config(void)
 
     LOGD(TAG, "Attempting to read time config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -356,7 +356,7 @@ esp_err_t load_time_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -365,7 +365,7 @@ esp_err_t load_time_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -380,7 +380,7 @@ esp_err_t load_time_config(void)
         {
             LOGE(TAG, "Failed to acquire time config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -403,7 +403,7 @@ esp_err_t load_time_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Time config loaded from %s", path);
 
@@ -417,7 +417,7 @@ esp_err_t load_mqtt_config(void)
 
     LOGD(TAG, "Attempting to read MQTT config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -428,7 +428,7 @@ esp_err_t load_mqtt_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -437,7 +437,7 @@ esp_err_t load_mqtt_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -454,7 +454,7 @@ esp_err_t load_mqtt_config(void)
         {
             LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -483,7 +483,7 @@ esp_err_t load_mqtt_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "MQTT config loaded from %s", path);
 
@@ -497,7 +497,7 @@ esp_err_t load_influxdb_config(void)
 
     LOGD(TAG, "Attempting to read InfluxDB config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -508,7 +508,7 @@ esp_err_t load_influxdb_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read InfluxDB config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -517,7 +517,7 @@ esp_err_t load_influxdb_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -535,7 +535,7 @@ esp_err_t load_influxdb_config(void)
         {
             LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -566,7 +566,7 @@ esp_err_t load_influxdb_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "InfluxDB config loaded from %s", path);
 
@@ -580,7 +580,7 @@ esp_err_t load_fan_config(void)
 
     LOGD(TAG, "Attempting to read fan config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -591,7 +591,7 @@ esp_err_t load_fan_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read fan config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -600,7 +600,7 @@ esp_err_t load_fan_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -620,7 +620,7 @@ esp_err_t load_fan_config(void)
         {
             LOGE(TAG, "Failed to acquire MQTT config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -657,7 +657,7 @@ esp_err_t load_fan_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Fan config loaded from %s", path);
 
@@ -671,7 +671,7 @@ esp_err_t load_i2c_config(void)
 
     LOGD(TAG, "Attempting to read i2c config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -682,7 +682,7 @@ esp_err_t load_i2c_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read i2c config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -691,7 +691,7 @@ esp_err_t load_i2c_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -707,7 +707,7 @@ esp_err_t load_i2c_config(void)
         {
             LOGE(TAG, "Failed to acquire I2C config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -735,7 +735,7 @@ esp_err_t load_i2c_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "I2C config loaded from %s", path);
 
@@ -749,7 +749,7 @@ esp_err_t load_syslog_config(void)
 
     LOGD(TAG, "Attempting to read syslog config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -760,7 +760,7 @@ esp_err_t load_syslog_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read syslog config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -769,7 +769,7 @@ esp_err_t load_syslog_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -788,7 +788,7 @@ esp_err_t load_syslog_config(void)
         {
             LOGE(TAG, "Failed to acquire syslog config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -822,7 +822,7 @@ esp_err_t load_syslog_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Syslog config loaded from %s", path);
 
@@ -837,7 +837,7 @@ esp_err_t load_statemachine_general_config(void)
 
     LOGD(TAG, "Attempting to read general statemachine config: %s", path);
 
-    char *buffer = malloc(bufferSize);
+    char *buffer = heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buffer)
     {
         LOGE(TAG, "Failed to allocate buffer");
@@ -848,7 +848,7 @@ esp_err_t load_statemachine_general_config(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "Failed to read statemachine general config file: %s", path);
-        free(buffer);
+        heap_caps_free(buffer);
         return err;
     }
 
@@ -857,7 +857,7 @@ esp_err_t load_statemachine_general_config(void)
     {
         LOGE(TAG, "Invalid JSON format in %s", path);
         LOGD(TAG, "Raw content: %s", buffer);
-        free(buffer);
+        heap_caps_free(buffer);
         return ESP_ERR_INVALID_RESPONSE;
     }
 
@@ -884,7 +884,7 @@ esp_err_t load_statemachine_general_config(void)
         {
             LOGE(TAG, "Failed to acquire statemachine config mutex");
             cJSON_Delete(json);
-            free(buffer);
+            heap_caps_free(buffer);
             return ESP_ERR_TIMEOUT;
         }
         taken = true;
@@ -931,7 +931,7 @@ esp_err_t load_statemachine_general_config(void)
     }
 
     cJSON_Delete(json);
-    free(buffer);
+    heap_caps_free(buffer);
 
     LOGI(TAG, "Statemachine general config loaded from %s", path);
 
@@ -1158,7 +1158,7 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         }
         rewind(f);
 
-        char *buf = (char *)malloc((size_t)sz + 1);
+        char *buf = (char *)heap_caps_malloc((size_t)sz + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
         if (!buf)
         {
             fclose(f);
@@ -1169,13 +1169,13 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
         fclose(f);
         if (got != (size_t)sz)
         {
-            free(buf);
+            heap_caps_free(buf);
             continue;
         }
         buf[sz] = '\0';
 
         cJSON *root = cJSON_Parse(buf);
-        free(buf);
+        heap_caps_free(buf);
         if (!root)
             continue;
 

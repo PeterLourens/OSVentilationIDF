@@ -298,6 +298,8 @@ void eth_init(void)
         .quadhd_io_num = -1,
     };
 
+    // Keep DMA enabled so the W5500 driver can read/write larger SPI bursts.
+    // Lower the queue depth to reduce outstanding DMA-backed transactions.
     err = spi_bus_initialize(W5500_SPI_HOST, &buscfg, SPI_DMA_CH_AUTO);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -311,7 +313,7 @@ void eth_init(void)
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
         .spics_io_num = -1,
-        .queue_size = 20,
+        .queue_size = 4,
     };
     w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
 

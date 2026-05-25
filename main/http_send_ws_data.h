@@ -12,6 +12,7 @@
 // #define ENABLE_PER_CONN_RATE_LIMIT 0 // enable optional per-connection rate limiting (define before including this header)
 
 #include <stdint.h>
+#include <esp_heap_caps.h>
 
 #include "globals.h"
 #include "general.h"

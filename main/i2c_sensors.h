@@ -14,6 +14,8 @@
 #include <string.h>
 #include <esp_rom_sys.h>
 #include <esp_timer.h>
+#include <esp_heap_caps.h>
+#include <esp_attr.h>
 
 #include "globals.h"
 #include "logging.h"

@@ -9,6 +9,7 @@
 
 #include <esp_netif.h>
 #include <sys/socket.h>
+#include <esp_heap_caps.h>
 
 #include "general.h"
 #include "logging.h"

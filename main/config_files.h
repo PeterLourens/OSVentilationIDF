@@ -10,6 +10,7 @@
 #include <cJSON.h>
 #include <dirent.h>
 #include <esp_log.h>
+#include <esp_heap_caps.h>
 
 #include "globals.h"
 #include "general.h"

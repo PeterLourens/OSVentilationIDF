@@ -9,6 +9,7 @@
 
 #include <esp_http_server.h>
 #include <stdint.h>
+#include <esp_heap_caps.h>
 
 #include "globals.h"
 #include "config_files.h"

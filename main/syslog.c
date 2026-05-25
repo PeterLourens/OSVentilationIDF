@@ -300,10 +300,10 @@ void syslog_enqueue_line(const char *line)
     }
 
     size_t len = strnlen(line, SYSLOG_MAX_LINE_LEN);
-    char *copy = malloc(len + 1);
+    char *copy = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!copy)
     {
-        ESP_LOGE(TAG, "syslog_enqueue_line: malloc failed");
+        ESP_LOGE(TAG, "syslog_enqueue_line: heap_caps_malloc failed");
         return;
     }
     memcpy(copy, line, len);
@@ -314,7 +314,7 @@ void syslog_enqueue_line(const char *line)
     if (xQueueSend(s_syslog_queue, &item, 0) != pdTRUE)
     {
         ESP_LOGW(TAG, "syslog_enqueue_line: queue full, dropping message");
-        free(copy);
+        heap_caps_free(copy);
     }
 }
 

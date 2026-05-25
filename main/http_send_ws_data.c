@@ -685,10 +685,10 @@ void send_stats_json_ws(httpd_req_t *req)
         return;
     }
 
-    TaskStatus_t *tasks = pvPortMalloc(count * sizeof(TaskStatus_t));
+    TaskStatus_t *tasks = heap_caps_malloc(count * sizeof(TaskStatus_t), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!tasks)
     {
-        LOGW(TAG, "send_stats_json_ws: pvPortMalloc tasks failed (OOM). free_heap=%u", (unsigned)esp_get_free_heap_size());
+        LOGW(TAG, "send_stats_json_ws: heap_caps_malloc tasks failed (OOM). free_heap=%u", (unsigned)esp_get_free_heap_size());
         cJSON *err = cJSON_CreateObject();
         if (err)
         {
@@ -828,7 +828,7 @@ void send_stats_json_ws(httpd_req_t *req)
     }
 
 cleanup_tasks:
-    vPortFree(tasks);
+    heap_caps_free(tasks);
 
     uint64_t t_end = esp_timer_get_time();
     LOGD(TAG, "send_stats_json_ws finished total_ms=%llu free_heap=%u dma_free=%u", (unsigned long long)((t_end - t0) / 1000), (unsigned)esp_get_free_heap_size(), (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA));

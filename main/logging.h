@@ -5,59 +5,60 @@
 */
 
 #include <esp_log.h>
+#include <esp_heap_caps.h>
 #include <stdio.h>
 
 #include "syslog.h"
 
 extern bool syslog_enabled;
 
-#define LOG_FORMAT_AND_SEND(tag, level, prefix, fmt, ...)       \
-    do                                                          \
-    {                                                           \
-        /* Always log locally */                                \
-        ESP_LOG_LEVEL(level, tag, fmt, ##__VA_ARGS__);          \
-                                                                \
-        /* Respect ESP-IDF log level for syslog too */          \
-        if (level > esp_log_level_get(tag))                     \
-            break;                                              \
-                                                                \
-        if (!syslog_enabled)                                    \
-            break;                                              \
-                                                                \
-        /* First pass: compute required size */                 \
-        int _len = snprintf(NULL, 0, fmt, ##__VA_ARGS__);       \
-        if (_len < 0)                                           \
-            break; /* formatting error */                       \
-                                                                \
-        /* Allocate exact buffer */                             \
-        char *_msg = malloc(_len + 1);                          \
-        if (!_msg)                                              \
-            break;                                              \
-                                                                \
-        /* Second pass: write formatted message */              \
-        snprintf(_msg, _len + 1, fmt, ##__VA_ARGS__);           \
-                                                                \
-        /* Prefix for syslog */                                 \
-        int _plen = snprintf(NULL, 0, "[%s] %s", prefix, _msg); \
-        if (_plen < 0)                                          \
-        {                                                       \
-            free(_msg);                                         \
-            break;                                              \
-        }                                                       \
-                                                                \
-        char *_sys = malloc(_plen + 1);                         \
-        if (!_sys)                                              \
-        {                                                       \
-            free(_msg);                                         \
-            break;                                              \
-        }                                                       \
-                                                                \
-        snprintf(_sys, _plen + 1, "[%s] %s", prefix, _msg);     \
-                                                                \
-        syslog_send_line(_sys);                                 \
-                                                                \
-        free(_msg);                                             \
-        free(_sys);                                             \
+#define LOG_FORMAT_AND_SEND(tag, level, prefix, fmt, ...)                              \
+    do                                                                                 \
+    {                                                                                  \
+        /* Always log locally */                                                       \
+        ESP_LOG_LEVEL(level, tag, fmt, ##__VA_ARGS__);                                 \
+                                                                                       \
+        /* Respect ESP-IDF log level for syslog too */                                 \
+        if (level > esp_log_level_get(tag))                                            \
+            break;                                                                     \
+                                                                                       \
+        if (!syslog_enabled)                                                           \
+            break;                                                                     \
+                                                                                       \
+        /* First pass: compute required size */                                        \
+        int _len = snprintf(NULL, 0, fmt, ##__VA_ARGS__);                              \
+        if (_len < 0)                                                                  \
+            break; /* formatting error */                                              \
+                                                                                       \
+        /* Allocate exact buffer */                                                    \
+        char *_msg = heap_caps_malloc(_len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);  \
+        if (!_msg)                                                                     \
+            break;                                                                     \
+                                                                                       \
+        /* Second pass: write formatted message */                                     \
+        snprintf(_msg, _len + 1, fmt, ##__VA_ARGS__);                                  \
+                                                                                       \
+        /* Prefix for syslog */                                                        \
+        int _plen = snprintf(NULL, 0, "[%s] %s", prefix, _msg);                        \
+        if (_plen < 0)                                                                 \
+        {                                                                              \
+            heap_caps_free(_msg);                                                      \
+            break;                                                                     \
+        }                                                                              \
+                                                                                       \
+        char *_sys = heap_caps_malloc(_plen + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT); \
+        if (!_sys)                                                                     \
+        {                                                                              \
+            heap_caps_free(_msg);                                                      \
+            break;                                                                     \
+        }                                                                              \
+                                                                                       \
+        snprintf(_sys, _plen + 1, "[%s] %s", prefix, _msg);                            \
+                                                                                       \
+        syslog_send_line(_sys);                                                        \
+                                                                                       \
+        heap_caps_free(_msg);                                                          \
+        heap_caps_free(_sys);                                                          \
     } while (0)
 
 #define LOGE(tag, fmt, ...) LOG_FORMAT_AND_SEND(tag, ESP_LOG_ERROR, "ERROR", fmt, ##__VA_ARGS__)

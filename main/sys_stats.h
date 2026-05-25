@@ -8,7 +8,9 @@
 #define SYS_STATS_H
 
 #include <driver/temperature_sensor.h>
+#include <esp_heap_caps.h>
 
+#include "globals.h"
 #include "general.h"
 #include "logging.h"
 #include "http_functions.h"

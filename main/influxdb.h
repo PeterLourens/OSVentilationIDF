@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/queue.h>
+#include <esp_heap_caps.h>
 
 #include "i2c_ds3231.h"
 #include "logging.h"

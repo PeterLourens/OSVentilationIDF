@@ -11,6 +11,9 @@ static StackType_t i2c_sensors_stack[5120];  // stack buffer
 static StaticTask_t i2c_sensors_tcb;         // TCB buffer
 static size_t i2c_sensors_stack_size = 5120; // 5120 words = 20.480 KB
 
+EXT_RAM_BSS_ATTR static uint8_t sensor_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
+EXT_RAM_BSS_ATTR static uint8_t sensor_avg_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
+
 void start_task_i2c_sensors(void)
 {
     task_i2c_sensors = xTaskCreateStatic(task_i2c_sensors_code, "i2c_sensors", i2c_sensors_stack_size, NULL, 6, i2c_sensors_stack, &i2c_sensors_tcb);
@@ -30,14 +33,11 @@ void task_i2c_sensors_code(void *pvParameters)
     ESP_LOGD(TAG, "task_i2c_sensors: snapshot_bytes=%zu, free_heap=%u", snapshot_bytes, esp_get_free_heap_size());
 
     // Static storage must match the snapshot layout exactly
-    static uint8_t sensor_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
     static StaticQueue_t sensor_queue_struct;
-
-    static uint8_t sensor_avg_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
     static StaticQueue_t sensor_avg_queue_struct;
 
     // Create static queues (1 slot each) to avoid large heap allocations
-    sensor_queue = xQueueCreateStatic(1,snapshot_bytes,sensor_queue_storage,&sensor_queue_struct);
+    sensor_queue = xQueueCreateStatic(1, snapshot_bytes, sensor_queue_storage, &sensor_queue_struct);
 
     if (sensor_queue == NULL)
     {
@@ -48,7 +48,7 @@ void task_i2c_sensors_code(void *pvParameters)
     }
     ESP_LOGD(TAG, "created static sensor_queue, item size=%zu", snapshot_bytes);
 
-    sensor_avg_queue = xQueueCreateStatic(1,snapshot_bytes,sensor_avg_queue_storage,&sensor_avg_queue_struct);
+    sensor_avg_queue = xQueueCreateStatic(1, snapshot_bytes, sensor_avg_queue_storage, &sensor_avg_queue_struct);
 
     if (sensor_avg_queue == NULL)
     {
