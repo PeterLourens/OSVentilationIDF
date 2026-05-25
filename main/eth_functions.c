@@ -217,16 +217,20 @@ void eth_teardown_safe(void)
 
 bool eth_is_connected(void)
 {
-    bool connected = false;
+    if (!hw.has_ethernet)
+        return false;
 
-    if (statemachine_mutex &&
-        xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
-    {
-        connected = sm_actuals.eth_connected;
-        xSemaphoreGive(statemachine_mutex);
-    }
+    if (eth_netif == NULL)
+        return false;
 
-    return connected;
+    if (!ethernet_link_is_up())
+        return false;
+
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(eth_netif, &ip) != ESP_OK)
+        return false;
+
+    return ip.ip.addr != 0;
 }
 
 static bool cfg_str_is_on(const char *s)

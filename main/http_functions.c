@@ -1639,7 +1639,7 @@ void register_http_handlers(httpd_handle_t server)
         .uri = "/state3_config",
         .method = HTTP_POST,
         .handler = state_config_post_handler,
-        .user_ctx = (void *)0,
+        .user_ctx = (void *)3,
     };
     httpd_register_uri_handler(http_server, &state3_config_post_uri);
 

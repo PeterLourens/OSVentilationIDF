@@ -68,6 +68,11 @@ static void eth_watchdog_force_restart(const char *reason)
 
     ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
 
+    s_eth_wd.last_successful_activity = 0;
+    s_eth_wd.last_gateway_probe = 0;
+    s_request_update_actuals = true;
+    s_request_syslog_update = true;
+
     // Optional: decay the failure counter if last attempt was long ago.
     // Uncomment if you want the counter to slowly reset after inactivity.
 #if 1
@@ -105,6 +110,8 @@ static void eth_watchdog_force_restart(const char *reason)
             s_eth_wd.gateway_fail_count = 0;
             s_eth_wd.last_state_change = xTaskGetTickCount();
             s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
+            s_request_update_actuals = true;
+            s_request_syslog_update = true;
             software_fail_count = 0;
             last_attempt_tick = 0;
             return;
@@ -151,6 +158,8 @@ static void eth_watchdog_force_restart(const char *reason)
     s_eth_wd.gateway_fail_count = 0;
     s_eth_wd.last_state_change = xTaskGetTickCount();
     s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
+    s_request_update_actuals = true;
+    s_request_syslog_update = true;
     software_fail_count = 0;
     last_attempt_tick = 0;
 }

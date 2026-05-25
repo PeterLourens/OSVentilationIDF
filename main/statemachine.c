@@ -522,6 +522,16 @@ void high_co2_day_transitions(void)
 
     set_fanspeed(state_fanspeed);
 
+    // Update elapsed time in the same way as the other state handlers
+    {
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
+    }
+
     // Hysteresis per valve based on selected CO2 sensors
     for (int i = 0; i < co2_sensor_counter; ++i)
     {
@@ -716,6 +726,16 @@ void high_co2_night_transitions(void)
     }
 
     set_fanspeed(state_fanspeed);
+
+    // Update elapsed time in the same way as the other state handlers
+    {
+        int new_time = (int)(esp_timer_get_time() / 1000000ULL);
+        if (new_time > old_time)
+        {
+            elapsed_time += new_time - old_time;
+            old_time = new_time;
+        }
+    }
 
     // Aggregate high flags and apply valve logic
     bool any_high = false;
