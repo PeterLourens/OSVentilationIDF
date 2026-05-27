@@ -257,7 +257,7 @@ static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -310,7 +310,7 @@ static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -387,7 +387,7 @@ static esp_err_t wifi_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -439,7 +439,7 @@ static esp_err_t ethernet_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -491,7 +491,7 @@ static esp_err_t i2c_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -543,7 +543,7 @@ static esp_err_t fan_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -593,7 +593,7 @@ static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -643,7 +643,7 @@ static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -693,7 +693,7 @@ static esp_err_t syslog_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -743,7 +743,7 @@ static esp_err_t time_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -792,7 +792,7 @@ static esp_err_t state_gen_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -848,7 +848,7 @@ static esp_err_t state_config_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 
@@ -969,7 +969,7 @@ static esp_err_t valvecontrol_post_handler(httpd_req_t *req)
     if (len == 0)
         return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "empty body");
 
-    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_8BIT);
+    char *buf = heap_caps_malloc(len + 1, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (!buf)
         return httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "mem");
 

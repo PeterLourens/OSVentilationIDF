@@ -320,13 +320,19 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
         return;
 
-    char line[1224];
+    char line[2048];
     memset(line, 0, sizeof(line));
 
     int64_t ts = influxdb_get_timestamp();
     uint64_t uptime = (uint64_t)(esp_timer_get_time() / 1000000ULL);
 
-    // Use safe casts and format specifiers
+    uint32_t heap_free_internal = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
+    uint32_t heap_free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
+    uint32_t heap_free_dma = heap_caps_get_free_size(MALLOC_CAP_DMA);
+    uint32_t largest_internal = heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL);
+    uint32_t largest_spiram = heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM);
+    uint32_t largest_dma = heap_caps_get_largest_free_block(MALLOC_CAP_DMA);
+
     int n = snprintf(line, sizeof(line),
                      "actuals "
                      "fanspeed=%d,"
@@ -347,6 +353,12 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      "cpu_temp=%d,"
                      "uptime=%llu,"
                      "heap_free=%u,"
+                     "heap_free_internal=%u,"
+                     "heap_free_spiram=%u,"
+                     "heap_free_dma=%u,"
+                     "heap_largest_free_block_internal=%u,"
+                     "heap_largest_free_block_spiram=%u,"
+                     "heap_largest_free_block_dma=%u,"
                      "heap_min_ever=%u,"
                      "stack_i2c_sensors=%lu,"
                      "stack_i2c_ds3231=%lu,"
@@ -380,6 +392,12 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      sm_actuals.cpu_temp,
                      (unsigned long long)uptime,
                      (unsigned)sm_actuals.heap_free,
+                     (unsigned)heap_free_internal,
+                     (unsigned)heap_free_spiram,
+                     (unsigned)heap_free_dma,
+                     (unsigned)largest_internal,
+                     (unsigned)largest_spiram,
+                     (unsigned)largest_dma,
                      (unsigned)sm_actuals.heap_min_ever,
                      (unsigned long)sm_actuals.stack_i2c_sensors,
                      (unsigned long)sm_actuals.stack_i2c_ds3231,
@@ -396,8 +414,14 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
                      (unsigned long)sm_actuals.stack_uart_sender,
                      (long long)ts);
 
-    if (n > 0)
-        influxdb_append_line(out, out_size, line);
+    if (n < 0 || n >= (int)sizeof(line))
+    {
+        LOGW(TAG, "influxdb_build_payload_actuals: payload truncated (%d)", n);
+        xSemaphoreGive(statemachine_mutex);
+        return;
+    }
+
+    influxdb_append_line(out, out_size, line);
 
     xSemaphoreGive(statemachine_mutex);
 }

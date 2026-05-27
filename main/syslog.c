@@ -388,11 +388,19 @@ void syslog_send_line(const char *line)
     if (strlen(device_id_local) == 0)
         snprintf(device_id_local, sizeof(device_id_local), "%s", "set device ID");
 
-    char *msg = NULL;
-    int n = asprintf(&msg, "<13>%s %s: %s\n", hostname_local, appname_local, line);
-    if (n < 0 || !msg)
+    size_t msg_len = strlen(hostname_local) + strlen(appname_local) + strlen(line) + 64;
+    char *msg = heap_caps_malloc(msg_len, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (!msg)
     {
-        LOGE(TAG, "asprintf failed");
+        LOGE(TAG, "syslog_send_line: heap_caps_malloc failed for %zu bytes", msg_len);
+        return;
+    }
+
+    int n = snprintf(msg, msg_len, "<13>%s %s: %s\n", hostname_local, appname_local, line);
+    if (n < 0 || (size_t)n >= msg_len)
+    {
+        LOGE(TAG, "syslog_send_line: snprintf failed or truncated");
+        heap_caps_free(msg);
         return;
     }
 
@@ -400,7 +408,7 @@ void syslog_send_line(const char *line)
     if (sock < 0)
     {
         ESP_LOGE(TAG, "socket() failed: errno=%d (%s)", errno, strerror(errno));
-        free(msg);
+        heap_caps_free(msg);
         return;
     }
 
@@ -419,7 +427,7 @@ void syslog_send_line(const char *line)
     {
         LOGE(TAG, "inet_aton failed for %s", ip);
         close(sock);
-        free(msg);
+        heap_caps_free(msg);
         return;
     }
 
@@ -437,7 +445,7 @@ void syslog_send_line(const char *line)
     }
 
     close(sock);
-    free(msg);
+    heap_caps_free(msg);
 }
 
 // Public: wait for IP on a given netif key ("WIFI_STA_DEF" or Ethernet key)
