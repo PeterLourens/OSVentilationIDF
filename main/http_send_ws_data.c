@@ -9,71 +9,65 @@
 
 static const char *TAG = "http_send_ws_data";
 
+#define CJSON_WS_OUTPUT_SZ 8192
+
 static uint32_t ws_msg_seq = 0u;
 
 // optional per-connection rate limiting helpers (enable with ENABLE_PER_CONN_RATE_LIMIT)
-static struct
-{
-    httpd_req_t *req;
-    uint64_t last_us;
-} stats_client_last[MAX_WS_CLIENTS_TRACK];
+// static struct
+//{
+//    httpd_req_t *req;
+//    uint64_t last_us;
+//} stats_client_last[MAX_WS_CLIENTS_TRACK];
 
-static uint64_t client_last_us(httpd_req_t *req)
-{
-    for (int i = 0; i < MAX_WS_CLIENTS_TRACK; ++i)
-    {
-        if (stats_client_last[i].req == req)
-            return stats_client_last[i].last_us;
-    }
-    return 0;
-}
-
-static void client_set_last_us(httpd_req_t *req, uint64_t us)
-{
-    for (int i = 0; i < MAX_WS_CLIENTS_TRACK; ++i)
-    {
-        if (stats_client_last[i].req == req || stats_client_last[i].req == NULL)
-        {
-            stats_client_last[i].req = req;
-            stats_client_last[i].last_us = us;
-            return;
-        }
-    }
-    // fallback overwrite
-    int idx = (int)(us % MAX_WS_CLIENTS_TRACK);
-    stats_client_last[idx].req = req;
-    stats_client_last[idx].last_us = us;
-}
-
-// helper: send a cJSON object to the requesting websocket connection (req).
-// Falls back to ws_async_send() if req is NULL or direct send fails.
+// helper: send a cJSON object to the requesting websocket connection (req). Falls back to ws_async_send() if req is NULL or direct send fails.
 static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
 {
     if (!obj)
         return;
 
-    char *out = cJSON_PrintUnformatted(obj);
-    cJSON_Delete(obj);
+    bool out_is_spiram = false;
+    char *out = heap_caps_malloc(CJSON_WS_OUTPUT_SZ, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (out)
+    {
+        if (cJSON_PrintPreallocated(obj, out, CJSON_WS_OUTPUT_SZ, false))
+        {
+            out_is_spiram = true;
+        }
+        else
+        {
+            heap_caps_free(out);
+            out = NULL;
+        }
+    }
 
     if (!out)
     {
-        LOGW(TAG, "send_cjson_to_req_and_free: cJSON_PrintUnformatted returned NULL");
-        return;
+        out = cJSON_PrintUnformatted(obj);
+        if (!out)
+        {
+            cJSON_Delete(obj);
+            LOGW(TAG, "send_cjson_to_req_and_free: cJSON_PrintUnformatted returned NULL");
+            return;
+        }
     }
 
+    cJSON_Delete(obj);
+
+    size_t out_len = strlen(out);
     if (req != NULL)
     {
         httpd_ws_frame_t out_pkt;
         memset(&out_pkt, 0, sizeof(out_pkt));
         out_pkt.type = HTTPD_WS_TYPE_TEXT;
         out_pkt.payload = (uint8_t *)out;
-        out_pkt.len = strlen(out);
+        out_pkt.len = out_len;
 
         esp_err_t r = httpd_ws_send_frame(req, &out_pkt);
         if (r != ESP_OK)
         {
             LOGW(TAG, "httpd_ws_send_frame failed: %d - falling back to broadcast", r);
-            ws_async_send(out, strlen(out));
+            ws_async_send(out, out_len);
         }
         else
         {
@@ -82,10 +76,13 @@ static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
     }
     else
     {
-        ws_async_send(out, strlen(out));
+        ws_async_send(out, out_len);
     }
 
-    free(out);
+    if (out_is_spiram)
+        heap_caps_free(out);
+    else
+        free(out);
 }
 
 // Return the latest CPU temperature sampled by the sys_stats task.
@@ -594,7 +591,7 @@ void send_stats_json_ws(httpd_req_t *req)
     char eth_ip[32] = "<no-ip>";
     char eth_netmask[32] = "<no-netmask>";
 
-#if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3
+    // #if CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3
     /* Try to get station info and IP (best-effort; ignore failures) */
     esp_netif_ip_info_t ip_info;
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
@@ -616,18 +613,6 @@ void send_stats_json_ws(httpd_req_t *req)
         snprintf(eth_ip, sizeof(eth_ip), IPSTR, IP2STR(&ip_info.ip));
         snprintf(eth_netmask, sizeof(eth_netmask), IPSTR, IP2STR(&ip_info.netmask));
     }
-#endif
-
-    // Optional: per-connection rate limiting (if you added client_last_us helpers)
-    // #ifdef ENABLE_PER_CONN_RATE_LIMIT
-    //   const uint64_t MIN_INTERVAL_US = 5ULL * 1000000ULL; // 5s
-    //    uint64_t last_for_client = client_last_us(req);
-    //    if (last_for_client != 0 && (t0 - last_for_client) < MIN_INTERVAL_US)
-    //    {
-    //       LOGD(TAG, "send_stats_json_ws: per-connection rate-limited for req=%p (delta_us=%llu)", (void *)req, (unsigned long long)(t0 - last_for_client));
-    //       return;
-    //   }
-    //  client_set_last_us(req, t0);
     // #endif
 
     // 0) Quick immediate start summary so client can show a header/spinner

@@ -12,7 +12,7 @@ QueueHandle_t influx_queue = NULL;
 TaskHandle_t influx_sender_task_handle = NULL;
 
 //   Configuration
-#define INFLUX_QUEUE_LEN 8
+#define INFLUX_QUEUE_LEN 32
 #define INFLUX_MAX_PAYLOAD 8192
 #define INFLUX_SENSORS_CHUNK 2048
 #define INFLUX_SENDER_STACK 8192
@@ -753,9 +753,9 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 
     influx_job_t job = {.payload = copy, .len = len};
 
-    if (xQueueSend(influx_queue, &job, pdMS_TO_TICKS(100)) != pdTRUE)
+    if (xQueueSend(influx_queue, &job, pdMS_TO_TICKS(1000)) != pdTRUE)
     {
-        LOGW(TAG, "enqueue: queue full, dropping payload len=%zu", len);
+        LOGW(TAG, "enqueue: queue full after waiting 1s, dropping payload len=%zu", len);
         heap_caps_free(copy);
         return false;
     }

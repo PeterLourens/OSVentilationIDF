@@ -317,7 +317,7 @@ void eth_init(void)
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
         .spics_io_num = -1,
-        .queue_size = 4,
+        .queue_size = 2, // reduce DMA-backed transaction queue depth to lower DMA heap pressure
     };
     w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
 
