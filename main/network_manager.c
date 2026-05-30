@@ -520,6 +520,12 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
     case IP_EVENT_STA_GOT_IP:
         LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        {
+            sm_actuals.wifi_connected = true;
+            sm_actuals.wifi_error = false;
+            xSemaphoreGive(statemachine_mutex);
+        }
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
