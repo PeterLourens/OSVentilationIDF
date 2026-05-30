@@ -109,33 +109,42 @@ static void uart_pool_free(char *buf)
 
 int uart_log_vprintf(const char *fmt, va_list args)
 {
-    if (uart_tx_queue == NULL)
+    if (fmt == NULL)
         return 0;
 
-    // Allocate buffer from pool (non-blocking)
-    char *buf = uart_pool_alloc();
-    if (!buf)
-        return 0;
-
-    int n = vsnprintf(buf, UART_POOL_BUF_SIZE - 3, fmt, args);
+    char local_buf[UART_POOL_BUF_SIZE];
+    int n = vsnprintf(local_buf, UART_POOL_BUF_SIZE - 3, fmt, args);
     if (n < 0)
-    {
-        uart_pool_free(buf);
         return 0;
-    }
 
     if (n > UART_POOL_BUF_SIZE - 3)
     {
         n = UART_POOL_BUF_SIZE - 3;
-        buf[n] = '\0';
+        local_buf[n] = '\0';
+    }
+    else
+    {
+        local_buf[n] = '\0';
     }
 
-    // Keep the original log output on the JTAG/serial monitor
+    // Keep the original log output on the JTAG/serial monitor / console
     if (n > 0)
     {
-        fwrite(buf, 1, n, stdout);
+        fwrite(local_buf, 1, n, stdout);
         fflush(stdout);
     }
+
+    if (uart_tx_queue == NULL)
+    {
+        return n;
+    }
+
+    // Allocate buffer from pool (non-blocking)
+    char *buf = uart_pool_alloc();
+    if (!buf)
+        return n;
+
+    memcpy(buf, local_buf, n + 1);
 
     // Parse ESP-IDF log format and extract tag:message without timestamp
     char *parsed_msg = buf;

@@ -253,7 +253,7 @@ void app_main(void)
     reload_and_init_sensors();
 
     esp_log_set_vprintf(uart_log_vprintf);
-    LOGI(TAG, "System startup, logs go to UART1");
+    LOGI(TAG, "System startup, log output is now routed through uart_log_vprintf");
 
     while (1)
     {
