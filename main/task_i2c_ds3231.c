@@ -4,12 +4,13 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_i2c_ds3231.h"
 
 static const char *TAG = "task_DS3231_sync";
-static StackType_t i2c_ds3231_stack[5120];  // stack buffer
-static StaticTask_t i2c_ds3231_tcb;         // TCB buffer
-static size_t i2c_ds3231_stack_size = 5120; // 5120 words = 20 KB
+EXT_RAM_BSS_ATTR static StackType_t i2c_ds3231_stack[5120]; // stack buffer
+static StaticTask_t i2c_ds3231_tcb;                         // TCB buffer
+static size_t i2c_ds3231_stack_size = 5120;                 // 5120 words = 20 KB
 
 void start_task_i2c_ds3231(void)
 {

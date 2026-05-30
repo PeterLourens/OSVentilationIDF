@@ -13,13 +13,6 @@ static const char *TAG = "http_send_ws_data";
 
 static uint32_t ws_msg_seq = 0u;
 
-// optional per-connection rate limiting helpers (enable with ENABLE_PER_CONN_RATE_LIMIT)
-// static struct
-//{
-//    httpd_req_t *req;
-//    uint64_t last_us;
-//} stats_client_last[MAX_WS_CLIENTS_TRACK];
-
 // helper: send a cJSON object to the requesting websocket connection (req). Falls back to ws_async_send() if req is NULL or direct send fails.
 static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
 {
@@ -547,7 +540,7 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
 
 void send_stats_json_ws(httpd_req_t *req)
 {
-    const int PAGE_SIZE = 3; // reduced page size to lower memory/DMA pressure and speed up first page
+    const int PAGE_SIZE = 2; // lower peak memory by sending smaller pages of task info
     LOGI(TAG, "send_stats_json_ws called (req=%p)", (void *)req);
 
     uint64_t t0 = esp_timer_get_time();

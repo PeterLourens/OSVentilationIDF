@@ -4,6 +4,7 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "network_manager.h"
 
 static const char *TAG = "net_mgr";
@@ -32,7 +33,7 @@ static void eth_watchdog_tick(void);
 static void eth_watchdog_force_restart(const char *reason);
 
 // Task handle and stack
-static StackType_t network_manager_stack[8192]; // stack buffer
+EXT_RAM_BSS_ATTR static StackType_t network_manager_stack[8192]; // stack buffer
 static StaticTask_t network_manager_tcb;
 static size_t network_manager_stack_size = 8192; // 8192 words = 32768 KB
 

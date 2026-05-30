@@ -4,13 +4,14 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_i2c_lcd.h"
 
 static const char *TAG = "task_i2c_LCD";
 
-static StackType_t i2c_lcd_stack[5120];  // stack buffer
-static StaticTask_t i2c_lcd_tcb;         // TCB buffer
-static size_t i2c_lcd_stack_size = 5120; // 5120 words = 20 KB
+EXT_RAM_BSS_ATTR static StackType_t i2c_lcd_stack[5120]; // stack buffer
+static StaticTask_t i2c_lcd_tcb;                         // TCB buffer
+static size_t i2c_lcd_stack_size = 5120;                 // 5120 words = 20 KB
 
 void stop_task_i2c_lcd(void)
 {

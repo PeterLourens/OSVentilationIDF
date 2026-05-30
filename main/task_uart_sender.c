@@ -4,17 +4,18 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_uart_sender.h"
 
 static const char *TAG = "uart_sender";
 
-static StackType_t uart_sender_stack[UART_SENDER_STACK_WORDS];
+EXT_RAM_BSS_ATTR static StackType_t uart_sender_stack[UART_SENDER_STACK_WORDS];
 static StaticTask_t uart_sender_tcb;
 
 static QueueHandle_t uart_tx_queue = NULL;
 
-// Pool storage (aligned)
-static uint8_t uart_pool_buf[UART_POOL_COUNT][UART_POOL_BUF_SIZE] __attribute__((aligned(4)));
+// Pool storage (allocated in SPIRAM if available)
+static uint8_t *uart_pool_buf = NULL;
 
 // Pool management
 static int uart_pool_free_idx[UART_POOL_COUNT]; // stack of free indices
@@ -58,6 +59,22 @@ static void uart_pool_init(void)
         }
     }
 
+    if (uart_pool_buf == NULL)
+    {
+        size_t total_size = (size_t)UART_POOL_COUNT * UART_POOL_BUF_SIZE;
+        uart_pool_buf = heap_caps_malloc(total_size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        if (uart_pool_buf == NULL)
+        {
+            ESP_LOGW(TAG, "uart_pool_init: SPIRAM allocation failed, falling back to internal RAM");
+            uart_pool_buf = malloc(total_size);
+            if (uart_pool_buf == NULL)
+            {
+                ESP_LOGE(TAG, "uart_pool_init: failed to allocate uart_pool_buf");
+                return;
+            }
+        }
+    }
+
     xSemaphoreTake(uart_pool_lock, portMAX_DELAY);
     uart_pool_free_top = 0;
     for (int i = 0; i < UART_POOL_COUNT; ++i)
@@ -71,7 +88,7 @@ static void uart_pool_init(void)
 static char *uart_pool_alloc(void)
 {
     char *ret = NULL;
-    if (uart_pool_lock == NULL)
+    if (uart_pool_lock == NULL || uart_pool_buf == NULL)
         return NULL;
 
     if (xSemaphoreTake(uart_pool_lock, 0) == pdTRUE)
@@ -79,7 +96,7 @@ static char *uart_pool_alloc(void)
         if (uart_pool_free_top > 0)
         {
             int idx = uart_pool_free_idx[--uart_pool_free_top];
-            ret = (char *)uart_pool_buf[idx];
+            ret = (char *)(uart_pool_buf + ((size_t)idx * UART_POOL_BUF_SIZE));
         }
         xSemaphoreGive(uart_pool_lock);
     }

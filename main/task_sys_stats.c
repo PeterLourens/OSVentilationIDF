@@ -4,13 +4,14 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_sys_stats.h"
 
 static const char *TAG = "Sys_stats";
 
-static StackType_t sys_stats_stack[5120];  // stack buffer
-static StaticTask_t sys_stats_tcb;         // TCB buffer
-static size_t sys_stats_stack_size = 5120; // 5120 words = 20 KB
+EXT_RAM_BSS_ATTR static StackType_t sys_stats_stack[5120]; // stack buffer
+static StaticTask_t sys_stats_tcb;                         // TCB buffer
+static size_t sys_stats_stack_size = 5120;                 // 5120 words = 20 KB
 
 // Periodic task that refreshes sm_actuals regularly. It calls sys_stats_update_actuals() which already takes statemachine_mutex internally. */
 static void task_sys_stats_code(void *pvParameters)

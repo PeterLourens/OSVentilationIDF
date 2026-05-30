@@ -14,6 +14,8 @@
 #include <freertos/task.h>
 #include <driver/uart.h>
 #include <esp_log.h>
+#include <stdlib.h>
+#include <esp_attr.h>
 
 #include "globals.h"
 #include "logging.h"

@@ -9,7 +9,7 @@
 
 // Used to concact two log lines of the log output
 static bool ws_prefix_pending = false;
-static char ws_prefix_buf[256]; // holds prefix until message arrives
+EXT_RAM_BSS_ATTR static char ws_prefix_buf[256]; // holds prefix until message arrives
 
 size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
 {
@@ -48,13 +48,13 @@ int websocket_log_output(const char *fmt, va_list args)
     uart_log_vprintf(fmt, uart_args);
     va_end(uart_args);
 
-    static char log_print_buffer[512];
+    EXT_RAM_BSS_ATTR static char log_print_buffer[512];
     int ret = vsnprintf(log_print_buffer, sizeof(log_print_buffer), fmt, args);
 
     if (ret > 0)
     {
         // Strip ANSI codes for WebSocket
-        static char clean_buf[512];
+        EXT_RAM_BSS_ATTR static char clean_buf[512];
         remove_ansi_escape_codes(log_print_buffer, clean_buf, ret);
 
         // Detect prefix vs message

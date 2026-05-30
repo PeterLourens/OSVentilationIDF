@@ -1,11 +1,12 @@
 // task_pushbutton.c
+#include <esp_attr.h>
 #include "task_pushbutton.h"
 
 static const char *TAG = "task_pushbutton";
 
 // Static task allocation (pattern matches existing code style) */
 static StaticTask_t pushbutton_tcb;
-static StackType_t pushbutton_stack[4096];
+EXT_RAM_BSS_ATTR static StackType_t pushbutton_stack[4096];
 static const size_t pushbutton_stack_size = 4096; // words (adjust if needed)
 
 /* Debounce and long-press thresholds */

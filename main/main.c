@@ -5,8 +5,31 @@
 */
 
 #include "main.h"
+#include "cJSON.h"
 
 static const char *TAG = "main";
+
+static void *cjson_spiram_malloc(size_t size)
+{
+    return heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+}
+
+static void cjson_spiram_free(void *ptr)
+{
+    if (ptr)
+    {
+        heap_caps_free(ptr);
+    }
+}
+
+static void init_cjson_hooks(void)
+{
+    cJSON_Hooks hooks = {
+        .malloc_fn = cjson_spiram_malloc,
+        .free_fn = cjson_spiram_free,
+    };
+    cJSON_InitHooks(&hooks);
+}
 
 static void start_network_services(void)
 {
@@ -54,6 +77,9 @@ void app_main(void)
 
     // Initialize hardware capabilities based on hardware version defined in hardware_caps.c
     hw_init();
+
+    // Reduce cJSON internal heap usage by directing cJSON allocations into SPIRAM where available.
+    init_cjson_hooks();
 
     // Initialize lifecycle mutex for Ethernet operations
     eth_lifecycle_init_once();

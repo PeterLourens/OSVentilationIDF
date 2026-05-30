@@ -4,12 +4,13 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_i2c_sensors.h"
 
 static const char *TAG = "task_i2c_sensors";
-static StackType_t i2c_sensors_stack[5120];  // stack buffer
-static StaticTask_t i2c_sensors_tcb;         // TCB buffer
-static size_t i2c_sensors_stack_size = 5120; // 5120 words = 20.480 KB
+EXT_RAM_BSS_ATTR static StackType_t i2c_sensors_stack[5120]; // stack buffer
+static StaticTask_t i2c_sensors_tcb;                         // TCB buffer
+static size_t i2c_sensors_stack_size = 5120;                 // 5120 words = 20.480 KB
 
 EXT_RAM_BSS_ATTR static uint8_t sensor_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];
 EXT_RAM_BSS_ATTR static uint8_t sensor_avg_queue_storage[1 * sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])];

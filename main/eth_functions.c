@@ -300,6 +300,7 @@ void eth_init(void)
         .sclk_io_num = hw.w5500_sclk_gpio,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
+        .max_transfer_sz = 1536,
     };
 
     // Keep DMA enabled so the W5500 driver can read/write larger SPI bursts.
@@ -317,7 +318,7 @@ void eth_init(void)
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
         .spics_io_num = -1,
-        .queue_size = 2, // reduce DMA-backed transaction queue depth to lower DMA heap pressure
+        .queue_size = 1, // minimize outstanding DMA-backed transactions to reduce DMA heap pressure
     };
     w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
 

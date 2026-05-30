@@ -317,14 +317,17 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     if (!out || out_size == 0)
         return;
 
-    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
+    int64_t ts = influxdb_get_timestamp();
+    uint64_t uptime = (uint64_t)(esp_timer_get_time() / 1000000ULL);
+
+    if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(500)) != pdTRUE)
+    {
+        LOGW(TAG, "influxdb_build_payload_actuals: statemachine_mutex unavailable, skipping actuals payload");
         return;
+    }
 
     char line[2048];
     memset(line, 0, sizeof(line));
-
-    int64_t ts = influxdb_get_timestamp();
-    uint64_t uptime = (uint64_t)(esp_timer_get_time() / 1000000ULL);
 
     uint32_t heap_free_internal = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
     uint32_t heap_free_spiram = heap_caps_get_free_size(MALLOC_CAP_SPIRAM);
@@ -422,8 +425,29 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
     }
 
     influxdb_append_line(out, out_size, line);
-
     xSemaphoreGive(statemachine_mutex);
+}
+
+// Build an uptime-only InfluxDB payload so the uptime field updates even when actuals is skipped.
+void influxdb_build_payload_uptime(char *out, size_t out_size)
+{
+    if (!out || out_size == 0)
+        return;
+
+    int64_t ts = influxdb_get_timestamp();
+    uint64_t uptime = (uint64_t)(esp_timer_get_time() / 1000000ULL);
+
+    char line[128];
+    int n = snprintf(line, sizeof(line), "actuals uptime=%llu %lld\n",
+                     (unsigned long long)uptime,
+                     (long long)ts);
+    if (n < 0 || n >= (int)sizeof(line))
+    {
+        LOGW(TAG, "influxdb_build_payload_uptime: payload truncated (%d)", n);
+        return;
+    }
+
+    influxdb_append_line(out, out_size, line);
 }
 
 // Replace influxdb_build_payload_valves
@@ -773,6 +797,22 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
     if (strcmp(cfg.enable_influxdb, "On") != 0)
         return;
 
+    // Build and enqueue uptime-only actuals first, to keep uptime updating even when full state is delayed.
+    char *uptime_payload = heap_caps_malloc(256, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    if (uptime_payload)
+    {
+        memset(uptime_payload, 0, 256);
+        influxdb_build_payload_uptime(uptime_payload, 256);
+        if (strlen(uptime_payload) > 0)
+        {
+            if (!influxdb_enqueue_payload(uptime_payload, strlen(uptime_payload)))
+            {
+                LOGW(TAG, "influxdb_process: failed to enqueue uptime payload");
+            }
+        }
+        heap_caps_free(uptime_payload);
+    }
+
     // Build and enqueue actuals
     char *actuals = heap_caps_malloc(2048, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
     if (actuals)
@@ -780,7 +820,16 @@ void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
         memset(actuals, 0, 2048);
         influxdb_build_payload_actuals(actuals, 2048);
         if (strlen(actuals) > 0)
-            influxdb_enqueue_payload(actuals, strlen(actuals));
+        {
+            if (!influxdb_enqueue_payload(actuals, strlen(actuals)))
+            {
+                LOGW(TAG, "influxdb_process: failed to enqueue actuals payload");
+            }
+        }
+        else
+        {
+            LOGW(TAG, "influxdb_process: actuals payload empty, skipping actuals write");
+        }
         heap_caps_free(actuals);
     }
 

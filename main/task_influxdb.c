@@ -4,12 +4,13 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_influxdb.h"
 
 static const char *TAG = "task_influxdb";
-static StackType_t influxdb_stack[8192];  // stack buffer
-static StaticTask_t influxdb_tcb;         // TCB buffer
-static size_t influxdb_stack_size = 8192; // 8192 words = 32768 KB
+EXT_RAM_BSS_ATTR static StackType_t influxdb_stack[8192]; // stack buffer
+static StaticTask_t influxdb_tcb;                         // TCB buffer
+static size_t influxdb_stack_size = 8192;                 // 8192 words = 32768 KB
 
 void start_task_influxdb(void)
 {

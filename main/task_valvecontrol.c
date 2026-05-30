@@ -4,12 +4,13 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_valvecontrol.h"
 
 static const char *TAG = "task_valvectrl";
-static StackType_t valvectrl_stack[4096];  // stack buffer
-static StaticTask_t valvectrl_tcb;         // TCB buffer
-static size_t valvectrl_stack_size = 4096; // 4096 words = 16 KB
+EXT_RAM_BSS_ATTR static StackType_t valvectrl_stack[4096]; // stack buffer
+static StaticTask_t valvectrl_tcb;                         // TCB buffer
+static size_t valvectrl_stack_size = 4096;                 // 4096 words = 16 KB
 
 void start_task_valvecontrol(void)
 {

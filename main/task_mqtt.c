@@ -4,10 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+#include <esp_attr.h>
 #include "task_mqtt.h"
 
 static const char *TAG = "task_mqtt";
-static StackType_t mqtt_stack[8192];
+EXT_RAM_BSS_ATTR static StackType_t mqtt_stack[8192];
 static StaticTask_t mqtt_tcb;
 static size_t mqtt_stack_size = 8192; // 8192 words = 32768 KB
 
