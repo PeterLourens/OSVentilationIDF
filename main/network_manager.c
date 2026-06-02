@@ -513,6 +513,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
+        update_network_led_state();
 
         if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
@@ -530,6 +531,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
+        update_network_led_state();
         if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
         break;
@@ -592,6 +594,8 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         s_request_update_actuals = true;
         s_request_syslog_update = true;
 
+        update_network_led_state();
+
         if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
 
@@ -645,30 +649,7 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
         // Defer HA discovery to MQTT task
         mqtt_request_homeassistant_discovery();
 
-        bool eth_up = network_has_ip();
-        bool wifi_up = false;
-
-        esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-        if (wifi_netif)
-        {
-            esp_netif_ip_info_t ip;
-            if (esp_netif_get_ip_info(wifi_netif, &ip) == ESP_OK && ip.ip.addr != 0)
-                wifi_up = true;
-        }
-
-        if (statemachine_mutex &&
-            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
-        {
-            wifi_up = sm_actuals.wifi_connected || sm_actuals.wifi_ap_mode;
-            xSemaphoreGive(statemachine_mutex);
-        }
-
-        if (eth_up)
-            eth_led_set_mode(LED_SOLID);
-
-        if (wifi_up)
-            wifi_led_set_mode(LED_SOLID);
-
+        update_network_led_state();
         net_mgr_notify_eth_activity();
 
         break;
@@ -682,16 +663,16 @@ static void on_mqtt_event(void *handler_args, esp_event_base_t base, int32_t eve
 
         if (network_has_ip())
         {
-            eth_led_set_mode(LED_DOUBLE_BLINK);
-        }
-        else
-        {
-            esp_netif_t *wifi_netif_check = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
-            if (wifi_netif_check)
+            esp_netif_t *active = get_active_netif();
+            esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+
+            if (active == eth_netif)
             {
-                esp_netif_ip_info_t ip;
-                if (esp_netif_get_ip_info(wifi_netif_check, &ip) == ESP_OK && ip.ip.addr != 0)
-                    wifi_led_set_mode(LED_DOUBLE_BLINK);
+                eth_led_set_mode(LED_DOUBLE_BLINK);
+            }
+            else
+            {
+                wifi_led_set_mode(LED_DOUBLE_BLINK);
             }
         }
         break;

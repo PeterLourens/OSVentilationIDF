@@ -31,6 +31,9 @@ bool network_has_ip(void);
 void on_ping_end(esp_ping_handle_t hdl, void *args);
 bool ping_gateway(void);
 
+// LED helpers
+void update_network_led_state(void);
+
 // control the Ethernet LED (GPIO45) to indicate link/activity
 void eth_led_init(void);
 void eth_led_set_mode(led_mode_t mode);

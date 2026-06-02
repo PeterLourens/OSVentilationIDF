@@ -5,6 +5,7 @@
 */
 
 #include "eth_functions.h"
+#include <esp_heap_caps.h>
 
 static const char *TAG = "eth_func";
 
@@ -98,6 +99,8 @@ esp_err_t eth_hardware_reset(void)
     }
 
     LOGI(TAG, "eth_hardware_reset: starting guarded hardware reset");
+    LOGI(TAG, "eth_hardware_reset: DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 
     // Mark shutting down to prevent event handlers from racing
     eth_set_shutting_down(true);
@@ -148,13 +151,18 @@ esp_err_t eth_hardware_reset(void)
     if (!s_eth_initialized || eth_handle == NULL || eth_netif == NULL)
     {
         LOGI(TAG, "eth_hardware_reset: calling eth_init()");
+        LOGI(TAG, "eth_hardware_reset: before eth_init DMA free=%u internal free=%u",
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+
+        // Release lifecycle mutex before calling eth_init() to avoid deadlock
+        xSemaphoreGive(eth_lifecycle_mutex);
         eth_init();
-        // eth_init releases the mutex; reacquire to continue if needed
+
+        // Re-acquire lifecycle mutex to continue; handle failure
         if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(200)) != pdTRUE)
         {
             LOGW(TAG, "eth_hardware_reset: failed to re-take lifecycle mutex after eth_init");
             eth_set_shutting_down(false);
-            xSemaphoreGive(eth_lifecycle_mutex);
             return ESP_ERR_TIMEOUT;
         }
     }
@@ -162,6 +170,8 @@ esp_err_t eth_hardware_reset(void)
     // Start driver if not started
     if (!eth_started && eth_handle != NULL)
     {
+        LOGI(TAG, "eth_hardware_reset: before esp_eth_start DMA free=%u internal free=%u",
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
         esp_err_t r = esp_eth_start(eth_handle);
         if (r != ESP_OK)
         {
@@ -171,6 +181,8 @@ esp_err_t eth_hardware_reset(void)
         {
             eth_started = true;
             LOGI(TAG, "eth_hardware_reset: esp_eth_start succeeded");
+            LOGI(TAG, "eth_hardware_reset: after esp_eth_start DMA free=%u internal free=%u",
+                 (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
         }
     }
 
@@ -265,6 +277,9 @@ void eth_init(void)
 
     LOGI(TAG, "eth_init: initializing W5500 Ethernet (safe)");
 
+    LOGI(TAG, "eth_init: entry DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)
     {
@@ -300,7 +315,7 @@ void eth_init(void)
         .sclk_io_num = hw.w5500_sclk_gpio,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
-        .max_transfer_sz = 1536,
+        .max_transfer_sz = 1024,
     };
 
     // Keep DMA enabled so the W5500 driver can read/write larger SPI bursts.
@@ -313,12 +328,15 @@ void eth_init(void)
         return;
     }
 
+    LOGI(TAG, "eth_init: after spi_bus_initialize DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+
     // SPI device config
     static spi_device_interface_config_t w5500_spi_devcfg = {
         .mode = 0,
         .clock_speed_hz = 20 * 1000 * 1000,
         .spics_io_num = -1,
-        .queue_size = 1, // minimize outstanding DMA-backed transactions to reduce DMA heap pressure
+        .queue_size = 2, // conservative: reduce outstanding DMA-backed transactions
     };
     w5500_spi_devcfg.spics_io_num = hw.w5500_cs_gpio;
 
@@ -362,6 +380,9 @@ void eth_init(void)
         return;
     }
 
+    LOGI(TAG, "eth_init: after esp_eth_driver_install DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+
     // Attach netif glue
     eth_glue = esp_eth_new_netif_glue(eth_handle);
     if (eth_glue == NULL)
@@ -402,6 +423,9 @@ void eth_init(void)
         else
             LOGI(TAG, "eth_init: DHCP client started on ETH_DEF");
     }
+
+    LOGI(TAG, "eth_init: exit DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 
     xSemaphoreGive(eth_lifecycle_mutex);
 }
@@ -545,6 +569,9 @@ void eth_start(void)
         return;
     }
 
+    LOGI(TAG, "eth_start: before esp_eth_start DMA free=%u internal free=%u",
+         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+
     esp_err_t err = esp_eth_start(eth_handle);
 
     if (err != ESP_OK)
@@ -555,6 +582,8 @@ void eth_start(void)
     {
         eth_started = true;
         LOGI(TAG, "eth_start: Ethernet driver started");
+        LOGI(TAG, "eth_start: after esp_eth_start DMA free=%u internal free=%u",
+             (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
     }
 
     xSemaphoreGive(eth_lifecycle_mutex);

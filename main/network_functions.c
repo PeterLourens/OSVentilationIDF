@@ -117,6 +117,24 @@ bool network_has_ip(void)
     return (netif != NULL);
 }
 
+void update_network_led_state(void)
+{
+    esp_netif_t *active = get_active_netif();
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    esp_netif_t *wifi = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+
+    if (active == eth)
+    {
+        eth_led_set_mode(LED_SOLID);
+        wifi_led_set_mode(LED_OFF);
+    }
+    else if (active == wifi)
+    {
+        wifi_led_set_mode(LED_SOLID);
+        eth_led_set_mode(LED_OFF);
+    }
+}
+
 void update_hostname(void)
 {
     const char *hostname = NULL;
