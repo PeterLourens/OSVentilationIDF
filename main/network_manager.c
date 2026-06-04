@@ -89,48 +89,27 @@ static void eth_watchdog_force_restart(const char *reason)
 
     last_attempt_tick = xTaskGetTickCount();
 
-    // Try software stop/start first using eth_get_handle()
-    esp_eth_handle_t h = eth_get_handle();
-    if (h)
+    // Try software stop/start through the Ethernet lifecycle helper.
+    esp_err_t e = eth_software_restart();
+    if (e == ESP_OK)
     {
-        esp_err_t e = esp_eth_stop(h);
-        if (e != ESP_OK)
-        {
-            ESP_LOGW(TAG, "ETH-WD: esp_eth_stop failed: %s", esp_err_to_name(e));
-        }
-
-        vTaskDelay(pdMS_TO_TICKS(ETH_WD_FORCE_RESTART_DELAY_MS));
-
-        e = esp_eth_start(h);
-        if (e == ESP_OK)
-        {
-            ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
-            // reset watchdog state and software failure counter
-            s_eth_wd.link_up_event = false;
-            s_eth_wd.has_ip_event = false;
-            s_eth_wd.gateway_fail_count = 0;
-            s_eth_wd.last_state_change = xTaskGetTickCount();
-            s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
-            s_request_update_actuals = true;
-            s_request_syslog_update = true;
-            software_fail_count = 0;
-            last_attempt_tick = 0;
-            return;
-        }
-        else
-        {
-            ESP_LOGW(TAG, "ETH-WD: esp_eth_start failed: %s", esp_err_to_name(e));
-            software_fail_count++;
-            ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
-        }
+        ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
+        // reset watchdog state and software failure counter
+        s_eth_wd.link_up_event = false;
+        s_eth_wd.has_ip_event = false;
+        s_eth_wd.gateway_fail_count = 0;
+        s_eth_wd.last_state_change = xTaskGetTickCount();
+        s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
+        s_request_update_actuals = true;
+        s_request_syslog_update = true;
+        software_fail_count = 0;
+        last_attempt_tick = 0;
+        return;
     }
-    else
-    {
-        ESP_LOGW(TAG, "ETH-WD: eth_get_handle() returned NULL; will attempt hardware reset if threshold reached");
-        // Count this as a failure toward the hardware-reset threshold
-        software_fail_count++;
-        ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
-    }
+
+    ESP_LOGW(TAG, "ETH-WD: software restart failed: %s", esp_err_to_name(e));
+    software_fail_count++;
+    ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
 
     // Only perform hardware reset after N consecutive software failures
     if (software_fail_count < SOFTWARE_RESTART_MAX_ATTEMPTS)

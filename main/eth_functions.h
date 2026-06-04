@@ -33,6 +33,7 @@ void attempt_guarded_eth_restart(void);
 void handle_deferred_eth_teardown_if_needed(void);
 bool ethernet_link_is_up(void);
 void eth_init(void);
+esp_err_t eth_software_restart(void);
 void eth_start(void);
 void eth_stop(void);
 void eth_set_shutting_down(bool v);

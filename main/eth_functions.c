@@ -589,6 +589,58 @@ void eth_start(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
+// Safe software restart that uses the Ethernet lifecycle mutex to avoid races during stop/start.
+esp_err_t eth_software_restart(void)
+{
+    if (!hw.has_ethernet)
+    {
+        LOGW(TAG, "eth_software_restart: Ethernet not present");
+        return ESP_ERR_NOT_SUPPORTED;
+    }
+
+    if (eth_lifecycle_mutex == NULL)
+        eth_lifecycle_init_once();
+
+    if (xSemaphoreTake(eth_lifecycle_mutex, pdMS_TO_TICKS(5000)) != pdTRUE)
+    {
+        LOGE(TAG, "eth_software_restart: failed to take lifecycle mutex");
+        return ESP_ERR_TIMEOUT;
+    }
+
+    if (eth_handle == NULL)
+    {
+        LOGW(TAG, "eth_software_restart: eth_handle NULL");
+        xSemaphoreGive(eth_lifecycle_mutex);
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    eth_set_shutting_down(true);
+
+    esp_err_t err = esp_eth_stop(eth_handle);
+    if (err != ESP_OK)
+    {
+        LOGW(TAG, "eth_software_restart: esp_eth_stop -> %s", esp_err_to_name(err));
+    }
+    eth_started = false;
+
+    vTaskDelay(pdMS_TO_TICKS(200));
+
+    err = esp_eth_start(eth_handle);
+    if (err != ESP_OK)
+    {
+        LOGW(TAG, "eth_software_restart: esp_eth_start -> %s", esp_err_to_name(err));
+    }
+    else
+    {
+        eth_started = true;
+        LOGI(TAG, "eth_software_restart: esp_eth_start succeeded");
+    }
+
+    eth_set_shutting_down(false);
+    xSemaphoreGive(eth_lifecycle_mutex);
+    return err;
+}
+
 // Safe eth_stop: idempotent and performs full cleanup
 void eth_stop(void)
 {
