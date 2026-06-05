@@ -4,10 +4,23 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file i2c_functions.c
+ * @brief I2C master bus initialization helpers.
+ *
+ * This module initializes the configured I2C master buses and exposes
+ * public setup functions for the sensor subsystem.
+ */
+
 #include "i2c_functions.h"
 
 static const char *TAG = "i2c_functions";
 
+/**
+ * @brief Initialize I2C master bus 0 using configured GPIO pins and internal pull-ups.
+ *
+ * @return ESP_OK when bus initialization succeeds, or an esp_err_t on failure.
+ */
 esp_err_t i2c_init_master0(void)
 {
     esp_err_t err = ESP_OK;

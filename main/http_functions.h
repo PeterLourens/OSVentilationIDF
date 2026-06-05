@@ -35,7 +35,10 @@
 /**
  * @brief Send raw text to all connected WebSocket clients.
  *
- * @param buf Pointer to the data buffer.
+ * This helper broadcasts a UTF-8 payload to every active WebSocket client
+ * registered on the embedded HTTP server.
+ *
+ * @param buf Pointer to the data buffer to send.
  * @param len Number of bytes in the buffer.
  */
 void ws_async_send(const char *buf, size_t len);
@@ -43,12 +46,20 @@ void ws_async_send(const char *buf, size_t len);
 /**
  * @brief Start the embedded HTTP server and bind handlers.
  *
- * @return ESP_OK on success, or an esp_err_t on failure.
+ * This function starts the HTTP server on port 80 and registers the web
+ * UI, WebSocket, and configuration endpoints.
+ *
+ * @return ESP_OK if the server started successfully.
+ * @return ESP_ERR_INVALID_STATE if the active network interface has no IP.
+ * @return other esp_err_t values on HTTP server startup failure.
  */
 esp_err_t http_server_start(void);
 
 /**
  * @brief Register HTTP URI handlers on an active server.
+ *
+ * Call this after the HTTP server has been started to bind all embedded
+ * resource handlers and POST endpoints used by the web UI.
  *
  * @param server The server handle returned by esp_http_server_start.
  */
@@ -57,7 +68,12 @@ void register_http_handlers(httpd_handle_t server);
 /**
  * @brief Stop the embedded HTTP server and release resources.
  *
- * @return ESP_OK on success, or an esp_err_t on failure.
+ * This function stops the HTTP server instance and clears the global
+ * server handle so the server can be restarted later if needed.
+ *
+ * @return ESP_OK if the server was stopped successfully.
+ * @return ESP_ERR_INVALID_ARG if the server handle was not valid.
+ * @return other esp_err_t values on shutdown failure.
  */
 esp_err_t http_server_stop(void);
 

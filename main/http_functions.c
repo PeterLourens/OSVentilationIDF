@@ -55,7 +55,9 @@ extern const char stats_html_end[] asm("_binary_stats_html_end");
 extern const char reboot_html_start[] asm("_binary_reboot_html_start");
 extern const char reboot_html_end[] asm("_binary_reboot_html_end");
 
-// Serve pure_min.css
+/**
+ * @brief HTTP GET handler for the embedded pure_min.css asset.
+ */
 static esp_err_t pure_min_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
@@ -64,7 +66,9 @@ static esp_err_t pure_min_css_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, pure_min_css_start, len);
 }
 
-// Serve styles.css
+/**
+ * @brief HTTP GET handler for the embedded styles.css asset.
+ */
 static esp_err_t styles_css_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/css");
@@ -73,7 +77,9 @@ static esp_err_t styles_css_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, styles_css_start, len);
 }
 
-// Serve ui.js
+/**
+ * @brief HTTP GET handler for the embedded ui.js asset.
+ */
 static esp_err_t ui_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
@@ -82,7 +88,9 @@ static esp_err_t ui_js_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, ui_js_start, len);
 }
 
-// Serve send_json_ws.js
+/**
+ * @brief HTTP GET handler for the embedded send_json_ws.js asset.
+ */
 static esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "application/javascript");
@@ -91,7 +99,9 @@ static esp_err_t send_json_ws_js_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, send_json_ws_js_start, len);
 }
 
-// Serve favicon.ico
+/**
+ * @brief HTTP GET handler for the embedded favicon.ico asset.
+ */
 static esp_err_t favicon_ico_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "image/x-icon");
@@ -100,7 +110,9 @@ static esp_err_t favicon_ico_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, (const char *)favicon_ico_start, len);
 }
 
-// Serve index.html
+/**
+ * @brief HTTP GET handler for the embedded index.html page.
+ */
 static esp_err_t index_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -109,7 +121,9 @@ static esp_err_t index_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, index_html_start, len);
 }
 
-// Serve sensor_config.html
+/**
+ * @brief HTTP GET handler for the embedded sensor_config.html page.
+ */
 static esp_err_t sensor_config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -118,7 +132,9 @@ static esp_err_t sensor_config_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-// Serve config.html
+/**
+ * @brief HTTP GET handler for the embedded config.html page.
+ */
 static esp_err_t config_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -127,7 +143,9 @@ static esp_err_t config_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// Serve statemachine.html
+/**
+ * @brief HTTP GET handler for the embedded statemachine.html page.
+ */
 static esp_err_t statemachine_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -136,7 +154,9 @@ static esp_err_t statemachine_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
-// Serve valvecontrol.html
+/**
+ * @brief HTTP GET handler for the embedded valvecontrol.html page.
+ */
 static esp_err_t valvecontrol_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -145,7 +165,9 @@ static esp_err_t valvecontrol_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
-// Serve webserial.html
+/**
+ * @brief HTTP GET handler for the embedded webserial.html page.
+ */
 static esp_err_t webserial_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -154,7 +176,9 @@ static esp_err_t webserial_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, webserial_html_start, len);
 }
 
-// Serve stats.html
+/**
+ * @brief HTTP GET handler for the embedded stats.html page.
+ */
 static esp_err_t stats_get_handler(httpd_req_t *req)
 {
     httpd_resp_set_type(req, "text/html");
@@ -163,7 +187,9 @@ static esp_err_t stats_get_handler(httpd_req_t *req)
     return httpd_resp_send(req, stats_html_start, len);
 }
 
-// WebSocket handler
+/**
+ * @brief WebSocket handler for handshake, incoming commands, and runtime data requests.
+ */
 static esp_err_t websocket_handler(httpd_req_t *req)
 {
     httpd_ws_frame_t ws_pkt;
@@ -258,7 +284,9 @@ static esp_err_t websocket_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-// POST handler: save bus0 config to /data/json/bus0_sensor_config.json
+/**
+ * @brief POST handler that saves bus0 sensor configuration to LittleFS.
+ */
 static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -311,7 +339,9 @@ static esp_err_t sensorconfig_bus0_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-// POST handler: save bus1 config to /data/json/bus1_sensor_config.json
+/**
+ * @brief POST handler that saves bus1 sensor configuration to LittleFS.
+ */
 static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -373,7 +403,9 @@ static esp_err_t sensorconfig_bus1_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, sensor_config_html_start, len);
 }
 
-// POST handler: restart ESP
+/**
+ * @brief POST handler that returns a reboot page and restarts the board.
+ */
 static esp_err_t restart_esp_post_handler(httpd_req_t *req)
 {
     size_t html_size = reboot_html_end - reboot_html_start;
@@ -388,7 +420,12 @@ static esp_err_t restart_esp_post_handler(httpd_req_t *req)
     return ESP_OK; // never reached
 }
 
-// POST handler: save wifi configuration to flash
+/**
+ * @brief POST handler that saves Wi-Fi configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t wifi_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -440,7 +477,12 @@ static esp_err_t wifi_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save ethernet configuration to flash
+/**
+ * @brief POST handler that saves Ethernet configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t ethernet_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -492,7 +534,12 @@ static esp_err_t ethernet_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save I2C configuration to flash
+/**
+ * @brief POST handler that saves I2C configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t i2c_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -544,7 +591,12 @@ static esp_err_t i2c_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save fan configuration to flash
+/**
+ * @brief POST handler that saves fan configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t fan_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -594,7 +646,12 @@ static esp_err_t fan_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save influxdb configuration to flash
+/**
+ * @brief POST handler that saves InfluxDB configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -644,7 +701,12 @@ static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save MQTT configuration to flash
+/**
+ * @brief POST handler that saves MQTT configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -694,7 +756,12 @@ static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save syslog configuration to flash
+/**
+ * @brief POST handler that saves syslog configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t syslog_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -744,7 +811,12 @@ static esp_err_t syslog_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
-// POST handler: save time configuration to flash
+/**
+ * @brief POST handler that saves time configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t time_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -794,6 +866,12 @@ static esp_err_t time_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, config_html_start, len);
 }
 
+/**
+ * @brief POST handler that saves general statemachine configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t state_gen_config_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -843,6 +921,12 @@ static esp_err_t state_gen_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
+/**
+ * @brief POST handler that saves a specific statemachine state configuration to LittleFS.
+ *
+ * @param req HTTP request object carrying the URL-encoded form body.
+ * @return ESP_OK on success, or an esp_err_t if the request or write fails.
+ */
 static esp_err_t state_config_post_handler(httpd_req_t *req)
 {
     int state_number = (int)(intptr_t)req->user_ctx;
@@ -900,7 +984,12 @@ static esp_err_t state_config_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, statemachine_html_start, len);
 }
 
-// Set valve positions in NVS to 0
+/**
+ * @brief HTTP POST handler that resets saved valve positions to zero in NVS.
+ *
+ * @param req HTTP request object from the valve control page.
+ * @return ESP_OK after sending the valve control page response.
+ */
 static esp_err_t reset_valves_handler(httpd_req_t *req)
 {
     nvs_handle_t nvs;
@@ -934,7 +1023,12 @@ static esp_err_t reset_valves_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, len);
 }
 
-// POST handler: stop the statemachine (set state to STOPPED)
+/**
+ * @brief POST handler that stops the statemachine and returns the valve control page.
+ *
+ * @param req HTTP request object from the valve control page.
+ * @return ESP_OK after sending the valve control page response.
+ */
 static esp_err_t stop_statemachine_handler(httpd_req_t *req)
 {
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -952,7 +1046,12 @@ static esp_err_t stop_statemachine_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
-// POST handler: start the statemachine (set state to INIT)
+/**
+ * @brief POST handler that starts the statemachine and returns the valve control page.
+ *
+ * @param req HTTP request object from the valve control page.
+ * @return ESP_OK after sending the valve control page response.
+ */
 static esp_err_t start_statemachine_handler(httpd_req_t *req)
 {
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
@@ -970,7 +1069,12 @@ static esp_err_t start_statemachine_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
-// POST handler: update `valvecontroldata` from valvecontrol form and notify valve control task
+/**
+ * @brief POST handler that updates valve control data from the web form and notifies the valve task.
+ *
+ * @param req HTTP request object carrying the valve control form body.
+ * @return ESP_OK after sending the valve control page response.
+ */
 static esp_err_t valvecontrol_post_handler(httpd_req_t *req)
 {
     size_t len = req->content_len;
@@ -1079,6 +1183,12 @@ static esp_err_t valvecontrol_post_handler(httpd_req_t *req)
     return httpd_resp_send(req, valvecontrol_html_start, plen);
 }
 
+/**
+ * @brief HTTP GET handler that streams all JSON configs as a TAR archive.
+ *
+ * @param req HTTP request object for the archive download.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
 {
     DIR *dir = opendir("/data/json");
@@ -1159,6 +1269,12 @@ static esp_err_t handle_get_all_configs_tar(httpd_req_t *req)
     return ESP_OK;
 }
 
+/**
+ * @brief HTTP POST handler that imports configuration files from a TAR archive upload.
+ *
+ * @param req HTTP request object containing the uploaded TAR body.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
 {
     // Read entire uploaded file into RAM (tar is small ~23 KB)
@@ -1289,10 +1405,10 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
 }
 
 /**
- * @brief Send a raw text WebSocket frame asynchronously to connected clients.
+ * @brief Broadcast raw text to all connected WebSocket clients.
  *
- * @param buf Buffer containing the UTF-8 payload.
- * @param len Length of @p buf in bytes.
+ * @param buf Pointer to the data buffer.
+ * @param len Length of the buffer in bytes.
  */
 void ws_async_send(const char *buf, size_t len)
 {
@@ -1346,7 +1462,7 @@ void ws_async_send(const char *buf, size_t len)
 /**
  * @brief Start the embedded HTTP server and bind URI handlers.
  *
- * @return ESP_OK on success or an esp_err_t on failure.
+ * @return ESP_OK on success, or an esp_err_t on failure.
  */
 esp_err_t http_server_start(void)
 {
