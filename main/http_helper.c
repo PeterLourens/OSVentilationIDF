@@ -4,13 +4,26 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file http_helper.c
+ * @brief Utility helpers for HTTP responses, WebSocket log forwarding, and atomic JSON writes.
+ */
+
 #include "http_helper.h"
 #include "task_uart_sender.h"
 
-// Used to concact two log lines of the log output
+// Used to concatenate two log lines of the log output
 static bool ws_prefix_pending = false;
 EXT_RAM_BSS_ATTR static char ws_prefix_buf[256]; // holds prefix until message arrives
 
+/**
+ * @brief Strip ANSI escape sequences from a string.
+ *
+ * @param input Source buffer containing possible ANSI codes.
+ * @param output Destination buffer for cleaned text.
+ * @param len Length of source buffer in bytes.
+ * @return size_t Number of bytes written to output excluding the terminating null.
+ */
 size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
 {
     const char *ptr_in = input;
@@ -41,6 +54,13 @@ size_t remove_ansi_escape_codes(const char *input, char *output, size_t len)
     return (ptr_out - output); // number of chars written
 }
 
+/**
+ * @brief WebSocket logger callback that forwards logs to UART and WebSocket.
+ *
+ * @param fmt Format string.
+ * @param args Variadic list of parameters.
+ * @return int Number of characters formatted.
+ */
 int websocket_log_output(const char *fmt, va_list args)
 {
     va_list uart_args;
@@ -77,6 +97,13 @@ int websocket_log_output(const char *fmt, va_list args)
     return ret;
 }
 
+/**
+ * @brief UART log output wrapper that writes formatted text to stdout.
+ *
+ * @param szFormat Format string.
+ * @param args Variadic list of parameters.
+ * @return int Always returns 0.
+ */
 int uart_log_output(const char *szFormat, va_list args)
 {
     static char log_print_buffer[512];
@@ -90,6 +117,13 @@ int uart_log_output(const char *szFormat, va_list args)
 }
 
 // atomic write helper — writes tmp -> rename
+/**
+ * @brief Atomically write JSON data to the filesystem using a temporary file rename.
+ *
+ * @param path Destination path for the JSON file.
+ * @param root cJSON object to serialize and write.
+ * @return true on success, false on failure.
+ */
 bool write_json_atomic_fs(const char *path, cJSON *root)
 {
     if (!path || !root)
@@ -130,6 +164,11 @@ bool write_json_atomic_fs(const char *path, cJSON *root)
     return (r == 0);
 }
 
+/**
+ * @brief Compute and store the checksum field for a TAR header.
+ *
+ * @param hdr Pointer to the TAR header to checksum.
+ */
 void tar_fill_checksum(tar_header_t *hdr)
 {
     memset(hdr->chksum, ' ', 8);
@@ -142,7 +181,13 @@ void tar_fill_checksum(tar_header_t *hdr)
     hdr->chksum[7] = ' ';
 }
 
-// Public function to write a tar header for a file to the HTTP response
+/**
+ * @brief Write a TAR header block into the HTTP response stream.
+ *
+ * @param req HTTP request handle.
+ * @param filename Name to include in the TAR entry.
+ * @param filesize File size in bytes.
+ */
 void tar_write_header(httpd_req_t *req, const char *filename, size_t filesize)
 {
     tar_header_t hdr;

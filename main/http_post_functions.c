@@ -1,7 +1,24 @@
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
+/**
+ * @file http_post_functions.c
+ * @brief Implementations for building configuration JSON objects from URL-encoded POST bodies.
+ */
+
 #include "http_post_functions.h"
 
-// Build a JSON array for one bus from urlencoded POST body.
-// field naming in the HTML: bN_sX_<type|valve|location|rh|co2>
+/**
+ * @brief Build a bus sensor configuration JSON object from an URL-encoded POST body.
+ *
+ * @param body URL-encoded request body.
+ * @param len Length of the body in bytes.
+ * @param bus_prefix Prefix for sensor field names, such as "b0_".
+ * @return cJSON* New JSON object on success, NULL on failure.
+ */
 cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const char *bus_prefix)
 {
     if (!body || !bus_prefix)
@@ -54,6 +71,9 @@ cJSON *build_bus_config_from_body_urlencoded(const char *body, size_t len, const
     return obj;
 }
 
+/**
+ * @brief Build Wi-Fi configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_wifi_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -128,6 +148,9 @@ cJSON *build_wifi_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build Ethernet configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_ethernet_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -184,6 +207,9 @@ cJSON *build_ethernet_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Apply LCD configuration changes by starting or stopping the LCD task.
+ */
 void lcd_apply_config_change(void)
 {
     static I2C_config_t last_cfg = {0};
@@ -214,6 +240,9 @@ void lcd_apply_config_change(void)
     last_cfg = cfg;
 }
 
+/**
+ * @brief Build I2C configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -246,6 +275,9 @@ cJSON *build_i2c_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build MQTT configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_mqtt_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -284,6 +316,9 @@ cJSON *build_mqtt_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build InfluxDB configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_influxdb_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -328,6 +363,9 @@ cJSON *build_influxdb_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build fan control configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_fan_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -384,6 +422,9 @@ cJSON *build_fan_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build syslog configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -434,7 +475,11 @@ cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
-// Inline URL decode helper static
+/**
+ * @brief Decode URL-encoded characters in place, converting %XX escapes and plus signs.
+ *
+ * @param str String to decode.
+ */
 void url_decode_inplace(char *str)
 {
     char *src = str, *dst = str;
@@ -459,6 +504,9 @@ void url_decode_inplace(char *str)
     *dst = '\0';
 }
 
+/**
+ * @brief Build time and timezone configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
 {
     if (!body)
@@ -485,6 +533,9 @@ cJSON *build_time_config_from_body_urlencoded(const char *body, size_t len)
     return obj;
 }
 
+/**
+ * @brief Build generated state timing configuration JSON from URL-encoded POST data.
+ */
 cJSON *build_state_gen_config_from_body_urlencoded(const char *body, size_t len)
 {
     int temp_val = 0;

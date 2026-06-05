@@ -4,10 +4,18 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file i2c_ds3231.c
+ * @brief DS3231 RTC device initialization, time synchronization, and diagnostics.
+ */
+
 #include "i2c_ds3231.h"
 
 static const char *TAG = "i2c_DS3231";
 
+/**
+ * @brief Initialize the DS3231 on the specified bus.
+ */
 esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     i2c_device_config_t ds3231_cfg = {
@@ -38,6 +46,9 @@ esp_err_t i2c_ds3231_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_han
     return ESP_OK;
 }
 
+/**
+ * @brief Initialize the system clock from the DS3231 Real Time Clock.
+ */
 void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
 {
     struct tm rtc_time;
@@ -67,16 +78,25 @@ void init_system_time_from_ds3231(i2c_master_dev_handle_t dev_handle)
     }
 }
 
+/**
+ * @brief Convert a decimal integer into BCD format.
+ */
 static uint8_t dec_to_bcd(int val)
 {
     return (uint8_t)((val / 10 * 16) + (val % 10));
 }
 
+/**
+ * @brief Convert a BCD-encoded byte into a decimal integer.
+ */
 static int bcd_to_dec(uint8_t val)
 {
     return (val / 16 * 10) + (val % 16);
 }
 
+/**
+ * @brief Set the DS3231 time register from a struct tm.
+ */
 esp_err_t ds3231_set_time(i2c_master_dev_handle_t dev, const struct tm *timeinfo)
 {
     uint8_t buf[8];
@@ -93,6 +113,9 @@ esp_err_t ds3231_set_time(i2c_master_dev_handle_t dev, const struct tm *timeinfo
     return i2c_master_transmit(dev, buf, sizeof(buf), -1);
 }
 
+/**
+ * @brief Read the current time from the DS3231 into a struct tm.
+ */
 esp_err_t ds3231_get_time(i2c_master_dev_handle_t dev, struct tm *timeinfo)
 {
     uint8_t reg = 0x00;
@@ -123,6 +146,9 @@ esp_err_t ds3231_get_time(i2c_master_dev_handle_t dev, struct tm *timeinfo)
     return ESP_OK;
 }
 
+/**
+ * @brief Synchronize the system time and DS3231 RTC with NTP when possible.
+ */
 esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 {
     char ntp_server[64];
@@ -220,11 +246,17 @@ esp_err_t sync_system_and_ds3231_with_ntp(i2c_master_dev_handle_t dev_handle)
 }
 
 // Low-level helpers
+/**
+ * @brief Read a single register from the DS3231.
+ */
 esp_err_t ds3231_read_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t *val)
 {
     return i2c_master_transmit_receive(dev, &reg, 1, val, 1, pdMS_TO_TICKS(100));
 }
 
+/**
+ * @brief Write a single register of the DS3231.
+ */
 esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val)
 {
     uint8_t buf[2] = {reg, val};
@@ -232,6 +264,9 @@ esp_err_t ds3231_write_reg(i2c_master_dev_handle_t dev, uint8_t reg, uint8_t val
 }
 
 // Temperature
+/**
+ * @brief Read the temperature sensor from the DS3231.
+ */
 esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
 {
     uint8_t reg = DS3231_REG_TEMP_MSB;
@@ -247,6 +282,9 @@ esp_err_t ds3231_read_temperature(i2c_master_dev_handle_t dev, float *temp_c)
 }
 
 // Status + health check
+/**
+ * @brief Check and format the DS3231 status register.
+ */
 esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t bufsize)
 {
     uint8_t status;
@@ -279,7 +317,9 @@ esp_err_t ds3231_check_status(i2c_master_dev_handle_t dev, char *buf, size_t buf
     return ESP_OK;
 }
 
-// Combined health check
+/**
+ * @brief Perform a combined DS3231 health check.
+ */
 void ds3231_health_monitor(i2c_master_dev_handle_t dev)
 {
     float temp_c = 0;
@@ -293,6 +333,9 @@ void ds3231_health_monitor(i2c_master_dev_handle_t dev)
     }
 }
 
+/**
+ * @brief Save DS3231 diagnostics to NVS storage.
+ */
 void save_ds3231_diagnostics(float temp_c)
 {
     nvs_handle_t handle;
@@ -317,6 +360,9 @@ void save_ds3231_diagnostics(float temp_c)
     LOGD(TAG, "Diagnostics saved: temp=%.2f °C", temp_c);
 }
 
+/**
+ * @brief Read DS3231 diagnostics from NVS storage.
+ */
 void read_ds3231_diagnostics(void)
 {
     nvs_handle_t handle;

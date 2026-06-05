@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file http_send_ws_data.c
+ * @brief WebSocket helpers for sending JSON payloads and system statistics.
+ */
+
 #include "http_send_ws_data.h"
 #include "statemachine_states.h"
 
@@ -13,7 +18,12 @@ static const char *TAG = "http_send_ws_data";
 
 static uint32_t ws_msg_seq = 0u;
 
-// helper: send a cJSON object to the requesting websocket connection (req). Falls back to ws_async_send() if req is NULL or direct send fails.
+/**
+ * @brief Send a cJSON object to the requesting WebSocket client or broadcast if direct send fails.
+ *
+ * @param obj JSON object to send (freed by this function).
+ * @param req Requesting HTTP WebSocket request, or NULL to broadcast.
+ */
 static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
 {
     if (!obj)
@@ -78,7 +88,11 @@ static void send_cjson_to_req_and_free(cJSON *obj, httpd_req_t *req)
         free(out);
 }
 
-// Return the latest CPU temperature sampled by the sys_stats task.
+/**
+ * @brief Return the latest CPU temperature sampled by the sys_stats task.
+ *
+ * @return float CPU temperature in degrees Celsius, or 0.0 if unavailable.
+ */
 float get_cpu_temp_c(void)
 {
     if (sm_actuals.cpu_temp >= 0)
@@ -86,6 +100,9 @@ float get_cpu_temp_c(void)
     return 0.0f;
 }
 
+/**
+ * @brief Send index page data and current runtime state to a WebSocket client.
+ */
 void send_index_html_ws(httpd_req_t *req)
 {
     char key[64];
@@ -232,6 +249,9 @@ void send_index_html_ws(httpd_req_t *req)
 }
 
 // Replace send_sensor_config_json_ws with this safe version
+/**
+ * @brief Send the current sensor configuration as JSON to a WebSocket client.
+ */
 void send_sensor_config_json_ws(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateObject();
@@ -280,6 +300,9 @@ void send_sensor_config_json_ws(httpd_req_t *req)
 }
 
 // Replace send_config_json_ws with this robust version
+/**
+ * @brief Send the current configuration settings as JSON to a WebSocket client.
+ */
 void send_config_json_ws(httpd_req_t *req)
 {
     cJSON *root = cJSON_CreateObject();
@@ -408,6 +431,9 @@ void send_config_json_ws(httpd_req_t *req)
 }
 
 // send_statemachine_config_json_ws - send statemachine config in small chunks to the requesting websocket
+/**
+ * @brief Send the state machine configuration and current state as JSON over WebSocket.
+ */
 void send_statemachine_config_json_ws(httpd_req_t *req)
 {
     // 1) Send start message with totals
@@ -538,6 +564,9 @@ void send_statemachine_config_json_ws(httpd_req_t *req)
     }
 }
 
+/**
+ * @brief Send collected system statistics as JSON over WebSocket.
+ */
 void send_stats_json_ws(httpd_req_t *req)
 {
     const int PAGE_SIZE = 2; // lower peak memory by sending smaller pages of task info
