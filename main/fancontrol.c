@@ -4,10 +4,24 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file fancontrol.c
+ * @brief Fan speed control implementation for HTTP and MQTT-driven fans.
+ *
+ * This module reads fan control configuration from the shared fan_config
+ * structure and performs fan speed changes via HTTP GET requests or MQTT.
+ */
+
 #include "fancontrol.h"
 
 static const char *TAG = "Fan_control";
 
+/**
+ * @brief Convert a fan speed enum value into a human-readable string.
+ *
+ * @param s Fanspeed integer code.
+ * @return String representing the fan speed.
+ */
 static const char *fanspeed_to_str(int s)
 {
     switch (s)
@@ -25,8 +39,17 @@ static const char *fanspeed_to_str(int s)
     }
 }
 
-// Helper: perform a simple HTTP GET and capture the response body (truncated to out_buf_len-1)
-// Returns HTTP status code on success, or a negative error code on failure.
+/**
+ * @brief Execute a simple HTTP GET and collect the response body.
+ *
+ * The response body is truncated to fit into @p out_buf, and the function
+ * returns the HTTP status code on success.
+ *
+ * @param url The fully-qualified URL to fetch.
+ * @param out_buf Buffer to store the response body.
+ * @param out_buf_len Length of the output buffer.
+ * @return HTTP status code on success, or a negative error code on failure.
+ */
 static int do_http_get(const char *url, char *out_buf, size_t out_buf_len)
 {
     esp_http_client_config_t config = {
@@ -68,6 +91,15 @@ static int do_http_get(const char *url, char *out_buf, size_t out_buf_len)
     return status;
 }
 
+/**
+ * @brief Set the configured fan speed via the selected control method.
+ *
+ * The function reads the current fan control mode and endpoints from the
+ * runtime fan_config structure and applies the requested speed using HTTP
+ * or MQTT.
+ *
+ * @param fanspeed Fan speed code: 0=error/unset, 1=low, 2=medium, 3=high.
+ */
 void set_fanspeed(int fanspeed)
 {
     int httpResponseCode = 0;

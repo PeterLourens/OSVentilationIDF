@@ -4,10 +4,28 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file config_files.c
+ * @brief Runtime JSON configuration loading and parsing helpers.
+ *
+ * This module reads embedded JSON files from LittleFS and updates the runtime
+ * configuration structures used by networking, sensors, fan control, MQTT,
+ * InfluxDB, syslog, I2C, and the state machine.
+ */
+
 #include "config_files.h"
 
 static const char *TAG = "config";
 
+/**
+ * @brief Load sensor bus configuration from a JSON file.
+ *
+ * The runtime bus sensor settings are updated from /data/json/<config_name>.json.
+ * Supported config_name values include "bus0_sensor_config" and "bus1_sensor_config".
+ *
+ * @param config_name The name of the sensor config file without the .json suffix.
+ * @return ESP_OK on success, otherwise an esp_err_t describing the failure.
+ */
 esp_err_t load_sensor_config(const char *config_name)
 {
     char path[128];
@@ -136,6 +154,14 @@ esp_err_t load_sensor_config(const char *config_name)
     return ESP_OK;
 }
 
+/**
+ * @brief Load Wi-Fi configuration from LittleFS and apply it to runtime state.
+ *
+ * This reads /data/json/wifi_config.json and copies configured values into the
+ * runtime wifi_config structure under a mutex to prevent concurrent updates.
+ *
+ * @return ESP_OK on success, or an esp_err_t if the file cannot be read or parsed.
+ */
 esp_err_t load_wifi_config(void)
 {
     char path[128] = "/data/json/wifi_config.json";
@@ -240,6 +266,14 @@ esp_err_t load_wifi_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load Ethernet configuration from LittleFS and store it in runtime state.
+ *
+ * This reads /data/json/ethernet_config.json, validates the JSON payload, and
+ * updates the ethernet_config structure under the network configuration mutex.
+ *
+ * @return ESP_OK on success, or an esp_err_t if the file cannot be read or parsed.
+ */
 esp_err_t load_ethernet_config(void)
 {
     char path[128] = "/data/json/ethernet_config.json";
@@ -338,6 +372,14 @@ esp_err_t load_ethernet_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load time synchronization settings from LittleFS.
+ *
+ * This reads /data/json/time_config.json and stores the NTP server and timezone
+ * values into the runtime time_config structure.
+ *
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_time_config(void)
 {
     char path[128] = "/data/json/time_config.json";
@@ -410,6 +452,13 @@ esp_err_t load_time_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load MQTT broker and topic configuration from LittleFS.
+ *
+ * This reads /data/json/mqtt_config.json and updates the runtime mqtt_config
+ * structure under the MQTT configuration mutex.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_mqtt_config(void)
 {
     char path[128] = "/data/json/mqtt_config.json";
@@ -490,6 +539,13 @@ esp_err_t load_mqtt_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load InfluxDB connection and authentication settings from LittleFS.
+ *
+ * This reads /data/json/influxdb_config.json and stores the values in the
+ * runtime influxdb_config structure under a mutex.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_influxdb_config(void)
 {
     char path[128] = "/data/json/influxdb_config.json";
@@ -573,6 +629,13 @@ esp_err_t load_influxdb_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load fan controller configuration from LittleFS.
+ *
+ * Reads /data/json/fan_config.json and updates the runtime fan_config settings
+ * used by the fan control module for HTTP or MQTT fan commands.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_fan_config(void)
 {
     char path[128] = "/data/json/fan_config.json";
@@ -664,6 +727,13 @@ esp_err_t load_fan_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load I2C bus and peripheral configuration from LittleFS.
+ *
+ * This reads /data/json/i2c_config.json and updates bus multiplexer and LCD
+ * enable settings used by the I2C subsystem.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_i2c_config(void)
 {
     char path[128] = "/data/json/i2c_config.json";
@@ -742,6 +812,13 @@ esp_err_t load_i2c_config(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Load remote syslog forwarding configuration from LittleFS.
+ *
+ * This reads /data/json/syslog_config.json and stores the syslog endpoint,
+ * hostname, application name, and device ID in runtime state.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_syslog_config(void)
 {
     char path[128] = "/data/json/syslog_config.json";
@@ -829,7 +906,14 @@ esp_err_t load_syslog_config(void)
     return ESP_OK;
 }
 
-// Load statemachine settings
+/**
+ * @brief Load general statemachine configuration values from LittleFS.
+ *
+ * This reads /data/json/sm_general_config.json and updates the global
+ * statemachine_gen_config structure, including weekday/weekend timing and
+ * RH/CO2 setpoints.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_statemachine_general_config(void)
 {
     char path[128] = "/data/json/sm_general_config.json";
@@ -938,7 +1022,15 @@ esp_err_t load_statemachine_general_config(void)
     return ESP_OK;
 }
 
-// Simple wildcard pattern matching function for the state names
+/**
+ * @brief Match a string against a wildcard pattern containing '*' and '?'.
+ *
+ * The function supports standard wildcard matching semantics for the statemachine
+ * file name discovery routines.
+ * @param name The candidate string to match.
+ * @param pattern The wildcard pattern to match against.
+ * @return true if the name matches the pattern, false otherwise.
+ */
 bool match_pattern(const char *name, const char *pattern)
 {
     // wildcard '*' and single-char '?'
@@ -974,7 +1066,15 @@ bool match_pattern(const char *name, const char *pattern)
     return *p == '\0';
 }
 
-// Flexible boolean parser: accept bool, number, or string representations
+/**
+ * @brief Parse a JSON value into a boolean with flexible type handling.
+ *
+ * Accepts JSON booleans, numeric values, and string values such as "On",
+ * "Off", "true", "false", "1", and "0".
+ * @param item The JSON item to parse.
+ * @param out Pointer to receive the parsed boolean.
+ * @return true if parsing succeeded, false otherwise.
+ */
 bool parse_bool_flexible(const cJSON *item, bool *out)
 {
     if (!item || !out)
@@ -1016,7 +1116,14 @@ bool parse_bool_flexible(const cJSON *item, bool *out)
     return false;
 }
 
-// Flexible integer parser: accept number or string representations
+/**
+ * @brief Parse a JSON value into an integer with flexible type handling.
+ *
+ * Accepts JSON numbers or string-encoded integers.
+ * @param item The JSON item to parse.
+ * @param out Pointer to receive the parsed integer.
+ * @return true if parsing succeeded, false otherwise.
+ */
 bool parse_int_flexible(const cJSON *item, int *out)
 {
     if (!item || !out)
@@ -1039,7 +1146,15 @@ bool parse_int_flexible(const cJSON *item, int *out)
     return false;
 }
 
-// Parse a single state object from cJSON into statemachine_config_t
+/**
+ * @brief Parse a single statemachine state object from JSON.
+ *
+ * This helper maps JSON fields such as state_name, fanspeed, timing, valve
+ * positions, and enable_state into the runtime Statemachine_config_t structure.
+ * @param obj JSON object describing a single state.
+ * @param out Destination state config structure.
+ * @return true if parsing succeeded, false otherwise.
+ */
 bool parse_state_object(const cJSON *obj, Statemachine_config_t *out)
 {
     if (!cJSON_IsObject(obj) || !out)
@@ -1083,7 +1198,15 @@ bool parse_state_object(const cJSON *obj, Statemachine_config_t *out)
     return true;
 }
 
-// --- Reader helper ---
+/**
+ * @brief Retrieve a copy of a statemachine state configuration.
+ *
+ * This function takes the state config mutex, copies the requested entry, and
+ * releases the mutex to provide a safe snapshot to the caller.
+ *
+ * @param index Index of the state to copy.
+ * @param out Destination buffer for the copied state.
+ */
 void get_state_config(size_t index, Statemachine_config_t *out)
 {
     if (!out || index >= MAX_NR_STATES)
@@ -1104,6 +1227,19 @@ void get_state_config(size_t index, Statemachine_config_t *out)
  * @param max_files      limit on number of files to process (>0). If <=0 -> process all matched.
  * @param out_states     output: number of states parsed into statemachine_config[]
  * @return ESP_OK on success, error otherwise.
+ */
+/**
+ * @brief Load statemachine configurations from JSON files in a directory.
+ *
+ * This function scans the given directory for filenames matching the wildcard
+ * pattern, reads matching JSON files, and converts each object or array entry
+ * into a statemachine configuration entry.
+ *
+ * @param mount_point Directory path to scan, e.g. "/data/json".
+ * @param pattern Wildcard filename pattern, e.g. "state*_config.json".
+ * @param max_files Maximum number of files to process; use <=0 for no limit.
+ * @param out_states Output count of states loaded.
+ * @return ESP_OK on success, or an esp_err_t on failure.
  */
 esp_err_t read_state_configs_from_json(const char *mount_point, const char *pattern, int max_files, size_t *out_states)
 {
@@ -1231,6 +1367,13 @@ esp_err_t read_state_configs_from_json(const char *mount_point, const char *patt
     return ESP_OK;
 }
 
+/**
+ * @brief Load configured statemachine state definitions from JSON files.
+ *
+ * This high-level loader reads files matching the configured state pattern and
+ * populates the runtime state table used by the statemachine task.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t load_state_config(void)
 {
     size_t states_loaded = 0;

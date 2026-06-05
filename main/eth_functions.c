@@ -4,8 +4,16 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file eth_functions.c
+ * @brief Ethernet lifecycle and configuration support for W5500-based interfaces.
+ *
+ * This module manages safe initialization, teardown, restart, and configuration of
+ * Ethernet hardware and the associated ESP-NETIF interface. It also provides helper
+ * functions for link status checks and DHCP/static IP application.
+ */
+
 #include "eth_functions.h"
-#include <esp_heap_caps.h>
 
 static const char *TAG = "eth_func";
 
@@ -24,6 +32,13 @@ static const TickType_t ETH_RESTART_BACKOFF_TICKS = pdMS_TO_TICKS(5000);
 static SemaphoreHandle_t eth_lifecycle_mutex = NULL;
 static esp_eth_netif_glue_handle_t eth_glue = NULL;
 
+/**
+ * @brief Teardown Ethernet resources while holding the lifecycle mutex.
+ *
+ * Caller must hold @c eth_lifecycle_mutex before invoking this helper.
+ * It stops DHCP, stops and uninstalls the Ethernet driver, removes glue,
+ * clears GPIO ISR handlers, and resets state flags.
+ */
 static void eth_teardown_locked(void)
 {
     // Caller must hold eth_lifecycle_mutex
@@ -85,7 +100,41 @@ static void eth_teardown_locked(void)
     eth_set_shutting_down(false);
 }
 
-// Hardware reset helper for W5500
+/**
+ * @brief Check whether a configuration string is equal to "On".
+ *
+ * @param s The string to evaluate.
+ * @return true when @p s is non-NULL and exactly "On", false otherwise.
+ */
+static bool cfg_str_is_on(const char *s)
+{
+    return (s && strcmp(s, "On") == 0);
+}
+
+/**
+ * @brief Validate that a string contains a legal IPv4 address.
+ *
+ * @param s The null-terminated string to validate.
+ * @return true if the string is a valid IPv4 address, false otherwise.
+ */
+static bool validate_ipv4_string(const char *s)
+{
+    if (!s || s[0] == '\0')
+        return false;
+    struct in_addr a;
+    return inet_pton(AF_INET, s, &a) == 1;
+}
+
+/**
+ * @brief Perform a guarded hardware reset of the W5500 Ethernet controller.
+ *
+ * This function acquires the Ethernet lifecycle mutex, stops DHCP and driver
+ * activity, toggles the W5500 reset GPIO if configured, and reinitializes the
+ * Ethernet stack. It ensures that no event handler races occur during reset.
+ *
+ * @return ESP_OK on success, ESP_ERR_TIMEOUT if the lifecycle mutex could not be taken,
+ *         or an ESP error code from initialization or driver start operations.
+ */
 esp_err_t eth_hardware_reset(void)
 {
     // Ensure lifecycle mutex exists
@@ -194,7 +243,12 @@ esp_err_t eth_hardware_reset(void)
     return ESP_OK;
 }
 
-// Call once early in startup (after RTOS running)
+/**
+ * @brief Initialize the Ethernet lifecycle mutex once.
+ *
+ * This function is safe to call repeatedly and creates the mutex the first time
+ * it is needed.
+ */
 void eth_lifecycle_init_once(void)
 {
     if (eth_lifecycle_mutex == NULL)
@@ -207,7 +261,11 @@ void eth_lifecycle_init_once(void)
     }
 }
 
-// Internal helper: fully teardown ethernet resources
+/**
+ * @brief Safely teardown Ethernet resources, deferring if the lifecycle mutex is busy.
+ *
+ * If the mutex cannot be taken immediately, the teardown is deferred and a flag is set.
+ */
 void eth_teardown_safe(void)
 {
     eth_lifecycle_init_once();
@@ -227,6 +285,14 @@ void eth_teardown_safe(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
+/**
+ * @brief Check whether the Ethernet interface is currently connected.
+ *
+ * This function verifies that Ethernet hardware is present, the netif exists,
+ * the link is up, and a valid IPv4 address is assigned.
+ *
+ * @return true if Ethernet is connected and has an IP address, false otherwise.
+ */
 bool eth_is_connected(void)
 {
     if (!hw.has_ethernet)
@@ -245,12 +311,12 @@ bool eth_is_connected(void)
     return ip.ip.addr != 0;
 }
 
-static bool cfg_str_is_on(const char *s)
-{
-    return (s && strcmp(s, "On") == 0);
-}
-
-// Safe eth_init: idempotent, returns ESP_OK on success or existing init
+/**
+ * @brief Initialize Ethernet hardware and attach the W5500 Ethernet driver.
+ *
+ * This function is idempotent and protects the Ethernet lifecycle using a mutex.
+ * It sets up the SPI bus, MAC/PHY, driver, glue, and DHCP client if DHCP is enabled.
+ */
 void eth_init(void)
 {
     if (!hw.has_ethernet)
@@ -430,6 +496,15 @@ void eth_init(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
+/**
+ * @brief Query whether the Ethernet PHY link is currently up.
+ *
+ * This function first attempts to query PHY link status directly via IOCTL.
+ * If that is not available, it falls back to checking whether the Ethernet netif
+ * has a valid IPv4 address.
+ *
+ * @return true if the Ethernet link is up, false otherwise.
+ */
 bool ethernet_link_is_up(void)
 {
 #if defined(ETH_CMD_G_PHY_LINK)
@@ -455,7 +530,12 @@ bool ethernet_link_is_up(void)
     return ip.ip.addr != 0;
 }
 
-// Attempt a guarded restart: only restart if link is down, apply backoff and defer teardown if busy.
+/**
+ * @brief Attempt a guarded Ethernet restart when the link is down.
+ *
+ * This helper performs a safe restart sequence with backoff and deferred
+ * teardown if the lifecycle mutex is busy.
+ */
 void attempt_guarded_eth_restart(void)
 {
     // If link/netif appears up, skip restart (DHCP may still be negotiating)
@@ -499,7 +579,12 @@ void attempt_guarded_eth_restart(void)
     vTaskDelay(ETH_RESTART_BACKOFF_TICKS);
 }
 
-// Called periodically from network_manager_task to retry deferred teardown
+/**
+ * @brief Retry a previously deferred Ethernet teardown.
+ *
+ * Called periodically from the network manager task when teardown could not be
+ * completed earlier because the lifecycle mutex was busy.
+ */
 void handle_deferred_eth_teardown_if_needed(void)
 {
     if (!s_deferred_eth_teardown)
@@ -525,7 +610,12 @@ void handle_deferred_eth_teardown_if_needed(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
-// Safe eth_start: idempotent and mutex-protected
+/**
+ * @brief Start Ethernet driver operation, initializing first if needed.
+ *
+ * This function is idempotent and uses the lifecycle mutex to avoid races
+ * during startup.
+ */
 void eth_start(void)
 {
     if (!hw.has_ethernet)
@@ -589,7 +679,16 @@ void eth_start(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
-// Safe software restart that uses the Ethernet lifecycle mutex to avoid races during stop/start.
+/**
+ * @brief Perform a safe software restart of the Ethernet driver.
+ *
+ * This stops and restarts the currently installed Ethernet driver while the
+ * lifecycle mutex is held. It is intended for runtime restart without a
+ * full hardware teardown.
+ *
+ * @return ESP_OK if restart succeeded, otherwise the esp_err_t from
+ *         the stop or start operation.
+ */
 esp_err_t eth_software_restart(void)
 {
     if (!hw.has_ethernet)
@@ -641,7 +740,12 @@ esp_err_t eth_software_restart(void)
     return err;
 }
 
-// Safe eth_stop: idempotent and performs full cleanup
+/**
+ * @brief Stop Ethernet and perform a full cleanup of driver resources.
+ *
+ * This function uses the lifecycle mutex and calls the locked teardown helper
+ * to release all Ethernet resources safely.
+ */
 void eth_stop(void)
 {
     if (!hw.has_ethernet)
@@ -676,6 +780,11 @@ void eth_stop(void)
     xSemaphoreGive(eth_lifecycle_mutex);
 }
 
+/**
+ * @brief Check whether Ethernet is enabled in the network configuration.
+ *
+ * @return true if Ethernet is enabled in the stored configuration, false otherwise.
+ */
 bool ethernet_config_is_enabled(void)
 {
     bool enabled = false;
@@ -691,6 +800,11 @@ bool ethernet_config_is_enabled(void)
     return enabled;
 }
 
+/**
+ * @brief Check whether DHCP is enabled for Ethernet in the network configuration.
+ *
+ * @return true if Ethernet DHCP is enabled in the stored configuration, false otherwise.
+ */
 bool ethernet_config_is_dhcp_enabled(void)
 {
     bool dhcp = true;
@@ -706,14 +820,14 @@ bool ethernet_config_is_dhcp_enabled(void)
     return dhcp;
 }
 
-static bool validate_ipv4_string(const char *s)
-{
-    if (!s || s[0] == '\0')
-        return false;
-    struct in_addr a;
-    return inet_pton(AF_INET, s, &a) == 1;
-}
-
+/**
+ * @brief Apply the current Ethernet configuration from the network config.
+ *
+ * This function configures the Ethernet hostname, starts or stops the driver,
+ * and applies DHCP or static IPv4 settings as requested by the configuration.
+ *
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t ethernet_config_apply(void)
 {
     char hostname[32] = {0};
@@ -822,17 +936,31 @@ esp_err_t ethernet_config_apply(void)
     return ESP_OK;
 }
 
-// Mark that ethernet is being torn down (or cleared). Use accessor functionsso other modules don't reference the static variable directly.
+/**
+ * @brief Mark Ethernet as currently shutting down.
+ *
+ * @param v true to indicate shutdown is in progress, false otherwise.
+ */
 void eth_set_shutting_down(bool v)
 {
     s_eth_shutting_down = v;
 }
 
+/**
+ * @brief Check whether Ethernet is currently in shutdown state.
+ *
+ * @return true when a shutdown is in progress, false otherwise.
+ */
 bool eth_is_shutting_down(void)
 {
     return s_eth_shutting_down;
 }
 
+/**
+ * @brief Retrieve the current Ethernet driver handle.
+ *
+ * @return The current esp_eth_handle_t, or NULL if Ethernet is not initialized.
+ */
 esp_eth_handle_t eth_get_handle(void)
 {
     return eth_handle;

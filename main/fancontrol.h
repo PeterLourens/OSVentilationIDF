@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file fancontrol.h
+ * @brief Public fan control interface for HTTP and MQTT-driven fans.
+ */
+
 #ifndef FANCONTROL_H
 #define FANCONTROL_H
 
@@ -17,7 +22,14 @@
 #include "general.h"
 #include "logging.h"
 
-// Control fans via configured mechanism. Pass fanspeed as an integer: 0 = error, 1 = low, 2 = medium, 3 = high
+/**
+ * @brief Set the target fan speed using the configured fan control method.
+ *
+ * The configured mode may be HTTP API or MQTT publish; the corresponding URL or
+ * MQTT topic is read from the fan configuration.
+ *
+ * @param fanspeed Desired fanspeed: 0=error/unset, 1=low, 2=medium, 3=high.
+ */
 void set_fanspeed(int fanspeed);
 
 #endif
