@@ -819,13 +819,15 @@ static void evaluate_config_and_apply(void)
     // If no credentials and Ethernet is down, manager will start AP.
     // If Ethernet is up, manager will not start STA or AP (Wi‑Fi suppressed).
 
-    // Prefer Ethernet only when it has a valid IP address
+    // Prefer Ethernet when it has a valid IP address, and defer Wi‑Fi until Ethernet DHCP settles when the link is already up.
     bool eth_has_ip = false;
+    bool eth_link_up = false;
     if (hw.has_ethernet)
     {
         esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
         if (ethnet)
         {
+            eth_link_up = ethernet_link_is_up();
             esp_netif_ip_info_t ip;
             if (esp_netif_get_ip_info(ethnet, &ip) == ESP_OK && ip.ip.addr != 0)
                 eth_has_ip = true;
@@ -836,6 +838,14 @@ static void evaluate_config_and_apply(void)
     {
         LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → suppressing Wi‑Fi STA/AP");
         // Stop Wi‑Fi only when Ethernet is fully usable
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    if (hw.has_ethernet && eth_enabled && eth_link_up)
+    {
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet link is up and DHCP pending; deferring Wi‑Fi STA/AP");
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
