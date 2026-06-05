@@ -4,6 +4,14 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file general.h
+ * @brief Shared public declarations for general firmware utilities.
+ *
+ * This header exposes initialization helpers, file I/O utilities, and
+ * runtime formatting helpers used by multiple firmware modules.
+ */
+
 #ifndef GENERAL_H
 #define GENERAL_H
 
@@ -19,18 +27,20 @@
 #include "statemachine_states.h"
 #include "eth_functions.h"
 
-// Function declarations
+/**
+ * @brief General utility declarations, ordered to match main/general.c.
+ */
+const char *state_nr_to_str(state_nr_t state);
+const char *fan_speed_to_str(fan_speed_t f);
 esp_err_t init_nvs(void);
 esp_err_t init_littlefs(void);
 esp_err_t read_file(const char *, char *, size_t);
 esp_err_t create_mutexes(void);
-
-void formatted_uptime(char *, size_t);
 void init_timezone(void);
+void formatted_uptime(char *, size_t);
 void formatted_daydatetime(char *, size_t);
 void formatted_datetime(char *, size_t);
 void formatted_day(char *, size_t);
-void show_system_and_task_stats(void);
 void set_log_levels(void);
 void print_html_file(const char *);
 

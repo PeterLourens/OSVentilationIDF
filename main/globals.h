@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file globals.h
+ * @brief Shared global declarations for runtime handles, queues, and configuration.
+ */
+
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
@@ -73,6 +78,11 @@
 // Number of samples for moving average calculation
 #define SENSOR_AVG_SIZE (MAX_I2C_BUSES * CHANNELS_PER_BUS * 5) // 5 averaged fields
 
+/**
+ * @name Runtime state labels
+ * @brief Global string labels representing statemachine states.
+ * @{
+ */
 extern const char *STATE_ERROR;
 extern const char *STATE_INIT;
 extern const char *STATE_DAY;
@@ -87,13 +97,25 @@ extern const char *STATE_CYCLINGNIGHT;
 extern const char *STATE_MANUALHS;
 extern const char *STATE_STOPPED;
 extern const char *STATE_TEMP;
+/** @} */
 
+/**
+ * @name Sensor queue handles
+ * @brief Shared FreeRTOS queue handles used for sensor data.
+ * @{
+ */
 // Queue handles
 extern QueueHandle_t sensor_queue;
 extern QueueHandle_t sensor_avg_queue;
 extern size_t sensor_avg_item_size;
 extern volatile bool sensors_queues_ready;
+/** @} */
 
+/**
+ * @name I2C device handles
+ * @brief Handles for I2C buses and attached peripheral devices.
+ * @{
+ */
 // I2C Devices new driver style
 extern i2c_master_bus_handle_t i2c_bus0_handle;
 extern i2c_master_bus_handle_t i2c_bus1_handle;
@@ -109,7 +131,13 @@ extern i2c_master_dev_handle_t bme680_bus0_handle;
 extern i2c_master_dev_handle_t bme680_bus1_handle;
 extern i2c_master_dev_handle_t ds3231_bus0_handle;
 extern i2c_master_dev_handle_t lcd_bus1_handle;
+/** @} */
 
+/**
+ * @name Task handles
+ * @brief FreeRTOS task handles for firmware services.
+ * @{
+ */
 // Task handles
 extern TaskHandle_t task_i2c_sensors;
 extern TaskHandle_t task_i2c_ds3231;
@@ -127,11 +155,13 @@ extern TaskHandle_t task_sys_stats;
 extern TaskHandle_t task_syslog;
 extern TaskHandle_t task_uart_sender;
 extern TaskHandle_t task_uart_tx_sender;
+/** @} */
 
-// Sensor readings queue
-extern QueueHandle_t sensor_queue;
-extern QueueHandle_t sensor_avg_queue;
-
+/**
+ * @name Mutex handles
+ * @brief Mutexes protecting shared runtime state and configuration.
+ * @{
+ */
 // Mutex handles
 extern SemaphoreHandle_t network_config_mutex;
 extern SemaphoreHandle_t time_config_mutex;
@@ -148,15 +178,25 @@ extern SemaphoreHandle_t state_config_mutex;
 extern SemaphoreHandle_t statemachine_mutex;
 extern SemaphoreHandle_t valve_control_data_mutex;
 extern SemaphoreHandle_t i2c_bus_mutex;
+/** @} */
 
+/**
+ * @name Event and server handles
+ * @brief Global event group and HTTP server handles.
+ * @{
+ */
 // Event group handles
 extern EventGroupHandle_t s_wifi_event_group;
 
 // HTTP server handle
 extern httpd_handle_t http_server;
+/** @} */
 
-// Size of each item in the sensor average queue, set at queue creation time
-extern size_t sensor_avg_item_size;
+/**
+ * @name Runtime configuration structures
+ * @brief Global configuration and state structures loaded at runtime.
+ * @{
+ */
 
 // Sensor configuration structure
 typedef struct
@@ -390,5 +430,7 @@ extern struct tm timeinfo;
 
 // Valvecontrol variables
 extern int lock_valve_move;
+
+/** @} */
 
 #endif

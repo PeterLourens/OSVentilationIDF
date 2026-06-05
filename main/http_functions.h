@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file http_functions.h
+ * @brief Public interface for the embedded HTTP and WebSocket server.
+ */
+
 #ifndef HTTP_FUNCTIONS_H
 #define HTTP_FUNCTIONS_H
 
@@ -27,12 +32,33 @@
 
 #define LOG_BUF_SIZE 256
 
-// Function declarations
-// void ws_async_send(char *, size_t);
+/**
+ * @brief Send raw text to all connected WebSocket clients.
+ *
+ * @param buf Pointer to the data buffer.
+ * @param len Number of bytes in the buffer.
+ */
 void ws_async_send(const char *buf, size_t len);
+
+/**
+ * @brief Start the embedded HTTP server and bind handlers.
+ *
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
+esp_err_t http_server_start(void);
+
+/**
+ * @brief Register HTTP URI handlers on an active server.
+ *
+ * @param server The server handle returned by esp_http_server_start.
+ */
 void register_http_handlers(httpd_handle_t server);
 
-esp_err_t http_server_start(void);
+/**
+ * @brief Stop the embedded HTTP server and release resources.
+ *
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t http_server_stop(void);
 
 #endif

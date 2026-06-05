@@ -4,14 +4,28 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file hardware_caps.h
+ * @brief Hardware capability type definitions and runtime board configuration.
+ */
+
 #include <stdbool.h>
 
+/**
+ * @brief Supported hardware version identifiers.
+ */
 typedef enum
 {
     HW_VERSION_2 = 2,
     HW_VERSION_3 = 3
 } hardware_version_t;
 
+/**
+ * @brief Runtime board capability configuration.
+ *
+ * This structure describes available peripheral pins and hardware capabilities
+ * for the active board revision.
+ */
 typedef struct
 {
     bool has_ethernet;
@@ -59,7 +73,17 @@ typedef struct
 
 } hw_caps_t;
 
+/**
+ * @brief Selected hardware revision at startup.
+ */
 extern hardware_version_t hw_version;
+
+/**
+ * @brief Active hardware capability configuration.
+ */
 extern hw_caps_t hw;
 
-void hw_init(void); // call once at startup
+/**
+ * @brief Initialize the active hardware capability configuration.
+ */
+void hw_init(void);

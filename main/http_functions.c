@@ -4,6 +4,14 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file http_functions.c
+ * @brief Embedded HTTP and WebSocket server handlers for the firmware UI.
+ *
+ * This module serves embedded web assets, handles configuration POSTs, and
+ * provides WebSocket support for status and control commands.
+ */
+
 #include "http_functions.h"
 
 static const char *TAG = "http_functions";
@@ -1280,6 +1288,12 @@ static esp_err_t handle_import_all_configs_tar(httpd_req_t *req)
     return httpd_resp_send(req, NULL, 0);
 }
 
+/**
+ * @brief Send a raw text WebSocket frame asynchronously to connected clients.
+ *
+ * @param buf Buffer containing the UTF-8 payload.
+ * @param len Length of @p buf in bytes.
+ */
 void ws_async_send(const char *buf, size_t len)
 {
 
@@ -1329,6 +1343,11 @@ void ws_async_send(const char *buf, size_t len)
     }
 }
 
+/**
+ * @brief Start the embedded HTTP server and bind URI handlers.
+ *
+ * @return ESP_OK on success or an esp_err_t on failure.
+ */
 esp_err_t http_server_start(void)
 {
     if (http_server)
@@ -1372,6 +1391,11 @@ esp_err_t http_server_start(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Register the HTTP URI handlers for the embedded web interface.
+ *
+ * @param server A running HTTP server handle.
+ */
 void register_http_handlers(httpd_handle_t server)
 {
     httpd_uri_t pure_min_css_uri = {
@@ -1706,6 +1730,11 @@ void register_http_handlers(httpd_handle_t server)
     httpd_register_uri_handler(http_server, &imp_all_config_tar_uri);
 }
 
+/**
+ * @brief Stop the embedded HTTP server and release its resources.
+ *
+ * @return ESP_OK on success or an esp_err_t on failure.
+ */
 esp_err_t http_server_stop(void)
 {
     int ret;

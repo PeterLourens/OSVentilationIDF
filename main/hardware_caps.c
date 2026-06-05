@@ -4,11 +4,22 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file hardware_caps.c
+ * @brief Board capability profiles and hardware initialization.
+ *
+ * This module defines the supported hardware capability sets for board
+ * revisions and selects the active configuration at startup.
+ */
+
 #include "hardware_caps.h"
 
 // default: build for v3 in this branch
 hardware_version_t hw_version = HW_VERSION_3;
 
+/**
+ * @brief Hardware capability profile for board version 2.
+ */
 static const hw_caps_t hw_v2 = {
     .has_ethernet = false,
     .has_wifi_led = false,
@@ -46,6 +57,9 @@ static const hw_caps_t hw_v2 = {
     .switch2_pin = 7,
 };
 
+/**
+ * @brief Hardware capability profile for board version 3.
+ */
 static const hw_caps_t hw_v3 = {
     .has_ethernet = true,
     .has_wifi_led = true,
@@ -84,6 +98,12 @@ static const hw_caps_t hw_v3 = {
 };
 hw_caps_t hw;
 
+/**
+ * @brief Initialize the active hardware capability table.
+ *
+ * This function selects the appropriate board profile based on
+ * @c hw_version and copies it into the runtime @c hw structure.
+ */
 void hw_init(void)
 {
     switch (hw_version)

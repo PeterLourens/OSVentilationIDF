@@ -4,10 +4,24 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file general.c
+ * @brief General utility functions for system initialization and runtime helpers.
+ *
+ * This module provides NVS/LittleFS initialization, shared mutex creation,
+ * formatted date/time helpers, and file I/O utilities used across the firmware.
+ */
+
 #include "general.h"
 
 static const char *TAG = "general";
 
+/**
+ * @brief Convert a statemachine state enum to a human-readable string.
+ *
+ * @param state The state enumeration to convert.
+ * @return Constant string label for the requested state.
+ */
 const char *state_nr_to_str(state_nr_t state)
 {
     switch (state)
@@ -45,6 +59,12 @@ const char *state_nr_to_str(state_nr_t state)
     }
 }
 
+/**
+ * @brief Convert a fan speed enum to a human-readable string.
+ *
+ * @param f The fan speed enumeration to convert.
+ * @return Constant string label for the requested fan speed.
+ */
 const char *fan_speed_to_str(fan_speed_t f)
 {
     switch (f)
@@ -62,6 +82,14 @@ const char *fan_speed_to_str(fan_speed_t f)
     }
 }
 
+/**
+ * @brief Initialize the NVS partition used for configuration storage.
+ *
+ * If NVS requires erasing or upgrading, this function performs the necessary
+ * cleanup and retries initialization.
+ *
+ * @return ESP_OK on success or an esp_err_t on failure.
+ */
 esp_err_t init_nvs(void)
 {
     esp_err_t err = ESP_OK;
@@ -84,6 +112,14 @@ esp_err_t init_nvs(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Mount the LittleFS partition used for runtime JSON and persistent data.
+ *
+ * This function registers the LittleFS partition and logs partition usage
+ * after successfully mounting.
+ *
+ * @return ESP_OK on success or an esp_err_t on failure.
+ */
 esp_err_t init_littlefs(void)
 {
     esp_err_t err = ESP_OK;
@@ -144,6 +180,14 @@ esp_err_t init_littlefs(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Read the contents of a file into a buffer and null-terminate it.
+ *
+ * @param path Filesystem path to read.
+ * @param buffer Buffer to receive file contents.
+ * @param bufferSize Size of @p buffer in bytes.
+ * @return ESP_OK on success, or an esp_err_t on failure.
+ */
 esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
 {
     if (!path || !buffer || bufferSize == 0)
@@ -173,6 +217,14 @@ esp_err_t read_file(const char *path, char *buffer, size_t bufferSize)
     return ESP_OK;
 }
 
+/**
+ * @brief Create global mutexes used by runtime configuration and tasks.
+ *
+ * If any mutex creation fails, this function cleans up already-created
+ * mutexes to keep the system in a consistent state.
+ *
+ * @return ESP_OK when all mutexes were created, ESP_FAIL otherwise.
+ */
 esp_err_t create_mutexes(void)
 {
     bool ok = true;
@@ -345,6 +397,12 @@ esp_err_t create_mutexes(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Initialize the runtime timezone from the loaded time configuration.
+ *
+ * Reads the configured NTP server and timezone settings under mutex protection
+ * and configures the C runtime timezone environment.
+ */
 void init_timezone(void)
 {
     char ntp_server[64];
@@ -367,6 +425,12 @@ void init_timezone(void)
     tzset();
 }
 
+/**
+ * @brief Format the current uptime into a human-readable string.
+ *
+ * @param buf Output buffer for the uptime string.
+ * @param bufsize Size of @p buf in bytes.
+ */
 void formatted_uptime(char *buf, size_t bufsize)
 {
     uint64_t uptime = esp_timer_get_time() / 1000000; // uptime in seconds
@@ -379,6 +443,12 @@ void formatted_uptime(char *buf, size_t bufsize)
     snprintf(buf, bufsize, "%dd %dh %02dm %02ds", uptime_day, uptime_hour, uptime_minute, uptime_second);
 }
 
+/**
+ * @brief Format the current local date and time including weekday abbreviation.
+ *
+ * @param buf Output buffer for the formatted date/time string.
+ * @param bufsize Size of @p buf in bytes.
+ */
 void formatted_daydatetime(char *buf, size_t bufsize)
 {
     struct tm temp_time;
@@ -393,6 +463,12 @@ void formatted_daydatetime(char *buf, size_t bufsize)
     snprintf(buf, bufsize, "%s %04d/%02d/%02d-%02d:%02d:%02d", day_names[temp_time.tm_wday], temp_time.tm_year + 1900, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
 }
 
+/**
+ * @brief Format the current local date and time without weekday text.
+ *
+ * @param buf Output buffer for the formatted date/time string.
+ * @param bufsize Size of @p buf in bytes.
+ */
 void formatted_datetime(char *buf, size_t bufsize)
 {
     struct tm temp_time;
@@ -405,6 +481,12 @@ void formatted_datetime(char *buf, size_t bufsize)
     snprintf(buf, bufsize, "%04d/%02d/%02d-%02d:%02d:%02d", temp_time.tm_year + 1900, temp_time.tm_mon + 1, temp_time.tm_mday, temp_time.tm_hour, temp_time.tm_min, temp_time.tm_sec);
 }
 
+/**
+ * @brief Format the current local weekday name.
+ *
+ * @param buf Output buffer for the weekday string.
+ * @param bufsize Size of @p buf in bytes.
+ */
 void formatted_day(char *buf, size_t bufsize)
 {
     int dayofweek = 0;
@@ -427,6 +509,12 @@ void formatted_day(char *buf, size_t bufsize)
     snprintf(buf, bufsize, "%s", day_names[dayofweek]);
 }
 
+/**
+ * @brief Configure ESP log levels for firmware subsystems.
+ *
+ * This helper sets default log severity levels for selected modules and
+ * reduces noise from less important subsystems.
+ */
 void set_log_levels(void)
 {
     // Set log levels, in general only error are required unless debugging
@@ -502,6 +590,11 @@ void set_log_levels(void)
     esp_log_level_set("net_mgr", ESP_LOG_DEBUG);
 }
 
+/**
+ * @brief Print an HTML file to the console for debugging purposes.
+ *
+ * @param filepath Path to the HTML file to print.
+ */
 void print_html_file(const char *filepath)
 {
     FILE *f = fopen(filepath, "r");

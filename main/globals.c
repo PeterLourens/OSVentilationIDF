@@ -4,6 +4,14 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file globals.c
+ * @brief Global runtime object definitions and shared handles.
+ *
+ * This file defines the global handles, mutexes, task handles, and runtime
+ * configuration instances consumed by the firmware.
+ */
+
 #include "globals.h"
 
 const char *STATE_ERROR = "error";                // state_nr = 0
@@ -84,10 +92,6 @@ EventGroupHandle_t s_wifi_event_group = NULL;
 // Sensor configuration structure
 bus_sensor_t bus0_sensor_settings[CHANNELS_PER_BUS] = {0};
 bus_sensor_t bus1_sensor_settings[CHANNELS_PER_BUS] = {0};
-
-// Queue handles
-QueueHandle_t sensor_queue;
-QueueHandle_t sensor_avg_queue;
 
 // HTTP server handle
 httpd_handle_t http_server = NULL;
