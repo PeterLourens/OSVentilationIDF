@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['safe_5fappend_0',['SAFE_APPEND',['../sys__stats_8c.html#acbc74d3e0c5527eb9bfe1de9bd825cf1',1,'sys_stats.c']]],
+  ['scd41_5fi2c_5faddr_1',['SCD41_I2C_ADDR',['../globals_8h.html#a2ebd509cac3a17cea08322e44dc02e48',1,'globals.h']]],
+  ['sensor_5favg_5fsize_2',['SENSOR_AVG_SIZE',['../globals_8h.html#a3c30ca29fe118f2f0aa11ac69ec5f71e',1,'globals.h']]],
+  ['small_5fconfig_5fitem_3',['SMALL_CONFIG_ITEM',['../globals_8h.html#a47aa813e8607babb85e3d34700d65d61',1,'globals.h']]],
+  ['software_5frestart_5fdecay_5fms_4',['SOFTWARE_RESTART_DECAY_MS',['../network__manager_8h.html#aabf3cca265d22f0d7af997d8d8f86801',1,'network_manager.h']]],
+  ['software_5frestart_5fmax_5fattempts_5',['SOFTWARE_RESTART_MAX_ATTEMPTS',['../network__manager_8h.html#a707c25869542a5516b6c6a096e88bdb5',1,'network_manager.h']]],
+  ['stats_5fworker_5fprio_6',['STATS_WORKER_PRIO',['../stats__worker_8c.html#aa8176959fadb86797662d43b43042eb9',1,'stats_worker.c']]],
+  ['stats_5fworker_5fstack_7',['STATS_WORKER_STACK',['../stats__worker_8c.html#a682178f92b58195793bd4a5ed8706b42',1,'stats_worker.c']]],
+  ['sys_5fstats_5fpoll_5fms_8',['SYS_STATS_POLL_MS',['../task__sys__stats_8h.html#ae82d8c368af34ca69fe29864ebf41d63',1,'task_sys_stats.h']]],
+  ['syslog_5fmax_5fline_5flen_9',['SYSLOG_MAX_LINE_LEN',['../syslog_8h.html#a3789d56554454c39a416b368eeeb7a8b',1,'syslog.h']]],
+  ['syslog_5fqueue_5flength_10',['SYSLOG_QUEUE_LENGTH',['../syslog_8h.html#a4b9dec5bbecb4815a13be81a5e61b8aa',1,'syslog.h']]],
+  ['syslog_5fretry_5fbackoff_5fms_11',['SYSLOG_RETRY_BACKOFF_MS',['../syslog_8c.html#ad80329aa16ea201ab1dc2389a1961c4e',1,'syslog.c']]],
+  ['syslog_5fretry_5fdelay_5fms_12',['SYSLOG_RETRY_DELAY_MS',['../syslog_8h.html#a3b0b077cbe385058f258ac051ff57182',1,'syslog.h']]],
+  ['syslog_5fsend_5fretries_13',['SYSLOG_SEND_RETRIES',['../syslog_8h.html#a69ed5be81132148a8a77fa90fc10fb43',1,'syslog.h']]],
+  ['syslog_5fworker_5fprio_14',['SYSLOG_WORKER_PRIO',['../syslog_8h.html#ad6259844e69f7260a58b73da723fd88e',1,'syslog.h']]],
+  ['syslog_5fworker_5fstack_15',['SYSLOG_WORKER_STACK',['../syslog_8h.html#a8421db09bcdd1d2eda90421d2c3ccf85',1,'syslog.h']]]
+];

@@ -64,9 +64,6 @@ static bool eth_watchdog_gateway_reachable(void);
 
 static void eth_watchdog_force_restart(const char *reason)
 {
-    static int software_fail_count = 0;
-    static TickType_t last_attempt_tick = 0;
-
     ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
 
     s_eth_wd.last_successful_activity = 0;
@@ -74,27 +71,11 @@ static void eth_watchdog_force_restart(const char *reason)
     s_request_update_actuals = true;
     s_request_syslog_update = true;
 
-    // Optional: decay the failure counter if last attempt was long ago.
-    // Uncomment if you want the counter to slowly reset after inactivity.
-#if 1
-    if (last_attempt_tick != 0)
+    // Prefer a full hardware reset rather than a light software restart.
+    esp_err_t hr = eth_hardware_reset();
+    if (hr == ESP_OK)
     {
-        TickType_t now = xTaskGetTickCount();
-        if ((now - last_attempt_tick) > pdMS_TO_TICKS(SOFTWARE_RESTART_DECAY_MS))
-        {
-            software_fail_count = 0;
-        }
-    }
-#endif
-
-    last_attempt_tick = xTaskGetTickCount();
-
-    // Try software stop/start through the Ethernet lifecycle helper.
-    esp_err_t e = eth_software_restart();
-    if (e == ESP_OK)
-    {
-        ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
-        // reset watchdog state and software failure counter
+        ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
         s_eth_wd.link_up_event = false;
         s_eth_wd.has_ip_event = false;
         s_eth_wd.gateway_fail_count = 0;
@@ -102,46 +83,14 @@ static void eth_watchdog_force_restart(const char *reason)
         s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
         s_request_update_actuals = true;
         s_request_syslog_update = true;
-        software_fail_count = 0;
-        last_attempt_tick = 0;
         return;
     }
 
-    ESP_LOGW(TAG, "ETH-WD: software restart failed: %s", esp_err_to_name(e));
-    software_fail_count++;
-    ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
-
-    // Only perform hardware reset after N consecutive software failures
-    if (software_fail_count < SOFTWARE_RESTART_MAX_ATTEMPTS)
-    {
-        ESP_LOGW(TAG, "ETH-WD: not yet at hardware reset threshold (%d/%d); deferring hardware reset", software_fail_count, SOFTWARE_RESTART_MAX_ATTEMPTS);
-        // leave watchdog state as-is so subsequent calls can retry
-        return;
-    }
-
-    ESP_LOGW(TAG, "ETH-WD: reached %d software failures; performing hardware reset", SOFTWARE_RESTART_MAX_ATTEMPTS);
-
-    // Fallback: perform guarded hardware reset (if available)
-    esp_err_t hr = eth_hardware_reset();
-    if (hr == ESP_OK)
-    {
-        ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
-    }
-    else
-    {
-        ESP_LOGE(TAG, "ETH-WD: hardware reset failed: %s", esp_err_to_name(hr));
-    }
-
-    // Reset watchdog state and failure counter after hardware reset
-    s_eth_wd.link_up_event = false;
-    s_eth_wd.has_ip_event = false;
-    s_eth_wd.gateway_fail_count = 0;
+    ESP_LOGW(TAG, "ETH-WD: hardware reset failed: %s", esp_err_to_name(hr));
+    // Keep watchdog state so a later tick can retry if the interface is still unhealthy.
     s_eth_wd.last_state_change = xTaskGetTickCount();
-    s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
     s_request_update_actuals = true;
     s_request_syslog_update = true;
-    software_fail_count = 0;
-    last_attempt_tick = 0;
 }
 
 static bool eth_watchdog_gateway_reachable(void)
@@ -849,6 +798,18 @@ static void evaluate_config_and_apply(void)
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
+    }
+
+    if (hw.has_ethernet && eth_enabled && s_eth_wd.last_restart_time != 0)
+    {
+        TickType_t now = xTaskGetTickCount();
+        if ((now - s_eth_wd.last_restart_time) < pdMS_TO_TICKS(ETH_WD_RESTART_GRACE_MS))
+        {
+            LOGI(TAG, "evaluate_config_and_apply: Ethernet restart grace period active; deferring Wi‑Fi STA/AP");
+            wifi_manager_stop();
+            wifi_led_set_mode(LED_OFF);
+            return;
+        }
     }
 
     // At this point Ethernet is down (or not present) and Wi‑Fi is enabled in config
