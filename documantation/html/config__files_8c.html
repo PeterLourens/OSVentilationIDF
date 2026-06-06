@@ -124,6 +124,12 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('config__files_
 <p>Runtime JSON configuration loading and parsing helpers.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="config__files_8h_source.html">config_files.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for config_files.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c__incl.png" border="0" usemap="#a_2_users_2peter_2_development_2_o_s_ventilation_i_d_f_2main_2config__files_8c" loading="lazy" alt=""/></div>
+<!-- MAP 0 -->
+</div>
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -227,6 +233,18 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t if the file cannot be read or parsed.</dd></dl>
 <p>Load Ethernet configuration from LittleFS and store it in runtime state.</p>
 <p>This reads static IP/DHCP settings and stores them under the network config mutex. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8_cgraph.png" border="0" usemap="#aconfig__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 1 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8_icgraph.png" border="0" usemap="#aconfig__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 2 -->
+</div>
 
 </div>
 </div>
@@ -250,6 +268,18 @@ Functions</h2></td></tr>
 <p>Reads /data/json/fan_config.json and updates the runtime fan_config settings used by the fan control module for HTTP or MQTT fan commands. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load fan controller configuration from LittleFS.</p>
 <p>This updates the runtime fan_control settings used by the fan control module. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d_cgraph.png" border="0" usemap="#aconfig__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 3 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d_icgraph.png" border="0" usemap="#aconfig__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 4 -->
+</div>
 
 </div>
 </div>
@@ -273,6 +303,18 @@ Functions</h2></td></tr>
 <p>This reads /data/json/i2c_config.json and updates bus multiplexer and LCD enable settings used by the I2C subsystem. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load I2C bus and peripheral configuration from LittleFS.</p>
 <p>This updates the I2C multiplexing and LCD enable settings. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_afab78ae80b0c3741ecde847cab78b358_cgraph.png" border="0" usemap="#aconfig__files_8c_afab78ae80b0c3741ecde847cab78b358_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 5 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_afab78ae80b0c3741ecde847cab78b358_icgraph.png" border="0" usemap="#aconfig__files_8c_afab78ae80b0c3741ecde847cab78b358_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 6 -->
+</div>
 
 </div>
 </div>
@@ -296,6 +338,18 @@ Functions</h2></td></tr>
 <p>This reads /data/json/influxdb_config.json and stores the values in the runtime influxdb_config structure under a mutex. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load InfluxDB connection and authentication settings from LittleFS.</p>
 <p>This updates the stored InfluxDB connection parameters and credentials. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a7c0f40001838665e86d0ace66ceadf4a_cgraph.png" border="0" usemap="#aconfig__files_8c_a7c0f40001838665e86d0ace66ceadf4a_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 7 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a7c0f40001838665e86d0ace66ceadf4a_icgraph.png" border="0" usemap="#aconfig__files_8c_a7c0f40001838665e86d0ace66ceadf4a_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 8 -->
+</div>
 
 </div>
 </div>
@@ -319,6 +373,18 @@ Functions</h2></td></tr>
 <p>This reads /data/json/mqtt_config.json and updates the runtime mqtt_config structure under the MQTT configuration mutex. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load MQTT broker and topic configuration from LittleFS.</p>
 <p>This updates the in-memory MQTT settings used for messaging and telemetry. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_acadc0b7b0d1a65b322c9806c4db6a323_cgraph.png" border="0" usemap="#aconfig__files_8c_acadc0b7b0d1a65b322c9806c4db6a323_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 9 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_acadc0b7b0d1a65b322c9806c4db6a323_icgraph.png" border="0" usemap="#aconfig__files_8c_acadc0b7b0d1a65b322c9806c4db6a323_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 10 -->
+</div>
 
 </div>
 </div>
@@ -355,6 +421,18 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac_cgraph.png" border="0" usemap="#aconfig__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 11 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac_icgraph.png" border="0" usemap="#aconfig__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 12 -->
+</div>
 
 </div>
 </div>
@@ -378,6 +456,18 @@ Functions</h2></td></tr>
 <p>This high-level loader reads files matching the configured state pattern and populates the runtime state table used by the statemachine task. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load configured statemachine state definitions from JSON files.</p>
 <p>This is the high-level entry point for loading the statemachine state definitions. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a541442023da9f2da977a4be0d2d1eeef_cgraph.png" border="0" usemap="#aconfig__files_8c_a541442023da9f2da977a4be0d2d1eeef_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 13 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a541442023da9f2da977a4be0d2d1eeef_icgraph.png" border="0" usemap="#aconfig__files_8c_a541442023da9f2da977a4be0d2d1eeef_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 14 -->
+</div>
 
 </div>
 </div>
@@ -401,6 +491,18 @@ Functions</h2></td></tr>
 <p>This reads /data/json/sm_general_config.json and updates the global statemachine_gen_config structure, including weekday/weekend timing and RH/CO2 setpoints. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load general statemachine configuration values from LittleFS.</p>
 <p>This populates the runtime statemachine general configuration values. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ac72d6ed07c44365d3ac9607b0a546778_cgraph.png" border="0" usemap="#aconfig__files_8c_ac72d6ed07c44365d3ac9607b0a546778_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 15 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ac72d6ed07c44365d3ac9607b0a546778_icgraph.png" border="0" usemap="#aconfig__files_8c_ac72d6ed07c44365d3ac9607b0a546778_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 16 -->
+</div>
 
 </div>
 </div>
@@ -424,6 +526,18 @@ Functions</h2></td></tr>
 <p>This reads /data/json/syslog_config.json and stores the syslog endpoint, hostname, application name, and device ID in runtime state. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load remote syslog forwarding configuration from LittleFS.</p>
 <p>This updates syslog endpoint settings and device identity strings. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f_cgraph.png" border="0" usemap="#aconfig__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 17 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f_icgraph.png" border="0" usemap="#aconfig__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 18 -->
+</div>
 
 </div>
 </div>
@@ -448,6 +562,18 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure.</dd></dl>
 <p>Load time synchronization settings from LittleFS.</p>
 <p>This populates the runtime time_config structure with NTP server and timezone. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a81037411e2e8b66c67cba34bae474f1a_cgraph.png" border="0" usemap="#aconfig__files_8c_a81037411e2e8b66c67cba34bae474f1a_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 19 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a81037411e2e8b66c67cba34bae474f1a_icgraph.png" border="0" usemap="#aconfig__files_8c_a81037411e2e8b66c67cba34bae474f1a_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 20 -->
+</div>
 
 </div>
 </div>
@@ -472,6 +598,18 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t if the file cannot be read or parsed.</dd></dl>
 <p>Load Wi-Fi configuration from LittleFS and apply it to runtime state.</p>
 <p>This updates the in-memory wifi_config structure under the network config mutex. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a81d6b78e8d3fb9e78619a90cff215a51_cgraph.png" border="0" usemap="#aconfig__files_8c_a81d6b78e8d3fb9e78619a90cff215a51_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 21 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a81d6b78e8d3fb9e78619a90cff215a51_icgraph.png" border="0" usemap="#aconfig__files_8c_a81d6b78e8d3fb9e78619a90cff215a51_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 22 -->
+</div>
 
 </div>
 </div>
@@ -513,6 +651,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if <code class="param">name</code> matches <code class="param">pattern</code>, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a885a82f60036503777c85ae3738c37b9_icgraph.png" border="0" usemap="#aconfig__files_8c_a885a82f60036503777c85ae3738c37b9_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 23 -->
+</div>
 
 </div>
 </div>
@@ -554,6 +698,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if parsing succeeded, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_aaf3ddf1afe92b86354c0ab79267d0484_icgraph.png" border="0" usemap="#aconfig__files_8c_aaf3ddf1afe92b86354c0ab79267d0484_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 24 -->
+</div>
 
 </div>
 </div>
@@ -595,6 +745,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if parsing succeeded, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1_icgraph.png" border="0" usemap="#aconfig__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 25 -->
+</div>
 
 </div>
 </div>
@@ -636,6 +792,18 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the object was parsed successfully, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d_cgraph.png" border="0" usemap="#aconfig__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 26 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d_icgraph.png" border="0" usemap="#aconfig__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 27 -->
+</div>
 
 </div>
 </div>
@@ -704,6 +872,18 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, otherwise an esp_err_t. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ab006392deaea973fe053d5ce12250be4_cgraph.png" border="0" usemap="#aconfig__files_8c_ab006392deaea973fe053d5ce12250be4_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 28 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="config__files_8c_ab006392deaea973fe053d5ce12250be4_icgraph.png" border="0" usemap="#aconfig__files_8c_ab006392deaea973fe053d5ce12250be4_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 29 -->
+</div>
 
 </div>
 </div>

@@ -137,6 +137,18 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('eth__functions
 <code>#include &quot;<a class="el" href="logging_8h_source.html">logging.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="globals_8h_source.html">globals.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="sys__stats_8h_source.html">sys_stats.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for eth_functions.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h__incl.png" border="0" usemap="#a_2_users_2peter_2_development_2_o_s_ventilation_i_d_f_2main_2eth__functions_8h" loading="lazy" alt=""/></div>
+<!-- MAP 0 -->
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h__dep__incl.png" border="0" usemap="#a_2_users_2peter_2_development_2_o_s_ventilation_i_d_f_2main_2eth__functions_8hdep" loading="lazy" alt=""/></div>
+<!-- MAP 1 -->
+</div>
 </div>
 <p><a href="eth__functions_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -204,6 +216,18 @@ Variables</h2></td></tr>
 <p>Attempt a guarded Ethernet restart when the link is down. </p>
 <p>This helper applies backoff and may defer teardown if the lifecycle mutex is busy.</p>
 <p>This helper performs a safe restart sequence with backoff and deferred teardown if the lifecycle mutex is busy. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd_cgraph.png" border="0" usemap="#aeth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 2 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd_icgraph.png" border="0" usemap="#aeth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 3 -->
+</div>
 
 </div>
 </div>
@@ -251,6 +275,12 @@ Variables</h2></td></tr>
 <p>Perform a guarded hardware reset of the Ethernet controller.</p>
 <p>This function acquires the Ethernet lifecycle mutex, stops DHCP and driver activity, toggles the W5500 reset GPIO if configured, and reinitializes the Ethernet stack. It ensures that no event handler races occur during reset.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, ESP_ERR_TIMEOUT if the lifecycle mutex could not be taken, or an ESP error code from initialization or driver start operations. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd_cgraph.png" border="0" usemap="#aeth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 4 -->
+</div>
 
 </div>
 </div>
@@ -274,6 +304,18 @@ Variables</h2></td></tr>
 <p>This function is idempotent and protects the Ethernet lifecycle with a mutex.</p>
 <p>Initialize the Ethernet interface and driver.</p>
 <p>This function is idempotent and protects the Ethernet lifecycle using a mutex. It sets up the SPI bus, MAC/PHY, driver, glue, and DHCP client if DHCP is enabled. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6_cgraph.png" border="0" usemap="#aeth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 5 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6_icgraph.png" border="0" usemap="#aeth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 6 -->
+</div>
 
 </div>
 </div>
@@ -298,6 +340,18 @@ Variables</h2></td></tr>
 <p>Check whether Ethernet is connected and has a valid IP address.</p>
 <p>This function verifies that Ethernet hardware is present, the netif exists, the link is up, and a valid IPv4 address is assigned.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if Ethernet is connected and has an IP address, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1_cgraph.png" border="0" usemap="#aeth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 7 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1_icgraph.png" border="0" usemap="#aeth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 8 -->
+</div>
 
 </div>
 </div>
@@ -344,6 +398,12 @@ Variables</h2></td></tr>
 <p>This function is safe to call multiple times; it allocates the mutex on the first invocation and no-ops on subsequent calls.</p>
 <p>Create the Ethernet lifecycle mutex once.</p>
 <p>This function is safe to call repeatedly and creates the mutex the first time it is needed. </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4_icgraph.png" border="0" usemap="#aeth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 9 -->
+</div>
 
 </div>
 </div>
@@ -377,6 +437,12 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4_icgraph.png" border="0" usemap="#aeth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 10 -->
+</div>
 
 </div>
 </div>
@@ -401,6 +467,12 @@ Variables</h2></td></tr>
 <p>Restart the Ethernet driver in software without a full teardown.</p>
 <p>This stops and restarts the currently installed Ethernet driver while the lifecycle mutex is held. It is intended for runtime restart without a full hardware teardown.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if restart succeeded, otherwise the esp_err_t from the stop or start operation. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5_cgraph.png" border="0" usemap="#aeth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 11 -->
+</div>
 
 </div>
 </div>
@@ -424,6 +496,18 @@ Variables</h2></td></tr>
 <p>If the driver is not initialized, it will be initialized first.</p>
 <p>Start the Ethernet driver and begin network operation.</p>
 <p>This function is idempotent and uses the lifecycle mutex to avoid races during startup. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2_cgraph.png" border="0" usemap="#aeth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 12 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2_icgraph.png" border="0" usemap="#aeth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 13 -->
+</div>
 
 </div>
 </div>
@@ -447,6 +531,18 @@ Variables</h2></td></tr>
 <p>This function performs a full cleanup of Ethernet state.</p>
 <p>Stop Ethernet operation and release driver resources.</p>
 <p>This function uses the lifecycle mutex and calls the locked teardown helper to release all Ethernet resources safely. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca_cgraph.png" border="0" usemap="#aeth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 14 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca_icgraph.png" border="0" usemap="#aeth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 15 -->
+</div>
 
 </div>
 </div>
@@ -470,6 +566,18 @@ Variables</h2></td></tr>
 <p>If the lifecycle mutex cannot be obtained, teardown is deferred.</p>
 <p>Safely teardown Ethernet resources when the lifecycle mutex is available.</p>
 <p>If the mutex cannot be taken immediately, the teardown is deferred and a flag is set. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff_cgraph.png" border="0" usemap="#aeth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 16 -->
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff_icgraph.png" border="0" usemap="#aeth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 17 -->
+</div>
 
 </div>
 </div>
@@ -494,6 +602,12 @@ Variables</h2></td></tr>
 <p>Apply the current Ethernet configuration from the shared network config.</p>
 <p>This function configures the Ethernet hostname, starts or stops the driver, and applies DHCP or static IPv4 settings as requested by the configuration.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure. </dd></dl>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107_cgraph.png" border="0" usemap="#aeth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 18 -->
+</div>
 
 </div>
 </div>
@@ -517,6 +631,12 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if DHCP is enabled for Ethernet.</dd></dl>
 <p>Check whether Ethernet DHCP is enabled in the runtime network configuration.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if Ethernet DHCP is enabled in the stored configuration, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e_icgraph.png" border="0" usemap="#aeth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 19 -->
+</div>
 
 </div>
 </div>
@@ -540,6 +660,12 @@ Variables</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if Ethernet is configured as enabled.</dd></dl>
 <p>Check whether Ethernet is enabled in the runtime network configuration.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if Ethernet is enabled in the stored configuration, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_aa9beadd076bf20623cd4696537a86b7e_icgraph.png" border="0" usemap="#aeth__functions_8h_aa9beadd076bf20623cd4696537a86b7e_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 20 -->
+</div>
 
 </div>
 </div>
@@ -564,6 +690,12 @@ Variables</h2></td></tr>
 <p>Check whether the Ethernet PHY/link appears to be up.</p>
 <p>This function first attempts to query PHY link status directly via IOCTL. If that is not available, it falls back to checking whether the Ethernet netif has a valid IPv4 address.</p>
 <dl class="section return"><dt>Returns</dt><dd>true if the Ethernet link is up, false otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a84b588ee86e129becb7c9501a827e113_icgraph.png" border="0" usemap="#aeth__functions_8h_a84b588ee86e129becb7c9501a827e113_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 21 -->
+</div>
 
 </div>
 </div>
@@ -587,6 +719,12 @@ Variables</h2></td></tr>
 <p>Called periodically by the network manager task.</p>
 <p>Retry a previously deferred Ethernet teardown if required.</p>
 <p>Called periodically from the network manager task when teardown could not be completed earlier because the lifecycle mutex was busy. </p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="eth__functions_8h_a35e913e4e772138708751649995fc419_cgraph.png" border="0" usemap="#aeth__functions_8h_a35e913e4e772138708751649995fc419_cgraph" loading="lazy" alt=""/></div>
+<!-- MAP 22 -->
+</div>
 
 </div>
 </div>

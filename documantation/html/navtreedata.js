@@ -25,17 +25,17 @@
 var NAVTREE =
 [
   [ "OSVentilation", "index.html", [
-    [ "Data Structures", "annotated.html", [
-      [ "Data Structures", "annotated.html", "annotated_dup" ],
-      [ "Data Structure Index", "classes.html", null ],
-      [ "Data Fields", "functions.html", [
+    [ "Classes", "annotated.html", [
+      [ "Class List", "annotated.html", "annotated_dup" ],
+      [ "Class Index", "classes.html", null ],
+      [ "Class Members", "functions.html", [
         [ "All", "functions.html", "functions_dup" ],
         [ "Variables", "functions_vars.html", "functions_vars" ]
       ] ]
     ] ],
     [ "Files", "files.html", [
       [ "File List", "files.html", "files_dup" ],
-      [ "Globals", "globals.html", [
+      [ "File Members", "globals.html", [
         [ "All", "globals.html", "globals_dup" ],
         [ "Functions", "globals_func.html", "globals_func" ],
         [ "Variables", "globals_vars.html", "globals_vars" ],
@@ -54,7 +54,7 @@ var NAVTREEINDEX =
 "http__post__functions_8c.html#a06523c0de7c538199264df2caa71ab10",
 "mqtt_8c.html#a346a3921be1bcd18272370839faa3e18",
 "statemachine__states_8h.html#acfe98914c59461a5d0c84a772abb6de5ac028183b1bccfe65d742c3fbdf1468e3",
-"structtar__header__t.html#a5f82ae95a2185b5fad3975da2fedb71c"
+"structtar__header__t.html#a4b61bab463342bcda086bc607c93b8b5"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

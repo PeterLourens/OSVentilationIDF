@@ -1,9 +1,9 @@
 var structping__summary__t =
 [
-    [ "avg_time_ms", "structping__summary__t.html#a36b59566e5519479d5398a58b3a72c1a", null ],
-    [ "duration_ms", "structping__summary__t.html#a963ad489a160ba37f4cef8220ce3b4b8", null ],
-    [ "loss_percent", "structping__summary__t.html#a7d49e8d95b1e7d2b177bd1e4594b3977", null ],
-    [ "received", "structping__summary__t.html#a903ec98309573e89739a80d0a7c06627", null ],
-    [ "success", "structping__summary__t.html#a7960f9c558f9ee2c3d4a8fdea096fb56", null ],
-    [ "transmitted", "structping__summary__t.html#ac7c25d4fe708a4c4b8dbcf70d608fe86", null ]
+    [ "avg_time_ms", "structping__summary__t.html#a0305b82a4b70dfd7127722a5e0d8b144", null ],
+    [ "duration_ms", "structping__summary__t.html#a06117f57761896b3a87899327a5935a7", null ],
+    [ "loss_percent", "structping__summary__t.html#a90ead732190854e0a0c8e270a065d16f", null ],
+    [ "received", "structping__summary__t.html#a67206c5c54979e7a34a06f51d0263ba2", null ],
+    [ "success", "structping__summary__t.html#a6d9d0d1b80da319f48cfa94063fb8acc", null ],
+    [ "transmitted", "structping__summary__t.html#af61793bed255f7bf57da99e086e8a4e6", null ]
 ];

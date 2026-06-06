@@ -1,12 +1,12 @@
 var searchData=
 [
-  ['b_0',['b',['../struct_color__t.html#a4313c9563516f94387762ab05763456b',1,'Color_t']]],
+  ['b_0',['b',['../struct_color__t.html#a2656ce3f60e822ca183a9dd9f11ae450',1,'Color_t']]],
   ['bin2bcd_1',['bin2bcd',['../i2c__ds3231_8h.html#aa6879968bcc8ed5b8932cef930ba8faf',1,'i2c_ds3231.h']]],
   ['blinkstate_5ft_2',['BlinkState_t',['../struct_blink_state__t.html',1,'']]],
   ['bme680_5fbus0_5fhandle_3',['bme680_bus0_handle',['../globals_8c.html#a425074bc5173bc5e6be234bcf4f68391',1,'bme680_bus0_handle:&#160;globals.c'],['../globals_8h.html#a425074bc5173bc5e6be234bcf4f68391',1,'bme680_bus0_handle:&#160;globals.c']]],
   ['bme680_5fbus1_5fhandle_4',['bme680_bus1_handle',['../globals_8c.html#a84d930779eeedad50be67ee0b0038d7a',1,'bme680_bus1_handle:&#160;globals.c'],['../globals_8h.html#a84d930779eeedad50be67ee0b0038d7a',1,'bme680_bus1_handle:&#160;globals.c']]],
   ['bme680_5fi2c_5faddr_5',['BME680_I2C_ADDR',['../globals_8h.html#ab36eafd487fa8b1af5c19bb55454cb13',1,'globals.h']]],
-  ['brightness_6',['brightness',['../struct_blink_state__t.html#a837c871f200f8c3d19d0c7f2e031ffc4',1,'BlinkState_t']]],
+  ['brightness_6',['brightness',['../struct_blink_state__t.html#ac6ede3deccb408834c59e783ee30c7b9',1,'BlinkState_t']]],
   ['build_5fbus_5fconfig_5ffrom_5fbody_5furlencoded_7',['build_bus_config_from_body_urlencoded',['../http__post__functions_8c.html#a06523c0de7c538199264df2caa71ab10',1,'build_bus_config_from_body_urlencoded(const char *body, size_t len, const char *bus_prefix):&#160;http_post_functions.c'],['../http__post__functions_8h.html#a74fe13465e2732416136e18a040a3b8d',1,'build_bus_config_from_body_urlencoded(const char *, size_t, const char *):&#160;http_post_functions.c']]],
   ['build_5fethernet_5fconfig_5ffrom_5fbody_5furlencoded_8',['build_ethernet_config_from_body_urlencoded',['../http__post__functions_8c.html#a7836bb7389163b1c4b3457b60f065282',1,'build_ethernet_config_from_body_urlencoded(const char *body, size_t len):&#160;http_post_functions.c'],['../http__post__functions_8h.html#a06a62a54204ff8c55f0b57416ce996b9',1,'build_ethernet_config_from_body_urlencoded(const char *, size_t):&#160;http_post_functions.c']]],
   ['build_5ffan_5fconfig_5ffrom_5fbody_5furlencoded_9',['build_fan_config_from_body_urlencoded',['../http__post__functions_8c.html#a90cc1a341de104d5f43a7899a254a123',1,'build_fan_config_from_body_urlencoded(const char *body, size_t len):&#160;http_post_functions.c'],['../http__post__functions_8h.html#a221c54635087c32197ce70c1f2c6ddb4',1,'build_fan_config_from_body_urlencoded(const char *, size_t):&#160;http_post_functions.c']]],
@@ -20,9 +20,9 @@ var searchData=
   ['build_5ftime_5fconfig_5ffrom_5fbody_5furlencoded_17',['build_time_config_from_body_urlencoded',['../http__post__functions_8c.html#a47552bea599e7f7ee6e80e011eb09606',1,'build_time_config_from_body_urlencoded(const char *body, size_t len):&#160;http_post_functions.c'],['../http__post__functions_8h.html#a1fcb2f8862e2263bc4656a1c7cb73490',1,'build_time_config_from_body_urlencoded(const char *, size_t):&#160;http_post_functions.c']]],
   ['build_5fvalve_5fpositions_5fbuffer_18',['build_valve_positions_buffer',['../i2c__lcd_8c.html#ae5e4b73813686ba9d070db7a1acad4c2',1,'build_valve_positions_buffer(char *buf, size_t buf_size):&#160;i2c_lcd.c'],['../i2c__lcd_8h.html#a2f8bafdd9ed79b75efdc444de8d3e25c',1,'build_valve_positions_buffer(char *, size_t):&#160;i2c_lcd.c']]],
   ['build_5fwifi_5fconfig_5ffrom_5fbody_5furlencoded_19',['build_wifi_config_from_body_urlencoded',['../http__post__functions_8c.html#a836946781f12584aaeb9d234b800d664',1,'build_wifi_config_from_body_urlencoded(const char *body, size_t len):&#160;http_post_functions.c'],['../http__post__functions_8h.html#aac5c2f8f190c24f1789fd005ee2ebce1',1,'build_wifi_config_from_body_urlencoded(const char *, size_t):&#160;http_post_functions.c']]],
-  ['bus0_5fmultiplexer_5faddress_20',['bus0_multiplexer_address',['../struct_i2_c__config__t.html#a3ed7f8e31b141e1e42453d3a5c0468f8',1,'I2C_config_t']]],
+  ['bus0_5fmultiplexer_5faddress_20',['bus0_multiplexer_address',['../struct_i2_c__config__t.html#a66414621fe8e5d102936f0873cf5813b',1,'I2C_config_t']]],
   ['bus0_5fsensor_5fsettings_21',['bus0_sensor_settings',['../globals_8c.html#af0e9d3e368300fd4059ea6757701fa1b',1,'bus0_sensor_settings:&#160;globals.c'],['../globals_8h.html#af0e9d3e368300fd4059ea6757701fa1b',1,'bus0_sensor_settings:&#160;globals.c']]],
-  ['bus1_5fmultiplexer_5faddress_22',['bus1_multiplexer_address',['../struct_i2_c__config__t.html#acff932626321fe721b7d3a5ee87dce0a',1,'I2C_config_t']]],
+  ['bus1_5fmultiplexer_5faddress_22',['bus1_multiplexer_address',['../struct_i2_c__config__t.html#a22c1f5a2d9011fb13dfad31d59cc0d89',1,'I2C_config_t']]],
   ['bus1_5fsensor_5fsettings_23',['bus1_sensor_settings',['../globals_8c.html#a75ec66fa7e5da489f7dcaae8ba5926f3',1,'bus1_sensor_settings:&#160;globals.c'],['../globals_8h.html#a75ec66fa7e5da489f7dcaae8ba5926f3',1,'bus1_sensor_settings:&#160;globals.c']]],
   ['bus_5fsensor_5ft_24',['bus_sensor_t',['../structbus__sensor__t.html',1,'']]]
 ];

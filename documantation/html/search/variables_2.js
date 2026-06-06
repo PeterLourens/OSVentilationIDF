@@ -1,19 +1,19 @@
 var searchData=
 [
-  ['check_5fposition_0',['check_position',['../struct_valve__control__data.html#a3456720a2727097ad3b549606d964f34',1,'Valve_control_data']]],
-  ['chksum_1',['chksum',['../structtar__header__t.html#ae371fcd8ef73a6c8e6af4e1e721d9ec7',1,'tar_header_t']]],
-  ['clockpin1_2',['clockpin1',['../structhw__caps__t.html#a5e9c25b5a8709842922232c862ec6b7b',1,'hw_caps_t']]],
-  ['clockpin2_3',['clockpin2',['../structhw__caps__t.html#a85a257e44acd2b77209f681b6551c9b8',1,'hw_caps_t']]],
-  ['co2_5fenabled_4',['co2_enabled',['../structbus__sensor__t.html#a570c329f8cb10f2df74b68e38a6a636a',1,'bus_sensor_t']]],
-  ['co2_5fhigh_5flevel_5',['co2_high_level',['../struct_statemachine__gen__config__t.html#a409a9556d939ea73174ba762e8c620a3',1,'Statemachine_gen_config_t']]],
-  ['co2_5flow_5flevel_6',['co2_low_level',['../struct_statemachine__gen__config__t.html#a752dbe84a8560359ca640abc9adbfac0',1,'Statemachine_gen_config_t']]],
-  ['co2_5freading_7',['co2_reading',['../struct_c_o2___sensors__t.html#a149e3dfa49fe32ae9bb5eb3079211f80',1,'CO2_Sensors_t']]],
+  ['check_5fposition_0',['check_position',['../struct_valve__control__data.html#a09be17454189f9ed1f3c0ff3c8f28522',1,'Valve_control_data']]],
+  ['chksum_1',['chksum',['../structtar__header__t.html#ad820026096d076f218f4718318971928',1,'tar_header_t']]],
+  ['clockpin1_2',['clockpin1',['../structhw__caps__t.html#a7f7abc5e361d0381a71d725d0200c709',1,'hw_caps_t']]],
+  ['clockpin2_3',['clockpin2',['../structhw__caps__t.html#a223f6f1f7310f7c341a35528073a8522',1,'hw_caps_t']]],
+  ['co2_5fenabled_4',['co2_enabled',['../structbus__sensor__t.html#a6363e6f9914bbb8a0d07aaf5832556ba',1,'bus_sensor_t']]],
+  ['co2_5fhigh_5flevel_5',['co2_high_level',['../struct_statemachine__gen__config__t.html#a844bb3b0a85bd9221569a9b0909fae87',1,'Statemachine_gen_config_t']]],
+  ['co2_5flow_5flevel_6',['co2_low_level',['../struct_statemachine__gen__config__t.html#a6d4fe1adaa8029a4af62390869509974',1,'Statemachine_gen_config_t']]],
+  ['co2_5freading_7',['co2_reading',['../struct_c_o2___sensors__t.html#add3812398a251dc26a6c7d0eacec80f1',1,'CO2_Sensors_t']]],
   ['co2_5fsensor_5fcounter_8',['co2_sensor_counter',['../statemachine_8c.html#a1d68273baa3a7f4d8fa119934a76b314',1,'co2_sensor_counter:&#160;statemachine.c'],['../statemachine_8h.html#a1d68273baa3a7f4d8fa119934a76b314',1,'co2_sensor_counter:&#160;statemachine.c']]],
   ['co2_5fsensors_9',['co2_sensors',['../statemachine_8c.html#ad7d36e4a8606a2fda0ca640bc32422bc',1,'co2_sensors:&#160;statemachine.c'],['../statemachine_8h.html#ad7d36e4a8606a2fda0ca640bc32422bc',1,'co2_sensors:&#160;statemachine.c']]],
-  ['co2_5fsensors_5fhigh_10',['co2_sensors_high',['../struct_statemachine__actuals__t.html#a6ca29a532358b54356d5aaed6979dfe0',1,'Statemachine_actuals_t::co2_sensors_high'],['../statemachine_8h.html#a6ca29a532358b54356d5aaed6979dfe0',1,'co2_sensors_high:&#160;statemachine.h']]],
-  ['color_11',['color',['../struct_blink_state__t.html#a5124f84db919c8ba2e56cb58409c24f2',1,'BlinkState_t']]],
+  ['co2_5fsensors_5fhigh_10',['co2_sensors_high',['../struct_statemachine__actuals__t.html#a94c4e0c96b22082c88fc0ff7be2b5c80',1,'Statemachine_actuals_t::co2_sensors_high'],['../statemachine_8h.html#a6ca29a532358b54356d5aaed6979dfe0',1,'co2_sensors_high:&#160;statemachine.h']]],
+  ['color_11',['color',['../struct_blink_state__t.html#ac70910393e4a8b5eb24cd4e821615f1b',1,'BlinkState_t']]],
   ['colors_12',['COLORS',['../rgb__leds_8c.html#a1cf65b2abbff0d0705e8e87f8eb9b0ac',1,'COLORS:&#160;rgb_leds.c'],['../rgb__leds_8h.html#a31f73b65f564ef73af3ab49df4f0f808',1,'COLORS:&#160;rgb_leds.c']]],
-  ['condition_13',['condition',['../struct_led_rule__t.html#ae60148d70d664d3c2ac9fcbff68fabbf',1,'LedRule_t']]],
-  ['cpu_5ftemp_14',['cpu_temp',['../struct_statemachine__actuals__t.html#a4577e56e6282864361c6040e8eb9d026',1,'Statemachine_actuals_t']]],
-  ['cycling_5finterval_5fmin_15',['cycling_interval_min',['../struct_statemachine__config__t.html#a308bda75ce77f20c800436ce5d90a3dc',1,'Statemachine_config_t']]]
+  ['condition_13',['condition',['../struct_led_rule__t.html#a1a75bbf06c09945ab1ceaa630316f62a',1,'LedRule_t']]],
+  ['cpu_5ftemp_14',['cpu_temp',['../struct_statemachine__actuals__t.html#aff53dd7ab15e2cce1074df5433c11d9f',1,'Statemachine_actuals_t']]],
+  ['cycling_5finterval_5fmin_15',['cycling_interval_min',['../struct_statemachine__config__t.html#a03672861c1e06e3a436e4ac149d0deaf',1,'Statemachine_config_t']]]
 ];

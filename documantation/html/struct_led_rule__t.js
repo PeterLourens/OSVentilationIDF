@@ -1,6 +1,6 @@
 var struct_led_rule__t =
 [
-    [ "action", "struct_led_rule__t.html#ae93544954249abe939390b4c08f065de", null ],
-    [ "condition", "struct_led_rule__t.html#ae60148d70d664d3c2ac9fcbff68fabbf", null ],
-    [ "priority", "struct_led_rule__t.html#acec9ce2df15222151ad66fcb1d74eb9f", null ]
+    [ "action", "struct_led_rule__t.html#adeee793b3e8db9217913aae713aaff49", null ],
+    [ "condition", "struct_led_rule__t.html#a1a75bbf06c09945ab1ceaa630316f62a", null ],
+    [ "priority", "struct_led_rule__t.html#a4f5cffef0ca618733443180f92d55793", null ]
 ];

@@ -1,5 +1,5 @@
 var structinflux__job__t =
 [
-    [ "len", "structinflux__job__t.html#a7360b55975153b822efc5217b7734e6a", null ],
-    [ "payload", "structinflux__job__t.html#a18f141cb2726073503afb9f1d6c85efb", null ]
+    [ "len", "structinflux__job__t.html#ab6923dbe3aaf1b0b21324147274f7f72", null ],
+    [ "payload", "structinflux__job__t.html#a601ead0dfd52b3e06db80672da1e9687", null ]
 ];

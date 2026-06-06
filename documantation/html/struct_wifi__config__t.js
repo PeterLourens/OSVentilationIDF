@@ -1,13 +1,13 @@
 var struct_wifi__config__t =
 [
-    [ "enable_dhcp", "struct_wifi__config__t.html#af7d83a1468e2eb07351c3e969ad2940a", null ],
-    [ "enable_wifi", "struct_wifi__config__t.html#aa36e6ab10ccfb9909352dd5257c1401d", null ],
-    [ "gateway", "struct_wifi__config__t.html#a4c8630092c17fe543eb0b354c54654d1", null ],
-    [ "hostname", "struct_wifi__config__t.html#a343e1b1ebcfc402e7531aa5934877879", null ],
-    [ "ip_address", "struct_wifi__config__t.html#a50aaef7129044a150c738ab263866a9a", null ],
-    [ "primary_dns", "struct_wifi__config__t.html#a7784ece41215a995c8792d60c2592f34", null ],
-    [ "secondary_dns", "struct_wifi__config__t.html#ab18ff84b0e0439f65a848a5b45a8ae14", null ],
-    [ "ssid", "struct_wifi__config__t.html#a07f1047a2a8c5187a64f1ae56f6a1544", null ],
-    [ "subnet_mask", "struct_wifi__config__t.html#aaa1d73f6c35de657d799f18a5b1b5066", null ],
-    [ "wifi_password", "struct_wifi__config__t.html#ad6ceca7e34df9b7e976c3498035184c7", null ]
+    [ "enable_dhcp", "struct_wifi__config__t.html#a1222a4b964323a8d949b9490cd85bc3b", null ],
+    [ "enable_wifi", "struct_wifi__config__t.html#a5f1b8216f02f3b34eb10ec58c16a7f11", null ],
+    [ "gateway", "struct_wifi__config__t.html#a37d323ce571214c96e374090f3633521", null ],
+    [ "hostname", "struct_wifi__config__t.html#a16307df9ad38185003f748956ae676bc", null ],
+    [ "ip_address", "struct_wifi__config__t.html#ad24adb9e173a26e773319efb2785197b", null ],
+    [ "primary_dns", "struct_wifi__config__t.html#a5bbe93d5f63cbe71b40427134602e8fd", null ],
+    [ "secondary_dns", "struct_wifi__config__t.html#a089a9d241609dc9d929d47a5a6afdacc", null ],
+    [ "ssid", "struct_wifi__config__t.html#a6bf08bc67e1140624fe4b37671da8c0d", null ],
+    [ "subnet_mask", "struct_wifi__config__t.html#a1cb3d544c35b628f0b41f7b957ec362a", null ],
+    [ "wifi_password", "struct_wifi__config__t.html#a295fe73df8eec5bb9ec04cba1b112b43", null ]
 ];

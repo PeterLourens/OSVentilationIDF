@@ -1,8 +1,8 @@
 var structbus__sensor__t =
 [
-    [ "co2_enabled", "structbus__sensor__t.html#a570c329f8cb10f2df74b68e38a6a636a", null ],
-    [ "location", "structbus__sensor__t.html#a70db6cb35f3876e54054fe9153756138", null ],
-    [ "rh_enabled", "structbus__sensor__t.html#aa7db9dfbf9500189225ed93400cca8af", null ],
-    [ "type", "structbus__sensor__t.html#af19e36771b2c8a9a8e233396b2a41fd8", null ],
-    [ "valve", "structbus__sensor__t.html#a957f2065599e75e7563bfe8faae70e76", null ]
+    [ "co2_enabled", "structbus__sensor__t.html#a6363e6f9914bbb8a0d07aaf5832556ba", null ],
+    [ "location", "structbus__sensor__t.html#adaaabb43c2c46189aca4e0f32670d85f", null ],
+    [ "rh_enabled", "structbus__sensor__t.html#a8b75d148c06d4f777dcd8481e929b974", null ],
+    [ "type", "structbus__sensor__t.html#a4be419002dec0bcd414ccc042dc712dd", null ],
+    [ "valve", "structbus__sensor__t.html#a7542d6a9ca436d7c2f17869ac6415fef", null ]
 ];

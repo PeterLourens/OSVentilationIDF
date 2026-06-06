@@ -1,9 +1,9 @@
 var struct_eth_snapshot__t =
 [
-    [ "dhcp", "struct_eth_snapshot__t.html#ab878698504872c77dffcece68bc0a900", null ],
-    [ "dns1", "struct_eth_snapshot__t.html#ab3eb161bf60b88ce4b0995b5761348c0", null ],
-    [ "dns2", "struct_eth_snapshot__t.html#a37305cb514f3cdbfa09dfb2384ddb909", null ],
-    [ "gw", "struct_eth_snapshot__t.html#a63430eb86d948b4a653ca993c9cd7a2b", null ],
-    [ "ip", "struct_eth_snapshot__t.html#ac03ec605186c0c6d17c4beaab73d615c", null ],
-    [ "netmask", "struct_eth_snapshot__t.html#ac148de1f62adf10b0a5b3781087225fa", null ]
+    [ "dhcp", "struct_eth_snapshot__t.html#adf0bf4d2d0b68b1850df79680c9d0561", null ],
+    [ "dns1", "struct_eth_snapshot__t.html#acf67bc476d70bbf3b35cb202b6e9570e", null ],
+    [ "dns2", "struct_eth_snapshot__t.html#aa3001bb63d226b0234b265e08de483e6", null ],
+    [ "gw", "struct_eth_snapshot__t.html#a9a6a6fb050cb5f5111da03eb2c9d2c23", null ],
+    [ "ip", "struct_eth_snapshot__t.html#adee5cd7c3fab1c4116a02616ae39d69b", null ],
+    [ "netmask", "struct_eth_snapshot__t.html#a162add140793a766ef440934c6d2bd19", null ]
 ];

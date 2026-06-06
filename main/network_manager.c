@@ -64,6 +64,9 @@ static bool eth_watchdog_gateway_reachable(void);
 
 static void eth_watchdog_force_restart(const char *reason)
 {
+    static int software_fail_count = 0;
+    static TickType_t last_attempt_tick = 0;
+
     ESP_LOGW(TAG, "ETH-WD: forcing Ethernet restart (%s)", reason);
 
     s_eth_wd.last_successful_activity = 0;
@@ -71,11 +74,24 @@ static void eth_watchdog_force_restart(const char *reason)
     s_request_update_actuals = true;
     s_request_syslog_update = true;
 
-    // Prefer a full hardware reset rather than a light software restart.
-    esp_err_t hr = eth_hardware_reset();
-    if (hr == ESP_OK)
+    // Optional: decay the failure counter if last attempt was long ago.
+    if (last_attempt_tick != 0)
     {
-        ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
+        TickType_t now = xTaskGetTickCount();
+        if ((now - last_attempt_tick) > pdMS_TO_TICKS(SOFTWARE_RESTART_DECAY_MS))
+        {
+            software_fail_count = 0;
+        }
+    }
+
+    last_attempt_tick = xTaskGetTickCount();
+
+    // Prefer a lighter software restart first, and only use hardware reset after retries.
+    esp_err_t err = eth_software_restart();
+    if (err == ESP_OK)
+    {
+        ESP_LOGI(TAG, "ETH-WD: software restart succeeded");
+        software_fail_count = 0;
         s_eth_wd.link_up_event = false;
         s_eth_wd.has_ip_event = false;
         s_eth_wd.gateway_fail_count = 0;
@@ -83,11 +99,38 @@ static void eth_watchdog_force_restart(const char *reason)
         s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
         s_request_update_actuals = true;
         s_request_syslog_update = true;
+        last_attempt_tick = 0;
+        return;
+    }
+
+    ESP_LOGW(TAG, "ETH-WD: software restart failed: %s", esp_err_to_name(err));
+    software_fail_count++;
+    ESP_LOGW(TAG, "ETH-WD: software restart failure count = %d", software_fail_count);
+    if (software_fail_count < SOFTWARE_RESTART_MAX_ATTEMPTS)
+    {
+        ESP_LOGW(TAG, "ETH-WD: not yet at hardware reset threshold (%d/%d); deferring hardware reset", software_fail_count, SOFTWARE_RESTART_MAX_ATTEMPTS);
+        return;
+    }
+
+    ESP_LOGW(TAG, "ETH-WD: reached %d software failures; performing hardware reset", SOFTWARE_RESTART_MAX_ATTEMPTS);
+
+    esp_err_t hr = eth_hardware_reset();
+    if (hr == ESP_OK)
+    {
+        ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
+        software_fail_count = 0;
+        s_eth_wd.link_up_event = false;
+        s_eth_wd.has_ip_event = false;
+        s_eth_wd.gateway_fail_count = 0;
+        s_eth_wd.last_state_change = xTaskGetTickCount();
+        s_eth_wd.last_restart_time = xTaskGetTickCount(); // record restart time for grace period
+        s_request_update_actuals = true;
+        s_request_syslog_update = true;
+        last_attempt_tick = 0;
         return;
     }
 
     ESP_LOGW(TAG, "ETH-WD: hardware reset failed: %s", esp_err_to_name(hr));
-    // Keep watchdog state so a later tick can retry if the interface is still unhealthy.
     s_eth_wd.last_state_change = xTaskGetTickCount();
     s_request_update_actuals = true;
     s_request_syslog_update = true;
@@ -128,6 +171,36 @@ static bool eth_watchdog_gateway_reachable(void)
         s_eth_wd.last_successful_activity = s_eth_wd.last_gateway_probe;
     }
     return ok;
+}
+
+static void log_network_status(void)
+{
+    esp_netif_t *active = get_active_netif();
+    if (!active)
+    {
+        LOGI(TAG, "Network manager: no active network interface");
+        return;
+    }
+
+    const char *active_if = "unknown";
+    if (active == esp_netif_get_handle_from_ifkey("ETH_DEF"))
+        active_if = "ETH_DEF";
+    else if (active == esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"))
+        active_if = "WIFI_STA_DEF";
+    else if (active == esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"))
+        active_if = "WIFI_AP_DEF";
+
+    esp_netif_ip_info_t ip_info = {0};
+    if (esp_netif_get_ip_info(active, &ip_info) == ESP_OK && ip_info.ip.addr != 0)
+    {
+        LOGI(TAG, "Network manager: active interface %s has IP " IPSTR,
+             active_if, IP2STR(&ip_info.ip));
+    }
+    else
+    {
+        LOGI(TAG, "Network manager: active interface %s has no IP",
+             active_if);
+    }
 }
 
 static void eth_watchdog_tick(void)
@@ -423,6 +496,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     switch (id)
     {
     case IP_EVENT_ETH_GOT_IP:
+    {
         LOGI(TAG, "IP_EVENT_ETH_GOT_IP (handler)");
 
         s_eth_wd.has_ip_event = true;
@@ -437,6 +511,20 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xSemaphoreGive(statemachine_mutex);
         }
 
+        {
+            esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            esp_netif_ip_info_t ip_info = {0};
+            if (eth_netif && esp_netif_get_ip_info(eth_netif, &ip_info) == ESP_OK)
+            {
+                LOGI(TAG, "Network manager: Ethernet is up with IP %d.%d.%d.%d",
+                     IP2STR(&ip_info.ip));
+            }
+            else
+            {
+                LOGI(TAG, "Network manager: Ethernet is up, but failed to read IP info");
+            }
+        }
+
         s_request_eth_set_default = true;
         s_request_update_actuals = true;
         s_request_syslog_update = true;
@@ -447,8 +535,10 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             xTaskNotifyGive(network_manager_task_handle);
 
         break;
+    }
 
     case IP_EVENT_STA_GOT_IP:
+    {
         LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
@@ -456,6 +546,21 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             sm_actuals.wifi_error = false;
             xSemaphoreGive(statemachine_mutex);
         }
+
+        {
+            esp_netif_t *wifi_netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+            esp_netif_ip_info_t ip_info = {0};
+            if (wifi_netif && esp_netif_get_ip_info(wifi_netif, &ip_info) == ESP_OK)
+            {
+                LOGI(TAG, "Network manager: Wi-Fi STA is up with IP %d.%d.%d.%d",
+                     IP2STR(&ip_info.ip));
+            }
+            else
+            {
+                LOGI(TAG, "Network manager: Wi-Fi STA is up, but failed to read IP info");
+            }
+        }
+
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
@@ -463,6 +568,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
         if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
         break;
+    }
 
     default:
         break;
@@ -515,12 +621,17 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
 
         if (!static_ip_configured)
         {
-            LOGW(TAG, "Ethernet has no valid static IP → starting DHCP");
-            esp_netif_dhcpc_start(eth);
+            LOGW(TAG, "Ethernet has no valid static IP → requesting DHCP start from manager");
+            // Defer DHCP startup to the network manager task to avoid doing
+            // heavy esp-netif operations in the event callback context.
+            s_request_update_actuals = true;
+            s_request_syslog_update = true;
         }
-
-        s_request_update_actuals = true;
-        s_request_syslog_update = true;
+        else
+        {
+            s_request_update_actuals = true;
+            s_request_syslog_update = true;
+        }
 
         update_network_led_state();
 
@@ -894,6 +1005,8 @@ static void network_manager_task(void *pvParameters)
     static int dhcp_restart_backoff = 0;
     const int dhcp_backoff_max = 6;    // cap backoff exponent
     const int dhcp_backoff_base_s = 5; // base delay seconds for backoff
+    static TickType_t last_status_log = 0;
+    const TickType_t status_log_interval = pdMS_TO_TICKS(60000); // log every 60s
 
     // If ETH netif exists at startup and has no IP, start DHCP (idempotent)
     if (hw.has_ethernet)
@@ -984,6 +1097,16 @@ static void network_manager_task(void *pvParameters)
 
         // Handle any deferred teardown that was previously deferred
         handle_deferred_eth_teardown_if_needed();
+
+        // Periodic network status log at regular intervals
+        {
+            TickType_t now = xTaskGetTickCount();
+            if (last_status_log == 0 || (now - last_status_log) >= status_log_interval)
+            {
+                log_network_status();
+                last_status_log = now;
+            }
+        }
 
         // If requested, set ETH as default netif (do this from manager task)
         if (s_request_eth_set_default)

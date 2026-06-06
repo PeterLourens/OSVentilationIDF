@@ -1,10 +1,10 @@
 var struct_fan__config__t =
 [
-    [ "fan_control_mode", "struct_fan__config__t.html#a40a203eeaed7f7546a10ae515e14c4ec", null ],
-    [ "fan_control_mqtt_port", "struct_fan__config__t.html#aeda90f5e84949403ed7036e5bf32ce15", null ],
-    [ "fan_control_mqtt_server", "struct_fan__config__t.html#a7cab7db127198f2b87434d689c553f4b", null ],
-    [ "fan_control_mqtt_topic", "struct_fan__config__t.html#ac6d451b3586372078e5e9f55856716cc", null ],
-    [ "fan_control_url_hs", "struct_fan__config__t.html#a3d4be468ef9358095a9e12d1f33257d0", null ],
-    [ "fan_control_url_ls", "struct_fan__config__t.html#a2d068c2cc761652e5ec594b23f09d5e8", null ],
-    [ "fan_control_url_ms", "struct_fan__config__t.html#a234583763f60e979b41c6853510afcc4", null ]
+    [ "fan_control_mode", "struct_fan__config__t.html#a84b40101811161a80a668a648ee2dae5", null ],
+    [ "fan_control_mqtt_port", "struct_fan__config__t.html#aac0da2f42955c1079b86c6d66f90c651", null ],
+    [ "fan_control_mqtt_server", "struct_fan__config__t.html#aeee058b6eb5319d0209231e7745a8675", null ],
+    [ "fan_control_mqtt_topic", "struct_fan__config__t.html#a7a6356545d23a0579098e0f4e8a7bbca", null ],
+    [ "fan_control_url_hs", "struct_fan__config__t.html#ae76a72733900bce4273db5f1a9f2169d", null ],
+    [ "fan_control_url_ls", "struct_fan__config__t.html#aee361544bede7c7d6c58920ed723eccb", null ],
+    [ "fan_control_url_ms", "struct_fan__config__t.html#a839bc0a364d913dced8ef924296f471a", null ]
 ];

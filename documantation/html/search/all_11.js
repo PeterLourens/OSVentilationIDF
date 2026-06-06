@@ -59,9 +59,9 @@ var searchData=
   ['time_5fconfig_5ft_56',['Time_config_t',['../struct_time__config__t.html',1,'']]],
   ['time_5fmutex_57',['time_mutex',['../globals_8c.html#a802c6a6a8ba765a65d14bf43ebaafd7a',1,'time_mutex:&#160;globals.c'],['../globals_8h.html#a802c6a6a8ba765a65d14bf43ebaafd7a',1,'time_mutex:&#160;globals.c']]],
   ['timeinfo_58',['timeinfo',['../globals_8c.html#a0fe23e6116ec3d23cb699f4c1b49579c',1,'timeinfo:&#160;globals.c'],['../globals_8h.html#a0fe23e6116ec3d23cb699f4c1b49579c',1,'timeinfo:&#160;globals.c']]],
-  ['timezone_59',['timezone',['../struct_time__config__t.html#aa234c055eda7ab7eda41f219304d832f',1,'Time_config_t']]],
+  ['timezone_59',['timezone',['../struct_time__config__t.html#a30d50d6a64e34be2490860f0ecf9e310',1,'Time_config_t']]],
   ['toggle_5fled_60',['toggle_led',['../rgb__leds_8c.html#a3df25b66553f44d46ff48baad432cc57',1,'rgb_leds.c']]],
-  ['transmitted_61',['transmitted',['../structping__summary__t.html#ac7c25d4fe708a4c4b8dbcf70d608fe86',1,'ping_summary_t']]],
-  ['type_62',['type',['../structbus__sensor__t.html#af19e36771b2c8a9a8e233396b2a41fd8',1,'bus_sensor_t::type'],['../structsensor__slot__t.html#a16bce6eb81d2ffeba49329923b086c2a',1,'sensor_slot_t::type']]],
-  ['typeflag_63',['typeflag',['../structtar__header__t.html#a50efaf1bb13addc723bc7ba7d6988f2e',1,'tar_header_t']]]
+  ['transmitted_61',['transmitted',['../structping__summary__t.html#af61793bed255f7bf57da99e086e8a4e6',1,'ping_summary_t']]],
+  ['type_62',['type',['../structbus__sensor__t.html#a4be419002dec0bcd414ccc042dc712dd',1,'bus_sensor_t::type'],['../structsensor__slot__t.html#a53db8f38104c74e7a721b6eb0b76ef15',1,'sensor_slot_t::type']]],
+  ['typeflag_63',['typeflag',['../structtar__header__t.html#ae3b026dfd91c3b3007fce3fc0fb20f1d',1,'tar_header_t']]]
 ];

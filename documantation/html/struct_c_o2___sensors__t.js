@@ -1,5 +1,5 @@
 var struct_c_o2___sensors__t =
 [
-    [ "co2_reading", "struct_c_o2___sensors__t.html#a149e3dfa49fe32ae9bb5eb3079211f80", null ],
-    [ "valve", "struct_c_o2___sensors__t.html#ad636a1c0cc04c92bb8b349066ffd987e", null ]
+    [ "co2_reading", "struct_c_o2___sensors__t.html#add3812398a251dc26a6c7d0eacec80f1", null ],
+    [ "valve", "struct_c_o2___sensors__t.html#a64552bb050ecef9352358b8534a2d12d", null ]
 ];

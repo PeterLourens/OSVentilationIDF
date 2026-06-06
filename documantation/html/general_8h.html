@@ -133,6 +133,18 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('general_8h.htm
 <code>#include &quot;<a class="el" href="http__functions_8h_source.html">http_functions.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="statemachine__states_8h_source.html">statemachine_states.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="eth__functions_8h_source.html">eth_functions.h</a>&quot;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for general.h:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h__incl.png" border="0" usemap="#a_2_users_2peter_2_development_2_o_s_ventilation_i_d_f_2main_2general_8h" loading="lazy" alt=""/></div>
+<!-- MAP 0 -->
+</div>
+</div><div class="textblock"><div class="dynheader">
+This graph shows which files directly or indirectly include this file:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h__dep__incl.png" border="0" usemap="#a_2_users_2peter_2_development_2_o_s_ventilation_i_d_f_2main_2general_8hdep" loading="lazy" alt=""/></div>
+<!-- MAP 1 -->
+</div>
 </div>
 <p><a href="general_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -187,6 +199,12 @@ Functions</h2></td></tr>
 <p>Create global mutexes used by runtime configuration and tasks. </p>
 <p>If any mutex creation fails, this function cleans up already-created mutexes to keep the system in a consistent state.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK when all mutexes were created, ESP_FAIL otherwise. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_a961e4f91906bb550ca850594eb8a5033_icgraph.png" border="0" usemap="#ageneral_8h_a961e4f91906bb550ca850594eb8a5033_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 2 -->
+</div>
 
 </div>
 </div>
@@ -243,6 +261,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_a00e38e145e0c894db7a9397c608853ab_icgraph.png" border="0" usemap="#ageneral_8h_a00e38e145e0c894db7a9397c608853ab_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 3 -->
+</div>
 
 </div>
 </div>
@@ -273,6 +297,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_aa0492cbbe48a6f487542f7e022195f4d_icgraph.png" border="0" usemap="#ageneral_8h_aa0492cbbe48a6f487542f7e022195f4d_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 4 -->
+</div>
 
 </div>
 </div>
@@ -303,6 +333,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_aaf4f4eb2acf811ae11c7b53f779ed5ca_icgraph.png" border="0" usemap="#ageneral_8h_aaf4f4eb2acf811ae11c7b53f779ed5ca_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 5 -->
+</div>
 
 </div>
 </div>
@@ -333,6 +369,12 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_a1cf30c2e5540e53440f0aa7076fdd7dc_icgraph.png" border="0" usemap="#ageneral_8h_a1cf30c2e5540e53440f0aa7076fdd7dc_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 6 -->
+</div>
 
 </div>
 </div>
@@ -354,6 +396,12 @@ Functions</h2></td></tr>
 <p>Mount the LittleFS partition used for runtime JSON and persistent data. </p>
 <p>This function registers the LittleFS partition and logs partition usage after successfully mounting.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success or an esp_err_t on failure. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_ab7d13c3b82fb1474e464782d00de491c_icgraph.png" border="0" usemap="#ageneral_8h_ab7d13c3b82fb1474e464782d00de491c_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 7 -->
+</div>
 
 </div>
 </div>
@@ -375,6 +423,12 @@ Functions</h2></td></tr>
 <p>Initialize the NVS partition used for configuration storage. </p>
 <p>If NVS requires erasing or upgrading, this function performs the necessary cleanup and retries initialization.</p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success or an esp_err_t on failure. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_a1ad3d847e3f03fa2b786624e78a16b08_icgraph.png" border="0" usemap="#ageneral_8h_a1ad3d847e3f03fa2b786624e78a16b08_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 8 -->
+</div>
 
 </div>
 </div>
@@ -395,6 +449,12 @@ Functions</h2></td></tr>
 
 <p>Initialize the runtime timezone from the loaded time configuration. </p>
 <p>Reads the configured NTP server and timezone settings under mutex protection and configures the C runtime timezone environment. </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_aacd5bb470555f61358c21f9ba138068f_icgraph.png" border="0" usemap="#ageneral_8h_aacd5bb470555f61358c21f9ba138068f_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 9 -->
+</div>
 
 </div>
 </div>
@@ -457,6 +517,12 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, or an esp_err_t on failure. </dd></dl>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_ab05f893105518ecca57c7c8ded081d27_icgraph.png" border="0" usemap="#ageneral_8h_ab05f893105518ecca57c7c8ded081d27_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 10 -->
+</div>
 
 </div>
 </div>
@@ -477,6 +543,12 @@ Functions</h2></td></tr>
 
 <p>Configure ESP log levels for firmware subsystems. </p>
 <p>This helper sets default log severity levels for selected modules and reduces noise from less important subsystems. </p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="general_8h_a484896840cdb7f6931727f02b8610e5b_icgraph.png" border="0" usemap="#ageneral_8h_a484896840cdb7f6931727f02b8610e5b_icgraph" loading="lazy" alt=""/></div>
+<!-- MAP 11 -->
+</div>
 
 </div>
 </div>
