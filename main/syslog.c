@@ -33,7 +33,7 @@ static int bind_socket_to_active_interface(int sock)
     esp_netif_t *netif = get_active_netif();
     if (!netif)
     {
-        ESP_LOGW(TAG, "bind_socket_to_active_interface: no active netif");
+        ESP_LOGW(TAG, "bind_socket_to_active_interface: no active network interface available");
         return -1;
     }
 

@@ -19,26 +19,34 @@ static bool cfg_str_is_on(const char *s)
 
 void wifi_manager_stop(void)
 {
-    LOGI(TAG, "Stopping WiFi...");
+    LOGI(TAG, "Stopping WiFi... (request received)");
 
     if (!s_wifi_initialized)
     {
-        LOGI(TAG, "wifi_manager_stop: WiFi manager not initialized, nothing to stop");
+        LOGI(TAG, "wifi_manager_stop: WiFi stop requested, but WiFi manager has never been initialized; no action taken");
         return;
     }
 
     esp_err_t err = esp_wifi_disconnect();
+    if (err == ESP_ERR_WIFI_NOT_STARTED)
+    {
+        LOGI(TAG, "wifi_manager_stop: WiFi driver not started, skip disconnect");
+    }
 #if defined(ESP_ERR_WIFI_CONN_LOST)
-    if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_STARTED && err != ESP_ERR_WIFI_CONN_LOST)
+    else if (err != ESP_OK && err != ESP_ERR_WIFI_CONN_LOST)
 #else
-    if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_STARTED)
+    else if (err != ESP_OK)
 #endif
     {
         LOGW(TAG, "esp_wifi_disconnect returned %s", esp_err_to_name(err));
     }
 
     err = esp_wifi_stop();
-    if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_STARTED)
+    if (err == ESP_ERR_WIFI_NOT_STARTED)
+    {
+        LOGI(TAG, "wifi_manager_stop: WiFi driver not started, skip stop");
+    }
+    else if (err != ESP_OK)
     {
         LOGW(TAG, "esp_wifi_stop returned %s", esp_err_to_name(err));
     }

@@ -66,7 +66,7 @@ bool wifi_has_ip(void)
     esp_netif_t *netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (netif == NULL)
     {
-        LOGW(TAG, "Wi-Fi STA interface not found");
+        LOGW(TAG, "Wi-Fi STA netif handle for WIFI_STA_DEF not found");
         return false;
     }
 
@@ -447,7 +447,7 @@ void network_manager_health_check(void)
     // If no active netif or no IP, try to recover
     if (!network_has_ip())
     {
-        LOGW(TAG, "Health check: no active IP");
+        LOGW(TAG, "Health check: no network interface currently has an active IP address");
 
         // If ethernet is configured and present, try to restart it (guarded).
         if (hw.has_ethernet && ethernet_config_is_enabled())

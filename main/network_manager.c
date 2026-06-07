@@ -178,7 +178,7 @@ static void log_network_status(void)
     esp_netif_t *active = get_active_netif();
     if (!active)
     {
-        LOGI(TAG, "Network manager: no active network interface");
+        LOGI(TAG, "Network manager: no active network interface is currently selected; network stack is offline");
         return;
     }
 
@@ -521,7 +521,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             }
             else
             {
-                LOGI(TAG, "Network manager: Ethernet is up, but failed to read IP info");
+                LOGI(TAG, "Network manager: Ethernet is up (ETH_DEF), but failed to read IP info");
             }
         }
 
@@ -557,7 +557,7 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             }
             else
             {
-                LOGI(TAG, "Network manager: Wi-Fi STA is up, but failed to read IP info");
+                LOGI(TAG, "Network manager: Wi-Fi STA is up (WIFI_STA_DEF), but failed to read IP info");
             }
         }
 

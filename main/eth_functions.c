@@ -795,7 +795,7 @@ bool ethernet_config_is_enabled(void)
     }
     else
     {
-        LOGW(TAG, "Could not take network_config_mutex; assuming ethernet disabled");
+        LOGW(TAG, "Could not take network_config_mutex when reading Ethernet enabled state; assuming Ethernet is disabled for this check");
     }
     return enabled;
 }
@@ -815,7 +815,7 @@ bool ethernet_config_is_dhcp_enabled(void)
     }
     else
     {
-        LOGW(TAG, "Could not take network_config_mutex; assuming DHCP enabled");
+        LOGW(TAG, "Could not take network_config_mutex when reading DHCP setting; assuming DHCP is enabled for this check");
     }
     return dhcp;
 }
