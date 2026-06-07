@@ -192,6 +192,14 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
+        if (!network_has_ip())
+        {
+            ESP_LOGW(TAG, "syslog_worker: no active network interface; dropping syslog message");
+            free(msg);
+            free(item.line);
+            continue;
+        }
+
         // Create UDP socket
         int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (sock < 0)

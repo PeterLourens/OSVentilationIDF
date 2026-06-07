@@ -293,22 +293,22 @@ static void eth_watchdog_tick(void)
         s_eth_wd.gateway_fail_count = 0;
     }
 
-    // 4) Active netif mismatch (existing check)
+    // 4) Only apply active-netif logic when Ethernet is actually the current active interface.
     esp_netif_t *active = get_active_netif();
-    if (active != NULL && active != eth)
+    if (active != eth)
     {
-        const TickType_t grace = pdMS_TO_TICKS(15000);
-        if ((now - s_eth_wd.last_state_change) > grace)
-        {
-            LOGW(TAG, "ETH-WD: eth has IP but is not active netif for >15s; forcing restart");
-            eth_watchdog_force_restart("eth has IP but not active");
-            return;
-        }
+        const char *active_if = "none";
+        if (active == esp_netif_get_handle_from_ifkey("WIFI_STA_DEF"))
+            active_if = "WIFI_STA_DEF";
+        else if (active == esp_netif_get_handle_from_ifkey("WIFI_AP_DEF"))
+            active_if = "WIFI_AP_DEF";
+
+        LOGD(TAG, "ETH-WD: Ethernet is not active netif (active=%s); skipping restart checks", active_if);
+        return;
     }
-    else
-    {
-        s_eth_wd.last_state_change = now;
-    }
+
+    // If Ethernet is the active interface, update the last state change marker.
+    s_eth_wd.last_state_change = now;
 
 #if defined(ETH_CMD_G_PHY_LINK)
     // Optional PHY ioctl sanity check
@@ -1270,11 +1270,14 @@ void net_mgr_notify_eth_activity(void)
     if (!s_eth_wd.enabled_cfg)
         return;
 
-    // Only update when we believe Ethernet is the active netif
     esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (!eth)
         return;
 
-    // Update timestamp
+    esp_netif_t *active = get_active_netif();
+    if (active != eth)
+        return;
+
+    // Update timestamp only when Ethernet is the selected active interface
     s_eth_wd.last_successful_activity = xTaskGetTickCount();
 }
