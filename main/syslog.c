@@ -7,6 +7,7 @@
 #include "syslog.h"
 
 const char *TAG = "syslog";
+volatile bool g_request_syslog_update = false;
 
 typedef struct
 {
@@ -110,6 +111,37 @@ static void syslog_worker_task(void *pvParameters)
 
     for (;;)
     {
+        static bool syslog_running = false;
+
+        // --- ASYNCHRONOUS SYSLOG STATE UPDATE ---
+        if (g_request_syslog_update)
+        {
+            g_request_syslog_update = false;
+
+            bool ready = network_has_ip();
+
+            bool enabled_cfg = false;
+            if (syslog_config_mutex &&
+                xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
+            {
+                enabled_cfg = (strcmp(syslog_config.enable_syslog, "On") == 0);
+                xSemaphoreGive(syslog_config_mutex);
+            }
+
+            if (enabled_cfg && ready && !syslog_running)
+            {
+                syslog_enable();
+                syslog_running = true;
+                ESP_LOGI("syslog", "Syslog enabled");
+            }
+            else if ((!enabled_cfg || !ready) && syslog_running)
+            {
+                syslog_disable();
+                syslog_running = false;
+                ESP_LOGI("syslog", "Syslog disabled");
+            }
+        }
+
         if (s_syslog_queue == NULL)
         {
             vTaskDelay(pdMS_TO_TICKS(1000));
@@ -144,13 +176,13 @@ static void syslog_worker_task(void *pvParameters)
         else
         {
             ESP_LOGW(TAG, "syslog_worker: could not take syslog_config_mutex; skipping send");
-            free(item.line);
+            heap_caps_free(item.line);
             continue;
         }
 
         if (!enabled)
         {
-            free(item.line);
+            heap_caps_free(item.line);
             continue;
         }
 
@@ -158,14 +190,14 @@ static void syslog_worker_task(void *pvParameters)
         if (port <= 0 || port > 65535)
         {
             ESP_LOGE(TAG, "syslog_worker: invalid port '%s', dropping message", port_str);
-            free(item.line);
+            heap_caps_free(item.line);
             continue;
         }
 
         if (strlen(ip) == 0)
         {
             ESP_LOGE(TAG, "syslog_worker: syslog IP empty, dropping message");
-            free(item.line);
+            heap_caps_free(item.line);
             continue;
         }
 
@@ -175,7 +207,7 @@ static void syslog_worker_task(void *pvParameters)
         if (n < 0 || !msg)
         {
             ESP_LOGE(TAG, "syslog_worker: asprintf failed");
-            free(item.line);
+            heap_caps_free(item.line);
             continue;
         }
 
@@ -187,16 +219,16 @@ static void syslog_worker_task(void *pvParameters)
         if (!inet_aton(ip, &dest.sin_addr))
         {
             ESP_LOGE(TAG, "syslog_worker: inet_aton failed for %s", ip);
-            free(msg);
-            free(item.line);
+            heap_caps_free(msg);
+            heap_caps_free(item.line);
             continue;
         }
 
         if (!network_has_ip())
         {
             ESP_LOGW(TAG, "syslog_worker: no active network interface; dropping syslog message");
-            free(msg);
-            free(item.line);
+            heap_caps_free(msg);
+            heap_caps_free(item.line);
             continue;
         }
 
@@ -205,8 +237,8 @@ static void syslog_worker_task(void *pvParameters)
         if (sock < 0)
         {
             ESP_LOGE(TAG, "syslog_worker: socket() failed: errno=%d (%s)", errno, strerror(errno));
-            free(msg);
-            free(item.line);
+            heap_caps_free(msg);
+            heap_caps_free(item.line);
             vTaskDelay(pdMS_TO_TICKS(SYSLOG_RETRY_DELAY_MS));
             continue;
         }
@@ -240,8 +272,8 @@ static void syslog_worker_task(void *pvParameters)
         }
 
         close(sock);
-        free(msg);
-        free(item.line);
+        heap_caps_free(msg);
+        heap_caps_free(item.line);
     }
 }
 
@@ -286,7 +318,7 @@ void syslog_queue_deinit(void)
         while (xQueueReceive(s_syslog_queue, &item, 0) == pdTRUE)
         {
             if (item.line)
-                free(item.line);
+                heap_caps_free(item.line);
         }
         vQueueDelete(s_syslog_queue);
         s_syslog_queue = NULL;

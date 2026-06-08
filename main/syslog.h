@@ -23,6 +23,8 @@
 #define SYSLOG_SEND_RETRIES 3
 #define SYSLOG_RETRY_DELAY_MS 500
 
+extern volatile bool g_request_syslog_update;
+
 void syslog_send_line(const char *);
 bool network_wait_for_ip(int, int, const char *);
 void syslog_enable(void);

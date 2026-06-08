@@ -15,7 +15,7 @@ static led_mode_t eth_led_mode = LED_OFF;
 static led_mode_t wifi_led_mode = LED_OFF;
 
 // Helper function to enable or disable syslog based on current network state
-void update_syslog_state(void)
+/*void update_syslog_state(void)
 {
     static bool syslog_running = false;
 
@@ -48,6 +48,13 @@ void update_syslog_state(void)
         syslog_running = false;
         LOGI("syslog", "Syslog disabled");
     }
+}*/
+
+void update_syslog_state(void)
+{
+    // Never touch syslog or mutexes here.
+    // Only set a flag for the syslog task to process.
+    g_request_syslog_update = true;
 }
 
 bool is_valid_ip_address(const char *ip_address)
