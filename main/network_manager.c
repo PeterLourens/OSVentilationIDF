@@ -773,6 +773,195 @@ static void unregister_event_handlers(void)
 // Config evaluation and application
 static void evaluate_config_and_apply(void)
 {
+    // ------------------------------------------------------------------------
+    // 1. Read current config snapshot
+    // ------------------------------------------------------------------------
+    bool wifi_enabled = false;
+    bool eth_enabled = false;
+    bool wifi_dhcp = true;
+    bool eth_dhcp = true;
+    char hostname[64] = {0};
+
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        wifi_enabled = (strcmp(wifi_config.enable_wifi, "On") == 0);
+        eth_enabled = (strcmp(ethernet_config.enable_ethernet, "On") == 0);
+        wifi_dhcp = (strcmp(wifi_config.enable_dhcp, "On") == 0);
+        eth_dhcp = (strcmp(ethernet_config.enable_dhcp, "On") == 0);
+        strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
+        xSemaphoreGive(network_config_mutex);
+    }
+    else
+    {
+        LOGW(TAG, "evaluate_config_and_apply: could not take network_config_mutex");
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // 2. STATIC snapshot to detect changes
+    // ------------------------------------------------------------------------
+    typedef struct
+    {
+        bool wifi_enabled;
+        bool eth_enabled;
+        bool wifi_dhcp;
+        bool eth_dhcp;
+        char hostname[64];
+    } cfg_snapshot_t;
+
+    static cfg_snapshot_t last_cfg = {0};
+    cfg_snapshot_t current_cfg = {
+        .wifi_enabled = wifi_enabled,
+        .eth_enabled = eth_enabled,
+        .wifi_dhcp = wifi_dhcp,
+        .eth_dhcp = eth_dhcp};
+    strncpy(current_cfg.hostname, hostname, sizeof(current_cfg.hostname) - 1);
+
+    // ------------------------------------------------------------------------
+    // 3. If nothing changed AND Ethernet is healthy → skip reapply
+    // ------------------------------------------------------------------------
+    bool eth_has_ip = false;
+    bool eth_link_up = false;
+
+    if (hw.has_ethernet)
+    {
+        esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (ethnet)
+        {
+            esp_netif_ip_info_t ip;
+            eth_link_up = ethernet_link_is_up();
+            if (esp_netif_get_ip_info(ethnet, &ip) == ESP_OK && ip.ip.addr != 0)
+                eth_has_ip = true;
+        }
+    }
+
+    if (memcmp(&current_cfg, &last_cfg, sizeof(cfg_snapshot_t)) == 0 && eth_enabled && eth_has_ip)
+    {
+        LOGD(TAG, "evaluate_config_and_apply: config unchanged + Ethernet OK → skip");
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. Save snapshot (we are going to apply changes)
+    // ------------------------------------------------------------------------
+    last_cfg = current_cfg;
+
+    // ------------------------------------------------------------------------
+    // 5. Update statemachine actuals
+    // ------------------------------------------------------------------------
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        sm_actuals.wifi_enabled = wifi_enabled;
+        sm_actuals.ethernet_enabled = eth_enabled;
+        sm_actuals.wifi_dhcp_enabled = wifi_dhcp;
+        sm_actuals.eth_dhcp_enabled = eth_dhcp;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    // ------------------------------------------------------------------------
+    // 6. Apply hostname
+    // ------------------------------------------------------------------------
+    if (hostname[0] != '\0')
+    {
+        esp_netif_t *n;
+        n = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+        if (n)
+            esp_netif_set_hostname(n, hostname);
+
+        n = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (n)
+            esp_netif_set_hostname(n, hostname);
+    }
+
+    // ------------------------------------------------------------------------
+    // 7. Ethernet handling
+    // ------------------------------------------------------------------------
+    if (hw.has_ethernet)
+    {
+        if (eth_enabled)
+        {
+            eth_init();
+            ethernet_config_apply();
+
+            if (!sm_actuals.eth_connected)
+                eth_led_set_mode(LED_SLOW_BLINK);
+        }
+        else
+        {
+            eth_stop();
+            eth_led_set_mode(LED_OFF);
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // 8. WiFi handling
+    // ------------------------------------------------------------------------
+    if (!wifi_enabled)
+    {
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    if (wifi_manager_init() != ESP_OK)
+    {
+        LOGW(TAG, "evaluate_config_and_apply: wifi_manager_init failed");
+        return;
+    }
+
+    // DHCP state for WiFi
+    esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    if (wifinet)
+    {
+        if (wifi_dhcp)
+            esp_netif_dhcpc_start(wifinet);
+        else
+            esp_netif_dhcpc_stop(wifinet);
+    }
+
+    // ------------------------------------------------------------------------
+    // 9. WiFi suppression logic
+    // ------------------------------------------------------------------------
+    if (eth_enabled && eth_has_ip)
+    {
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → suppress WiFi");
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    if (eth_enabled && eth_link_up)
+    {
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet link up → defer WiFi");
+        wifi_manager_stop();
+        wifi_led_set_mode(LED_OFF);
+        return;
+    }
+
+    // ------------------------------------------------------------------------
+    // 10. WiFi STA connect if credentials exist
+    // ------------------------------------------------------------------------
+    bool have_credentials = false;
+    if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        have_credentials = (strlen(wifi_config.ssid) > 0 && strlen(wifi_config.wifi_password) > 0);
+        xSemaphoreGive(network_config_mutex);
+    }
+
+    if (have_credentials)
+    {
+        LOGI(TAG, "evaluate_config_and_apply: attempting WiFi STA connect");
+        wifi_manager_connect(&wifi_config);
+    }
+    else
+    {
+        LOGI(TAG, "evaluate_config_and_apply: no credentials → start AP");
+        wifi_manager_start_ap();
+    }
+}
+
+/*static void evaluate_config_and_apply(void)
+{
     bool wifi_enabled = false;
     bool eth_enabled = false;
     bool wifi_dhcp = true;
@@ -960,7 +1149,7 @@ static void evaluate_config_and_apply(void)
         else
             LOGW(TAG, "evaluate_config_and_apply: AP start failed: %s", esp_err_to_name(ap_r));
     }
-}
+}*/
 
 // Complete network_manager_task implementation for network_manager.c
 // Replace the existing function with this version. It centralizes all
