@@ -244,6 +244,58 @@ esp_err_t eth_hardware_reset(void)
 }
 
 /**
+ * @brief Safe reset helper: try software restart first, then guarded hardware reset.
+ *
+ * This wrapper prefers a light-weight software restart (eth_software_restart).
+ * If that fails or does not restore link, it calls the guarded hardware reset
+ * (eth_hardware_reset) which toggles the W5500 reset GPIO and reinitializes.
+ *
+ * @return ESP_OK on success, otherwise an esp_err_t describing the failure.
+ */
+esp_err_t eth_hardware_reset_safe(void)
+{
+    esp_err_t rc;
+
+    // 1) Try software restart first (fast, non-invasive)
+    LOGI(TAG, "eth_hardware_reset_safe: attempting software restart first");
+    rc = eth_software_restart();
+    if (rc == ESP_OK)
+    {
+        LOGI(TAG, "eth_hardware_reset_safe: eth_software_restart succeeded; allow settle and verify link");
+
+        // Allow a short settle period and verify link/IP
+        vTaskDelay(pdMS_TO_TICKS(500));
+
+        // If link is up and IP present, consider success
+        if (ethernet_link_is_up())
+        {
+            LOGI(TAG, "eth_hardware_reset_safe: link is up after software restart");
+            return ESP_OK;
+        }
+
+        LOGW(TAG, "eth_hardware_reset_safe: link not up after software restart; will attempt hardware reset");
+    }
+    else
+    {
+        LOGW(TAG, "eth_hardware_reset_safe: eth_software_restart returned %s; will attempt hardware reset", esp_err_to_name(rc));
+    }
+
+    // 2) Fall back to guarded hardware reset (this function already handles lifecycle mutex)
+    LOGI(TAG, "eth_hardware_reset_safe: attempting guarded hardware reset");
+    rc = eth_hardware_reset();
+    if (rc == ESP_OK)
+    {
+        // Allow PHY to boot and DHCP to start
+        vTaskDelay(pdMS_TO_TICKS(500));
+        LOGI(TAG, "eth_hardware_reset_safe: guarded hardware reset succeeded");
+        return ESP_OK;
+    }
+
+    LOGE(TAG, "eth_hardware_reset_safe: guarded hardware reset failed: %s", esp_err_to_name(rc));
+    return rc;
+}
+
+/**
  * @brief Initialize the Ethernet lifecycle mutex once.
  *
  * This function is safe to call repeatedly and creates the mutex the first time
@@ -558,9 +610,27 @@ void attempt_guarded_eth_restart(void)
     s_eth_restart_attempts++;
     LOGI(TAG, "attempt_guarded_eth_restart: attempt %d/%d", s_eth_restart_attempts, ETH_RESTART_MAX_ATTEMPTS);
 
-    // Try teardown; eth_teardown_safe() will set s_deferred_eth_teardown if it cannot take the mutex
-    eth_teardown_safe();
+    // Try a software restart first via the safe wrapper (which will fall back to hardware reset)
+    esp_err_t rc = eth_hardware_reset_safe();
+    if (rc == ESP_OK)
+    {
+        LOGI(TAG, "attempt_guarded_eth_restart: eth_hardware_reset_safe succeeded");
 
+        // Request the network manager to refresh sm_actuals
+        network_manager_request_actuals_update();
+
+        // Request the syslog task to update its state (non-blocking)
+        update_syslog_state();
+
+        // Allow link/IP to settle a bit
+        vTaskDelay(ETH_RESTART_BACKOFF_TICKS);
+        return;
+    }
+
+    LOGW(TAG, "attempt_guarded_eth_restart: eth_hardware_reset_safe failed (%s); attempting full teardown/reinit as fallback", esp_err_to_name(rc));
+
+    // If safe reset failed, attempt a full teardown (deferred if lifecycle busy)
+    eth_teardown_safe();
     if (s_deferred_eth_teardown)
     {
         LOGW(TAG, "attempt_guarded_eth_restart: teardown deferred; will retry later");

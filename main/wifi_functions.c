@@ -21,6 +21,21 @@ void wifi_manager_stop(void)
 {
     LOGI(TAG, "Stopping WiFi... (request received)");
 
+    if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+    {
+        sm_actuals.wifi_connected = false;
+        sm_actuals.wifi_error = false;
+        sm_actuals.wifi_ap_mode = false;
+        xSemaphoreGive(statemachine_mutex);
+    }
+
+    if (!s_wifi_initialized)
+    {
+        LOGI(TAG, "wifi_manager_stop: WiFi stop requested, but WiFi manager has never been initialized; no action taken");
+        update_syslog_state();
+        return;
+    }
+
     if (!s_wifi_initialized)
     {
         LOGI(TAG, "wifi_manager_stop: WiFi stop requested, but WiFi manager has never been initialized; no action taken");
@@ -196,6 +211,25 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
     {
         LOGE(TAG, "wifi_manager_connect: network_config_mutex is NULL");
         return ESP_ERR_INVALID_STATE;
+    }
+
+    if (hw.has_ethernet)
+    {
+        esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (eth)
+        {
+            esp_netif_ip_info_t ip;
+            if (esp_netif_get_ip_info(eth, &ip) == ESP_OK && ip.ip.addr != 0)
+            {
+                LOGI(TAG, "wifi_manager_connect: Ethernet has IP → skipping Wi‑Fi connect (Ethernet primary)");
+                return ESP_OK; // treat as success because Ethernet is primary
+            }
+            if (ethernet_link_is_up())
+            {
+                LOGI(TAG, "wifi_manager_connect: Ethernet link up and DHCP pending → skipping Wi‑Fi connect for now");
+                return ESP_OK;
+            }
+        }
     }
 
     /* Copy settings under mutex to avoid holding it while blocking */

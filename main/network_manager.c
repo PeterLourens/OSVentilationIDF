@@ -114,7 +114,8 @@ static void eth_watchdog_force_restart(const char *reason)
 
     ESP_LOGW(TAG, "ETH-WD: reached %d software failures; performing hardware reset", SOFTWARE_RESTART_MAX_ATTEMPTS);
 
-    esp_err_t hr = eth_hardware_reset();
+    // esp_err_t hr = eth_hardware_reset();
+    esp_err_t hr = eth_hardware_reset_safe();
     if (hr == ESP_OK)
     {
         ESP_LOGI(TAG, "ETH-WD: hardware reset completed");
@@ -499,25 +500,53 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     {
         LOGI(TAG, "IP_EVENT_ETH_GOT_IP (handler)");
 
+        // Update watchdog markers
         s_eth_wd.has_ip_event = true;
         s_eth_wd.last_state_change = xTaskGetTickCount();
         s_eth_wd.gateway_fail_count = 0;
         s_eth_wd.last_successful_activity = xTaskGetTickCount(); // treat IP assignment as activity
 
-        if (statemachine_mutex &&
-            xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
+        // Update statemachine actuals: mark Ethernet up and force Wi‑Fi state cleared
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
+            // Ethernet is now primary, so mark it connected and link up; Wi‑Fi is now secondary, so mark it down
             sm_actuals.eth_connected = true;
+            sm_actuals.eth_link_up = true;
+
+            // Ensure Wi‑Fi is considered down while Ethernet is primary
+            sm_actuals.wifi_connected = false;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+
+            // Clear Wi‑Fi runtime info so sys_stats won't show stale values
+            sm_actuals.wifi_rssi = -127;
+            sm_actuals.wifi_channel = -1;
+            sm_actuals.wifi_authmode = -1;
+            sm_actuals.wifi_phy = 0;
+            sm_actuals.wifi_bandwidth = 0;
+            memset(sm_actuals.wifi_bssid, 0, sizeof(sm_actuals.wifi_bssid));
+            memset(sm_actuals.wifi_ssid, 0, sizeof(sm_actuals.wifi_ssid));
+            snprintf(sm_actuals.wifi_ssid, sizeof(sm_actuals.wifi_ssid), "%s", "00:00:00:00:00:00");
+            snprintf(sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2), "%s", "0.0.0.0");
+
             xSemaphoreGive(statemachine_mutex);
         }
 
+        // Stop Wi‑Fi manager to ensure Wi‑Fi cannot remain active while Ethernet is primary.
+        // wifi_manager_stop is safe to call here (it is idempotent).
+        wifi_manager_stop();
+
+        // Log Ethernet IP info for diagnostics
         {
             esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
             esp_netif_ip_info_t ip_info = {0};
             if (eth_netif && esp_netif_get_ip_info(eth_netif, &ip_info) == ESP_OK)
             {
-                LOGI(TAG, "Network manager: Ethernet is up with IP %d.%d.%d.%d",
-                     IP2STR(&ip_info.ip));
+                LOGI(TAG, "Network manager: Ethernet is up with IP " IPSTR, IP2STR(&ip_info.ip));
             }
             else
             {
@@ -525,12 +554,16 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
             }
         }
 
+        // Request manager-level actions and UI updates
         s_request_eth_set_default = true;
         s_request_update_actuals = true;
         s_request_syslog_update = true;
         s_request_mqtt_restart = true;
+
+        // Update LED state to reflect Ethernet primary status
         update_network_led_state();
 
+        // Wake network manager task to process deferred work
         if (network_manager_task_handle)
             xTaskNotifyGive(network_manager_task_handle);
 
@@ -601,6 +634,35 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
         s_eth_wd.has_ip_event = false;
         s_eth_wd.last_state_change = xTaskGetTickCount();
         s_eth_wd.gateway_fail_count = 0;
+
+        // If Ethernet comes up, ensure Wi‑Fi is stopped and Wi‑Fi actuals cleared
+        wifi_manager_stop();
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.wifi_connected = false;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+
+            sm_actuals.wifi_rssi = -127;
+            sm_actuals.wifi_channel = -1;
+            sm_actuals.wifi_authmode = -1;
+            sm_actuals.wifi_phy = 0;
+            sm_actuals.wifi_bandwidth = 0;
+            memset(sm_actuals.wifi_bssid, 0, sizeof(sm_actuals.wifi_bssid));
+            memset(sm_actuals.wifi_ssid, 0, sizeof(sm_actuals.wifi_ssid));
+
+            snprintf(sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2), "%s", "0.0.0.0");
+
+            xSemaphoreGive(statemachine_mutex);
+        }
+
+        // Ask manager to refresh displays / syslog
+        network_manager_request_actuals_update();
+        update_syslog_state();
 
         if (statemachine_mutex &&
             xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
@@ -771,6 +833,7 @@ static void unregister_event_handlers(void)
 }
 
 // Config evaluation and application
+// Paste this entire function into network_manager.c (replace existing evaluate_config_and_apply)
 static void evaluate_config_and_apply(void)
 {
     // ------------------------------------------------------------------------
@@ -818,7 +881,7 @@ static void evaluate_config_and_apply(void)
     strncpy(current_cfg.hostname, hostname, sizeof(current_cfg.hostname) - 1);
 
     // ------------------------------------------------------------------------
-    // 3. If nothing changed AND Ethernet is healthy → skip reapply
+    // 3. Evaluate Ethernet state (link + IP)
     // ------------------------------------------------------------------------
     bool eth_has_ip = false;
     bool eth_link_up = false;
@@ -835,19 +898,18 @@ static void evaluate_config_and_apply(void)
         }
     }
 
+    // If nothing changed and Ethernet is healthy, skip reapply
     if (memcmp(&current_cfg, &last_cfg, sizeof(cfg_snapshot_t)) == 0 && eth_enabled && eth_has_ip)
     {
         LOGD(TAG, "evaluate_config_and_apply: config unchanged + Ethernet OK → skip");
         return;
     }
 
-    // ------------------------------------------------------------------------
-    // 4. Save snapshot (we are going to apply changes)
-    // ------------------------------------------------------------------------
+    // Save snapshot (we are going to apply changes)
     last_cfg = current_cfg;
 
     // ------------------------------------------------------------------------
-    // 5. Update statemachine actuals
+    // 4. Update statemachine actuals for enabled flags
     // ------------------------------------------------------------------------
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
@@ -859,7 +921,7 @@ static void evaluate_config_and_apply(void)
     }
 
     // ------------------------------------------------------------------------
-    // 6. Apply hostname
+    // 5. Apply hostname to netifs
     // ------------------------------------------------------------------------
     if (hostname[0] != '\0')
     {
@@ -867,14 +929,13 @@ static void evaluate_config_and_apply(void)
         n = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
         if (n)
             esp_netif_set_hostname(n, hostname);
-
         n = esp_netif_get_handle_from_ifkey("ETH_DEF");
         if (n)
             esp_netif_set_hostname(n, hostname);
     }
 
     // ------------------------------------------------------------------------
-    // 7. Ethernet handling
+    // 6. Ethernet handling (init/stop/apply config)
     // ------------------------------------------------------------------------
     if (hw.has_ethernet)
     {
@@ -882,7 +943,6 @@ static void evaluate_config_and_apply(void)
         {
             eth_init();
             ethernet_config_apply();
-
             if (!sm_actuals.eth_connected)
                 eth_led_set_mode(LED_SLOW_BLINK);
         }
@@ -894,22 +954,52 @@ static void evaluate_config_and_apply(void)
     }
 
     // ------------------------------------------------------------------------
-    // 8. WiFi handling
+    // 7. Wi‑Fi handling and suppression logic
+    //    - If Ethernet has IP: force Wi‑Fi stopped and clear Wi‑Fi actuals.
+    //    - If Ethernet link up but DHCP pending: defer Wi‑Fi until DHCP settles.
     // ------------------------------------------------------------------------
     if (!wifi_enabled)
     {
+        // Wi‑Fi disabled in config: ensure it's stopped and clear Wi‑Fi actuals
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
+
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            // Clear Wi‑Fi fields to avoid stale display
+            sm_actuals.wifi_enabled = false;
+            sm_actuals.wifi_connected = false;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+
+            sm_actuals.wifi_rssi = -127;
+            sm_actuals.wifi_channel = -1;
+            sm_actuals.wifi_authmode = -1;
+            sm_actuals.wifi_phy = 0;
+            sm_actuals.wifi_bandwidth = 0;
+            memset(sm_actuals.wifi_bssid, 0, sizeof(sm_actuals.wifi_bssid));
+            memset(sm_actuals.wifi_ssid, 0, sizeof(sm_actuals.wifi_ssid));
+
+            snprintf(sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2), "%s", "0.0.0.0");
+
+            xSemaphoreGive(statemachine_mutex);
+        }
+
         return;
     }
 
+    // Ensure Wi‑Fi manager initialized
     if (wifi_manager_init() != ESP_OK)
     {
         LOGW(TAG, "evaluate_config_and_apply: wifi_manager_init failed");
         return;
     }
 
-    // DHCP state for WiFi
+    // Ensure DHCP client state for Wi‑Fi netif matches config
     esp_netif_t *wifinet = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
     if (wifinet)
     {
@@ -919,28 +1009,51 @@ static void evaluate_config_and_apply(void)
             esp_netif_dhcpc_stop(wifinet);
     }
 
-    // ------------------------------------------------------------------------
-    // 9. WiFi suppression logic
-    // ------------------------------------------------------------------------
+    // If Ethernet has a valid IP, enforce Wi‑Fi stopped and clear Wi‑Fi actuals
     if (eth_enabled && eth_has_ip)
     {
-        LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → suppress WiFi");
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → enforce Wi‑Fi suppressed (Ethernet primary)");
+
+        // Stop Wi‑Fi and clear Wi‑Fi actuals
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
+
+        if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            sm_actuals.wifi_connected = false;
+            sm_actuals.wifi_error = false;
+            sm_actuals.wifi_ap_mode = false;
+
+            sm_actuals.wifi_rssi = -127;
+            sm_actuals.wifi_channel = -1;
+            sm_actuals.wifi_authmode = -1;
+            sm_actuals.wifi_phy = 0;
+            sm_actuals.wifi_bandwidth = 0;
+            memset(sm_actuals.wifi_bssid, 0, sizeof(sm_actuals.wifi_bssid));
+            memset(sm_actuals.wifi_ssid, 0, sizeof(sm_actuals.wifi_ssid));
+
+            snprintf(sm_actuals.wifi_ip_addr, sizeof(sm_actuals.wifi_ip_addr), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_netmask, sizeof(sm_actuals.wifi_netmask), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_gateway, sizeof(sm_actuals.wifi_gateway), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns1, sizeof(sm_actuals.wifi_dns1), "%s", "0.0.0.0");
+            snprintf(sm_actuals.wifi_dns2, sizeof(sm_actuals.wifi_dns2), "%s", "0.0.0.0");
+
+            xSemaphoreGive(statemachine_mutex);
+        }
+
         return;
     }
 
+    // If Ethernet link is up but DHCP pending, defer Wi‑Fi until DHCP settles
     if (eth_enabled && eth_link_up)
     {
-        LOGI(TAG, "evaluate_config_and_apply: Ethernet link up → defer WiFi");
+        LOGI(TAG, "evaluate_config_and_apply: Ethernet link is up and DHCP pending; deferring Wi‑Fi STA/AP");
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
     }
 
-    // ------------------------------------------------------------------------
-    // 10. WiFi STA connect if credentials exist
-    // ------------------------------------------------------------------------
+    // Otherwise, Ethernet not present/usable — proceed to Wi‑Fi STA connect if credentials exist
     bool have_credentials = false;
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
@@ -950,13 +1063,20 @@ static void evaluate_config_and_apply(void)
 
     if (have_credentials)
     {
-        LOGI(TAG, "evaluate_config_and_apply: attempting WiFi STA connect");
-        wifi_manager_connect(&wifi_config);
+        LOGI(TAG, "evaluate_config_and_apply: attempting Wi‑Fi STA connect");
+        esp_err_t r = wifi_manager_connect(&wifi_config);
+        if (r == ESP_OK)
+        {
+            LOGI(TAG, "evaluate_config_and_apply: Wi‑Fi STA connect succeeded");
+        }
+        else
+        {
+            LOGW(TAG, "evaluate_config_and_apply: Wi‑Fi STA connect returned %s", esp_err_to_name(r));
+        }
     }
     else
     {
-        LOGI(TAG, "evaluate_config_and_apply: no credentials → start AP");
-        wifi_manager_start_ap();
+        LOGI(TAG, "evaluate_config_and_apply: no Wi‑Fi credentials; not starting STA");
     }
 }
 

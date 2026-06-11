@@ -31,6 +31,8 @@
 #include "logging.h"
 #include "globals.h"
 #include "sys_stats.h"
+#include "network_manager.h"
+#include "network_functions.h"
 
 extern esp_netif_t *eth_netif;
 extern esp_eth_handle_t eth_handle;
@@ -51,6 +53,8 @@ void eth_lifecycle_init_once(void);
  * @return ESP_OK on success, otherwise an esp_err_t.
  */
 esp_err_t eth_hardware_reset(void);
+
+esp_err_t eth_hardware_reset_safe(void);
 
 /**
  * @brief Safely teardown Ethernet resources when the lifecycle mutex is available.
