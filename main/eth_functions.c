@@ -395,8 +395,7 @@ void eth_init(void)
 
     LOGI(TAG, "eth_init: initializing W5500 Ethernet (safe)");
 
-    LOGI(TAG, "eth_init: entry DMA free=%u internal free=%u",
-         (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
+    LOGI(TAG, "eth_init: entry DMA free=%u internal free=%u", (unsigned)heap_caps_get_free_size(MALLOC_CAP_DMA), (unsigned)heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
 
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE)

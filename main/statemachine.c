@@ -10,7 +10,6 @@ static const char *TAG = "sm";
 
 int old_time = 0;
 int elapsed_time = 0;
-
 int co2_sensor_counter = 0;
 int rh_sensor_counter = 0;
 
@@ -142,13 +141,13 @@ void day_transitions(void)
     float statemachine_avg_sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
     int state_config_index = -1;
     int state_fanspeed = FANSPEED_LOW;
+    int new_state = STATE_NR_DAY;
     int minimum_state_time = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
     bool valve_move_locked = false;
     int co2_sensors_high = 0;
     int rh_sensors_high = 0;
-    int new_state = STATE_NR_DAY;
 
     if (!sensors_queues_ready || sensor_avg_queue == NULL)
     {
@@ -246,25 +245,30 @@ void day_transitions(void)
     }
 
     // Decide transitions
-    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
-    {
-        new_state = STATE_NR_HIGHCO2DAY;
-    }
-    else if (rh_sensors_high > 0 && elapsed_time >= minimum_state_time)
-    {
-        new_state = STATE_NR_HIGHRHDAY;
-    }
-    else if (!is_day())
+    if (!is_day())
     {
         new_state = STATE_NR_NIGHT;
+        LOGI(TAG, "day_transitions: transitioning to NIGHT state");
     }
     else if (cooking_times())
     {
         new_state = STATE_NR_COOKING;
+        LOGI(TAG, "day_transitions: transitioning to COOKING state");
     }
     else if (valve_cycle_times_day())
     {
         new_state = STATE_NR_CYCLINGDAY;
+        LOGI(TAG, "day_transitions: transitioning to CYCLINGDAY state");
+    }
+    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
+    {
+        new_state = STATE_NR_HIGHCO2DAY;
+        LOGI(TAG, "day_transitions: transitioning to HIGHCO2DAY state due to high CO2 sensors");
+    }
+    else if (rh_sensors_high > 0 && elapsed_time >= minimum_state_time) // Low priority: only transition to high RH after checking CO2, day/night, cooking, and cycling conditions
+    {
+        new_state = STATE_NR_HIGHRHDAY;
+        LOGI(TAG, "day_transitions: transitioning to HIGHRHDAY state due to high RH sensors");
     }
     else
     {
@@ -396,21 +400,25 @@ void night_transitions(void)
     }
 
     // Decide transitions
-    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
-    {
-        new_state = STATE_NR_HIGHCO2NIGHT;
-    }
-    else if (rh_sensors_high > 0 && elapsed_time >= minimum_state_time)
-    {
-        new_state = STATE_NR_HIGHRHNIGHT;
-    }
-    else if (is_day())
+    if (is_day())
     {
         new_state = STATE_NR_DAY;
+        LOGI(TAG, "night_transitions: transitioning to DAY state");
     }
     else if (valve_cycle_times_night())
     {
         new_state = STATE_NR_CYCLINGNIGHT;
+        LOGI(TAG, "night_transitions: transitioning to CYCLINGNIGHT state");
+    }
+    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
+    {
+        new_state = STATE_NR_HIGHCO2NIGHT;
+        LOGI(TAG, "night_transitions: transitioning to HIGHCO2NIGHT state due to high CO2 sensors");
+    }
+    else if (rh_sensors_high > 0 && elapsed_time >= minimum_state_time) // Low priority: only transition to high RH after checking CO2, day/night, and cycling conditions
+    {
+        new_state = STATE_NR_HIGHRHNIGHT;
+        LOGI(TAG, "night_transitions: transitioning to HIGHRHNIGHT state due to high RH sensors");
     }
     else
     {
@@ -443,6 +451,7 @@ void high_co2_day_transitions(void)
     int minimum_state_time = 0;
     int co2lowlevel = 0;
     int co2highlevel = 0;
+    int new_state = STATE_NR_HIGHCO2DAY;
     bool valve_move_locked = false;
     // int co2_sensors_high = 0;
     int state_valve_position[MAX_VALVE_COUNT] = {0};
@@ -613,14 +622,29 @@ void high_co2_day_transitions(void)
     }
 
     // Decide transition
-    int new_state = STATE_NR_HIGHCO2DAY;
-    if (sm_actuals.co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    if (valve_cycle_times_day())
+    {
+        new_state = STATE_NR_CYCLINGDAY;
+        LOGI(TAG, "high_co2_day_transitions: transitioning to CYCLINGDAY state");
+    }
+    else if (cooking_times())
+    {
+        new_state = STATE_NR_COOKING;
+        LOGI(TAG, "high_co2_day_transitions: transitioning to COOKING state");
+    }
+    else if (sm_actuals.co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_DAY;
+        LOGI(TAG, "high_co2_day_transitions: transitioning to DAY state as CO2 sensors are no longer high");
     }
     else if (!is_day() && sm_actuals.co2_sensors_high > 0)
     {
         new_state = STATE_NR_HIGHCO2NIGHT;
+        LOGI(TAG, "high_co2_day_transitions: transitioning to HIGHCO2NIGHT state as CO2 sensors are high and it's night");
+    }
+    else
+    {
+        new_state = STATE_NR_HIGHCO2DAY;
     }
 
     if (new_state != STATE_NR_HIGHCO2DAY)
@@ -646,6 +670,7 @@ void high_co2_night_transitions(void)
     int state_config_index = -1;
     int state_config_index_temp = -1;
     int state_fanspeed = FANSPEED_LOW;
+    int new_state = STATE_NR_HIGHCO2NIGHT;
     int minimum_state_time = 0;
     int co2lowlevel = 0;
     int co2highlevel = 0;
@@ -824,14 +849,24 @@ void high_co2_night_transitions(void)
     }
 
     // Decide transition
-    int new_state = STATE_NR_HIGHCO2NIGHT;
-    if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    if (valve_cycle_times_night())
     {
-        new_state = STATE_NR_DAY;
+        new_state = STATE_NR_CYCLINGNIGHT;
+        LOGI(TAG, "high_co2_night_transitions: transitioning to CYCLINGNIGHT state");
+    }
+    else if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    {
+        new_state = STATE_NR_NIGHT;
+        LOGI(TAG, "high_co2_night_transitions: transitioning to NIGHT state as CO2 sensors are no longer high");
     }
     else if (is_day() && co2_sensors_high > 0)
     {
         new_state = STATE_NR_HIGHCO2DAY;
+        LOGI(TAG, "high_co2_night_transitions: transitioning to HIGHCO2DAY state as CO2 sensors are high and it's day");
+    }
+    else
+    {
+        new_state = STATE_NR_HIGHCO2NIGHT;
     }
 
     if (new_state != STATE_NR_HIGHCO2NIGHT)
@@ -859,7 +894,6 @@ void high_rh_day_transitions(void)
     int temp_state_index = -1;
     int state_fanspeed = FANSPEED_LOW;
     int minimum_state_time = 0;
-    // int rh_low = 0;
     int rh_high = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
@@ -976,13 +1010,30 @@ void high_rh_day_transitions(void)
     }
 
     // Decide transitions
-    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    if (valve_cycle_times_day())
+    {
+        new_state = STATE_NR_CYCLINGDAY;
+        LOGI(TAG, "high_rh_day_transitions: transitioning to CYCLINGDAY state");
+    }
+    else if (cooking_times())
+    {
+        new_state = STATE_NR_COOKING;
+        LOGI(TAG, "high_rh_day_transitions: transitioning to COOKING state");
+    }
+    else if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time) // High priority: transition to high CO2 if any sensor is high
+    {
+        new_state = STATE_NR_HIGHCO2DAY;
+        LOGI(TAG, "high_rh_day_transitions: transitioning to HIGHCO2DAY state");
+    }
+    else if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_DAY;
+        LOGI(TAG, "high_rh_day_transitions: transitioning to DAY state as RH sensors are no longer high");
     }
     else if (!is_day() && rh_sensors_high > 0)
     {
         new_state = STATE_NR_HIGHRHNIGHT;
+        LOGI(TAG, "high_rh_day_transitions: transitioning to HIGHRHNIGHT state as RH sensors are high and it's night");
     }
     else
     {
@@ -1009,12 +1060,11 @@ void high_rh_night_transitions(void)
     int state_config_index = -1;
     int temp_state_index = -1;
     int state_fanspeed = FANSPEED_LOW;
+    int new_state = STATE_NR_HIGHRHNIGHT;
     int minimum_state_time = 0;
-    // int rh_low = 0;
     int rh_high = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
-    int new_state = STATE_NR_HIGHRHNIGHT;
 
     if (sensors_queues_ready && sensor_avg_queue != NULL &&
         sensor_avg_item_size == sizeof(avg_data))
@@ -1119,13 +1169,24 @@ void high_rh_night_transitions(void)
     }
 
     // Decide transitions
-    if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time) // High priority: transition to high CO2 if any sensor is high
+    {
+        new_state = STATE_NR_HIGHCO2NIGHT;
+        LOGI(TAG, "night_transitions: transitioning to HIGHCO2NIGHT state due to high CO2 sensors");
+    }
+    else if (rh_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_NIGHT;
+        LOGI(TAG, "night_transitions: transitioning to NIGHT state as RH sensors are no longer high");
     }
     else if (is_day() && rh_sensors_high > 0)
     {
         new_state = STATE_NR_HIGHRHDAY;
+        LOGI(TAG, "night_transitions: transitioning to HIGHRHDAY state as RH sensors are high and it's day");
+    }
+    else
+    {
+        new_state = STATE_NR_HIGHRHNIGHT;
     }
 
     if (new_state != STATE_NR_HIGHRHNIGHT)
@@ -1185,22 +1246,11 @@ void cooking_transitions(void)
 
     set_fanspeed(state_fanspeed);
 
-    // Update elapsed time
-    //{
-    //  int new_time = (int)(esp_timer_get_time() / 1000000ULL);
-    // if (new_time > old_time)
-    // {
-    //   elapsed_time += new_time - old_time;
-    // old_time = new_time;
-    // }
-    //}
-
     // After duration expires, return to day or night depending on time
     if (!cooking_times())
     {
         int next = is_day() ? STATE_NR_DAY : STATE_NR_NIGHT;
-        // elapsed_time = 0;
-        // old_time = (int)(esp_timer_get_time() / 1000000ULL);
+        LOGI(TAG, "cooking_transitions: cooking time expired; transitioning to %s", next == STATE_NR_DAY ? "DAY" : "NIGHT");
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
             sm_actuals.state = next;
@@ -1232,6 +1282,7 @@ void valve_cycle_day_transitions(void)
     else
     {
         // Not time to cycle — return to day
+        LOGI(TAG, "valve_cycle_day_transitions: not cycling; returning to DAY state");
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
             sm_actuals.state = STATE_NR_DAY;
@@ -1261,6 +1312,7 @@ void valve_cycle_night_transitions(void)
     }
     else
     {
+        LOGI(TAG, "valve_cycle_night_transitions: not cycling; returning to NIGHT state");
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
         {
             sm_actuals.state = STATE_NR_NIGHT;
