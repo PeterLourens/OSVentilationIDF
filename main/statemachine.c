@@ -215,6 +215,7 @@ void day_transitions(void)
 
         co2_sensors_high = sm_actuals.co2_sensors_high;
         rh_sensors_high = sm_actuals.rh_sensors_high;
+
         xSemaphoreGive(statemachine_mutex);
     }
     else
@@ -453,7 +454,7 @@ void high_co2_day_transitions(void)
     int co2highlevel = 0;
     int new_state = STATE_NR_HIGHCO2DAY;
     bool valve_move_locked = false;
-    // int co2_sensors_high = 0;
+    int co2_sensors_high = 0;
     int state_valve_position[MAX_VALVE_COUNT] = {0};
     bool valve_open[MAX_VALVE_COUNT] = {false};
 
@@ -521,7 +522,16 @@ void high_co2_day_transitions(void)
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
-        sm_actuals.rh_sensors_high = 0;
+
+        // Count high sensors using selected lists
+        for (int i = 0; i < co2_sensor_counter; ++i)
+        {
+            if (co2_sensors[i].co2_reading > co2highlevel)
+                sm_actuals.co2_sensors_high++;
+        }
+
+        co2_sensors_high = sm_actuals.co2_sensors_high;
+
         xSemaphoreGive(statemachine_mutex);
     }
     else
@@ -632,12 +642,12 @@ void high_co2_day_transitions(void)
         new_state = STATE_NR_COOKING;
         LOGI(TAG, "high_co2_day_transitions: transitioning to COOKING state");
     }
-    else if (sm_actuals.co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
+    else if (co2_sensors_high == 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_DAY;
         LOGI(TAG, "high_co2_day_transitions: transitioning to DAY state as CO2 sensors are no longer high");
     }
-    else if (!is_day() && sm_actuals.co2_sensors_high > 0)
+    else if (!is_day() && co2_sensors_high > 0)
     {
         new_state = STATE_NR_HIGHCO2NIGHT;
         LOGI(TAG, "high_co2_day_transitions: transitioning to HIGHCO2NIGHT state as CO2 sensors are high and it's night");
@@ -736,13 +746,30 @@ void high_co2_night_transitions(void)
 
     select_sensors();
 
+    bool any_high = false;
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         sm_actuals.state = STATE_NR_HIGHCO2NIGHT;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
-        sm_actuals.rh_sensors_high = 0;
+
+        // Count high sensors using selected lists
+        for (int i = 0; i < co2_sensor_counter; ++i)
+        {
+            if (co2_sensors[i].co2_reading > co2highlevel)
+            {
+                any_high = true;
+            }
+            if (co2_sensors[i].co2_reading > co2lowlevel)
+            {
+                sm_actuals.co2_sensors_high++;
+                any_high = true;
+            }
+        }
+
+        co2_sensors_high = sm_actuals.co2_sensors_high;
+
         xSemaphoreGive(statemachine_mutex);
     }
     else
@@ -763,15 +790,15 @@ void high_co2_night_transitions(void)
     }
 
     // Aggregate high flags and apply valve logic
-    bool any_high = false;
-    for (int i = 0; i < co2_sensor_counter; ++i)
-    {
-        float reading = co2_sensors[i].co2_reading;
-        if (reading > co2highlevel)
-            any_high = true;
-        if (reading > co2lowlevel)
-            co2_sensors_high++;
-    }
+    // bool any_high = false;
+    // for (int i = 0; i < co2_sensor_counter; ++i)
+    //{
+    //    float reading = co2_sensors[i].co2_reading;
+    //    if (reading > co2highlevel)
+    //        any_high = true;
+    //   if (reading > co2lowlevel)
+    //       co2_sensors_high++;
+    //}
 
     // Default behavior: if no sensor is high, open CO2 valves to 20
     for (int i = 0; i < co2_sensor_counter; ++i)
@@ -894,9 +921,11 @@ void high_rh_day_transitions(void)
     int temp_state_index = -1;
     int state_fanspeed = FANSPEED_LOW;
     int minimum_state_time = 0;
-    int rh_high = 0;
+    int rhhighlevel = 0;
+    int co2highlevel = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
+    int co2_sensors_high = 0;
     int new_state = STATE_NR_HIGHRHDAY;
 
     // Try to read averaged sensor data (non-fatal)
@@ -926,8 +955,8 @@ void high_rh_day_transitions(void)
     {
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
-        // rh_low = statemachine_gen_config.rh_low_level;
-        rh_high = statemachine_gen_config.rh_high_level;
+        rhhighlevel = statemachine_gen_config.rh_high_level;
+        co2highlevel = statemachine_gen_config.co2_high_level;
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -940,6 +969,22 @@ void high_rh_day_transitions(void)
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
+
+        // Count high sensors using selected lists
+        for (int i = 0; i < co2_sensor_counter; ++i)
+        {
+            if (co2_sensors[i].co2_reading > co2highlevel)
+                sm_actuals.co2_sensors_high++;
+        }
+        for (int i = 0; i < rh_sensor_counter; ++i)
+        {
+            if (rh_sensors[i].rh_reading > rhhighlevel)
+                sm_actuals.rh_sensors_high++;
+        }
+
+        co2_sensors_high = sm_actuals.co2_sensors_high;
+        rh_sensors_high = sm_actuals.rh_sensors_high;
+
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -951,7 +996,7 @@ void high_rh_day_transitions(void)
         float r = rh_sensors[i].rh_reading;
         if (!isfinite(r))
             r = 0.0f;
-        if (r > rh_high)
+        if (r > rhhighlevel)
         {
             rh_sensors_high++;
             if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
@@ -1062,9 +1107,11 @@ void high_rh_night_transitions(void)
     int state_fanspeed = FANSPEED_LOW;
     int new_state = STATE_NR_HIGHRHNIGHT;
     int minimum_state_time = 0;
-    int rh_high = 0;
+    int rhhighlevel = 0;
+    int co2highlevel = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
+    int co2_sensors_high = 0;
 
     if (sensors_queues_ready && sensor_avg_queue != NULL &&
         sensor_avg_item_size == sizeof(avg_data))
@@ -1090,8 +1137,8 @@ void high_rh_night_transitions(void)
     {
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
-        // rh_low = statemachine_gen_config.rh_low_level;
-        rh_high = statemachine_gen_config.rh_high_level;
+        rhhighlevel = statemachine_gen_config.rh_high_level;
+        co2highlevel = statemachine_gen_config.co2_high_level;
         xSemaphoreGive(state_config_mutex);
     }
 
@@ -1104,6 +1151,22 @@ void high_rh_night_transitions(void)
         valve_move_locked = sm_actuals.valve_lock;
         sm_actuals.co2_sensors_high = 0;
         sm_actuals.rh_sensors_high = 0;
+
+        // Count high sensors using selected lists
+        for (int i = 0; i < co2_sensor_counter; ++i)
+        {
+            if (co2_sensors[i].co2_reading > co2highlevel)
+                sm_actuals.co2_sensors_high++;
+        }
+        for (int i = 0; i < rh_sensor_counter; ++i)
+        {
+            if (rh_sensors[i].rh_reading > rhhighlevel)
+                sm_actuals.rh_sensors_high++;
+        }
+
+        co2_sensors_high = sm_actuals.co2_sensors_high;
+        rh_sensors_high = sm_actuals.rh_sensors_high;
+
         xSemaphoreGive(statemachine_mutex);
     }
 
@@ -1115,7 +1178,7 @@ void high_rh_night_transitions(void)
         float r = rh_sensors[i].rh_reading;
         if (!isfinite(r))
             r = 0.0f;
-        if (r > rh_high)
+        if (r > rhhighlevel)
         {
             rh_sensors_high++;
             if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
