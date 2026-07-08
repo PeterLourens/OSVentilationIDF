@@ -261,7 +261,7 @@ void day_transitions(void)
         new_state = STATE_NR_CYCLINGDAY;
         LOGI(TAG, "day_transitions: transitioning to CYCLINGDAY state");
     }
-    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
+    else if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_HIGHCO2DAY;
         LOGI(TAG, "day_transitions: transitioning to HIGHCO2DAY state due to high CO2 sensors");
@@ -411,7 +411,7 @@ void night_transitions(void)
         new_state = STATE_NR_CYCLINGNIGHT;
         LOGI(TAG, "night_transitions: transitioning to CYCLINGNIGHT state");
     }
-    if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
+    else if (co2_sensors_high > 0 && elapsed_time >= minimum_state_time)
     {
         new_state = STATE_NR_HIGHCO2NIGHT;
         LOGI(TAG, "night_transitions: transitioning to HIGHCO2NIGHT state due to high CO2 sensors");
