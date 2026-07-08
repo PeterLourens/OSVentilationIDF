@@ -188,13 +188,11 @@ void leds_update(const Statemachine_actuals_t *sm)
     // LED1: Network status at startup, fanspeed with periodic blink when running
     static bool startup_mode = true;
     static bool blink_override = false;
-    static bool net_phase = false; // false = ETH color, true = WIFI color
 
     static int startup_counter = 0;
 
     static uint32_t blink_start_ms = 0;
     static uint32_t last_blink_ms = 0;
-    static uint32_t net_last_switch_ms = 0;
 
     // Detect end of startup: after 5 seconds or both network interfaces checked
     if (startup_mode)
@@ -208,28 +206,11 @@ void leds_update(const Statemachine_actuals_t *sm)
 
     uint32_t now = (uint32_t)(esp_timer_get_time() / 1000); // ms
 
+    const bool use_wifi_blink = (hw_version == HW_VERSION_2 && sm_snap.wifi_connected);
+    const bool skip_network_blink = (hw_version == HW_VERSION_3);
     ColorName_t net_color = COLOR_RED;
 
-    if (sm_snap.eth_connected && sm_snap.wifi_connected)
-    {
-        // Alternate colors with delay
-        LOGD(TAG, "Blink blue & magenta (ETH: %s, Wifi: %s)", sm_snap.eth_connected ? "connected" : "disconnected", sm_snap.wifi_connected ? "connected" : "disconnected");
-        uint32_t now_ms = (uint32_t)(esp_timer_get_time() / 1000);
-
-        if (now_ms - net_last_switch_ms > 500) // 500 ms delay between colors
-        {
-            net_phase = !net_phase;
-            net_last_switch_ms = now_ms;
-        }
-
-        net_color = net_phase ? COLOR_BLUE : COLOR_MAGENTA;
-    }
-    else if (sm_snap.eth_connected)
-    {
-        LOGD(TAG, "Blink magenta (ETH: %s)", sm_snap.eth_connected ? "connected" : "disconnected");
-        net_color = COLOR_MAGENTA;
-    }
-    else if (sm_snap.wifi_connected)
+    if (use_wifi_blink)
     {
         LOGD(TAG, "Blink blue (WIFI: %s)", sm_snap.wifi_connected ? "connected" : "disconnected");
         net_color = COLOR_BLUE;
@@ -239,7 +220,11 @@ void leds_update(const Statemachine_actuals_t *sm)
         net_color = COLOR_RED;
     }
 
-    if (startup_mode)
+    if (skip_network_blink)
+    {
+        set_led(1, fan_to_color(sm_snap.fanspeed));
+    }
+    else if (startup_mode)
     {
         // Blink network status on LED1
         static bool blink_on = false;
