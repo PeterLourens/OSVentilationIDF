@@ -14,6 +14,7 @@
  */
 
 #include "eth_functions.h"
+#include <esp_mac.h>
 
 static const char *TAG = "eth_func";
 
@@ -495,6 +496,43 @@ void eth_init(void)
         eth_handle = NULL;
         xSemaphoreGive(eth_lifecycle_mutex);
         return;
+    }
+
+    uint8_t mac_addr[6] = {0};
+    err = esp_read_mac(mac_addr, ESP_MAC_ETH);
+    if (err != ESP_OK)
+    {
+        LOGW(TAG, "eth_init: esp_read_mac(ESP_MAC_ETH) failed: %s; falling back to default MAC", esp_err_to_name(err));
+        err = esp_efuse_mac_get_default(mac_addr);
+    }
+
+    if (err == ESP_OK)
+    {
+        mac_addr[0] &= 0xFE; // clear multicast bit
+        mac_addr[0] |= 0x02; // set locally administered bit
+        err = esp_eth_ioctl(eth_handle, ETH_CMD_S_MAC_ADDR, mac_addr);
+        if (err != ESP_OK)
+        {
+            LOGW(TAG, "eth_init: failed to set W5500 MAC address: %s", esp_err_to_name(err));
+        }
+        else
+        {
+            uint8_t programmed_mac[6] = {0};
+            if (esp_eth_ioctl(eth_handle, ETH_CMD_G_MAC_ADDR, programmed_mac) == ESP_OK)
+            {
+                LOGI(TAG, "eth_init: W5500 MAC programmed as %02X:%02X:%02X:%02X:%02X:%02X",
+                     programmed_mac[0], programmed_mac[1], programmed_mac[2], programmed_mac[3], programmed_mac[4], programmed_mac[5]);
+            }
+            else
+            {
+                LOGI(TAG, "eth_init: set W5500 MAC to %02X:%02X:%02X:%02X:%02X:%02X",
+                     mac_addr[0], mac_addr[1], mac_addr[2], mac_addr[3], mac_addr[4], mac_addr[5]);
+            }
+        }
+    }
+    else
+    {
+        LOGW(TAG, "eth_init: could not obtain a valid MAC address for the W5500");
     }
 
     LOGI(TAG, "eth_init: after esp_eth_driver_install DMA free=%u internal free=%u",
