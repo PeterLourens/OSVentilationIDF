@@ -224,12 +224,13 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        if (!network_has_ip())
+        while (!network_has_ip())
         {
-            ESP_LOGW(TAG, "syslog_worker: no active network interface; dropping syslog message");
-            heap_caps_free(msg);
-            heap_caps_free(item.line);
-            continue;
+            ESP_LOGW(TAG, "syslog_worker: no active network interface; waiting for IP before sending syslog");
+            if (!network_wait_for_ip(10, 500, NULL))
+            {
+                ESP_LOGW(TAG, "syslog_worker: still no IP available; retrying");
+            }
         }
 
         // Create UDP socket
