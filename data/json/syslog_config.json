@@ -1,5 +1,6 @@
 {
     "enable_syslog": "On",
+    "enable_uart": "On",
     "syslog_ip": "192.168.0.5",
     "syslog_port": "515",
     "syslog_hostname": "dev2",

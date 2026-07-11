@@ -159,9 +159,6 @@ void app_main(void)
         return;
     }
 
-    // Start UART sender task early so we can log from the start (including hw_init)
-    start_task_uart_sender();
-
     // Load wifi configuration
     err = load_wifi_config();
     if (err != ESP_OK)
@@ -229,6 +226,16 @@ void app_main(void)
         return;
     }
 
+    // Start UART sender task early so we can log from the start (including hw_init)
+    if (strcmp(syslog_config.enable_uart, "On") == 0)
+    {
+        start_task_uart_sender();
+    }
+    else
+    {
+        LOGI(TAG, "UART syslog forwarding disabled by configuration");
+    }
+
     // Load statemachine general configuration
     err = load_statemachine_general_config();
     if (err != ESP_OK)
@@ -262,6 +269,14 @@ void app_main(void)
     LOGI(TAG, "Starting system tasks...");
     syslog_queue_init();     // must be before network services to capture logs from startup
     network_manager_start(); // starts network manager task which starts Wi‑Fi and Ethernet as needed
+    if (strcmp(syslog_config.enable_uart, "On") == 0)
+    {
+        start_task_uart_sender();
+    }
+    else
+    {
+        LOGI(TAG, "UART syslog forwarding disabled by configuration");
+    }
     start_task_i2c_ds3231();
     start_task_i2c_sensors();
     start_task_i2c_lcd();

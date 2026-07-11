@@ -60,6 +60,7 @@ size_t uart_sender_get_pool_exhaust_count(void);
 int uart_log_vprintf(const char *fmt, va_list args);
 void uart_sender_sendf(const char *fmt, ...);
 void start_task_uart_sender(void);
+void stop_task_uart_sender(void);
 void task_uart_sender_code(void *pvParameters);
 
 #endif

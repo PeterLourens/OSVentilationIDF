@@ -803,6 +803,17 @@ static esp_err_t syslog_config_post_handler(httpd_req_t *req)
     {
         LOGE(TAG, "Failed to reload syslog config after write");
     }
+    else
+    {
+        if (strcmp(syslog_config.enable_uart, "On") == 0)
+        {
+            start_task_uart_sender();
+        }
+        else
+        {
+            stop_task_uart_sender();
+        }
+    }
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");

@@ -415,6 +415,7 @@ void send_config_json_ws(httpd_req_t *req)
     if (syslog_config_mutex && xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
         cJSON_AddStringToObject(root, "enable_syslog", syslog_config.enable_syslog);
+        cJSON_AddStringToObject(root, "enable_uart", syslog_config.enable_uart);
         cJSON_AddStringToObject(root, "syslog_ip", syslog_config.syslog_ip);
         cJSON_AddStringToObject(root, "syslog_port", syslog_config.syslog_port);
         cJSON_AddStringToObject(root, "syslog_hostname", syslog_config.syslog_hostname);

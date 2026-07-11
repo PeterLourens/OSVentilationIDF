@@ -851,6 +851,7 @@ esp_err_t load_syslog_config(void)
     }
 
     cJSON *enable_syslog = cJSON_GetObjectItem(json, "enable_syslog");
+    cJSON *enable_uart = cJSON_GetObjectItem(json, "enable_uart");
     cJSON *syslog_ip = cJSON_GetObjectItem(json, "syslog_ip");
     cJSON *syslog_port = cJSON_GetObjectItem(json, "syslog_port");
     cJSON *syslog_hostname = cJSON_GetObjectItem(json, "syslog_hostname");
@@ -877,6 +878,9 @@ esp_err_t load_syslog_config(void)
 
     strncpy(syslog_config.enable_syslog, cJSON_IsString(enable_syslog) ? enable_syslog->valuestring : "", SMALL_CONFIG_ITEM - 1);
     syslog_config.enable_syslog[SMALL_CONFIG_ITEM - 1] = '\0';
+
+    strncpy(syslog_config.enable_uart, cJSON_IsString(enable_uart) ? enable_uart->valuestring : "", SMALL_CONFIG_ITEM - 1);
+    syslog_config.enable_uart[SMALL_CONFIG_ITEM - 1] = '\0';
 
     strncpy(syslog_config.syslog_ip, cJSON_IsString(syslog_ip) ? syslog_ip->valuestring : "", MEDIUM_CONFIG_ITEM - 1);
     syslog_config.syslog_ip[MEDIUM_CONFIG_ITEM - 1] = '\0';

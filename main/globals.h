@@ -316,6 +316,7 @@ typedef struct
 typedef struct
 {
     char enable_syslog[SMALL_CONFIG_ITEM];     /**< Enable/disable string for syslog forwarding. */
+    char enable_uart[SMALL_CONFIG_ITEM];       /**< Enable/disable string for UART syslog forwarding. */
     char syslog_ip[MEDIUM_CONFIG_ITEM];        /**< Remote syslog server IP address or hostname. */
     char syslog_port[SMALL_CONFIG_ITEM];       /**< Remote syslog server port. */
     char syslog_hostname[MEDIUM_CONFIG_ITEM];  /**< Hostname reported in syslog messages. */

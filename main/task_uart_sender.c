@@ -522,3 +522,34 @@ void start_task_uart_sender(void)
 
     ESP_LOGI(TAG, "UART sender started (tx_handle=%p sender_handle=%p pool_count=%d buf_size=%d)", (void *)task_uart_tx_sender, (void *)task_uart_sender, UART_POOL_COUNT, UART_POOL_BUF_SIZE);
 }
+
+void stop_task_uart_sender(void)
+{
+    ESP_LOGI(TAG, "Stopping UART sender tasks");
+
+    if (task_uart_sender != NULL)
+    {
+        vTaskDelete(task_uart_sender);
+        task_uart_sender = NULL;
+    }
+
+    if (task_uart_tx_sender != NULL)
+    {
+        vTaskDelete(task_uart_tx_sender);
+        task_uart_tx_sender = NULL;
+    }
+
+    if (uart_tx_queue != NULL)
+    {
+        vQueueDelete(uart_tx_queue);
+        uart_tx_queue = NULL;
+    }
+
+    if (uart_driver_installed_flag)
+    {
+        uart_driver_delete(SENDER_UART_NUM);
+        uart_driver_installed_flag = false;
+    }
+
+    ESP_LOGI(TAG, "UART sender stopped");
+}

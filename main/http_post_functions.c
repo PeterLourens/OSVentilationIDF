@@ -442,6 +442,12 @@ cJSON *build_syslog_config_from_body_urlencoded(const char *body, size_t len)
     else
         cJSON_AddStringToObject(obj, key, "");
 
+    snprintf(key, sizeof(key), "enable_uart");
+    if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+    else
+        cJSON_AddStringToObject(obj, key, "");
+
     snprintf(key, sizeof(key), "syslog_ip");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
         cJSON_AddStringToObject(obj, key, val);
