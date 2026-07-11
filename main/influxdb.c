@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file influxdb.c
+ * @brief InfluxDB payload building and send-task implementation.
+ */
+
 #include "influxdb.h"
 
 static const char *TAG = "influxdb";
@@ -31,6 +36,12 @@ typedef struct
     size_t len;
 } influx_job_t;
 
+/**
+ * @brief Wait for the InfluxDB queue to become ready.
+ *
+ * @param timeout_ticks Number of RTOS ticks to wait.
+ * @return true if ready before timeout, false otherwise.
+ */
 bool influxdb_wait_ready(TickType_t timeout_ticks)
 {
     TickType_t start = xTaskGetTickCount();
@@ -43,6 +54,13 @@ bool influxdb_wait_ready(TickType_t timeout_ticks)
     return true;
 }
 
+/**
+ * @brief Escape InfluxDB tag values for safe line protocol formatting.
+ *
+ * @param[out] dst Destination buffer.
+ * @param dst_size Destination buffer size.
+ * @param[in] src Source string to escape.
+ */
 static void escape_tag(char *dst, size_t dst_size, const char *src)
 {
     size_t j = 0;
@@ -58,6 +76,15 @@ static void escape_tag(char *dst, size_t dst_size, const char *src)
     dst[j] = '\0';
 }
 
+/**
+ * @brief Build and enqueue an InfluxDB line for a single sensor.
+ *
+ * @param bus Sensor bus index.
+ * @param ch Sensor channel index.
+ * @param sensor_val Raw measurement values.
+ * @param avg_val Averaged measurement values.
+ * @return true if the payload was successfully enqueued.
+ */
 bool influxdb_enqueue_sensor_line(int bus, int ch, float sensor_val[DATA_FIELDS], float avg_val[DATA_FIELDS])
 {
     if (ch < 0)
@@ -136,6 +163,11 @@ bool influxdb_enqueue_sensor_line(int bus, int ch, float sensor_val[DATA_FIELDS]
 }
 
 // Setter/getter for runtime configuration
+/**
+ * @brief Set the DMA monitor reporting interval.
+ *
+ * @param ms Interval in milliseconds.
+ */
 void influxdb_set_dma_monitor_interval_ms(uint32_t ms)
 {
     if (ms < 100)
@@ -143,12 +175,22 @@ void influxdb_set_dma_monitor_interval_ms(uint32_t ms)
     g_dma_monitor_interval_ms = ms;
 }
 
+/**
+ * @brief Get the current DMA monitor reporting interval.
+ *
+ * @return Interval in milliseconds.
+ */
 uint32_t influxdb_get_dma_monitor_interval_ms(void)
 {
     return g_dma_monitor_interval_ms;
 }
 
 // Optional: set the base influx task interval if you want to change it programmatically
+/**
+ * @brief Set the base InfluxDB task interval.
+ *
+ * @param ms Interval in milliseconds.
+ */
 void influxdb_set_influx_task_interval_ms(uint32_t ms)
 {
     if (ms < 1000)
@@ -156,12 +198,22 @@ void influxdb_set_influx_task_interval_ms(uint32_t ms)
     g_influx_task_interval_ms = ms;
 }
 
+/**
+ * @brief Get the current base InfluxDB task interval.
+ *
+ * @return Interval in milliseconds.
+ */
 uint32_t influxdb_get_influx_task_interval_ms(void)
 {
     return g_influx_task_interval_ms;
 }
 
 // Mutex-protected config snapshot
+/**
+ * @brief Copy the current InfluxDB configuration into the provided snapshot.
+ *
+ * @param[out] out Output configuration snapshot.
+ */
 void influxdb_get_config_snapshot(Influxdb_config_t *out)
 {
     xSemaphoreTake(influxdb_config_mutex, portMAX_DELAY);
@@ -170,6 +222,11 @@ void influxdb_get_config_snapshot(Influxdb_config_t *out)
 }
 
 // Get timestamp from DS3231 (UTC seconds) — ESP-IDF safe
+/**
+ * @brief Retrieve a nanosecond-resolution timestamp for InfluxDB line protocol.
+ *
+ * @return Timestamp in nanoseconds since the Unix epoch.
+ */
 int64_t influxdb_get_timestamp(void)
 {
     struct tm rtc_time = {0};
@@ -205,6 +262,11 @@ int64_t influxdb_get_timestamp(void)
     return ts * 1000000000LL;
 }
 
+/**
+ * @brief Normalize an InfluxDB base URL by removing any trailing slash.
+ *
+ * @param[in,out] url URL buffer to normalize.
+ */
 static void normalize_influx_url(char *url)
 {
     size_t len = strlen(url);
@@ -215,6 +277,13 @@ static void normalize_influx_url(char *url)
     }
 }
 
+/**
+ * @brief Build the InfluxDB write endpoint URL from configuration.
+ *
+ * @param[out] out URL buffer.
+ * @param out_size Size of the URL buffer.
+ * @param[in] cfg Configuration snapshot.
+ */
 void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg)
 {
     char base[256];
@@ -223,6 +292,13 @@ void influxdb_build_url(char *out, size_t out_size, const Influxdb_config_t *cfg
     snprintf(out, out_size, "%s/api/v2/write?org=%s&bucket=%s&precision=ns", base, cfg->influxdb_org, cfg->influxdb_bucket);
 }
 
+/**
+ * @brief Append a single line to the InfluxDB payload buffer.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ * @param[in] line Line text to append.
+ */
 void influxdb_append_line(char *out, size_t out_size, const char *line)
 {
     if (!out || out_size == 0 || !line)
@@ -245,6 +321,13 @@ void influxdb_append_line(char *out, size_t out_size, const char *line)
     out[used + len] = '\0';
 }
 
+/**
+ * @brief Build a DMA metrics payload line for InfluxDB.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ * @param[in] host_tag Optional host identifier tag.
+ */
 void influxdb_build_payload_dma(char *out, size_t out_size, const char *host_tag)
 {
     if (!out || out_size == 0)
@@ -266,6 +349,12 @@ void influxdb_build_payload_dma(char *out, size_t out_size, const char *host_tag
 
 // Build and enqueue a DMA metric payload using existing enqueue helper.
 // Returns true if enqueue succeeded.
+/**
+ * @brief Enqueue DMA metrics payload for sending.
+ *
+ * @param host_tag Optional host tag.
+ * @return true if the payload was enqueued successfully.
+ */
 bool influxdb_enqueue_dma_metrics(const char *host_tag)
 {
     char buf[DMA_MONITOR_PAYLOAD_SZ];
@@ -280,6 +369,11 @@ bool influxdb_enqueue_dma_metrics(const char *host_tag)
 
 // Called from the InfluxDB task loop. Maintains an internal counter and enqueues DMA metrics
 // only when the configured multiplier condition is met. Returns true if a DMA metric was enqueued.
+/**
+ * @brief Tick the DMA monitor and enqueue metrics on the configured interval.
+ *
+ * @return true if a DMA metric payload was enqueued.
+ */
 bool influxdb_dma_monitor_tick(void)
 {
     static uint32_t tick = 0;
@@ -312,6 +406,12 @@ bool influxdb_dma_monitor_tick(void)
 }
 
 // Replace influxdb_build_payload_actuals
+/**
+ * @brief Build an InfluxDB payload for system actuals.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ */
 void influxdb_build_payload_actuals(char *out, size_t out_size)
 {
     if (!out || out_size == 0)
@@ -429,6 +529,12 @@ void influxdb_build_payload_actuals(char *out, size_t out_size)
 }
 
 // Build an uptime-only InfluxDB payload so the uptime field updates even when actuals is skipped.
+/**
+ * @brief Build an uptime-only InfluxDB payload.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ */
 void influxdb_build_payload_uptime(char *out, size_t out_size)
 {
     if (!out || out_size == 0)
@@ -451,6 +557,12 @@ void influxdb_build_payload_uptime(char *out, size_t out_size)
 }
 
 // Replace influxdb_build_payload_valves
+/**
+ * @brief Build an InfluxDB payload describing valve positions.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ */
 void influxdb_build_payload_valves(char *out, size_t out_size)
 {
     if (!out || out_size == 0)
@@ -496,6 +608,15 @@ void influxdb_build_payload_valves(char *out, size_t out_size)
 }
 
 // Build sensors payload for a single bus (keeps chunks small)
+/**
+ * @brief Build InfluxDB sensor payloads for a single bus.
+ *
+ * @param[out] out Payload buffer.
+ * @param out_size Buffer size.
+ * @param sensor Raw sensor snapshot array.
+ * @param avg Averaged sensor snapshot array.
+ * @param bus Sensor bus index.
+ */
 void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float sensor[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS], int bus)
 {
     if (!out || out_size == 0 || bus < 0 || bus >= MAX_I2C_BUSES)
@@ -559,6 +680,13 @@ void influxdb_build_payload_sensors_for_bus(char *out, size_t out_size, float se
 }
 
 // Low-level send (returns ESP_OK on HTTP 2xx)
+/**
+ * @brief Send a raw InfluxDB payload using HTTP POST.
+ *
+ * @param[in] payload Payload string to send.
+ * @param[in] cfg InfluxDB configuration snapshot.
+ * @return ESP_OK for successful 2xx response, otherwise an esp_err_t.
+ */
 static esp_err_t influxdb_send_payload_internal(const char *payload, const Influxdb_config_t *cfg)
 {
     if (!network_has_ip())
@@ -647,6 +775,12 @@ static esp_err_t influxdb_send_payload_internal(const char *payload, const Influ
 }
 
 // Send with retry/backoff (synchronous, called from sender task)
+/**
+ * @brief Send an InfluxDB payload with retry/backoff.
+ *
+ * @param payload Payload string to send.
+ * @param cfg InfluxDB configuration snapshot.
+ */
 static void influxdb_send_with_retry(const char *payload, const Influxdb_config_t *cfg)
 {
     if (!payload || !cfg)
@@ -675,6 +809,11 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
 }
 
 // Sender task: serializes HTTP writes
+/**
+ * @brief FreeRTOS task that dequeues InfluxDB payloads and sends them over HTTP.
+ *
+ * @param pv Unused task parameter.
+ */
 static void influx_sender_task(void *pv)
 {
     Influxdb_config_t cfg;
@@ -716,6 +855,11 @@ static void influx_sender_task(void *pv)
 }
 
 // Public: initialize sender (call once at startup)
+/**
+ * @brief Initialize the InfluxDB sender subsystem.
+ *
+ * @return true if initialization succeeded.
+ */
 bool influxdb_init_sender(void)
 {
     if (influx_queue != NULL)
@@ -745,6 +889,13 @@ bool influxdb_init_sender(void)
 }
 
 // Enqueue helper (non-blocking with short timeout)
+/**
+ * @brief Enqueue a raw InfluxDB line protocol payload for sending.
+ *
+ * @param payload Null-terminated payload string.
+ * @param len Length of the payload string.
+ * @return true if queued successfully.
+ */
 bool influxdb_enqueue_payload(const char *payload, size_t len)
 {
     if (!payload || len == 0)
@@ -789,6 +940,12 @@ bool influxdb_enqueue_payload(const char *payload, size_t len)
 }
 
 // High-level process function (reworked to enqueue separate payloads)
+/**
+ * @brief Process sensor and system data into InfluxDB payloads for enqueueing.
+ *
+ * @param sensor_q Handle to the raw sensor queue.
+ * @param avg_q Handle to the averaged sensor queue.
+ */
 void influxdb_process(QueueHandle_t sensor_q, QueueHandle_t avg_q)
 {
     Influxdb_config_t cfg;

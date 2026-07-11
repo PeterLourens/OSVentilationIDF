@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_uart_sender.c
+ * @brief UART sender task implementation and buffer pool management.
+ */
+
 #include <esp_attr.h>
 #include "task_uart_sender.h"
 

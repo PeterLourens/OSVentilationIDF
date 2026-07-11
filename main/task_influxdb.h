@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_influxdb.h
+ * @brief Public task interface for the InfluxDB sender task.
+ */
+
 #ifndef TASK_INFLUXDB_H
 #define TASK_INFLUXDB_H
 

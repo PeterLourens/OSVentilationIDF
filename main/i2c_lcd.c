@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file i2c_lcd.c
+ * @brief LCD display support using a PCF8574 I2C expander and HD44780-compatible commands.
+ */
+
 #include "i2c_lcd.h"
 
 static const char *TAG = "i2c_LCD";
@@ -27,6 +32,13 @@ static uint8_t s_last_output = LCD_BACKLIGHT; // default include backlight
 // file-scope mutex for LCD state (backlight)
 static SemaphoreHandle_t s_lcd_state_mutex = NULL;
 
+/**
+ * @brief Add and bind the LCD expander device to the specified I2C bus.
+ *
+ * @param bus_handle Handle for the I2C bus to attach the device to.
+ * @param dev_handle Pointer to the device handle that will be populated on success.
+ * @return ESP_OK on success, or an esp_err_t if device setup fails.
+ */
 esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     i2c_device_config_t lcd_cfg = {
@@ -49,6 +61,12 @@ esp_err_t i2c_lcd_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle
 }
 
 // Low-level write: single-byte write to PCF8574 via dev_handle
+/**
+ * @brief Write a single command or data byte to the LCD expander.
+ *
+ * @param data Raw byte to transmit to PCF8574.
+ * @return ESP_OK on success, or an esp_err_t if the I2C transfer fails.
+ */
 esp_err_t lcd_dev_write_byte(uint8_t data)
 {
     if (lcd_bus1_handle == NULL)
@@ -75,6 +93,12 @@ esp_err_t lcd_dev_write_byte(uint8_t data)
 }
 
 // Pulse enable line (data must include RS/RW/backlight) */
+/**
+ * @brief Pulse the HD44780 enable line through the expander.
+ *
+ * @param data Data/control byte including RS/RW/backlight bits.
+ * @return ESP_OK on success, or an esp_err_t if the enable pulse fails.
+ */
 esp_err_t lcd_pulse_enable(uint8_t data)
 {
     esp_err_t err = lcd_dev_write_byte(data | LCD_ENABLE_BIT);
@@ -88,6 +112,13 @@ esp_err_t lcd_pulse_enable(uint8_t data)
     return ESP_OK;
 }
 
+/**
+ * @brief Write a 4-bit nibble to the LCD controller.
+ *
+ * @param nibble Nibble value to send in the upper data half-byte.
+ * @param control_flags RS/RW/backlight control flags.
+ * @return ESP_OK on success, or an esp_err_t if transmission fails.
+ */
 esp_err_t lcd_write_nibble(uint8_t nibble, uint8_t control_flags)
 {
     uint8_t out = (uint8_t)((nibble & 0x0F) << 4);
@@ -116,7 +147,12 @@ static inline esp_err_t lcd_data(uint8_t d)
     return lcd_write_byte(d, LCD_REGISTER_SELECT);
 }
 
-// Initialize the HD44780 via PCF8574 (4-bit init sequence), call once in task_i2c_lcd
+/**
+ * @brief Initialize the HD44780-compatible LCD through the PCF8574 expander.
+ *
+ * This performs the required 4-bit initialization sequence and configures the display.
+ * @return ESP_OK on success, or an esp_err_t if initialization fails.
+ */
 esp_err_t i2c_lcd_init_device(void)
 {
     if (lcd_bus1_handle == NULL)
@@ -176,6 +212,11 @@ esp_err_t i2c_lcd_init_device(void)
     return ESP_OK;
 }
 
+/**
+ * @brief Clear the LCD display.
+ *
+ * @return ESP_OK on success, or an esp_err_t if the clear command fails.
+ */
 esp_err_t i2c_lcd_clear(void)
 {
     esp_err_t err = lcd_command(0x01);
@@ -183,6 +224,13 @@ esp_err_t i2c_lcd_clear(void)
     return err;
 }
 
+/**
+ * @brief Position the LCD cursor to the requested row and column.
+ *
+ * @param row Zero-based row index.
+ * @param col Zero-based column index.
+ * @return ESP_OK on success, or an esp_err_t if the cursor position command fails.
+ */
 esp_err_t i2c_lcd_set_cursor(int row, int col)
 {
     if (row < 0)
@@ -197,7 +245,13 @@ esp_err_t i2c_lcd_set_cursor(int row, int col)
     return lcd_command(0x80 | addr);
 }
 
-// Write a C string to display (handles '\n' and wrapping). Pads/truncates to 20 cols per row
+/**
+ * @brief Write a text string to the LCD display.
+ *
+ * This function handles line wrapping and newline characters across the configured display geometry.
+ * @param text Null-terminated string to display.
+ * @return ESP_OK on success, or an esp_err_t if writing fails.
+ */
 esp_err_t i2c_lcd_write_text(const char *text)
 {
     if (!text)
@@ -251,6 +305,11 @@ esp_err_t i2c_lcd_write_text(const char *text)
 }
 
 // Internal helper: write the current output byte (s_last_output) but ensure backlight bit matches s_backlight
+/**
+ * @brief Update the PCF8574 expander with the current backlight state.
+ *
+ * @return ESP_OK on success, or an esp_err_t if the I2C write fails.
+ */
 esp_err_t lcd_write_backlight_state(void)
 {
     uint8_t out = s_last_output;
@@ -266,6 +325,12 @@ esp_err_t lcd_write_backlight_state(void)
 
 // Ensure a mutex is created once at system init if possible.
 // This function lazily creates a mutex if none exists.
+/**
+ * @brief Enable or disable the LCD backlight.
+ *
+ * @param on true to turn backlight on, false to turn it off.
+ * @return ESP_OK on success, or an esp_err_t if the backlight state cannot be written.
+ */
 esp_err_t i2c_lcd_backlight_set(bool on)
 {
     if (s_lcd_state_mutex == NULL)
@@ -294,11 +359,25 @@ esp_err_t i2c_lcd_backlight_set(bool on)
 }
 
 // Public: read current cached backlight state
+/**
+ * @brief Get the current cached LCD backlight state.
+ *
+ * @return true if the backlight is currently enabled, false otherwise.
+ */
 bool i2c_lcd_backlight_get(void)
 {
     return s_backlight;
 }
 
+/**
+ * @brief Format the sensor overview text for the LCD display.
+ *
+ * @param out Output buffer for the formatted string.
+ * @param out_size Maximum number of bytes available in the output buffer.
+ * @param bus Sensor bus index.
+ * @param ch Sensor channel index.
+ * @param avg Average sensor readings array.
+ */
 void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS])
 {
     if (!out || out_size == 0)
@@ -389,6 +468,12 @@ void format_sensor_overview(char *out, size_t out_size, int bus, int ch, float a
     }
 }
 
+/**
+ * @brief Build a formatted valve position status string for LCD output.
+ *
+ * @param buf Output buffer for the formatted valve positions.
+ * @param buf_size Size of the output buffer.
+ */
 void build_valve_positions_buffer(char *buf, size_t buf_size)
 {
     nvs_handle_t nvs;
@@ -447,6 +532,12 @@ void build_valve_positions_buffer(char *buf, size_t buf_size)
         buf[buf_size - 1] = '\0';
 }
 
+/**
+ * @brief Build a formatted statemachine actuals string for LCD output.
+ *
+ * @param buf Output buffer for the formatted status text.
+ * @param buf_size Size of the output buffer.
+ */
 void build_sm_actuals_buffer(char *buf, size_t buf_size)
 {
     Statemachine_actuals_t snap;

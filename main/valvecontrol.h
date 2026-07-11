@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file valvecontrol.h
+ * @brief Public valve control function declarations and shift register helpers.
+ */
+
 #ifndef VALVECONTROL_H
 #define VALVECONTROL_H
 

@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file syslog.c
+ * @brief Syslog queueing and post-IP syslog forwarding for remote logging.
+ */
+
 #include "syslog.h"
 
 const char *TAG = "syslog";

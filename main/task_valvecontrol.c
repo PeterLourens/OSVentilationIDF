@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_valvecontrol.c
+ * @brief FreeRTOS task wrapper for valve control notifications.
+ */
+
 #include <esp_attr.h>
 #include "task_valvecontrol.h"
 

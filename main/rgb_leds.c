@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file rgb_leds.c
+ * @brief RGB LED support and state-based color mapping for the OSVentilation firmware.
+ */
+
 #include "rgb_leds.h"
 
 static const char *TAG = "rgb_leds";

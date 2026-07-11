@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file sys_stats.h
+ * @brief Public interface for system statistics and task status helpers.
+ */
+
 #ifndef SYS_STATS_H
 #define SYS_STATS_H
 

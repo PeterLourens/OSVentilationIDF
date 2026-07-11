@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file network_manager.c
+ * @brief Network manager task implementation for Ethernet/Wi-Fi lifecycle and watchdog behavior.
+ */
+
 #include <esp_attr.h>
 #include "network_manager.h"
 

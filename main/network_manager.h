@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file network_manager.h
+ * @brief Public interface for the network manager and Ethernet watchdog control.
+ */
+
 #ifndef NETWORK_MANAGER_H
 #define NETWORK_MANAGER_H
 

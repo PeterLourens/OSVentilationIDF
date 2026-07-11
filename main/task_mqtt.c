@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_mqtt.c
+ * @brief MQTT background task for periodic telemetry and Home Assistant discovery publishing.
+ */
+
 #include <esp_attr.h>
 #include "task_mqtt.h"
 

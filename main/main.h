@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file main.h
+ * @brief Central includes and project-level configuration for the OSVentilation firmware.
+ */
+
 #ifndef MAIN_H
 #define MAIN_H
 

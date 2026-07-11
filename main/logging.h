@@ -4,12 +4,20 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file logging.h
+ * @brief Logging macros that forward formatted logs to syslog when enabled.
+ */
+
 #include <esp_log.h>
 #include <esp_heap_caps.h>
 #include <stdio.h>
 
 #include "syslog.h"
 
+/**
+ * @brief Global flag enabling syslog forwarding of logs.
+ */
 extern bool syslog_enabled;
 
 #define LOG_FORMAT_AND_SEND(tag, level, prefix, fmt, ...)                              \

@@ -4,6 +4,11 @@
 	Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file mqtt.c
+ * @brief MQTT client implementation and Home Assistant discovery publishing logic.
+ */
+
 #include "mqtt.h"
 
 static const char *TAG = "mqtt";

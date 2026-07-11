@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file statemachine.c
+ * @brief State machine runtime logic and state transition entry points.
+ */
+
 #include "statemachine.h"
 
 static const char *TAG = "sm";

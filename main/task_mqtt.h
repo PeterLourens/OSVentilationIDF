@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_mqtt.h
+ * @brief Public MQTT task declarations and connection helpers.
+ */
+
 #ifndef TASK_MQTT_H
 #define TASK_MQTT_H
 

@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_sensors.c
+ * @brief I2C sensor polling task and static queue initialization.
+ */
+
 #include <esp_attr.h>
 #include "task_i2c_sensors.h"
 

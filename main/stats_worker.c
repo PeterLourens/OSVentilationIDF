@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file stats_worker.c
+ * @brief Background worker for stats requests and WebSocket statistics publishing.
+ */
+
 #include "stats_worker.h"
 
 static const char *TAG = "stats_worker";

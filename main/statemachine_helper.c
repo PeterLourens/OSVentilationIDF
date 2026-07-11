@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file statemachine_helper.c
+ * @brief Helper utilities for state evaluation, time window checks, and cycling logic.
+ */
+
 #include "statemachine_helper.h"
 
 static const char *TAG = "sm_helpers";

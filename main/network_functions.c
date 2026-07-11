@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file network_functions.c
+ * @brief Network helper functions for IP state, interface selection, and LED status updates.
+ */
+
 #include "network_functions.h"
 
 static const char *TAG = "network_func";

@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file statemachine_states.h
+ * @brief State and fan speed enum definitions used by the OSVentilation state machine.
+ */
+
 #pragma once
 
 // Unified state definitions

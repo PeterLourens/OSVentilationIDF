@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file rgb_leds.h
+ * @brief Public RGB LED declarations for OSVentilation status indicators.
+ */
+
 #ifndef RGB_LEDS_H
 #define RGB_LEDS_H
 

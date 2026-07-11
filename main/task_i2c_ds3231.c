@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_ds3231.c
+ * @brief FreeRTOS task implementation for DS3231 RTC synchronization.
+ */
+
 #include <esp_attr.h>
 #include "task_i2c_ds3231.h"
 

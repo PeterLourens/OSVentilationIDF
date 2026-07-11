@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_valvecontrol.h
+ * @brief Public task interface for valve control event handling.
+ */
+
 #ifndef TASK_VALVECONTROL_H
 #define TASK_VALVECONTROL_H
 

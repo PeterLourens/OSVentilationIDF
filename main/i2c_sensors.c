@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file i2c_sensors.c
+ * @brief I2C sensor management and multiplexer-channel handling.
+ */
+
 #include "i2c_sensors.h"
 
 static const char *TAG = "i2c_sensors";
@@ -34,6 +39,13 @@ static sensor_slot_t bus0_sensors[CHANNELS_PER_BUS] = {0};
 static sensor_slot_t bus1_sensors[CHANNELS_PER_BUS] = {0};
 
 // TCA9548A helpers
+/**
+ * @brief Initialize the TCA9548A I2C multiplexer.
+ *
+ * @param bus_handle Handle to the I2C bus.
+ * @param dev_handle Output pointer for the created multiplexer device handle.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -56,6 +68,13 @@ esp_err_t i2c_init_tca9548(i2c_master_bus_handle_t bus_handle, i2c_master_dev_ha
     return err;
 }
 
+/**
+ * @brief Select a channel on the TCA9548A multiplexer.
+ *
+ * @param dev_handle TCA9548A device handle.
+ * @param channel Channel index (0-7) to enable.
+ * @return ESP_OK on success, or ESP_ERR_INVALID_ARG if invalid.
+ */
 esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t channel)
 {
     if (!dev_handle || channel > 7)
@@ -73,21 +92,45 @@ esp_err_t i2c_tca9548_set_channel(i2c_master_dev_handle_t dev_handle, uint8_t ch
 }
 
 // Sensor type helpers
+/**
+ * @brief Check whether the provided sensor type matches an SCD4x family sensor.
+ *
+ * @param type Sensor type string.
+ * @return true if the type matches SCD40 or SCD41.
+ */
 bool is_scd4x(const char *type)
 {
     return (strcmp(type, "SCD41") == 0 || strcmp(type, "SCD40") == 0);
 }
 
+/**
+ * @brief Check whether the provided sensor type is AHT20.
+ *
+ * @param type Sensor type string.
+ * @return true if the type matches AHT20.
+ */
 bool is_aht20(const char *type)
 {
     return (strcmp(type, "AHT20") == 0);
 }
 
+/**
+ * @brief Check whether the provided sensor type is DHT20.
+ *
+ * @param type Sensor type string.
+ * @return true if the type matches DHT20.
+ */
 bool is_dht20(const char *type)
 {
     return (strcmp(type, "DHT20") == 0);
 }
 
+/**
+ * @brief Convert a sensor type string from config into an internal enum.
+ *
+ * @param type_str Sensor type string from configuration.
+ * @return Corresponding sensor_type_t value.
+ */
 static sensor_type_t sensor_type_from_str(const char *type_str)
 {
     if (!type_str)
@@ -105,6 +148,13 @@ static sensor_type_t sensor_type_from_str(const char *type_str)
 }
 
 // Helpers for checking output aht20 and dht20 sensors
+/**
+ * @brief Compute CRC8 for AHT20/DHT20 sensor data validation.
+ *
+ * @param data Input bytes.
+ * @param len Number of bytes to process.
+ * @return Calculated CRC8 value.
+ */
 static uint8_t xht20_crc8(const uint8_t *data, size_t len)
 {
     uint8_t crc = 0xFF;
@@ -124,6 +174,12 @@ static uint8_t xht20_crc8(const uint8_t *data, size_t len)
     return crc;
 }
 
+/**
+ * @brief Validate raw XHT20 sensor data and CRC.
+ *
+ * @param data Raw measurement bytes from the sensor.
+ * @return ESP_OK if valid, otherwise an esp_err_t.
+ */
 static esp_err_t xht20_validate(const uint8_t *data)
 {
     // Check busy flag
@@ -155,6 +211,9 @@ static esp_err_t xht20_validate(const uint8_t *data)
 }
 
 // Pre-load sensor type so sensors only once
+/**
+ * @brief Preload sensor type enums from configuration for all bus slots.
+ */
 void preload_sensor_types_from_config(void)
 {
     for (int ch = 0; ch < CHANNELS_PER_BUS; ch++)
@@ -164,6 +223,9 @@ void preload_sensor_types_from_config(void)
     }
 }
 
+/**
+ * @brief Reload sensor configuration and reinitialize all configured sensors.
+ */
 void reload_and_init_sensors(void)
 {
     preload_sensor_types_from_config();
@@ -171,6 +233,13 @@ void reload_and_init_sensors(void)
 }
 
 // Sensor init helpers (per type)
+/**
+ * @brief Initialize an AHT20 sensor on the given I2C bus.
+ *
+ * @param bus_handle I2C bus handle.
+ * @param dev_handle Output pointer for the created sensor handle.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -185,6 +254,14 @@ esp_err_t i2c_aht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     return i2c_master_bus_add_device(bus_handle, &aht20_cfg, dev_handle);
 }
 
+/**
+ * @brief Read temperature and humidity from an AHT20 sensor.
+ *
+ * @param dev_handle AHT20 device handle.
+ * @param temperature Output temperature in degrees Celsius.
+ * @param humidity Output relative humidity in percent.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
 {
     if (!dev_handle || !temperature || !humidity)
@@ -218,6 +295,13 @@ esp_err_t aht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
     return ESP_OK;
 }
 
+/**
+ * @brief Initialize a DHT20 sensor on the given I2C bus.
+ *
+ * @param bus_handle I2C bus handle.
+ * @param dev_handle Output pointer for the created sensor handle.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t i2c_dht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -232,6 +316,14 @@ esp_err_t i2c_dht20_init(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
     return i2c_master_bus_add_device(bus_handle, &dht20_cfg, dev_handle);
 }
 
+/**
+ * @brief Read temperature and humidity from a DHT20 sensor.
+ *
+ * @param dev_handle DHT20 device handle.
+ * @param temperature Output temperature in degrees Celsius.
+ * @param humidity Output relative humidity in percent.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, float *humidity)
 {
     if (!dev_handle || !temperature || !humidity)
@@ -276,6 +368,13 @@ esp_err_t dht20_read(i2c_master_dev_handle_t dev_handle, float *temperature, flo
     return ESP_OK;
 }
 
+/**
+ * @brief Initialize an SCD41 sensor on the given I2C bus.
+ *
+ * @param bus_handle I2C bus handle.
+ * @param dev_handle Output pointer for the created sensor handle.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t *dev_handle)
 {
     if (!bus_handle || !dev_handle)
@@ -320,6 +419,13 @@ esp_err_t i2c_init_scd41(i2c_master_bus_handle_t bus_handle, i2c_master_dev_hand
 }
 
 // SCD41 helpers
+/**
+ * @brief Compute CRC8 for SCD41 data blocks.
+ *
+ * @param data Input bytes.
+ * @param len Number of bytes to process.
+ * @return Calculated CRC8 value.
+ */
 uint8_t scd41_crc8(const uint8_t *data, size_t len)
 {
     uint8_t crc = 0xFF;
@@ -337,6 +443,13 @@ uint8_t scd41_crc8(const uint8_t *data, size_t len)
     return crc;
 }
 
+/**
+ * @brief Query whether the SCD41 sensor has new measurement data available.
+ *
+ * @param dev_handle SCD41 device handle.
+ * @param data_ready Output flag that receives readiness state.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
 {
     if (!dev_handle || !data_ready)
@@ -372,6 +485,15 @@ esp_err_t scd41_data_ready(i2c_master_dev_handle_t dev_handle, bool *data_ready)
     return ESP_OK;
 }
 
+/**
+ * @brief Read CO2, temperature, and humidity values from an SCD41 sensor.
+ *
+ * @param dev_handle SCD41 device handle.
+ * @param co2 Output CO2 concentration in ppm.
+ * @param temp Output temperature in degrees Celsius.
+ * @param rh Output relative humidity in percent.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *temp, float *rh)
 {
     if (!dev_handle || !co2 || !temp || !rh)
@@ -410,6 +532,17 @@ esp_err_t scd41_read(i2c_master_dev_handle_t dev_handle, uint16_t *co2, float *t
     return ESP_OK;
 }
 
+/**
+ * @brief Configure a sensor slot on a mux channel and initialize the corresponding sensor.
+ *
+ * @param slots Sensor slot array for one bus.
+ * @param bus_index Bus index (0 or 1).
+ * @param bus_handle I2C bus handle.
+ * @param tca_handle TCA9548A multiplexer handle.
+ * @param ch Channel index.
+ * @param type_str Sensor type string from configuration.
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_master_bus_handle_t bus_handle, i2c_master_dev_handle_t tca_handle, uint8_t ch, const char *type_str)
 {
     if (!slots || !bus_handle || !tca_handle)
@@ -536,6 +669,11 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 }
 
 // Public: init_sensors_on_mux_channels
+/**
+ * @brief Initialize all configured sensors across both I2C multiplexer buses.
+ *
+ * @return ESP_OK if all configured sensors initialize successfully, otherwise an error code.
+ */
 esp_err_t init_sensors_on_mux_channels(void)
 {
     esp_err_t ret = ESP_OK;
@@ -583,18 +721,37 @@ esp_err_t init_sensors_on_mux_channels(void)
     return ret;
 }
 
+/**
+ * @brief Check whether a sensor is configured and initialized on the specified bus and slot.
+ *
+ * @param bus Bus index.
+ * @param slot Sensor slot index.
+ * @return true if a valid sensor is configured.
+ */
 bool configured_sensor(int bus, int slot)
 {
     sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
     return slots[slot].type != SENSOR_NONE;
 }
 
+/**
+ * @brief Determine whether the configured sensor supports CO2 measurement.
+ *
+ * @param bus Bus index.
+ * @param slot Sensor slot index.
+ * @return true if the sensor is an SCD41.
+ */
 bool sensor_supports_co2(int bus, int slot)
 {
     sensor_slot_t *slots = (bus == 0) ? bus0_sensors : bus1_sensors;
     return slots[slot].type == SENSOR_SCD41;
 }
 
+/**
+ * @brief Read all configured sensors and publish a snapshot into the sensor queue.
+ *
+ * @return ESP_OK on success, otherwise an esp_err_t.
+ */
 esp_err_t read_sensors_into_queue(void)
 {
     float snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
@@ -699,6 +856,11 @@ esp_err_t read_sensors_into_queue(void)
 }
 
 // Averaging logic (unchanged except for using same snapshot layout)
+/**
+ * @brief Take the latest sensor snapshot and compute moving averages.
+ *
+ * The averaged results are published into the average queue.
+ */
 void sensor_data_average(void)
 {
     float sensor_data[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
@@ -761,6 +923,14 @@ void sensor_data_average(void)
     xQueueOverwrite(sensor_avg_queue, sensor_avg_data);
 }
 
+/**
+ * @brief Push a sensor measurement value into the moving average FIFO.
+ *
+ * @param bus Bus index.
+ * @param slot Sensor slot index.
+ * @param measurement Measurement index within a sensor reading.
+ * @param value Measurement value to store.
+ */
 void fifoPush(int bus, int slot, int measurement, float value)
 {
     int head = fifoHead[bus][slot][measurement];

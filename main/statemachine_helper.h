@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file statemachine_helper.h
+ * @brief Public helper declarations for state timing and sensor selection helpers.
+ */
+
 #ifndef STATEMACHINE_HELPER_H
 #define STATEMACHINE_HELPER_H
 

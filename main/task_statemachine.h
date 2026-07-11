@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_statemachine.h
+ * @brief Public interface for the state machine FreeRTOS task.
+ */
+
 #ifndef TASK_STATEMACHINE_H
 #define TASK_STATEMACHINE_H
 

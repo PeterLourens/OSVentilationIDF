@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_uart_sender.h
+ * @brief UART sender task public declarations and logging helpers.
+ */
+
 #ifndef TASK_UART_SENDER_H
 #define TASK_UART_SENDER_H
 

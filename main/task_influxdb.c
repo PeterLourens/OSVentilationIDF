@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_influxdb.c
+ * @brief FreeRTOS task wrapper for InfluxDB telemetry publishing.
+ */
+
 #include <esp_attr.h>
 #include "task_influxdb.h"
 

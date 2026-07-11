@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_rgb_leds.h
+ * @brief Public task declarations for RGB LED state updates.
+ */
+
 #ifndef TASK_RGB_LEDS_H
 #define TASK_RGB_LEDS_H
 

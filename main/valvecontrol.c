@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file valvecontrol.c
+ * @brief Valve control helper functions and shift register outputs.
+ */
+
 #include "valvecontrol.h"
 
 static const char *TAG = "valve_control";

@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_rgb_leds.c
+ * @brief RGB LED task implementation for status updates and blinking.
+ */
+
 #include <esp_attr.h>
 #include "task_rgb_leds.h"
 

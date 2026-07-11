@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file sys_stats.c
+ * @brief System statistics helpers for CPU, heap, tasks, and reset reason reporting.
+ */
+
 #include "sys_stats.h"
 
 static const char *TAG = "sys_stats";

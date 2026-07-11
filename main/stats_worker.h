@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file stats_worker.h
+ * @brief Public statistics worker interface and request queue accessors.
+ */
+
 #ifndef STATS_WORKER_H
 #define STATS_WORKER_H
 

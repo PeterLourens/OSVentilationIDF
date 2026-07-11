@@ -13,6 +13,16 @@
 #include "statemachine.h"
 #include "esp_log.h"
 
+/**
+ * @file mqtt_handlers.h
+ * @brief Callback declarations for incoming MQTT message handling.
+ */
+
+/**
+ * @brief Handle incoming MQTT events and dispatch commands to the state machine.
+ *
+ * @param event MQTT event structure.
+ */
 void mqtt_handle_incoming(esp_mqtt_event_handle_t);
 
 #endif

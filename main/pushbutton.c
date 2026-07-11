@@ -1,4 +1,8 @@
-// pushbutton.c
+/**
+ * @file pushbutton.c
+ * @brief Pushbutton GPIO and ISR support for the OSVentilation input module.
+ */
+
 #include "pushbutton.h"
 
 static const char *TAG = "pushbutton";

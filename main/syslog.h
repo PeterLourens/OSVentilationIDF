@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file syslog.h
+ * @brief Public syslog helper declarations and queue interfaces.
+ */
+
 #ifndef SYSLOG_H
 #define SYSLOG_H
 

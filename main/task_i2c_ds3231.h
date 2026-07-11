@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_ds3231.h
+ * @brief Task interface for DS3231 RTC periodic sync and monitoring.
+ */
+
 #ifndef TASK_I2C_DS3231_H
 #define TASK_I2C_DS3231_H
 

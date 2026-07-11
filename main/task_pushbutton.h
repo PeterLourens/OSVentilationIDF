@@ -1,4 +1,14 @@
-// task_pushbutton.h
+/*
+    This file is part of the OSVentilationIDF project.
+
+    Copyright (C) 2023-2026 Peter Lourens
+*/
+
+/**
+ * @file task_pushbutton.h
+ * @brief Public interface for the pushbutton FreeRTOS task.
+ */
+
 #ifndef TASK_PUSHBUTTON_H
 #define TASK_PUSHBUTTON_H
 

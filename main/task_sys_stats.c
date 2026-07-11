@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_sys_stats.c
+ * @brief FreeRTOS task implementation for periodic system statistics refresh.
+ */
+
 #include <esp_attr.h>
 #include "task_sys_stats.h"
 

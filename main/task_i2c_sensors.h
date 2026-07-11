@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_sensors.h
+ * @brief Public task declarations for I2C sensor sampling and averaging.
+ */
+
 #ifndef TASK_I2C_SENSORS_H
 #define TASK_I2C_SENSORS_H
 

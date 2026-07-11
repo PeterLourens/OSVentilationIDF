@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file wifi_functions.c
+ * @brief Wi-Fi lifecycle, connection, and AP control helpers.
+ */
+
 #include "wifi_functions.h"
 
 static const char *TAG = "wifi_functions";

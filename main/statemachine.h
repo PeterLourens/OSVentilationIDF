@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file statemachine.h
+ * @brief Public state machine interface and transition declarations.
+ */
+
 #ifndef STATEMACHINE_H
 #define STATEMACHINE_H
 

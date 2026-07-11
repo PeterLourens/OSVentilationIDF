@@ -4,10 +4,20 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file mqtt_handlers.c
+ * @brief MQTT message processing callbacks for OSVentilation.
+ */
+
 #include "mqtt_handlers.h"
 
 static const char *TAG = "mqtt_handlers";
 
+/**
+ * @brief Handle incoming MQTT messages and route commands to the state machine.
+ *
+ * @param event MQTT event containing topic and payload data.
+ */
 void mqtt_handle_incoming(esp_mqtt_event_handle_t event)
 {
     const char *topic = event->topic;

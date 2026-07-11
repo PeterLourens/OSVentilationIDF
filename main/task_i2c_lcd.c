@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_lcd.c
+ * @brief Task implementation for LCD updates and periodic display refresh.
+ */
+
 #include <esp_attr.h>
 #include "task_i2c_lcd.h"
 

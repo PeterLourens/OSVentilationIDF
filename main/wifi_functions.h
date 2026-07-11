@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file wifi_functions.h
+ * @brief Public Wi-Fi manager and connection helper declarations.
+ */
+
 #ifndef WIFI_FUNCTIONS_H
 #define WIFI_FUNCTIONS_H
 

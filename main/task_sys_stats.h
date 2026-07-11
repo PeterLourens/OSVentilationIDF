@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_sys_stats.h
+ * @brief Public declarations for the system statistics task.
+ */
+
 #ifndef TASK_SYS_STATS_H
 #define TASK_SYS_STATS_H
 

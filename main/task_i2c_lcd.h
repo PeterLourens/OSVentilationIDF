@@ -4,6 +4,11 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file task_i2c_lcd.h
+ * @brief Public task declarations for the I2C LCD display module.
+ */
+
 #ifndef TASK_I2C_LCD_H
 #define TASK_I2C_LCD_H
 

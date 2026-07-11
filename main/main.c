@@ -4,16 +4,32 @@
     Copyright (C) 2023-2026 Peter Lourens
 */
 
+/**
+ * @file main.c
+ * @brief Firmware startup and runtime initialization for the OSVentilation system.
+ */
+
 #include "main.h"
 #include "cJSON.h"
 
 static const char *TAG = "main";
 
+/**
+ * @brief Allocate cJSON heap memory from SPIRAM if available.
+ *
+ * @param size Number of bytes to allocate.
+ * @return Pointer to allocated memory, or NULL on failure.
+ */
 static void *cjson_spiram_malloc(size_t size)
 {
     return heap_caps_malloc(size, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
 }
 
+/**
+ * @brief Free memory allocated by cjson_spiram_malloc.
+ *
+ * @param ptr Pointer returned from cjson_spiram_malloc.
+ */
 static void cjson_spiram_free(void *ptr)
 {
     if (ptr)
@@ -22,6 +38,9 @@ static void cjson_spiram_free(void *ptr)
     }
 }
 
+/**
+ * @brief Initialize cJSON allocation hooks to use SPIRAM.
+ */
 static void init_cjson_hooks(void)
 {
     cJSON_Hooks hooks = {
@@ -31,6 +50,9 @@ static void init_cjson_hooks(void)
     cJSON_InitHooks(&hooks);
 }
 
+/**
+ * @brief Start HTTP and network-related runtime tasks.
+ */
 static void start_network_services(void)
 {
     while (http_server_start() != ESP_OK)
@@ -45,6 +67,14 @@ static void start_network_services(void)
     syslog_send_line("Boot complete, system running");
 }
 
+/**
+ * @brief FreeRTOS stack overflow hook implementation.
+ *
+ * Logs the offending task and then halts to preserve a stack trace.
+ *
+ * @param xTask Handle of the task that overflowed.
+ * @param pcTaskName Name of the task that overflowed.
+ */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
     // Log the offending task name and handle before aborting
@@ -57,6 +87,11 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
     abort();
 }
 
+/**
+ * @brief Main application entry point.
+ *
+ * Performs hardware initialization, loads configuration, and starts runtime tasks.
+ */
 void app_main(void)
 {
     esp_reset_reason_t reason = esp_reset_reason();
