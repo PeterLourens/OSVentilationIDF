@@ -21,6 +21,37 @@ int rh_sensor_counter = 0;
 CO2_Sensors_t co2_sensors[MAX_SENSORS] = {};
 RH_Sensors_t rh_sensors[MAX_SENSORS] = {};
 
+static bool co2_sensor_high_state[MAX_SENSORS] = {false};
+
+static int update_co2_sensor_hysteresis(int co2lowlevel, int co2highlevel)
+{
+    int count = 0;
+
+    if (co2_sensor_counter <= 0)
+    {
+        memset(co2_sensor_high_state, 0, sizeof(co2_sensor_high_state));
+        return 0;
+    }
+
+    if (co2lowlevel > co2highlevel)
+        co2lowlevel = co2highlevel;
+
+    for (int i = 0; i < co2_sensor_counter; ++i)
+    {
+        float reading = co2_sensors[i].co2_reading;
+
+        if (reading > co2highlevel)
+            co2_sensor_high_state[i] = true;
+        else if (reading < co2lowlevel)
+            co2_sensor_high_state[i] = false;
+
+        if (co2_sensor_high_state[i])
+            count++;
+    }
+
+    return count;
+}
+
 // Functions for the state machine would go here
 void init_statemachine(void)
 {
@@ -148,6 +179,7 @@ void day_transitions(void)
     int state_fanspeed = FANSPEED_LOW;
     int new_state = STATE_NR_DAY;
     int minimum_state_time = 0;
+    int co2lowlevel = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
     bool valve_move_locked = false;
@@ -187,6 +219,7 @@ void day_transitions(void)
     {
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
+        co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
         xSemaphoreGive(state_config_mutex);
@@ -203,15 +236,9 @@ void day_transitions(void)
         sm_actuals.state = STATE_NR_DAY;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         sm_actuals.rh_sensors_high = 0;
 
-        // Count high sensors using selected lists
-        for (int i = 0; i < co2_sensor_counter; ++i)
-        {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-                sm_actuals.co2_sensors_high++;
-        }
         for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
@@ -304,6 +331,7 @@ void night_transitions(void)
     int state_config_index = -1;
     int state_fanspeed = FANSPEED_LOW;
     int minimum_state_time = 0;
+    int co2lowlevel = 0;
     int co2highlevel = 0;
     int rhhighlevel = 0;
     bool valve_move_locked = false;
@@ -344,6 +372,7 @@ void night_transitions(void)
     {
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
+        co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
         rhhighlevel = statemachine_gen_config.rh_high_level;
         xSemaphoreGive(state_config_mutex);
@@ -360,14 +389,9 @@ void night_transitions(void)
         sm_actuals.state = STATE_NR_NIGHT;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         sm_actuals.rh_sensors_high = 0;
 
-        for (int i = 0; i < co2_sensor_counter; ++i)
-        {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-                sm_actuals.co2_sensors_high++;
-        }
         for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
@@ -526,15 +550,7 @@ void high_co2_day_transitions(void)
         sm_actuals.state = STATE_NR_HIGHCO2DAY;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
-
-        // Count high sensors using selected lists
-        for (int i = 0; i < co2_sensor_counter; ++i)
-        {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-                sm_actuals.co2_sensors_high++;
-        }
-
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         co2_sensors_high = sm_actuals.co2_sensors_high;
 
         xSemaphoreGive(statemachine_mutex);
@@ -602,15 +618,6 @@ void high_co2_day_transitions(void)
             else
             {
                 state_valve_position[valve_nr] = 4;
-            }
-        }
-
-        if (reading > co2lowlevel)
-        {
-            if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
-            {
-                sm_actuals.co2_sensors_high++;
-                xSemaphoreGive(statemachine_mutex);
             }
         }
     }
@@ -757,20 +764,11 @@ void high_co2_night_transitions(void)
         sm_actuals.state = STATE_NR_HIGHCO2NIGHT;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
-
-        // Count high sensors using selected lists
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         for (int i = 0; i < co2_sensor_counter; ++i)
         {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-            {
+            if (co2_sensor_high_state[i])
                 any_high = true;
-            }
-            if (co2_sensors[i].co2_reading > co2lowlevel)
-            {
-                sm_actuals.co2_sensors_high++;
-                any_high = true;
-            }
         }
 
         co2_sensors_high = sm_actuals.co2_sensors_high;
@@ -927,6 +925,7 @@ void high_rh_day_transitions(void)
     int state_fanspeed = FANSPEED_LOW;
     int minimum_state_time = 0;
     int rhhighlevel = 0;
+    int co2lowlevel = 0;
     int co2highlevel = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
@@ -961,6 +960,7 @@ void high_rh_day_transitions(void)
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         rhhighlevel = statemachine_gen_config.rh_high_level;
+        co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
         xSemaphoreGive(state_config_mutex);
     }
@@ -972,15 +972,9 @@ void high_rh_day_transitions(void)
         sm_actuals.state = STATE_NR_HIGHRHDAY;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         sm_actuals.rh_sensors_high = 0;
 
-        // Count high sensors using selected lists
-        for (int i = 0; i < co2_sensor_counter; ++i)
-        {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-                sm_actuals.co2_sensors_high++;
-        }
         for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
@@ -1114,6 +1108,7 @@ void high_rh_night_transitions(void)
     int minimum_state_time = 0;
     int rhhighlevel = 0;
     int co2highlevel = 0;
+    int co2lowlevel = 0;
     bool valve_move_locked = false;
     int rh_sensors_high = 0;
     int co2_sensors_high = 0;
@@ -1143,6 +1138,7 @@ void high_rh_night_transitions(void)
         state_fanspeed = statemachine_config[state_config_index].fanspeed;
         minimum_state_time = statemachine_config[state_config_index].duration_minutes;
         rhhighlevel = statemachine_gen_config.rh_high_level;
+        co2lowlevel = statemachine_gen_config.co2_low_level;
         co2highlevel = statemachine_gen_config.co2_high_level;
         xSemaphoreGive(state_config_mutex);
     }
@@ -1154,15 +1150,9 @@ void high_rh_night_transitions(void)
         sm_actuals.state = STATE_NR_HIGHRHNIGHT;
         sm_actuals.fanspeed = state_fanspeed;
         valve_move_locked = sm_actuals.valve_lock;
-        sm_actuals.co2_sensors_high = 0;
+        sm_actuals.co2_sensors_high = update_co2_sensor_hysteresis(co2lowlevel, co2highlevel);
         sm_actuals.rh_sensors_high = 0;
 
-        // Count high sensors using selected lists
-        for (int i = 0; i < co2_sensor_counter; ++i)
-        {
-            if (co2_sensors[i].co2_reading > co2highlevel)
-                sm_actuals.co2_sensors_high++;
-        }
         for (int i = 0; i < rh_sensor_counter; ++i)
         {
             if (rh_sensors[i].rh_reading > rhhighlevel)
