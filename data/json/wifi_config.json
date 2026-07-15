@@ -1,12 +1,12 @@
 {
     "enable_wifi": "On",
     "enable_dhcp": "On",
-    "hostname": "OSVentilation_dev",
-    "ssid": "DIRK3",
-    "wifi_password": "095679706460482465742852",
-    "ip_address": "192.168.0.199",
-    "subnet_mask": "255.255.255.0",
-    "gateway": "192.168.0.3",
-    "primary_dns": "192.168.0.3",
-    "secondary_dns": "192.168.0.1"
+    "hostname": "OSVentilation",
+    "ssid": "",
+    "wifi_password": "",
+    "ip_address": "",
+    "subnet_mask": "",
+    "gateway": "",
+    "primary_dns": "",
+    "secondary_dns": ""
 }

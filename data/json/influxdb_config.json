@@ -1,7 +1,7 @@
 {
-    "enable_influxdb": "On",
-    "influxdb_url": "http://192.168.0.14:8086",
-    "influxdb_org": "Lourens",
-    "influxdb_bucket": "OSVentilationIDFdev",
-    "influxdb_token": "1iqFVtGUgcB3dvOfSctKQbeLoI2VxQZfZsiMhqX3r0EPSMVZ0ThNLKf-tR_Tj2kAymmCFvG51O8GCjEg0KfadQ=="
+    "enable_influxdb": "Off",
+    "influxdb_url": "",
+    "influxdb_org": "",
+    "influxdb_bucket": "",
+    "influxdb_token": ""
 }
