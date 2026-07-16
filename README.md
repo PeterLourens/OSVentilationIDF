@@ -3,31 +3,45 @@
 This project is intended as a replacement of the Itho Demandflow controller. The reason that this project was started because my controller at home was behaving strange, the transformer and fuse failed and it is expensive to replace. With modern microcontrollers it should be relatively easy to make a controller for such a system. This project is inspired by the orignal Itho controller but not an exact copy of the Itho controller. Compared to the Itho controller, this design provides full transparancy on what it exactly does. 
 
 The basis for this design is:
-* Speed of Itho fan can be controlled by either MQTT or HTTP API with settings Low, Medium and High. See https://www.nrgwatch.nl/
+* Speed of Itho fan can be controlled by either MQTT or HTTP API with settings Low, Medium and High. To set the fanspeed of an Itho fan See https://www.nrgwatch.nl/
 * The controller has 12 channels for 12 Itho valves of type DemandFlow Klep (545-7100). No changes required to the default connection on the valve.
 * This controller can be a 1:1 replacement
-* The system must be modular, e.g. it is not required to add the display, a different RTC could be used, the number of sensors can be adjusted to the application
-* The software must be open source
-* The hardware must be open source
+* The system must be modular, e.g. it is not required to add the display, a different I2C RTC could be used, the number, type and location of sensors can be adjusted in the application
+* The software is open source
+* The hardware is open source
+* The hardware can be used as an ESP32-S3 development platform to experiment with sensors, displays, other i2C devices and connectivity (wifi and ethernet)
 
+Two hardware versions are available:
+
+Version 2
 <center><img src="images/IMG_2136.JPG" width="100%" height="100%"></center>
+
+
+Version 3
+
+
+
+The essential difference between both version is the removal of the external interface for an ESP32 module, the addition of a W5500 ethernet interface and 2 additional status LEDs, per default used to indicate wifi and ethernet status.
 
 ## Hardware design
 The hardware design is based on common electronic parts. The basis of the design:
-* Microcontroller ESP32-S3 or ESP32. The design is with the ESP32-S3 soldered on the board but one could also choose to install an ESP32 microcontroller through the 30-pin interface
+* Microcontroller ESP32-S3.
 * 74HC595 for multiplication of processor I/O. Each valve has 4 coils to control and therefore 4 outputs are required per valve. In total 48 outputs are required. The 74HC595 are divided in two groups enabling scaling down to 6 valves for smaller houses
-* I2C interface for: 
+* 2 I2C interface for: 
     * up to 16 sensors
     * Display (4x20 characters LCD with I2C backpack)
     * Realtime Clock
 * Use of two I2C busses, Wire and Wire1:
-    * Wire: Bus 0 sensors and LCD
-    * Wire1: Bus1 sensors and RTC
-* Commonly used sensors; DHT20, SCD40/41, etc.
-* Connection to sensors through I2C multiplexer (TCA...) enabling the use of I2C sensors with fixed I2C addresses
+    * Bus 0 sensors and LCD
+    * Bus1 sensors and RTC
+* Commonly used sensors; DHT20, SCD40/41. Other sensors can be integrated as well as long as they use the I2C bus
+* Connection to sensors through I2C multiplexer (TCA9548) enabling the use of I2C sensors with fixed I2C addresses
 * 2 Addressable RGB LEDs for status and fandspeed
 * 2 Configurable pushbuttons, one is standard allocated to tuen on the LCD
-* Accurate RTC with battery backup because most actions are time based
+* Red power LED
+* A green LED (default assigned to WIFI status)
+* A blue LED (default assigned to Ethernet status)
+* Accurate RTC with rechargeable battery backup because most actions are time based
 * Single 15V power supply with on-board (non-isolating) 3.3V and 5V convertors (1A capacity each)
 * Operation of sensors on 5V or 3.3V. Data communication always on 3.3V
 * MOSFET output drivers for low on state resistance. Alternatively ULN2803 could used as well (pin compatible)
@@ -43,61 +57,47 @@ The ESP32 has two circuits to control 2 sets of 3 74595 IC's. Three 74595 can co
 
 ### I2C Design
 
-The controller used both default I2C busses (Wire, Wire1) on custom pins on the EP32(-S3). On controller bus0 is connected to Wire and bus1 is connected to Wire1. Because most sensors have fixed I2C addresses, an multiplexer is required to connect more than one sensor to the same I2C bus. The multiplexer is a TCA9548A, a very common I2C multiplexer. The RTC is connected to bus 0 (Wire) and the LCD to bus1 (Wire1). The multiplexer, LCD and RTC have an adjustable I2C address so this configuration should never lead to an address conflict for devices on the I2C bus.
+The controller used both default I2C busses (Wire, Wire1) on custom pins on the EP32-S3. Because most sensors have fixed I2C addresses, an multiplexer is required to connect more than one sensor to the same I2C bus. The multiplexer is a TCA9548A, a very common I2C multiplexer. The RTC is connected to bus 0 and the LCD to bus1. The multiplexer, LCD and RTC have an adjustable I2C address so this configuration should never lead to an address conflict for devices on the I2C bus.
 
 To set the I2C address of the multiplexers, 6 resistor pads (R52/R53/R54/R55/R56/R57 for bus 0 and R58/R59/R60/R61/R62/R63. for bus 1) are available to solder 0 Ohm 0805 size resistors on (or a wire). Refer to the datasheet of the multiplexer: https://www.ti.com/lit/ds/symlink/tca9548a.pdf. Default is is that the A0,A1,A2 are connected to GND which gives the I2C address of 0x70. The multiplexer address can be set in the settings page. Remember to convert the hex address to a decimal number, e.g. default 0x70 address is 112 decimal.
 
 Most sensors and other I2C devices have internal pull-up resistors but if this is not the case, the controller PCB has the option to install  pull-up resistors to SDA and SCL for each sensor. The multiplexer allow also the use of sensors on +5V and 3.3V. The selection is done with a jumper on the controller. There are 4 voltage selection jumpers on the controller and each jumper control the voltage 4 sensors, e.g. bus0, sensors 0,1,2,3, bus0 sensors 4,5,6,7, bus1 sensors 0,1,2,3 and bus1 sensors 4,5,6,7.
 
+Hardware version 4 has the option to connect 2 additional devices to each bus (totally 4). The software will have to be adapted to make use of these devices.
+
 ### Hardware options
 
 The controller has the following hardware options:
-* Either ESP32-S3-WROOM-1-16R8N CPU or 30 pins ESP32 module CPU
 * LCD display
 * External I2C RTC
 * Rechargeable 1220 size battery (charging circuit)
 * 2 Programmable RGB LEDs
 * 2 Programmable pushbuttons
+* 2 programmable LEDs (v4 only)
 
 ### Hardware overview
 
-<center><img src="images/ventilation.jpg" width="100%" height="100%"></center>
+<center><img src="images/ventilation_v2.jpg" width="100%" height="100%"></center>
+<center><img src="images/ventilation_v3.jpg" width="100%" height="100%"></center>
 
 ## Software design
-The software is written in PlatformIO with the standard Arduino framework for ESP32 and ESP32-S3. Few additional libraries are required for web interface, MQTT, InfluxDB, sensors, RGB LEDS, displays and RTC.
-
-The software uses FreeRTOS functions availabe in the arduino framework. The software is modular because most functions are written as individual tasks. It should be possible to run the software without WiFi connection but with reduced functionaltiy.
+The software is written in C with ESP-IDF. Additional libraries are included for the RGB LEDs and littlefs. The software is modular because most functions are written as individual tasks. It should be possible to run the software without WiFi connection but with reduced functionaltiy.
 
 The software has the following tasks:
-* Task_web - Async webserver for configuration and monitoring of the system
-* Task statemach - Statemachine to control different operating mode based on sensor readings or time
-* Task influxdb - InfluxDB client for storing sensor data, system operating states and system/debug information 
-* Task MQTT - MQTT Client to publish sensor data, system operating states and system/debug information and fan control (option)
-* Task Neopixel - Control of 2 RGB LEDs for system status and fan speed
-* Task valve control - Control of position of the 12 valves
-* Task Wifi - Wifi manager. In the initial setup the ESP32(-S3) will be the access point. Once the Wifi has been configure it will connect to an access point with DHCP or manually configured
-* Task I2C - Task to control all I2C devices
+* task_i2c_ds3231 - Task to regurlarly synchronise the system time with NTP and health diagnostic
+* task_i2c_lcd - Task for displaying data on the LCD display
+* task_i2c_sensors - Task to regurlary read the sensor values
+* task_influxdb - Task to data on regular intervals to InfluxDB. Uses standard HTTP protocol, no additona libraries required
+* task_mqtt - Task to publish data to MQTT, uses default MQTT functions available in ESP-IDF
+* task_pushbutton - Task to control the functions of the 2 programmable pushbuttons
+* task_rgb - Task to control the RGB LEDs
+* task_statemachine - Task to control the statemachine. The statemachine decides how the systems responds to events such as events in time or sensor readings
+* task_sys_stats - Task
 
-The following external  libraries are required:
-* ESP32Async/ESPAsyncWebServer
-* ESP32Async/AsyncTCP
-* ArduinoJson
-* DHT20
-* adafruit/Adafruit BusIO
-* sensirion/Sensirion Core
-* sensirion/Sensirion I2C SCD4x
-* RTClib
-* Ethernet
-* HttpClient
-* tobiasschuerg/ESP8266 Influxdb
-* yiannisbourkelis/Uptime Library
-* adafruit/Adafruit NeoPixel
 
-There are two libraries included in the source:
-* PubSubClient
-* LiquidChristal_I2C
-
-The library LiquidChristal_I2C is fixed to Wire interface. The display is connected to Wire1 and therefore a moficiation to the source file was required and included in the source. The PubSubClient is the original MQTT client written by Nick O'Leary (http://knolleary.net).
+The following external libraries are required (included in managed_components):
+* Espressif_led_strip
+* joltwallet/littlefs
 
 ## Web interface
 
@@ -105,7 +105,8 @@ The library LiquidChristal_I2C is fixed to Wire interface. The display is connec
 
 This is the root page providing an overview of the sensor readings.
 
-<img src="images/status.png" width="50%" height="50%">
+<img src="images/status1.png" width="50%" height="50%">
+<img src="images/status2.png" width="50%" height="50%">
 
 ### Settings
 
@@ -114,6 +115,8 @@ Overview of the settings page. Each section of the settings page is detailed bel
 <img src="images/settings1.png" width="50%" height="50%">
 
 <img src="images/settings2.png" width="50%" height="50%">
+
+<img src="images/settings3.png" width="50%" height="50%">
 
 #### Network settings
 With empty settings the controller will start as an access point. With a mobile phone or tablet a WIFI connection can be made to "OSVENTILATION-WIFI". Once connected the webinterface can be reached on http://192.168.4.1
