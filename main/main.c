@@ -77,13 +77,11 @@ static void start_network_services(void)
  */
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
-    // Log the offending task name and handle before aborting
-    ESP_LOGE(TAG, "Stack overflow in task '%s' (handle=%p). Halting for postmortem.", pcTaskName ? pcTaskName : "<unknown>", (void *)xTask);
+    (void)xTask;
+    (void)pcTaskName;
 
-    // Optionally yield a short time to flush logs
-    vTaskDelay(pdMS_TO_TICKS(50));
-
-    // Abort to produce the panic/backtrace (so you can decode addresses)
+    // Avoid re-entering the logging subsystem from inside the overflow hook.
+    // The hardware will abort immediately so the crash dump can be captured.
     abort();
 }
 

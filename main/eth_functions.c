@@ -185,11 +185,11 @@ esp_err_t eth_hardware_reset(void)
 
         LOGI(TAG, "eth_hardware_reset: asserting W5500 reset GPIO %d", hw.w5500_rst_gpio);
         gpio_set_level((gpio_num_t)hw.w5500_rst_gpio, 0); // assert reset (active low)
-        vTaskDelay(pdMS_TO_TICKS(100));                   // hold reset (100 ms recommended)
+        vTaskDelay(pdMS_TO_TICKS(200));                   // hold reset long enough for W5500 to enter reset reliably
 
         LOGI(TAG, "eth_hardware_reset: releasing W5500 reset GPIO %d", hw.w5500_rst_gpio);
         gpio_set_level((gpio_num_t)hw.w5500_rst_gpio, 1); // release reset
-        vTaskDelay(pdMS_TO_TICKS(300));                   // allow W5500 to boot (300 ms)
+        vTaskDelay(pdMS_TO_TICKS(500));                   // allow W5500 to boot and settle before re-start
     }
     else
     {
@@ -774,6 +774,21 @@ void eth_start(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "eth_start: esp_eth_start failed: %s", esp_err_to_name(err));
+        LOGW(TAG, "eth_start: retrying once after a brief stop/start cycle");
+
+        esp_err_t stop_err = esp_eth_stop(eth_handle);
+        if (stop_err != ESP_OK && stop_err != ESP_ERR_INVALID_STATE)
+        {
+            LOGW(TAG, "eth_start: esp_eth_stop during retry -> %s", esp_err_to_name(stop_err));
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+        err = esp_eth_start(eth_handle);
+    }
+
+    if (err != ESP_OK)
+    {
+        LOGE(TAG, "eth_start: retry start failed: %s", esp_err_to_name(err));
     }
     else
     {
