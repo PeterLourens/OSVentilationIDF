@@ -843,7 +843,7 @@ static void influx_sender_task(void *pv)
 
             if (strcmp(cfg.enable_influxdb, "On") != 0)
             {
-                LOGW(TAG, "InfluxDB disabled; dropping payload");
+                LOGD(TAG, "InfluxDB disabled; dropping payload");
                 heap_caps_free(job.payload);
                 continue;
             }

@@ -28,34 +28,6 @@ void start_task_influxdb(void)
     }
 }
 
-/*void task_influxdb_code(void *pvParameters)
-{
-    vTaskDelay(pdMS_TO_TICKS(5000));
-
-    while (!network_has_ip())
-    {
-        LOGW(TAG, "InfluxDB: Waiting for network...");
-        vTaskDelay(pdMS_TO_TICKS(2000));
-    }
-
-    LOGI(TAG, "InfluxDB: Network ready");
-
-    if (!influxdb_wait_ready(pdMS_TO_TICKS(2000)))
-    {
-        LOGW(TAG, "Influx sender not ready after wait; enqueues will be skipped until ready");
-    }
-    else
-    {
-        LOGI(TAG, "Influx sender ready (queue=%p)", (void *)influx_queue);
-    }
-
-    while (true)
-    {
-        LOGI(TAG, "Update InfluxDB...");
-        influxdb_process(sensor_queue, sensor_avg_queue);
-        vTaskDelay(pdMS_TO_TICKS(20000));
-    }
-}*/
 void task_influxdb_code(void *pvParameters)
 {
     (void)pvParameters;
