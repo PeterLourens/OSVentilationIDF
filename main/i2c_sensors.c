@@ -38,6 +38,22 @@ typedef struct
 static sensor_slot_t bus0_sensors[CHANNELS_PER_BUS] = {0};
 static sensor_slot_t bus1_sensors[CHANNELS_PER_BUS] = {0};
 
+static void reset_sensor_average_slot(int bus, int slot)
+{
+    for (int m = 0; m < 5; ++m)
+    {
+        sum[bus][slot][m] = 0.0f;
+        avg[bus][slot][m] = 0.0f;
+        fifoSize[bus][slot][m] = 0;
+        fifoHead[bus][slot][m] = 0;
+
+        for (int i = 0; i < MAX_FIFO_SIZE; ++i)
+        {
+            sensor_fifo[bus][slot][m][i] = 0.0f;
+        }
+    }
+}
+
 // TCA9548A helpers
 /**
  * @brief Initialize the TCA9548A I2C multiplexer.
@@ -565,6 +581,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
             slots[ch].handle = NULL;
         }
         slots[ch].type = SENSOR_NONE;
+        reset_sensor_average_slot(bus_index, ch);
         return ESP_OK;
     }
 
@@ -574,6 +591,9 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
         LOGD(TAG, "CONFIG: bus=%d ch=%d already initialized (type=%d handle=%p), skipping", bus_index, ch, new_type, (void *)slots[ch].handle);
         return ESP_OK;
     }
+
+    // Clear stale average data when a channel is reconfigured or replaced.
+    reset_sensor_average_slot(bus_index, ch);
 
     // If a different type or no handle, remove old handle first */
     if (slots[ch].handle)
@@ -884,15 +904,24 @@ void sensor_data_average(void)
     {
         for (int slot = 0; slot < CHANNELS_PER_BUS; slot++)
         {
+            if (!sensor_data[bus][slot][IDX_VALID])
+            {
+                reset_sensor_average_slot(bus, slot);
+                sensor_avg_data[bus][slot][IDX_TIMESTAMP] = 0.0f;
+                sensor_avg_data[bus][slot][IDX_VALID] = 0.0f;
+
+                for (int m = 0; m < meas_count; m++)
+                {
+                    int field = meas_indices[m];
+                    sensor_avg_data[bus][slot][field] = 0.0f;
+                }
+                continue;
+            }
+
             for (int m = 0; m < meas_count; m++)
             {
                 int field = meas_indices[m];
-
-                if (sensor_data[bus][slot][IDX_VALID])
-                {
-                    fifoPush(bus, slot, m, sensor_data[bus][slot][field]);
-                }
-
+                fifoPush(bus, slot, m, sensor_data[bus][slot][field]);
                 sensor_avg_data[bus][slot][field] = avg[bus][slot][m];
             }
 
