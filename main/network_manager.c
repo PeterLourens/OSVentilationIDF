@@ -67,6 +67,21 @@ static void eth_watchdog_tick(void);
 static void eth_watchdog_force_restart(const char *reason);
 static bool eth_watchdog_gateway_reachable(void);
 
+static bool safe_eth_ip_info(esp_netif_ip_info_t *ip)
+{
+    if (!ip || eth_is_shutting_down())
+        return false;
+
+    if (eth_handle == NULL)
+        return false;
+
+    esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+    if (!eth)
+        return false;
+
+    return esp_netif_get_ip_info(eth, ip) == ESP_OK;
+}
+
 static void eth_watchdog_force_restart(const char *reason)
 {
     static int software_fail_count = 0;
@@ -547,9 +562,8 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
 
         // Log Ethernet IP info for diagnostics
         {
-            esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
             esp_netif_ip_info_t ip_info = {0};
-            if (eth_netif && esp_netif_get_ip_info(eth_netif, &ip_info) == ESP_OK)
+            if (safe_eth_ip_info(&ip_info))
             {
                 LOGI(TAG, "Network manager: Ethernet is up with IP " IPSTR, IP2STR(&ip_info.ip));
             }
@@ -677,8 +691,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
             xSemaphoreGive(statemachine_mutex);
         }
 
-        esp_netif_ip_info_t ip;
-        esp_err_t r = esp_netif_get_ip_info(eth, &ip);
+        esp_netif_ip_info_t ip = {0};
+        esp_err_t r = ESP_ERR_INVALID_STATE;
+        if (eth_handle != NULL && eth_netif != NULL && !eth_is_shutting_down())
+            r = esp_netif_get_ip_info(eth, &ip);
 
         bool static_ip_configured =
             (r == ESP_OK &&
@@ -709,6 +725,10 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
 
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED (handler)");
+
+        // Fully invalidate the ETH interface on unplug so no stale netif/IP state remains
+        // and Wi‑Fi failover can proceed instead of being stuck behind a dead Ethernet handle.
+        eth_teardown_safe();
 
         s_eth_wd.link_up_event = false;
         s_eth_wd.has_ip_event = false;
@@ -893,13 +913,16 @@ static void evaluate_config_and_apply(void)
 
     if (hw.has_ethernet)
     {
-        esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
-        if (ethnet)
+        if (eth_handle != NULL && !eth_is_shutting_down())
         {
-            esp_netif_ip_info_t ip;
-            eth_link_up = ethernet_link_is_up();
-            if (esp_netif_get_ip_info(ethnet, &ip) == ESP_OK && ip.ip.addr != 0)
-                eth_has_ip = true;
+            esp_netif_t *ethnet = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (ethnet)
+            {
+                esp_netif_ip_info_t ip;
+                eth_link_up = ethernet_link_is_up();
+                if (safe_eth_ip_info(&ip) && ip.ip.addr != 0)
+                    eth_has_ip = true;
+            }
         }
     }
 
@@ -1019,6 +1042,13 @@ static void evaluate_config_and_apply(void)
     {
         LOGI(TAG, "evaluate_config_and_apply: Ethernet has IP → enforce Wi‑Fi suppressed (Ethernet primary)");
 
+        esp_netif_t *eth_netif = esp_netif_get_handle_from_ifkey("ETH_DEF");
+        if (eth_netif)
+        {
+            esp_netif_set_default_netif(eth_netif);
+            LOGI(TAG, "evaluate_config_and_apply: Ethernet set as default netif");
+        }
+
         // Stop Wi‑Fi and clear Wi‑Fi actuals
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
@@ -1056,6 +1086,25 @@ static void evaluate_config_and_apply(void)
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
         return;
+    }
+
+    // If Ethernet is enabled but not yet established, do not start Wi‑Fi yet.
+    // This prevents the startup race where Wi‑Fi gets an IP before Ethernet finishes
+    // bringing up, then is later disabled when Ethernet becomes primary.
+    if (eth_enabled && hw.has_ethernet && !eth_has_ip && eth_handle != NULL && !eth_is_shutting_down())
+    {
+        TickType_t now = xTaskGetTickCount();
+        TickType_t start_tick = s_eth_wd.last_state_change;
+        if (start_tick == 0)
+            start_tick = now;
+
+        if ((now - start_tick) < pdMS_TO_TICKS(ETH_WD_NO_IP_TIMEOUT_MS))
+        {
+            LOGI(TAG, "evaluate_config_and_apply: Ethernet enabled but not established yet; deferring Wi‑Fi startup until Ethernet fails or times out");
+            wifi_manager_stop();
+            wifi_led_set_mode(LED_OFF);
+            return;
+        }
     }
 
     // Otherwise, Ethernet not present/usable — proceed to Wi‑Fi STA connect if credentials exist
@@ -1361,7 +1410,7 @@ static void network_manager_task(void *pvParameters)
         if (hw.has_ethernet)
         {
             esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
-            if (eth)
+            if (eth && eth_handle != NULL && !eth_is_shutting_down())
             {
                 esp_netif_ip_info_t ip;
                 esp_err_t r = esp_netif_get_ip_info(eth, &ip);
@@ -1441,6 +1490,17 @@ static void network_manager_task(void *pvParameters)
             s_request_update_actuals = true;
             s_request_syslog_update = true;
             s_request_mqtt_restart = true;
+        }
+
+        // Also ensure the default route follows Ethernet whenever Ethernet is the active interface.
+        if (hw.has_ethernet && eth_is_connected())
+        {
+            esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (eth && esp_netif_get_default_netif() != eth)
+            {
+                esp_netif_set_default_netif(eth);
+                LOGI(TAG, "network_manager_task: ETH default route restored because Ethernet is active");
+            }
         }
 
         // Re-evaluate configuration and apply changes (safe, nonblocking)

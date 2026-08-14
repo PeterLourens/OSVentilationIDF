@@ -227,12 +227,32 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
             if (esp_netif_get_ip_info(eth, &ip) == ESP_OK && ip.ip.addr != 0)
             {
                 LOGI(TAG, "wifi_manager_connect: Ethernet has IP → skipping Wi‑Fi connect (Ethernet primary)");
-                return ESP_OK; // treat as success because Ethernet is primary
-            }
-            if (ethernet_link_is_up())
-            {
-                LOGI(TAG, "wifi_manager_connect: Ethernet link up and DHCP pending → skipping Wi‑Fi connect for now");
                 return ESP_OK;
+            }
+        }
+
+        // Only defer Wi‑Fi while Ethernet is still actually alive and in a short startup window.
+        // Once the link is down / the interface has been torn down / unplugged, Wi‑Fi must be allowed to recover.
+        bool eth_is_live = (eth_handle != NULL && !eth_is_shutting_down() && ethernet_link_is_up());
+        if (eth_is_live)
+        {
+            LOGI(TAG, "wifi_manager_connect: Ethernet link up and DHCP pending → skipping Wi‑Fi connect for now");
+            return ESP_OK;
+        }
+
+        if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(50)) == pdTRUE)
+        {
+            bool eth_enabled = (strcmp(ethernet_config.enable_ethernet, "On") == 0);
+            xSemaphoreGive(network_config_mutex);
+            if (eth_enabled && eth_handle != NULL && !eth_is_shutting_down())
+            {
+                // Only defer for a short grace window while Ethernet is still coming up.
+                // Once the interface has been torn down or the link is absent, Wi‑Fi should take over.
+                if (ethernet_link_is_up())
+                {
+                    LOGI(TAG, "wifi_manager_connect: Ethernet link is still live → deferring Wi‑Fi startup briefly");
+                    return ESP_OK;
+                }
             }
         }
     }

@@ -97,6 +97,9 @@ esp_netif_t *get_active_netif(void)
        Fall back to Wi‑Fi STA only when it has a valid IP. */
     if (hw.has_ethernet)
     {
+        if (eth_handle == NULL || eth_netif == NULL || eth_is_shutting_down())
+            return NULL;
+
         esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
         if (eth)
         {

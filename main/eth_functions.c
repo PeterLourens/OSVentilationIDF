@@ -81,7 +81,15 @@ static void eth_teardown_locked(void)
         eth_glue = NULL;
     }
 
-    // Uninstall driver
+    // Destroy the LWIP ESP netif before recreating it. Leaving a stale ETH_DEF
+    // netif attached is what causes the classic "netif already added" assert when
+    // the driver is re-initialized after unplug/reconnect.
+    if (eth_netif)
+    {
+        esp_netif_destroy(eth_netif);
+        eth_netif = NULL;
+    }
+
     if (eth_handle)
     {
         esp_err_t r = esp_eth_driver_uninstall(eth_handle);
@@ -90,8 +98,6 @@ static void eth_teardown_locked(void)
         eth_handle = NULL;
     }
 
-    // Clear netif pointer and flags
-    eth_netif = NULL;
     s_eth_initialized = false;
     eth_started = false;
 
@@ -351,7 +357,10 @@ bool eth_is_connected(void)
     if (!hw.has_ethernet)
         return false;
 
-    if (eth_netif == NULL)
+    if (eth_is_shutting_down())
+        return false;
+
+    if (eth_handle == NULL || eth_netif == NULL)
         return false;
 
     if (!ethernet_link_is_up())
@@ -406,25 +415,24 @@ void eth_init(void)
         return;
     }
 
-    // Reuse or create ETH_DEF netif
+    // Always create a fresh ETH_DEF netif after teardown. Reusing a stale
+    // handle here is what causes the lwIP assert: "netif already added".
     esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (existing != NULL)
     {
-        eth_netif = existing;
-        LOGI(TAG, "eth_init: reusing existing ETH_DEF netif handle %p", (void *)eth_netif);
+        LOGW(TAG, "eth_init: stale ETH_DEF netif found (%p); destroying before recreating", (void *)existing);
+        esp_netif_destroy(existing);
     }
-    else
+
+    esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
+    eth_netif = esp_netif_new(&cfg);
+    if (eth_netif == NULL)
     {
-        esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
-        eth_netif = esp_netif_new(&cfg);
-        if (eth_netif == NULL)
-        {
-            LOGE(TAG, "eth_init: esp_netif_new returned NULL");
-            xSemaphoreGive(eth_lifecycle_mutex);
-            return;
-        }
-        LOGI(TAG, "eth_init: created new ETH_DEF netif %p", (void *)eth_netif);
+        LOGE(TAG, "eth_init: esp_netif_new returned NULL");
+        xSemaphoreGive(eth_lifecycle_mutex);
+        return;
     }
+    LOGI(TAG, "eth_init: created new ETH_DEF netif %p", (void *)eth_netif);
 
     // SPI bus init (idempotent)
     spi_bus_config_t buscfg = {
@@ -552,6 +560,18 @@ void eth_init(void)
         return;
     }
 
+    // Defensive guard: do not attach a netif that is already linked to lwIP.
+    if (eth_netif == NULL)
+    {
+        LOGE(TAG, "eth_init: ETH_DEF netif vanished before attach");
+        esp_eth_del_netif_glue(eth_glue);
+        eth_glue = NULL;
+        esp_eth_driver_uninstall(eth_handle);
+        eth_handle = NULL;
+        xSemaphoreGive(eth_lifecycle_mutex);
+        return;
+    }
+
     err = esp_netif_attach(eth_netif, eth_glue);
 
     if (err != ESP_OK)
@@ -596,6 +616,9 @@ void eth_init(void)
  */
 bool ethernet_link_is_up(void)
 {
+    if (eth_is_shutting_down())
+        return false;
+
 #if defined(ETH_CMD_G_PHY_LINK)
     if (eth_handle != NULL)
     {
@@ -609,7 +632,7 @@ bool ethernet_link_is_up(void)
     }
 #endif
 
-    if (eth_netif == NULL)
+    if (eth_handle == NULL || eth_netif == NULL)
         return false;
 
     esp_netif_ip_info_t ip;
