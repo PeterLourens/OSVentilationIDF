@@ -11,37 +11,35 @@ The basis for this design is:
 * The hardware is open source
 * The hardware can be used as an ESP32-S3 development platform to experiment with sensors, displays, other i2C devices and connectivity (wifi and ethernet)
 
-Two hardware versions are available:
+Two hardware revisions are available (there has never been a revision 3):
 
-Version 2
+### Revision 2
 <center><img src="images/IMG_2136.JPG" width="100%" height="100%"></center>
 
-
-Version 3
-
-
+### Revision 4
+<center><img src="images/hardware_rev4.jpg" width="100%" height="100%"></center>
+<center><img src="images/hardware_rev4_display.jpg" width="100%" height="100%"></center>
 
 The essential difference between both version is the removal of the external interface for an ESP32 module, the addition of a W5500 ethernet interface and 2 additional status LEDs, per default used to indicate wifi and ethernet status.
 
+Documentation of the software has been automatically generated (by AI and )
+
 ## Hardware design
-The hardware design is based on common electronic parts. The basis of the design:
+The hardware design is based on commonly available electronic parts. The basis of the design:
 * Microcontroller ESP32-S3.
-* 74HC595 for multiplication of processor I/O. Each valve has 4 coils to control and therefore 4 outputs are required per valve. In total 48 outputs are required. The 74HC595 are divided in two groups enabling scaling down to 6 valves for smaller houses
-* 2 I2C interface for: 
-    * up to 16 sensors
-    * Display (4x20 characters LCD with I2C backpack)
-    * Realtime Clock
-* Use of two I2C busses, Wire and Wire1:
-    * Bus 0 sensors and LCD
-    * Bus1 sensors and RTC
+* 74HC595 for multiplication of processor I/O. Each valve has 4 coils to control and therefore 4 outputs are required per valve. In total 48 outputs are required. The 74HC595 are divided in two groups enabling scaling down to 6 valves for smaller houses (not yet implemented in software).
+* Use of two I2C busses:
+    * Bus 0 with connectors for 8 sensors and LCD (4x20 characters with I2C backpack) and 2 spare I2C connectors (rev4 only)
+    * Bus1 with connectors for 8 sensors and Realtime Clock DS3231 and 2 spare I2C connectors (rev4 only)
 * Commonly used sensors; DHT20, SCD40/41. Other sensors can be integrated as well as long as they use the I2C bus
+* All I2C connections can have pull-up resistors if not integrated in the connected devices
 * Connection to sensors through I2C multiplexer (TCA9548) enabling the use of I2C sensors with fixed I2C addresses
 * 2 Addressable RGB LEDs for status and fandspeed
-* 2 Configurable pushbuttons, one is standard allocated to tuen on the LCD
-* Red power LED
-* A green LED (default assigned to WIFI status)
-* A blue LED (default assigned to Ethernet status)
-* Accurate RTC with rechargeable battery backup because most actions are time based
+* 2 Configurable pushbuttons, one is standard allocated to turn on the LCD
+* A red power LED
+* A green LED (rev4 only default assigned to WIFI status)
+* A blue LED (rev4 only default assigned to Ethernet status)
+* Accurate RTC with rechargeable battery backup because most actions are time based, alternative can be connected to spare I2C connectors 
 * Single 15V power supply with on-board (non-isolating) 3.3V and 5V convertors (1A capacity each)
 * Operation of sensors on 5V or 3.3V. Data communication always on 3.3V
 * MOSFET output drivers for low on state resistance. Alternatively ULN2803 could used as well (pin compatible)
@@ -77,8 +75,8 @@ The controller has the following hardware options:
 
 ### Hardware overview
 
-<center><img src="images/ventilation_v2.jpg" width="100%" height="100%"></center>
-<center><img src="images/ventilation_v3.jpg" width="100%" height="100%"></center>
+<center><img src="images/hardware3D_rev2.jpg" width="100%" height="100%"></center>
+<center><img src="images/hardware3D_rev4.png" width="100%" height="100%"></center>
 
 ## Software design
 The software is written in C with ESP-IDF. Additional libraries are included for the RGB LEDs and littlefs. The software is modular because most functions are written as individual tasks. It should be possible to run the software without WiFi connection but with reduced functionaltiy.
