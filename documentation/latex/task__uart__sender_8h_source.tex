@@ -1,0 +1,73 @@
+\doxysection{task\+\_\+uart\+\_\+sender.\+h}
+\hypertarget{task__uart__sender_8h_source}{}\label{task__uart__sender_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_uart\_sender.h@{/home/peter/Development/OSVentilationIDF/main/task\_uart\_sender.h}}
+\mbox{\hyperlink{task__uart__sender_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ TASK\_UART\_SENDER\_H}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ TASK\_UART\_SENDER\_H}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <stdarg.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ <freertos/FreeRTOS.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <freertos/task.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <driver/uart.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00028}00028\ \textcolor{comment}{//\ Configuration}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00029}00029\ \textcolor{preprocessor}{\#ifndef\ SENDER\_UART\_NUM}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00030}00030\ \textcolor{preprocessor}{\#define\ SENDER\_UART\_NUM\ UART\_NUM\_1}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00031}00031\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00033}00033\ \textcolor{preprocessor}{\#ifndef\ SENDER\_UART\_BAUD}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00034}00034\ \textcolor{preprocessor}{\#define\ SENDER\_UART\_BAUD\ 115200}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00035}00035\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00037}00037\ \textcolor{preprocessor}{\#ifndef\ SENDER\_UART\_RX\_BUF\_SIZE}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00038}00038\ \textcolor{preprocessor}{\#define\ SENDER\_UART\_RX\_BUF\_SIZE\ 256\ }\textcolor{comment}{//\ must\ be\ >\ UART\ HW\ FIFO\ (128\ on\ many\ chips)}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00039}00039\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00041}00041\ \textcolor{preprocessor}{\#ifndef\ SENDER\_TX\_BUF\_SIZE}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00042}00042\ \textcolor{preprocessor}{\#define\ SENDER\_TX\_BUF\_SIZE\ 2048\ }\textcolor{comment}{//\ must\ be\ >=\ max\ line\ length\ to\ avoid\ truncation;\ increased\ for\ safety}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00043}00043\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00045}00045\ \textcolor{comment}{//\ Queue\ settings}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00046}\mbox{\hyperlink{task__uart__sender_8h_a06633252b9be0200eb1ac90b6a1d0e78}{00046}}\ \textcolor{preprocessor}{\#define\ UART\_SENDER\_QUEUE\_LEN\ 128}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00047}\mbox{\hyperlink{task__uart__sender_8h_a024e4e95a65015e0c8cd7ee794daf92e}{00047}}\ \textcolor{preprocessor}{\#define\ UART\_SENDER\_MAX\_LINE\ 512\ }\textcolor{comment}{//\ max\ bytes\ per\ line\ (including\ CRLF)}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00049}00049\ \textcolor{comment}{//\ Static\ task\ storage\ for\ the\ user-\/visible\ task}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00050}00050\ \textcolor{preprocessor}{\#ifndef\ UART\_SENDER\_STACK\_WORDS}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00051}00051\ \textcolor{preprocessor}{\#define\ UART\_SENDER\_STACK\_WORDS\ 3072}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00052}00052\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00054}00054\ \textcolor{comment}{//\ Fixed\ buffer\ pool\ configuration}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00055}00055\ \textcolor{preprocessor}{\#ifndef\ UART\_POOL\_COUNT}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00056}00056\ \textcolor{preprocessor}{\#define\ UART\_POOL\_COUNT\ 64}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00057}00057\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00058}00058\ \textcolor{preprocessor}{\#ifndef\ UART\_POOL\_BUF\_SIZE}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00059}00059\ \textcolor{preprocessor}{\#define\ UART\_POOL\_BUF\_SIZE\ 512}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00060}00060\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00061}00061\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00062}00062\ \textcolor{comment}{//\ function\ declarations}}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00063}00063\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{task__uart__sender_8h_a0a6dd7ab5230f1b64947fbf47855995a}{uart\_sender\_get\_dropped\_count}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00064}00064\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{task__uart__sender_8h_aa6ef74f376eeadcd849426c8d101b4b9}{uart\_sender\_get\_pool\_exhaust\_count}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00065}00065\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{task__uart__sender_8h_ad27761c252a5dd886332658b5a010fd5}{uart\_log\_vprintf}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fmt,\ va\_list\ args);}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00066}00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__uart__sender_8h_a62235eef5f17424537d5c3024a141a48}{uart\_sender\_sendf}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fmt,\ ...);}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00067}00067\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__uart__sender_8h_a344d6c6da7d42dc307e6a78848139f9b}{start\_task\_uart\_sender}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00068}00068\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__uart__sender_8h_a6efb470e28a8dcc7e4a2f9db2c50c4c4}{stop\_task\_uart\_sender}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00069}00069\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__uart__sender_8h_a4a6dc8a92426ec4ce3b1d20def8fe428}{task\_uart\_sender\_code}}(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{task__uart__sender_8h_source_l00071}00071\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

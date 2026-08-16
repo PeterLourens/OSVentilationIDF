@@ -9,6 +9,7 @@ var syslog_8c =
     [ "syslog_queue_deinit", "syslog_8c.html#a020c13fcbba60e55e063f099a00bea74", null ],
     [ "syslog_queue_init", "syslog_8c.html#ab1e54a15fcb1206c48c501c107880ccf", null ],
     [ "syslog_send_line", "syslog_8c.html#a21ad61b41c644556b747e1607948ad29", null ],
+    [ "g_request_syslog_update", "syslog_8c.html#a3ba8760c6d06f052277f059d6b2d2ab7", null ],
     [ "syslog_enabled", "syslog_8c.html#a342ee57949923fc5afa079a5c7e0a1c8", null ],
     [ "TAG", "syslog_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

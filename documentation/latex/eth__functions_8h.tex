@@ -1,0 +1,489 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/eth\+\_\+functions.h File Reference}
+\hypertarget{eth__functions_8h}{}\label{eth__functions_8h}\index{/home/peter/Development/OSVentilationIDF/main/eth\_functions.h@{/home/peter/Development/OSVentilationIDF/main/eth\_functions.h}}
+
+
+Public Ethernet lifecycle and configuration API for the W5500 interface.  
+
+
+{\ttfamily \#include $<$driver/spi\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+netif.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth\+\_\+netif\+\_\+glue.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth\+\_\+mac.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth\+\_\+phy.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth\+\_\+mac\+\_\+spi.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$arpa/inet.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+idf\+\_\+version.\+h$>$}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}sys\+\_\+stats.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+functions.\+h"{}}\newline
+Include dependency graph for eth\+\_\+functions.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{eth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4}{eth\+\_\+lifecycle\+\_\+init\+\_\+once}} (void)
+\begin{DoxyCompactList}\small\item\em Create the Ethernet lifecycle mutex once. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{eth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd}{eth\+\_\+hardware\+\_\+reset}} (void)
+\begin{DoxyCompactList}\small\item\em Perform a guarded hardware reset of the Ethernet controller. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{eth__functions_8h_a9cb9ed4c6f2c4c1313ecf8993c06391d}{eth\+\_\+hardware\+\_\+reset\+\_\+safe}} (void)
+\begin{DoxyCompactList}\small\item\em Safe reset helper\+: try software restart first, then guarded hardware reset. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff}{eth\+\_\+teardown\+\_\+safe}} (void)
+\begin{DoxyCompactList}\small\item\em Safely teardown Ethernet resources when the lifecycle mutex is available. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1}{eth\+\_\+is\+\_\+connected}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether Ethernet is connected and has a valid IP address. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{eth__functions_8h_a84b588ee86e129becb7c9501a827e113}{ethernet\+\_\+link\+\_\+is\+\_\+up}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether the Ethernet PHY/link appears to be up. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6}{eth\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the Ethernet interface and driver. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd}{attempt\+\_\+guarded\+\_\+eth\+\_\+restart}} (void)
+\begin{DoxyCompactList}\small\item\em Attempt a guarded Ethernet restart when the link is down. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_a35e913e4e772138708751649995fc419}{handle\+\_\+deferred\+\_\+eth\+\_\+teardown\+\_\+if\+\_\+needed}} (void)
+\begin{DoxyCompactList}\small\item\em Retry a previously deferred Ethernet teardown if required. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2}{eth\+\_\+start}} (void)
+\begin{DoxyCompactList}\small\item\em Start the Ethernet driver and begin network operation. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{eth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5}{eth\+\_\+software\+\_\+restart}} (void)
+\begin{DoxyCompactList}\small\item\em Restart the Ethernet driver in software without a full teardown. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca}{eth\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Stop Ethernet operation and release driver resources. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{eth__functions_8h_aa9beadd076bf20623cd4696537a86b7e}{ethernet\+\_\+config\+\_\+is\+\_\+enabled}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether Ethernet is enabled in the runtime network configuration. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{eth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e}{ethernet\+\_\+config\+\_\+is\+\_\+dhcp\+\_\+enabled}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether Ethernet DHCP is enabled in the runtime network configuration. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{eth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107}{ethernet\+\_\+config\+\_\+apply}} (void)
+\begin{DoxyCompactList}\small\item\em Apply the current Ethernet configuration from the shared network config. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{eth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4}{eth\+\_\+set\+\_\+shutting\+\_\+down}} (bool v)
+\begin{DoxyCompactList}\small\item\em Mark that Ethernet shutdown is in progress. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{eth__functions_8h_a9d1a52f95274d5e44af2951d99bb59c1}{eth\+\_\+is\+\_\+shutting\+\_\+down}} (void)
+\begin{DoxyCompactList}\small\item\em Query whether Ethernet shutdown is currently in progress. \end{DoxyCompactList}\item 
+esp\+\_\+eth\+\_\+handle\+\_\+t \mbox{\hyperlink{eth__functions_8h_a2fcb11372e14fcede4741b6dd7b9dfc7}{eth\+\_\+get\+\_\+handle}} (void)
+\begin{DoxyCompactList}\small\item\em Retrieve the current ESP Ethernet driver handle. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+netif\+\_\+t \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{eth__functions_8h_a9ea2954ad22025318d0d8e31236cc8b3}{eth\+\_\+netif}}
+\item 
+esp\+\_\+eth\+\_\+handle\+\_\+t \mbox{\hyperlink{eth__functions_8h_a2de8665296107d26a2a527034e0bf2f9}{eth\+\_\+handle}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public Ethernet lifecycle and configuration API for the W5500 interface. 
+
+This header exposes the Ethernet initialization, restart, teardown, and configuration helpers used by the OSVentilation runtime. It also declares helpers for link status, connection state, and shutdown coordination. 
+
+Definition in file \mbox{\hyperlink{eth__functions_8h_source}{eth\+\_\+functions.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{eth__functions_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd}\index{eth\_functions.h@{eth\_functions.h}!attempt\_guarded\_eth\_restart@{attempt\_guarded\_eth\_restart}}
+\index{attempt\_guarded\_eth\_restart@{attempt\_guarded\_eth\_restart}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{attempt\_guarded\_eth\_restart()}{attempt\_guarded\_eth\_restart()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd} 
+void attempt\+\_\+guarded\+\_\+eth\+\_\+restart (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Attempt a guarded Ethernet restart when the link is down. 
+
+This helper applies backoff and may defer teardown if the lifecycle mutex is busy.
+
+This helper performs a safe restart sequence with backoff and deferred teardown if the lifecycle mutex is busy. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00651}{651}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a2fcb11372e14fcede4741b6dd7b9dfc7}\index{eth\_functions.h@{eth\_functions.h}!eth\_get\_handle@{eth\_get\_handle}}
+\index{eth\_get\_handle@{eth\_get\_handle}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_get\_handle()}{eth\_get\_handle()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a2fcb11372e14fcede4741b6dd7b9dfc7} 
+esp\+\_\+eth\+\_\+handle\+\_\+t eth\+\_\+get\+\_\+handle (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Retrieve the current ESP Ethernet driver handle. 
+
+\begin{DoxyReturn}{Returns}
+The current esp\+\_\+eth\+\_\+handle\+\_\+t, or NULL if not initialized.
+\end{DoxyReturn}
+Retrieve the current ESP Ethernet driver handle.
+
+\begin{DoxyReturn}{Returns}
+The current esp\+\_\+eth\+\_\+handle\+\_\+t, or NULL if Ethernet is not initialized. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l01109}{1109}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd}\index{eth\_functions.h@{eth\_functions.h}!eth\_hardware\_reset@{eth\_hardware\_reset}}
+\index{eth\_hardware\_reset@{eth\_hardware\_reset}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_hardware\_reset()}{eth\_hardware\_reset()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd} 
+esp\+\_\+err\+\_\+t eth\+\_\+hardware\+\_\+reset (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Perform a guarded hardware reset of the Ethernet controller. 
+
+This function safely resets the W5500 and reinitializes the Ethernet stack, ensuring that no lifecycle races occur during the reset. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Perform a guarded hardware reset of the Ethernet controller.
+
+This function acquires the Ethernet lifecycle mutex, stops DHCP and driver activity, toggles the W5500 reset GPIO if configured, and reinitializes the Ethernet stack. It ensures that no event handler races occur during reset.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, ESP\+\_\+\+ERR\+\_\+\+TIMEOUT if the lifecycle mutex could not be taken, or an ESP error code from initialization or driver start operations. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00145}{145}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a9cb9ed4c6f2c4c1313ecf8993c06391d}\index{eth\_functions.h@{eth\_functions.h}!eth\_hardware\_reset\_safe@{eth\_hardware\_reset\_safe}}
+\index{eth\_hardware\_reset\_safe@{eth\_hardware\_reset\_safe}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_hardware\_reset\_safe()}{eth\_hardware\_reset\_safe()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a9cb9ed4c6f2c4c1313ecf8993c06391d} 
+esp\+\_\+err\+\_\+t eth\+\_\+hardware\+\_\+reset\+\_\+safe (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Safe reset helper\+: try software restart first, then guarded hardware reset. 
+
+This wrapper prefers a light-\/weight software restart (eth\+\_\+software\+\_\+restart). If that fails or does not restore link, it calls the guarded hardware reset (eth\+\_\+hardware\+\_\+reset) which toggles the W5500 reset GPIO and reinitializes.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t describing the failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00262}{262}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6}\index{eth\_functions.h@{eth\_functions.h}!eth\_init@{eth\_init}}
+\index{eth\_init@{eth\_init}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_init()}{eth\_init()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6} 
+void eth\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the Ethernet interface and driver. 
+
+This function is idempotent and protects the Ethernet lifecycle with a mutex.
+
+Initialize the Ethernet interface and driver.
+
+This function is idempotent and protects the Ethernet lifecycle using a mutex. It sets up the SPI bus, MAC/\+PHY, driver, glue, and DHCP client if DHCP is enabled. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00382}{382}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1}\index{eth\_functions.h@{eth\_functions.h}!eth\_is\_connected@{eth\_is\_connected}}
+\index{eth\_is\_connected@{eth\_is\_connected}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_is\_connected()}{eth\_is\_connected()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1} 
+bool eth\+\_\+is\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether Ethernet is connected and has a valid IP address. 
+
+\begin{DoxyReturn}{Returns}
+true if Ethernet is connected, false otherwise.
+\end{DoxyReturn}
+Check whether Ethernet is connected and has a valid IP address.
+
+This function verifies that Ethernet hardware is present, the netif exists, the link is up, and a valid IPv4 address is assigned.
+
+\begin{DoxyReturn}{Returns}
+true if Ethernet is connected and has an IP address, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00355}{355}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a9d1a52f95274d5e44af2951d99bb59c1}\index{eth\_functions.h@{eth\_functions.h}!eth\_is\_shutting\_down@{eth\_is\_shutting\_down}}
+\index{eth\_is\_shutting\_down@{eth\_is\_shutting\_down}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_is\_shutting\_down()}{eth\_is\_shutting\_down()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a9d1a52f95274d5e44af2951d99bb59c1} 
+bool eth\+\_\+is\+\_\+shutting\+\_\+down (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Query whether Ethernet shutdown is currently in progress. 
+
+\begin{DoxyReturn}{Returns}
+true if shutdown is active, false otherwise.
+\end{DoxyReturn}
+Query whether Ethernet shutdown is currently in progress.
+
+\begin{DoxyReturn}{Returns}
+true when a shutdown is in progress, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l01099}{1099}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4}\index{eth\_functions.h@{eth\_functions.h}!eth\_lifecycle\_init\_once@{eth\_lifecycle\_init\_once}}
+\index{eth\_lifecycle\_init\_once@{eth\_lifecycle\_init\_once}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_lifecycle\_init\_once()}{eth\_lifecycle\_init\_once()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4} 
+void eth\+\_\+lifecycle\+\_\+init\+\_\+once (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Create the Ethernet lifecycle mutex once. 
+
+This function is safe to call multiple times; it allocates the mutex on the first invocation and no-\/ops on subsequent calls.
+
+Create the Ethernet lifecycle mutex once.
+
+This function is safe to call repeatedly and creates the mutex the first time it is needed. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00311}{311}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4}\index{eth\_functions.h@{eth\_functions.h}!eth\_set\_shutting\_down@{eth\_set\_shutting\_down}}
+\index{eth\_set\_shutting\_down@{eth\_set\_shutting\_down}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_set\_shutting\_down()}{eth\_set\_shutting\_down()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4} 
+void eth\+\_\+set\+\_\+shutting\+\_\+down (\begin{DoxyParamCaption}\item[{bool}]{v}{}\end{DoxyParamCaption})}
+
+
+
+Mark that Ethernet shutdown is in progress. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em v} & true if Ethernet is currently shutting down, false otherwise.\\
+\hline
+\end{DoxyParams}
+Mark that Ethernet shutdown is in progress.
+
+
+\begin{DoxyParams}{Parameters}
+{\em v} & true to indicate shutdown is in progress, false otherwise. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l01089}{1089}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5}\index{eth\_functions.h@{eth\_functions.h}!eth\_software\_restart@{eth\_software\_restart}}
+\index{eth\_software\_restart@{eth\_software\_restart}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_software\_restart()}{eth\_software\_restart()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5} 
+esp\+\_\+err\+\_\+t eth\+\_\+software\+\_\+restart (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Restart the Ethernet driver in software without a full teardown. 
+
+This stops and restarts the current Ethernet driver instance while holding the lifecycle mutex. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Restart the Ethernet driver in software without a full teardown.
+
+This stops and restarts the currently installed Ethernet driver while the lifecycle mutex is held. It is intended for runtime restart without a full hardware teardown.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK if restart succeeded, otherwise the esp\+\_\+err\+\_\+t from the stop or start operation. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00837}{837}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2}\index{eth\_functions.h@{eth\_functions.h}!eth\_start@{eth\_start}}
+\index{eth\_start@{eth\_start}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_start()}{eth\_start()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2} 
+void eth\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Start the Ethernet driver and begin network operation. 
+
+If the driver is not initialized, it will be initialized first.
+
+Start the Ethernet driver and begin network operation.
+
+This function is idempotent and uses the lifecycle mutex to avoid races during startup. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00749}{749}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca}\index{eth\_functions.h@{eth\_functions.h}!eth\_stop@{eth\_stop}}
+\index{eth\_stop@{eth\_stop}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_stop()}{eth\_stop()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca} 
+void eth\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Stop Ethernet operation and release driver resources. 
+
+This function performs a full cleanup of Ethernet state.
+
+Stop Ethernet operation and release driver resources.
+
+This function uses the lifecycle mutex and calls the locked teardown helper to release all Ethernet resources safely. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00894}{894}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff}\index{eth\_functions.h@{eth\_functions.h}!eth\_teardown\_safe@{eth\_teardown\_safe}}
+\index{eth\_teardown\_safe@{eth\_teardown\_safe}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_teardown\_safe()}{eth\_teardown\_safe()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff} 
+void eth\+\_\+teardown\+\_\+safe (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Safely teardown Ethernet resources when the lifecycle mutex is available. 
+
+If the lifecycle mutex cannot be obtained, teardown is deferred.
+
+Safely teardown Ethernet resources when the lifecycle mutex is available.
+
+If the mutex cannot be taken immediately, the teardown is deferred and a flag is set. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00328}{328}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107}\index{eth\_functions.h@{eth\_functions.h}!ethernet\_config\_apply@{ethernet\_config\_apply}}
+\index{ethernet\_config\_apply@{ethernet\_config\_apply}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ethernet\_config\_apply()}{ethernet\_config\_apply()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107} 
+esp\+\_\+err\+\_\+t ethernet\+\_\+config\+\_\+apply (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Apply the current Ethernet configuration from the shared network config. 
+
+This updates DHCP/static IP settings and hostname for the Ethernet interface. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Apply the current Ethernet configuration from the shared network config.
+
+This function configures the Ethernet hostname, starts or stops the driver, and applies DHCP or static IPv4 settings as requested by the configuration.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00976}{976}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e}\index{eth\_functions.h@{eth\_functions.h}!ethernet\_config\_is\_dhcp\_enabled@{ethernet\_config\_is\_dhcp\_enabled}}
+\index{ethernet\_config\_is\_dhcp\_enabled@{ethernet\_config\_is\_dhcp\_enabled}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ethernet\_config\_is\_dhcp\_enabled()}{ethernet\_config\_is\_dhcp\_enabled()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e} 
+bool ethernet\+\_\+config\+\_\+is\+\_\+dhcp\+\_\+enabled (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether Ethernet DHCP is enabled in the runtime network configuration. 
+
+\begin{DoxyReturn}{Returns}
+true if DHCP is enabled for Ethernet.
+\end{DoxyReturn}
+Check whether Ethernet DHCP is enabled in the runtime network configuration.
+
+\begin{DoxyReturn}{Returns}
+true if Ethernet DHCP is enabled in the stored configuration, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00953}{953}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_aa9beadd076bf20623cd4696537a86b7e}\index{eth\_functions.h@{eth\_functions.h}!ethernet\_config\_is\_enabled@{ethernet\_config\_is\_enabled}}
+\index{ethernet\_config\_is\_enabled@{ethernet\_config\_is\_enabled}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ethernet\_config\_is\_enabled()}{ethernet\_config\_is\_enabled()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_aa9beadd076bf20623cd4696537a86b7e} 
+bool ethernet\+\_\+config\+\_\+is\+\_\+enabled (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether Ethernet is enabled in the runtime network configuration. 
+
+\begin{DoxyReturn}{Returns}
+true if Ethernet is configured as enabled.
+\end{DoxyReturn}
+Check whether Ethernet is enabled in the runtime network configuration.
+
+\begin{DoxyReturn}{Returns}
+true if Ethernet is enabled in the stored configuration, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00933}{933}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a84b588ee86e129becb7c9501a827e113}\index{eth\_functions.h@{eth\_functions.h}!ethernet\_link\_is\_up@{ethernet\_link\_is\_up}}
+\index{ethernet\_link\_is\_up@{ethernet\_link\_is\_up}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ethernet\_link\_is\_up()}{ethernet\_link\_is\_up()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a84b588ee86e129becb7c9501a827e113} 
+bool ethernet\+\_\+link\+\_\+is\+\_\+up (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether the Ethernet PHY/link appears to be up. 
+
+This may query the PHY directly or fall back to checking the assigned IP. \begin{DoxyReturn}{Returns}
+true if the Ethernet link is up, false otherwise.
+\end{DoxyReturn}
+Check whether the Ethernet PHY/link appears to be up.
+
+This function first attempts to query PHY link status directly via IOCTL. If that is not available, it falls back to checking whether the Ethernet netif has a valid IPv4 address.
+
+\begin{DoxyReturn}{Returns}
+true if the Ethernet link is up, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00617}{617}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a35e913e4e772138708751649995fc419}\index{eth\_functions.h@{eth\_functions.h}!handle\_deferred\_eth\_teardown\_if\_needed@{handle\_deferred\_eth\_teardown\_if\_needed}}
+\index{handle\_deferred\_eth\_teardown\_if\_needed@{handle\_deferred\_eth\_teardown\_if\_needed}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{handle\_deferred\_eth\_teardown\_if\_needed()}{handle\_deferred\_eth\_teardown\_if\_needed()}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a35e913e4e772138708751649995fc419} 
+void handle\+\_\+deferred\+\_\+eth\+\_\+teardown\+\_\+if\+\_\+needed (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Retry a previously deferred Ethernet teardown if required. 
+
+Called periodically by the network manager task.
+
+Retry a previously deferred Ethernet teardown if required.
+
+Called periodically from the network manager task when teardown could not be completed earlier because the lifecycle mutex was busy. 
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00718}{718}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{eth__functions_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{eth__functions_8h_a2de8665296107d26a2a527034e0bf2f9}\index{eth\_functions.h@{eth\_functions.h}!eth\_handle@{eth\_handle}}
+\index{eth\_handle@{eth\_handle}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_handle}{eth\_handle}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a2de8665296107d26a2a527034e0bf2f9} 
+esp\+\_\+eth\+\_\+handle\+\_\+t eth\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00022}{22}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+
+\Hypertarget{eth__functions_8h_a9ea2954ad22025318d0d8e31236cc8b3}\index{eth\_functions.h@{eth\_functions.h}!eth\_netif@{eth\_netif}}
+\index{eth\_netif@{eth\_netif}!eth\_functions.h@{eth\_functions.h}}
+\doxysubsubsection{\texorpdfstring{eth\_netif}{eth\_netif}}
+{\footnotesize\ttfamily \label{eth__functions_8h_a9ea2954ad22025318d0d8e31236cc8b3} 
+esp\+\_\+netif\+\_\+t\texorpdfstring{$\ast$}{*} eth\+\_\+netif\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00021}{21}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
+

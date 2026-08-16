@@ -1,0 +1,58 @@
+\doxysection{task\+\_\+statemachine.\+c}
+\hypertarget{task__statemachine_8c_source}{}\label{task__statemachine_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_statemachine.c@{/home/peter/Development/OSVentilationIDF/main/task\_statemachine.c}}
+\mbox{\hyperlink{task__statemachine_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__statemachine_8h}{task\_statemachine.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_sm"{}};}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ sm\_stack[8192];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ sm\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ sm\_stack\_size\ =\ 8192;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 4096\ words\ =\ 16\ KB}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00020}00020\ \textcolor{comment}{//\ Functions\ for\ the\ task\ statemachine\ would\ go\ here}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00021}\mbox{\hyperlink{task__statemachine_8c_a3e82ad656087c71f923a600a15e15aa9}{00021}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__statemachine_8c_a3e82ad656087c71f923a600a15e15aa9}{start\_task\_statemachine}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00022}00022\ \{}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00023}00023\ \ \ \ \ \textcolor{comment}{//\ Create\ statemachine\ task}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00024}00024\ \ \ \ \ \mbox{\hyperlink{globals_8c_afd3689588486e810744b2dadb571c24b}{task\_statemachine}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__statemachine_8c_ac862c2c78ff997ac06b48c49a42a2471}{task\_statemachine\_code}},\ \textcolor{stringliteral}{"{}statemach"{}},\ sm\_stack\_size,\ NULL,\ 12,\ sm\_stack,\ \&sm\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00026}00026\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_afd3689588486e810744b2dadb571c24b}{task\_statemachine}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00027}00027\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00028}00028\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Statemachine\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00029}00029\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00030}00030\ \}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00032}\mbox{\hyperlink{task__statemachine_8c_ac862c2c78ff997ac06b48c49a42a2471}{00032}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__statemachine_8c_ac862c2c78ff997ac06b48c49a42a2471}{task\_statemachine\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00033}00033\ \{}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00034}00034\ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a698cd211faae13ee7a85f1d740e1d5e0}{init\_statemachine}}();}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00036}00036\ \ \ \ \ \textcolor{comment}{//\ Set\ name\ temp\ to\ state\ number\ 13\ otherwise\ function\ state\ name\ cannot\ be\ found\ from\ state\ number}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00037}00037\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ (TickType\_t)10)\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00038}00038\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00039}00039\ \ \ \ \ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a700b92da5320ed878359c09222b39b48}{STATE\_NR\_TEMP}}].state\_name,\ \textcolor{stringliteral}{"{}temp"{}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a700b92da5320ed878359c09222b39b48}{STATE\_NR\_TEMP}}].state\_name));}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00040}00040\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00041}00041\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00043}00043\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00044}00044\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Run\ the\ state\ machine}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Running\ statemachine..."{}});}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a0e57b192099637ff71dcf0df93d2c9cb}{run\_statemachine}}();}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ LEDs}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Update\ LEDs..."{}});}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ xTaskNotifyGive(\mbox{\hyperlink{globals_8c_a9ddebb40ab9ed98f51c84eca1a9d0cb2}{task\_rgb\_leds}});}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Run\ every\ 30\ secs}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ vTaskDelay(30000);}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00055}00055\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__statemachine_8c_source_l00056}00056\ \}}
+
+\end{DoxyCode}

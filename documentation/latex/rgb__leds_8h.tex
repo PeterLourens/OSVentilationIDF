@@ -1,0 +1,352 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/rgb\+\_\+leds.h File Reference}
+\hypertarget{rgb__leds_8h}{}\label{rgb__leds_8h}\index{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.h@{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.h}}
+
+
+Public RGB LED declarations for OSVentilation status indicators.  
+
+
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$led\+\_\+strip.\+h$>$}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+Include dependency graph for rgb\+\_\+leds.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structColor__t}{Color\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structLedRule__t}{Led\+Rule\+\_\+t}}
+\item 
+struct \mbox{\hyperlink{structBlinkState__t}{Blink\+State\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{rgb__leds_8h_a8a6bd7a49ceea22233fb2313ef2060cd}{RGB\+\_\+\+LED\+\_\+\+NUM}}~2
+\item 
+\#define \mbox{\hyperlink{rgb__leds_8h_aa2afe4e6527e6419ad167cb2526ff0b8}{RMT\+\_\+\+RESOLUTION\+\_\+\+HZ}}~8000000
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} \{ \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\+\_\+\+RED}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}{COLOR\+\_\+\+GREEN}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}{COLOR\+\_\+\+BLUE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}{COLOR\+\_\+\+YELLOW}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37}{COLOR\+\_\+\+MAGENTA}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7896ff2cc707b5873da0b97d38bf852e}{COLOR\+\_\+\+CYAN}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec}{COLOR\+\_\+\+WHITE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0d36904c1e8ef3978abfe51c57b70423}{COLOR\+\_\+\+ORANGE}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc}{COLOR\+\_\+\+PURPLE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}{COLOR\+\_\+\+DEEP\+\_\+\+ORANGE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa4da0c4ea2ebe32ae38cb82e3a8ef804}{COLOR\+\_\+\+AMBER}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6}{COLOR\+\_\+\+GOLD}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb}{COLOR\+\_\+\+HOT\+\_\+\+PINK}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0f0c45d1d6eb272466bae0b597af6ccf}{COLOR\+\_\+\+DEEP\+\_\+\+PINK}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457babf002dcb50831be52fe09196a3b2417b}{COLOR\+\_\+\+SKY\+\_\+\+BLUE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a}{COLOR\+\_\+\+TEAL}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac666d99764e8658d0c60166e6cc3a93e}{COLOR\+\_\+\+DARK\+\_\+\+GREEN}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c}{COLOR\+\_\+\+INDIGO}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba97e4b144ec0f5f6a6d19eccd00a1cba8}{COLOR\+\_\+\+LIGHT\+\_\+\+BLUE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1948ac4299c6876345623d32d62a02c2}{COLOR\+\_\+\+MINT}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d}{COLOR\+\_\+\+CHOCOLATE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd}{COLOR\+\_\+\+SEA\+\_\+\+GREEN}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}{COLOR\+\_\+\+DEEP\+\_\+\+SKY\+\_\+\+BLUE}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2}{COLOR\+\_\+\+MEDIUM\+\_\+\+SLATE\+\_\+\+BLUE}}
+, \newline
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba285ad4acdaf695a00c5d28eb4eda05b4}{COLOR\+\_\+\+LIGHT\+\_\+\+CORAL}}
+, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{COLOR\+\_\+\+COUNT}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{rgb__leds_8h_aa5c378cd8fe1665ba43767a57fbd1c42}{init\+\_\+rgb\+\_\+led}} (void)
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_a94038ba1401403cc315e49d6bb7976c9}{set\+\_\+led\+\_\+brightness}} (int, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}, uint8\+\_\+t)
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_aba2bf9a87597f97af74bb1e4f37ab04c}{set\+\_\+led}} (int, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}})
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_abd7cc0795e320b317b4e93908ba32648}{set\+\_\+off}} (int)
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_a95e73c2991b4f8fc46f2bbfa78b562e5}{leds\+\_\+set\+\_\+snapshot}} (const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*})
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_a19ca8bb73d9f9d3858ab1a366b5096f9}{leds\+\_\+notify\+\_\+update}} (void)
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_a00bd1fd8a4e3a0e41993beed66af301f}{leds\+\_\+set\+\_\+brightness}} (uint8\+\_\+t)
+\item 
+void \mbox{\hyperlink{rgb__leds_8h_a013d64a44c426460005786fdbcb5ff1b}{leds\+\_\+update}} (const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+led\+\_\+strip\+\_\+handle\+\_\+t \mbox{\hyperlink{rgb__leds_8h_aab876d664d358a7a94bbda3cc8899479}{rgb\+\_\+leds}}
+\item 
+const \mbox{\hyperlink{structColor__t}{Color\+\_\+t}} \mbox{\hyperlink{rgb__leds_8h_a31f73b65f564ef73af3ab49df4f0f808}{COLORS}} \mbox{[}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{COLOR\+\_\+\+COUNT}}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public RGB LED declarations for OSVentilation status indicators. 
+
+
+
+Definition in file \mbox{\hyperlink{rgb__leds_8h_source}{rgb\+\_\+leds.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{rgb__leds_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{rgb__leds_8h_a8a6bd7a49ceea22233fb2313ef2060cd}\index{rgb\_leds.h@{rgb\_leds.h}!RGB\_LED\_NUM@{RGB\_LED\_NUM}}
+\index{RGB\_LED\_NUM@{RGB\_LED\_NUM}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{RGB\_LED\_NUM}{RGB\_LED\_NUM}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a8a6bd7a49ceea22233fb2313ef2060cd} 
+\#define RGB\+\_\+\+LED\+\_\+\+NUM~2}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8h_source_l00021}{21}} of file \mbox{\hyperlink{rgb__leds_8h_source}{rgb\+\_\+leds.\+h}}.
+
+\Hypertarget{rgb__leds_8h_aa2afe4e6527e6419ad167cb2526ff0b8}\index{rgb\_leds.h@{rgb\_leds.h}!RMT\_RESOLUTION\_HZ@{RMT\_RESOLUTION\_HZ}}
+\index{RMT\_RESOLUTION\_HZ@{RMT\_RESOLUTION\_HZ}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{RMT\_RESOLUTION\_HZ}{RMT\_RESOLUTION\_HZ}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_aa2afe4e6527e6419ad167cb2526ff0b8} 
+\#define RMT\+\_\+\+RESOLUTION\+\_\+\+HZ~8000000}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8h_source_l00022}{22}} of file \mbox{\hyperlink{rgb__leds_8h_source}{rgb\+\_\+leds.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{rgb__leds_8h_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}\index{rgb\_leds.h@{rgb\_leds.h}!ColorName\_t@{ColorName\_t}}
+\index{ColorName\_t@{ColorName\_t}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{ColorName\_t}{ColorName\_t}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b} 
+enum \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_RED@{COLOR\_RED}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_RED@{COLOR\_RED}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950} 
+COLOR\+\_\+\+RED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_GREEN@{COLOR\_GREEN}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_GREEN@{COLOR\_GREEN}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02} 
+COLOR\+\_\+\+GREEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_BLUE@{COLOR\_BLUE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_BLUE@{COLOR\_BLUE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696} 
+COLOR\+\_\+\+BLUE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_YELLOW@{COLOR\_YELLOW}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_YELLOW@{COLOR\_YELLOW}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29} 
+COLOR\+\_\+\+YELLOW&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_MAGENTA@{COLOR\_MAGENTA}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_MAGENTA@{COLOR\_MAGENTA}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37} 
+COLOR\+\_\+\+MAGENTA&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_CYAN@{COLOR\_CYAN}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_CYAN@{COLOR\_CYAN}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7896ff2cc707b5873da0b97d38bf852e}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7896ff2cc707b5873da0b97d38bf852e} 
+COLOR\+\_\+\+CYAN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_WHITE@{COLOR\_WHITE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_WHITE@{COLOR\_WHITE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec} 
+COLOR\+\_\+\+WHITE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_ORANGE@{COLOR\_ORANGE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_ORANGE@{COLOR\_ORANGE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0d36904c1e8ef3978abfe51c57b70423}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0d36904c1e8ef3978abfe51c57b70423} 
+COLOR\+\_\+\+ORANGE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_PURPLE@{COLOR\_PURPLE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_PURPLE@{COLOR\_PURPLE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc} 
+COLOR\+\_\+\+PURPLE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_DEEP\_ORANGE@{COLOR\_DEEP\_ORANGE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_DEEP\_ORANGE@{COLOR\_DEEP\_ORANGE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4} 
+COLOR\+\_\+\+DEEP\+\_\+\+ORANGE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_AMBER@{COLOR\_AMBER}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_AMBER@{COLOR\_AMBER}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa4da0c4ea2ebe32ae38cb82e3a8ef804}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa4da0c4ea2ebe32ae38cb82e3a8ef804} 
+COLOR\+\_\+\+AMBER&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_GOLD@{COLOR\_GOLD}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_GOLD@{COLOR\_GOLD}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6} 
+COLOR\+\_\+\+GOLD&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_HOT\_PINK@{COLOR\_HOT\_PINK}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_HOT\_PINK@{COLOR\_HOT\_PINK}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb} 
+COLOR\+\_\+\+HOT\+\_\+\+PINK&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_DEEP\_PINK@{COLOR\_DEEP\_PINK}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_DEEP\_PINK@{COLOR\_DEEP\_PINK}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0f0c45d1d6eb272466bae0b597af6ccf}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0f0c45d1d6eb272466bae0b597af6ccf} 
+COLOR\+\_\+\+DEEP\+\_\+\+PINK&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_SKY\_BLUE@{COLOR\_SKY\_BLUE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_SKY\_BLUE@{COLOR\_SKY\_BLUE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457babf002dcb50831be52fe09196a3b2417b}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457babf002dcb50831be52fe09196a3b2417b} 
+COLOR\+\_\+\+SKY\+\_\+\+BLUE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_TEAL@{COLOR\_TEAL}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_TEAL@{COLOR\_TEAL}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a} 
+COLOR\+\_\+\+TEAL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_DARK\_GREEN@{COLOR\_DARK\_GREEN}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_DARK\_GREEN@{COLOR\_DARK\_GREEN}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac666d99764e8658d0c60166e6cc3a93e}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac666d99764e8658d0c60166e6cc3a93e} 
+COLOR\+\_\+\+DARK\+\_\+\+GREEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_INDIGO@{COLOR\_INDIGO}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_INDIGO@{COLOR\_INDIGO}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c} 
+COLOR\+\_\+\+INDIGO&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_LIGHT\_BLUE@{COLOR\_LIGHT\_BLUE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_LIGHT\_BLUE@{COLOR\_LIGHT\_BLUE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba97e4b144ec0f5f6a6d19eccd00a1cba8}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba97e4b144ec0f5f6a6d19eccd00a1cba8} 
+COLOR\+\_\+\+LIGHT\+\_\+\+BLUE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_MINT@{COLOR\_MINT}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_MINT@{COLOR\_MINT}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1948ac4299c6876345623d32d62a02c2}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1948ac4299c6876345623d32d62a02c2} 
+COLOR\+\_\+\+MINT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_CHOCOLATE@{COLOR\_CHOCOLATE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_CHOCOLATE@{COLOR\_CHOCOLATE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d} 
+COLOR\+\_\+\+CHOCOLATE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_SEA\_GREEN@{COLOR\_SEA\_GREEN}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_SEA\_GREEN@{COLOR\_SEA\_GREEN}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd} 
+COLOR\+\_\+\+SEA\+\_\+\+GREEN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_DEEP\_SKY\_BLUE@{COLOR\_DEEP\_SKY\_BLUE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_DEEP\_SKY\_BLUE@{COLOR\_DEEP\_SKY\_BLUE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0} 
+COLOR\+\_\+\+DEEP\+\_\+\+SKY\+\_\+\+BLUE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_MEDIUM\_SLATE\_BLUE@{COLOR\_MEDIUM\_SLATE\_BLUE}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_MEDIUM\_SLATE\_BLUE@{COLOR\_MEDIUM\_SLATE\_BLUE}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2} 
+COLOR\+\_\+\+MEDIUM\+\_\+\+SLATE\+\_\+\+BLUE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_LIGHT\_CORAL@{COLOR\_LIGHT\_CORAL}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_LIGHT\_CORAL@{COLOR\_LIGHT\_CORAL}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba285ad4acdaf695a00c5d28eb4eda05b4}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba285ad4acdaf695a00c5d28eb4eda05b4} 
+COLOR\+\_\+\+LIGHT\+\_\+\+CORAL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{COLOR\_COUNT@{COLOR\_COUNT}!rgb\_leds.h@{rgb\_leds.h}}\index{rgb\_leds.h@{rgb\_leds.h}!COLOR\_COUNT@{COLOR\_COUNT}}}\Hypertarget{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}\label{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d} 
+COLOR\+\_\+\+COUNT&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8h_source_l00041}{41}} of file \mbox{\hyperlink{rgb__leds_8h_source}{rgb\+\_\+leds.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{rgb__leds_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{rgb__leds_8h_aa5c378cd8fe1665ba43767a57fbd1c42}\index{rgb\_leds.h@{rgb\_leds.h}!init\_rgb\_led@{init\_rgb\_led}}
+\index{init\_rgb\_led@{init\_rgb\_led}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{init\_rgb\_led()}{init\_rgb\_led()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_aa5c378cd8fe1665ba43767a57fbd1c42} 
+esp\+\_\+err\+\_\+t init\+\_\+rgb\+\_\+led (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00111}{111}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_a19ca8bb73d9f9d3858ab1a366b5096f9}\index{rgb\_leds.h@{rgb\_leds.h}!leds\_notify\_update@{leds\_notify\_update}}
+\index{leds\_notify\_update@{leds\_notify\_update}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{leds\_notify\_update()}{leds\_notify\_update()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a19ca8bb73d9f9d3858ab1a366b5096f9} 
+void leds\+\_\+notify\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{rgb__leds_8h_a00bd1fd8a4e3a0e41993beed66af301f}\index{rgb\_leds.h@{rgb\_leds.h}!leds\_set\_brightness@{leds\_set\_brightness}}
+\index{leds\_set\_brightness@{leds\_set\_brightness}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{leds\_set\_brightness()}{leds\_set\_brightness()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a00bd1fd8a4e3a0e41993beed66af301f} 
+void leds\+\_\+set\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00133}{133}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_a95e73c2991b4f8fc46f2bbfa78b562e5}\index{rgb\_leds.h@{rgb\_leds.h}!leds\_set\_snapshot@{leds\_set\_snapshot}}
+\index{leds\_set\_snapshot@{leds\_set\_snapshot}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{leds\_set\_snapshot()}{leds\_set\_snapshot()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a95e73c2991b4f8fc46f2bbfa78b562e5} 
+void leds\+\_\+set\+\_\+snapshot (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{rgb__leds_8h_a013d64a44c426460005786fdbcb5ff1b}\index{rgb\_leds.h@{rgb\_leds.h}!leds\_update@{leds\_update}}
+\index{leds\_update@{leds\_update}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{leds\_update()}{leds\_update()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a013d64a44c426460005786fdbcb5ff1b} 
+void leds\+\_\+update (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{sm}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00173}{173}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_aba2bf9a87597f97af74bb1e4f37ab04c}\index{rgb\_leds.h@{rgb\_leds.h}!set\_led@{set\_led}}
+\index{set\_led@{set\_led}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{set\_led()}{set\_led()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_aba2bf9a87597f97af74bb1e4f37ab04c} 
+void set\+\_\+led (\begin{DoxyParamCaption}\item[{int}]{led}{, }\item[{\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}]{color}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00151}{151}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_a94038ba1401403cc315e49d6bb7976c9}\index{rgb\_leds.h@{rgb\_leds.h}!set\_led\_brightness@{set\_led\_brightness}}
+\index{set\_led\_brightness@{set\_led\_brightness}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{set\_led\_brightness()}{set\_led\_brightness()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a94038ba1401403cc315e49d6bb7976c9} 
+void set\+\_\+led\+\_\+brightness (\begin{DoxyParamCaption}\item[{int}]{led}{, }\item[{\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}]{color}{, }\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00139}{139}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_abd7cc0795e320b317b4e93908ba32648}\index{rgb\_leds.h@{rgb\_leds.h}!set\_off@{set\_off}}
+\index{set\_off@{set\_off}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{set\_off()}{set\_off()}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_abd7cc0795e320b317b4e93908ba32648} 
+void set\+\_\+off (\begin{DoxyParamCaption}\item[{int}]{led}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00156}{156}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{rgb__leds_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{rgb__leds_8h_a31f73b65f564ef73af3ab49df4f0f808}\index{rgb\_leds.h@{rgb\_leds.h}!COLORS@{COLORS}}
+\index{COLORS@{COLORS}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{COLORS}{COLORS}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_a31f73b65f564ef73af3ab49df4f0f808} 
+const \mbox{\hyperlink{structColor__t}{Color\+\_\+t}} COLORS\mbox{[}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{COLOR\+\_\+\+COUNT}}\mbox{]}\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00023}{23}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8h_aab876d664d358a7a94bbda3cc8899479}\index{rgb\_leds.h@{rgb\_leds.h}!rgb\_leds@{rgb\_leds}}
+\index{rgb\_leds@{rgb\_leds}!rgb\_leds.h@{rgb\_leds.h}}
+\doxysubsubsection{\texorpdfstring{rgb\_leds}{rgb\_leds}}
+{\footnotesize\ttfamily \label{rgb__leds_8h_aab876d664d358a7a94bbda3cc8899479} 
+led\+\_\+strip\+\_\+handle\+\_\+t rgb\+\_\+leds\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00017}{17}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+

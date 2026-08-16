@@ -1,0 +1,235 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/network\+\_\+manager.h File Reference}
+\hypertarget{network__manager_8h}{}\label{network__manager_8h}\index{/home/peter/Development/OSVentilationIDF/main/network\_manager.h@{/home/peter/Development/OSVentilationIDF/main/network\_manager.h}}
+
+
+Public interface for the network manager and Ethernet watchdog control.  
+
+
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+err.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/\+Free\+RTOS.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/task.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+event.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+wifi.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+eth.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$mqtt\+\_\+client.\+h$>$}\newline
+{\ttfamily \#include $<$mqtt5\+\_\+client.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+functions.\+h"{}}\newline
+{\ttfamily \#include "{}mqtt.\+h"{}}\newline
+Include dependency graph for network\+\_\+manager.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_af05b0aca947186225cbd1b2a07a3efe7}{ETH\+\_\+\+WD\+\_\+\+PERIOD\+\_\+\+MS}}~5000
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_aade9d80752a4255ffe875ee5f5cebaf6}{ETH\+\_\+\+WD\+\_\+\+NO\+\_\+\+IP\+\_\+\+TIMEOUT\+\_\+\+MS}}~60000
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_a7c0866d2a956142933bd18a6aa96d99a}{ETH\+\_\+\+WD\+\_\+\+GATEWAY\+\_\+\+FAILS\+\_\+\+MAX}}~6
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_aa81d0e0a76140c1f14832ee55756fb1b}{ETH\+\_\+\+WD\+\_\+\+FORCE\+\_\+\+RESTART\+\_\+\+DELAY\+\_\+\+MS}}~500
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_a1d7d9a1706b276487e2ca4a2d27c8051}{ETH\+\_\+\+WD\+\_\+\+NO\+\_\+\+ACTIVITY\+\_\+\+TIMEOUT\+\_\+\+MS}}~45000
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_af6f401a3bc52c6482d7ae2e009503a72}{ETH\+\_\+\+WD\+\_\+\+ACTIVITY\+\_\+\+GRACE\+\_\+\+MS}}~5000
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_aa0bfe98bfc5e7c4deb6d5259512197d3}{ETH\+\_\+\+WD\+\_\+\+RESTART\+\_\+\+GRACE\+\_\+\+MS}}~120000
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_a707c25869542a5516b6c6a096e88bdb5}{SOFTWARE\+\_\+\+RESTART\+\_\+\+MAX\+\_\+\+ATTEMPTS}}~5
+\item 
+\#define \mbox{\hyperlink{network__manager_8h_aabf3cca265d22f0d7af997d8d8f86801}{SOFTWARE\+\_\+\+RESTART\+\_\+\+DECAY\+\_\+\+MS}}~(60 \texorpdfstring{$\ast$}{*} 1000) /\texorpdfstring{$\ast$}{*} optional\+: decay counter after 60s \texorpdfstring{$\ast$}{*}/
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{network__manager_8h_a3d9cbf984c4b06c097494e54d485f25f}{mqtt\+\_\+request\+\_\+homeassistant\+\_\+discovery}} (void)
+\begin{DoxyCompactList}\small\item\em Request MQTT Home Assistant discovery to be published. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{network__manager_8h_a529112e8f5aa464cf92ea14eb23b6740}{network\+\_\+manager\+\_\+start}} (void)
+\item 
+void \mbox{\hyperlink{network__manager_8h_a5a75f5aa08d8026a465143e5eae86616}{network\+\_\+manager\+\_\+notify\+\_\+config\+\_\+change}} (void)
+\item 
+void \mbox{\hyperlink{network__manager_8h_a37c2555a31427a21faeddfdd9c47a63a}{network\+\_\+manager\+\_\+request\+\_\+actuals\+\_\+update}} (void)
+\item 
+bool \mbox{\hyperlink{network__manager_8h_ac62516a02963d1d0e4d64c23aa471fe6}{network\+\_\+manager\+\_\+is\+\_\+running}} (void)
+\item 
+void \mbox{\hyperlink{network__manager_8h_acdee73edd1c128e1b024f5b1132038ea}{net\+\_\+mgr\+\_\+notify\+\_\+eth\+\_\+activity}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public interface for the network manager and Ethernet watchdog control. 
+
+
+
+Definition in file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{network__manager_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{network__manager_8h_af6f401a3bc52c6482d7ae2e009503a72}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_ACTIVITY\_GRACE\_MS@{ETH\_WD\_ACTIVITY\_GRACE\_MS}}
+\index{ETH\_WD\_ACTIVITY\_GRACE\_MS@{ETH\_WD\_ACTIVITY\_GRACE\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_ACTIVITY\_GRACE\_MS}{ETH\_WD\_ACTIVITY\_GRACE\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_af6f401a3bc52c6482d7ae2e009503a72} 
+\#define ETH\+\_\+\+WD\+\_\+\+ACTIVITY\+\_\+\+GRACE\+\_\+\+MS~5000}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00022}{22}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_aa81d0e0a76140c1f14832ee55756fb1b}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_FORCE\_RESTART\_DELAY\_MS@{ETH\_WD\_FORCE\_RESTART\_DELAY\_MS}}
+\index{ETH\_WD\_FORCE\_RESTART\_DELAY\_MS@{ETH\_WD\_FORCE\_RESTART\_DELAY\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_FORCE\_RESTART\_DELAY\_MS}{ETH\_WD\_FORCE\_RESTART\_DELAY\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_aa81d0e0a76140c1f14832ee55756fb1b} 
+\#define ETH\+\_\+\+WD\+\_\+\+FORCE\+\_\+\+RESTART\+\_\+\+DELAY\+\_\+\+MS~500}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00018}{18}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_a7c0866d2a956142933bd18a6aa96d99a}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_GATEWAY\_FAILS\_MAX@{ETH\_WD\_GATEWAY\_FAILS\_MAX}}
+\index{ETH\_WD\_GATEWAY\_FAILS\_MAX@{ETH\_WD\_GATEWAY\_FAILS\_MAX}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_GATEWAY\_FAILS\_MAX}{ETH\_WD\_GATEWAY\_FAILS\_MAX}}
+{\footnotesize\ttfamily \label{network__manager_8h_a7c0866d2a956142933bd18a6aa96d99a} 
+\#define ETH\+\_\+\+WD\+\_\+\+GATEWAY\+\_\+\+FAILS\+\_\+\+MAX~6}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00017}{17}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_a1d7d9a1706b276487e2ca4a2d27c8051}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS@{ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS}}
+\index{ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS@{ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS}{ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_a1d7d9a1706b276487e2ca4a2d27c8051} 
+\#define ETH\+\_\+\+WD\+\_\+\+NO\+\_\+\+ACTIVITY\+\_\+\+TIMEOUT\+\_\+\+MS~45000}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00021}{21}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_aade9d80752a4255ffe875ee5f5cebaf6}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_NO\_IP\_TIMEOUT\_MS@{ETH\_WD\_NO\_IP\_TIMEOUT\_MS}}
+\index{ETH\_WD\_NO\_IP\_TIMEOUT\_MS@{ETH\_WD\_NO\_IP\_TIMEOUT\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_NO\_IP\_TIMEOUT\_MS}{ETH\_WD\_NO\_IP\_TIMEOUT\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_aade9d80752a4255ffe875ee5f5cebaf6} 
+\#define ETH\+\_\+\+WD\+\_\+\+NO\+\_\+\+IP\+\_\+\+TIMEOUT\+\_\+\+MS~60000}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00016}{16}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_af05b0aca947186225cbd1b2a07a3efe7}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_PERIOD\_MS@{ETH\_WD\_PERIOD\_MS}}
+\index{ETH\_WD\_PERIOD\_MS@{ETH\_WD\_PERIOD\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_PERIOD\_MS}{ETH\_WD\_PERIOD\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_af05b0aca947186225cbd1b2a07a3efe7} 
+\#define ETH\+\_\+\+WD\+\_\+\+PERIOD\+\_\+\+MS~5000}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00015}{15}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_aa0bfe98bfc5e7c4deb6d5259512197d3}\index{network\_manager.h@{network\_manager.h}!ETH\_WD\_RESTART\_GRACE\_MS@{ETH\_WD\_RESTART\_GRACE\_MS}}
+\index{ETH\_WD\_RESTART\_GRACE\_MS@{ETH\_WD\_RESTART\_GRACE\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{ETH\_WD\_RESTART\_GRACE\_MS}{ETH\_WD\_RESTART\_GRACE\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_aa0bfe98bfc5e7c4deb6d5259512197d3} 
+\#define ETH\+\_\+\+WD\+\_\+\+RESTART\+\_\+\+GRACE\+\_\+\+MS~120000}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00023}{23}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_aabf3cca265d22f0d7af997d8d8f86801}\index{network\_manager.h@{network\_manager.h}!SOFTWARE\_RESTART\_DECAY\_MS@{SOFTWARE\_RESTART\_DECAY\_MS}}
+\index{SOFTWARE\_RESTART\_DECAY\_MS@{SOFTWARE\_RESTART\_DECAY\_MS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{SOFTWARE\_RESTART\_DECAY\_MS}{SOFTWARE\_RESTART\_DECAY\_MS}}
+{\footnotesize\ttfamily \label{network__manager_8h_aabf3cca265d22f0d7af997d8d8f86801} 
+\#define SOFTWARE\+\_\+\+RESTART\+\_\+\+DECAY\+\_\+\+MS~(60 \texorpdfstring{$\ast$}{*} 1000) /\texorpdfstring{$\ast$}{*} optional\+: decay counter after 60s \texorpdfstring{$\ast$}{*}/}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00026}{26}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+\Hypertarget{network__manager_8h_a707c25869542a5516b6c6a096e88bdb5}\index{network\_manager.h@{network\_manager.h}!SOFTWARE\_RESTART\_MAX\_ATTEMPTS@{SOFTWARE\_RESTART\_MAX\_ATTEMPTS}}
+\index{SOFTWARE\_RESTART\_MAX\_ATTEMPTS@{SOFTWARE\_RESTART\_MAX\_ATTEMPTS}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{SOFTWARE\_RESTART\_MAX\_ATTEMPTS}{SOFTWARE\_RESTART\_MAX\_ATTEMPTS}}
+{\footnotesize\ttfamily \label{network__manager_8h_a707c25869542a5516b6c6a096e88bdb5} 
+\#define SOFTWARE\+\_\+\+RESTART\+\_\+\+MAX\+\_\+\+ATTEMPTS~5}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8h_source_l00025}{25}} of file \mbox{\hyperlink{network__manager_8h_source}{network\+\_\+manager.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{network__manager_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{network__manager_8h_a3d9cbf984c4b06c097494e54d485f25f}\index{network\_manager.h@{network\_manager.h}!mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}}
+\index{mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{mqtt\_request\_homeassistant\_discovery()}{mqtt\_request\_homeassistant\_discovery()}}
+{\footnotesize\ttfamily \label{network__manager_8h_a3d9cbf984c4b06c097494e54d485f25f} 
+void mqtt\+\_\+request\+\_\+homeassistant\+\_\+discovery (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Request MQTT Home Assistant discovery to be published. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00451}{451}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{network__manager_8h_acdee73edd1c128e1b024f5b1132038ea}\index{network\_manager.h@{network\_manager.h}!net\_mgr\_notify\_eth\_activity@{net\_mgr\_notify\_eth\_activity}}
+\index{net\_mgr\_notify\_eth\_activity@{net\_mgr\_notify\_eth\_activity}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{net\_mgr\_notify\_eth\_activity()}{net\_mgr\_notify\_eth\_activity()}}
+{\footnotesize\ttfamily \label{network__manager_8h_acdee73edd1c128e1b024f5b1132038ea} 
+void net\+\_\+mgr\+\_\+notify\+\_\+eth\+\_\+activity (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l01641}{1641}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8h_ac62516a02963d1d0e4d64c23aa471fe6}\index{network\_manager.h@{network\_manager.h}!network\_manager\_is\_running@{network\_manager\_is\_running}}
+\index{network\_manager\_is\_running@{network\_manager\_is\_running}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_is\_running()}{network\_manager\_is\_running()}}
+{\footnotesize\ttfamily \label{network__manager_8h_ac62516a02963d1d0e4d64c23aa471fe6} 
+bool network\+\_\+manager\+\_\+is\+\_\+running (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00366}{366}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8h_a5a75f5aa08d8026a465143e5eae86616}\index{network\_manager.h@{network\_manager.h}!network\_manager\_notify\_config\_change@{network\_manager\_notify\_config\_change}}
+\index{network\_manager\_notify\_config\_change@{network\_manager\_notify\_config\_change}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_notify\_config\_change()}{network\_manager\_notify\_config\_change()}}
+{\footnotesize\ttfamily \label{network__manager_8h_a5a75f5aa08d8026a465143e5eae86616} 
+void network\+\_\+manager\+\_\+notify\+\_\+config\+\_\+change (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00350}{350}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8h_a37c2555a31427a21faeddfdd9c47a63a}\index{network\_manager.h@{network\_manager.h}!network\_manager\_request\_actuals\_update@{network\_manager\_request\_actuals\_update}}
+\index{network\_manager\_request\_actuals\_update@{network\_manager\_request\_actuals\_update}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_request\_actuals\_update()}{network\_manager\_request\_actuals\_update()}}
+{\footnotesize\ttfamily \label{network__manager_8h_a37c2555a31427a21faeddfdd9c47a63a} 
+void network\+\_\+manager\+\_\+request\+\_\+actuals\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00358}{358}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8h_a529112e8f5aa464cf92ea14eb23b6740}\index{network\_manager.h@{network\_manager.h}!network\_manager\_start@{network\_manager\_start}}
+\index{network\_manager\_start@{network\_manager\_start}!network\_manager.h@{network\_manager.h}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_start()}{network\_manager\_start()}}
+{\footnotesize\ttfamily \label{network__manager_8h_a529112e8f5aa464cf92ea14eb23b6740} 
+bool network\+\_\+manager\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l01619}{1619}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+

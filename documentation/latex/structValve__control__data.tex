@@ -1,0 +1,115 @@
+\doxysection{Valve\+\_\+control\+\_\+data Struct Reference}
+\hypertarget{structValve__control__data}{}\label{structValve__control__data}\index{Valve\_control\_data@{Valve\_control\_data}}
+
+
+Shared valve control data passed between web handlers and the statemachine.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{structValve__control__data_a8b7d97d8024f6994f061c7e1bf424586}{valve\+\_\+number}} \mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structValve__control__data_a5c17d091b72d22ab255063b7f371dd7f}{position\+\_\+change}} \mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structValve__control__data_a4586ac01b45757c01fc60a69f89feb39}{direction}} \mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structValve__control__data_abb059040828236f0472c2e693319bc8c}{actual\+\_\+valve\+\_\+position}} \mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}
+\item 
+bool \mbox{\hyperlink{structValve__control__data_a09be17454189f9ed1f3c0ff3c8f28522}{check\+\_\+position}}
+\item 
+bool \mbox{\hyperlink{structValve__control__data_a04da6807bd80a44db11dbe627046f782}{write\+\_\+new\+\_\+position}}
+\item 
+bool \mbox{\hyperlink{structValve__control__data_aaa84c10de3949f2a94f822ba4295baa7}{valve\+\_\+move\+\_\+request\+\_\+from\+\_\+post}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Shared valve control data passed between web handlers and the statemachine. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00453}{453}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structValve__control__data_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structValve__control__data_abb059040828236f0472c2e693319bc8c}\index{Valve\_control\_data@{Valve\_control\_data}!actual\_valve\_position@{actual\_valve\_position}}
+\index{actual\_valve\_position@{actual\_valve\_position}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{actual\_valve\_position}{actual\_valve\_position}}
+{\footnotesize\ttfamily \label{structValve__control__data_abb059040828236f0472c2e693319bc8c} 
+int Valve\+\_\+control\+\_\+data\+::actual\+\_\+valve\+\_\+position\mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}}
+
+Current physical valve position values. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00458}{458}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_a09be17454189f9ed1f3c0ff3c8f28522}\index{Valve\_control\_data@{Valve\_control\_data}!check\_position@{check\_position}}
+\index{check\_position@{check\_position}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{check\_position}{check\_position}}
+{\footnotesize\ttfamily \label{structValve__control__data_a09be17454189f9ed1f3c0ff3c8f28522} 
+bool Valve\+\_\+control\+\_\+data\+::check\+\_\+position}
+
+Request to verify valve positions. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00459}{459}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_a4586ac01b45757c01fc60a69f89feb39}\index{Valve\_control\_data@{Valve\_control\_data}!direction@{direction}}
+\index{direction@{direction}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{direction}{direction}}
+{\footnotesize\ttfamily \label{structValve__control__data_a4586ac01b45757c01fc60a69f89feb39} 
+int Valve\+\_\+control\+\_\+data\+::direction\mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}}
+
+Direction of valve movement for each valve. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00457}{457}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_a5c17d091b72d22ab255063b7f371dd7f}\index{Valve\_control\_data@{Valve\_control\_data}!position\_change@{position\_change}}
+\index{position\_change@{position\_change}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{position\_change}{position\_change}}
+{\footnotesize\ttfamily \label{structValve__control__data_a5c17d091b72d22ab255063b7f371dd7f} 
+int Valve\+\_\+control\+\_\+data\+::position\+\_\+change\mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}}
+
+Requested position changes for each valve. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00456}{456}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_aaa84c10de3949f2a94f822ba4295baa7}\index{Valve\_control\_data@{Valve\_control\_data}!valve\_move\_request\_from\_post@{valve\_move\_request\_from\_post}}
+\index{valve\_move\_request\_from\_post@{valve\_move\_request\_from\_post}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{valve\_move\_request\_from\_post}{valve\_move\_request\_from\_post}}
+{\footnotesize\ttfamily \label{structValve__control__data_aaa84c10de3949f2a94f822ba4295baa7} 
+bool Valve\+\_\+control\+\_\+data\+::valve\+\_\+move\+\_\+request\+\_\+from\+\_\+post}
+
+True when a POST request initiated valve movement. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00461}{461}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_a8b7d97d8024f6994f061c7e1bf424586}\index{Valve\_control\_data@{Valve\_control\_data}!valve\_number@{valve\_number}}
+\index{valve\_number@{valve\_number}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{valve\_number}{valve\_number}}
+{\footnotesize\ttfamily \label{structValve__control__data_a8b7d97d8024f6994f061c7e1bf424586} 
+int Valve\+\_\+control\+\_\+data\+::valve\+\_\+number\mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}}
+
+Requested valve numbers from the web UI. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00455}{455}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structValve__control__data_a04da6807bd80a44db11dbe627046f782}\index{Valve\_control\_data@{Valve\_control\_data}!write\_new\_position@{write\_new\_position}}
+\index{write\_new\_position@{write\_new\_position}!Valve\_control\_data@{Valve\_control\_data}}
+\doxysubsubsection{\texorpdfstring{write\_new\_position}{write\_new\_position}}
+{\footnotesize\ttfamily \label{structValve__control__data_a04da6807bd80a44db11dbe627046f782} 
+bool Valve\+\_\+control\+\_\+data\+::write\+\_\+new\+\_\+position}
+
+Request to write new valve positions. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00460}{460}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

@@ -1,8 +1,8 @@
 var rgb__leds_8h =
 [
-    [ "Color_t", "struct_color__t.html", "struct_color__t" ],
-    [ "LedRule_t", "struct_led_rule__t.html", "struct_led_rule__t" ],
-    [ "BlinkState_t", "struct_blink_state__t.html", "struct_blink_state__t" ],
+    [ "Color_t", "structColor__t.html", "structColor__t" ],
+    [ "LedRule_t", "structLedRule__t.html", "structLedRule__t" ],
+    [ "BlinkState_t", "structBlinkState__t.html", "structBlinkState__t" ],
     [ "RGB_LED_NUM", "rgb__leds_8h.html#a8a6bd7a49ceea22233fb2313ef2060cd", null ],
     [ "RMT_RESOLUTION_HZ", "rgb__leds_8h.html#aa2afe4e6527e6419ad167cb2526ff0b8", null ],
     [ "ColorName_t", "rgb__leds_8h.html#afef4bd7776f8376ccf1db17dd64f457b", [

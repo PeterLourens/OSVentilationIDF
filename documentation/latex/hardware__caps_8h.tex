@@ -1,0 +1,128 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/hardware\+\_\+caps.h File Reference}
+\hypertarget{hardware__caps_8h}{}\label{hardware__caps_8h}\index{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.h@{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.h}}
+
+
+Hardware capability type definitions and runtime board configuration.  
+
+
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+Include dependency graph for hardware\+\_\+caps.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structhw__caps__t}{hw\+\_\+caps\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Runtime board capability configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}} \{ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}{HW\+\_\+\+VERSION\+\_\+2}} = 2
+, \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\+\_\+\+VERSION\+\_\+3}} = 3
+ \}
+\begin{DoxyCompactList}\small\item\em Supported hardware version identifiers. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{hardware__caps_8h_ae58df14f30461cb37e8607aca5522846}{hw\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the active hardware capability configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}} \mbox{\hyperlink{hardware__caps_8h_a26f3f42a1a636dc31e58df7331408ba6}{hw\+\_\+version}}
+\begin{DoxyCompactList}\small\item\em Selected hardware revision at startup. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structhw__caps__t}{hw\+\_\+caps\+\_\+t}} \mbox{\hyperlink{hardware__caps_8h_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}
+\begin{DoxyCompactList}\small\item\em Active hardware capability configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Hardware capability type definitions and runtime board configuration. 
+
+
+
+Definition in file \mbox{\hyperlink{hardware__caps_8h_source}{hardware\+\_\+caps.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{hardware__caps_8h_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}\index{hardware\_caps.h@{hardware\_caps.h}!hardware\_version\_t@{hardware\_version\_t}}
+\index{hardware\_version\_t@{hardware\_version\_t}!hardware\_caps.h@{hardware\_caps.h}}
+\doxysubsubsection{\texorpdfstring{hardware\_version\_t}{hardware\_version\_t}}
+{\footnotesize\ttfamily \label{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d} 
+enum \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}}}
+
+
+
+Supported hardware version identifiers. 
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{HW\_VERSION\_2@{HW\_VERSION\_2}!hardware\_caps.h@{hardware\_caps.h}}\index{hardware\_caps.h@{hardware\_caps.h}!HW\_VERSION\_2@{HW\_VERSION\_2}}}\Hypertarget{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}\label{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee} 
+HW\+\_\+\+VERSION\+\_\+2&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{HW\_VERSION\_3@{HW\_VERSION\_3}!hardware\_caps.h@{hardware\_caps.h}}\index{hardware\_caps.h@{hardware\_caps.h}!HW\_VERSION\_3@{HW\_VERSION\_3}}}\Hypertarget{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}\label{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85} 
+HW\+\_\+\+VERSION\+\_\+3&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{hardware__caps_8h_source_l00017}{17}} of file \mbox{\hyperlink{hardware__caps_8h_source}{hardware\+\_\+caps.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{hardware__caps_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{hardware__caps_8h_ae58df14f30461cb37e8607aca5522846}\index{hardware\_caps.h@{hardware\_caps.h}!hw\_init@{hw\_init}}
+\index{hw\_init@{hw\_init}!hardware\_caps.h@{hardware\_caps.h}}
+\doxysubsubsection{\texorpdfstring{hw\_init()}{hw\_init()}}
+{\footnotesize\ttfamily \label{hardware__caps_8h_ae58df14f30461cb37e8607aca5522846} 
+void hw\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the active hardware capability configuration. 
+
+Initialize the active hardware capability configuration.
+
+This function selects the appropriate board profile based on {\ttfamily hw\+\_\+version} and copies it into the runtime {\ttfamily hw} structure. 
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00107}{107}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{hardware__caps_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{hardware__caps_8h_a4aaf2644be05ee6bfb15e7fd6f84a825}\index{hardware\_caps.h@{hardware\_caps.h}!hw@{hw}}
+\index{hw@{hw}!hardware\_caps.h@{hardware\_caps.h}}
+\doxysubsubsection{\texorpdfstring{hw}{hw}}
+{\footnotesize\ttfamily \label{hardware__caps_8h_a4aaf2644be05ee6bfb15e7fd6f84a825} 
+\mbox{\hyperlink{structhw__caps__t}{hw\+\_\+caps\+\_\+t}} hw\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Active hardware capability configuration. 
+
+
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00099}{99}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+
+\Hypertarget{hardware__caps_8h_a26f3f42a1a636dc31e58df7331408ba6}\index{hardware\_caps.h@{hardware\_caps.h}!hw\_version@{hw\_version}}
+\index{hw\_version@{hw\_version}!hardware\_caps.h@{hardware\_caps.h}}
+\doxysubsubsection{\texorpdfstring{hw\_version}{hw\_version}}
+{\footnotesize\ttfamily \label{hardware__caps_8h_a26f3f42a1a636dc31e58df7331408ba6} 
+\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}} hw\+\_\+version\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Selected hardware revision at startup. 
+
+
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00018}{18}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+

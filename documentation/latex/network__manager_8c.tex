@@ -1,0 +1,125 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/network\+\_\+manager.c File Reference}
+\hypertarget{network__manager_8c}{}\label{network__manager_8c}\index{/home/peter/Development/OSVentilationIDF/main/network\_manager.c@{/home/peter/Development/OSVentilationIDF/main/network\_manager.c}}
+
+
+Network manager task implementation for Ethernet/\+Wi-\/\+Fi lifecycle and watchdog behavior.  
+
+
+{\ttfamily \#include $<$esp\+\_\+attr.\+h$>$}\newline
+{\ttfamily \#include "{}network\+\_\+manager.\+h"{}}\newline
+Include dependency graph for network\+\_\+manager.\+c\+:
+% FIG 0
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structeth__watchdog__t}{eth\+\_\+watchdog\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{network__manager_8c_a5a75f5aa08d8026a465143e5eae86616}{network\+\_\+manager\+\_\+notify\+\_\+config\+\_\+change}} (void)
+\item 
+void \mbox{\hyperlink{network__manager_8c_a37c2555a31427a21faeddfdd9c47a63a}{network\+\_\+manager\+\_\+request\+\_\+actuals\+\_\+update}} (void)
+\item 
+bool \mbox{\hyperlink{network__manager_8c_ac62516a02963d1d0e4d64c23aa471fe6}{network\+\_\+manager\+\_\+is\+\_\+running}} (void)
+\item 
+bool \mbox{\hyperlink{network__manager_8c_a529112e8f5aa464cf92ea14eb23b6740}{network\+\_\+manager\+\_\+start}} (void)
+\item 
+void \mbox{\hyperlink{network__manager_8c_acdee73edd1c128e1b024f5b1132038ea}{net\+\_\+mgr\+\_\+notify\+\_\+eth\+\_\+activity}} (void)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+Tick\+Type\+\_\+t \mbox{\hyperlink{network__manager_8c_a9eccf797c96c5d746ab0618ad04d4cc5}{last\+\_\+successful\+\_\+activity}}
+\item 
+Tick\+Type\+\_\+t \mbox{\hyperlink{network__manager_8c_ad70eff1f84adae6bb151005a07251136}{last\+\_\+gateway\+\_\+probe}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Network manager task implementation for Ethernet/\+Wi-\/\+Fi lifecycle and watchdog behavior. 
+
+
+
+Definition in file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{network__manager_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{network__manager_8c_acdee73edd1c128e1b024f5b1132038ea}\index{network\_manager.c@{network\_manager.c}!net\_mgr\_notify\_eth\_activity@{net\_mgr\_notify\_eth\_activity}}
+\index{net\_mgr\_notify\_eth\_activity@{net\_mgr\_notify\_eth\_activity}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{net\_mgr\_notify\_eth\_activity()}{net\_mgr\_notify\_eth\_activity()}}
+{\footnotesize\ttfamily \label{network__manager_8c_acdee73edd1c128e1b024f5b1132038ea} 
+void net\+\_\+mgr\+\_\+notify\+\_\+eth\+\_\+activity (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l01641}{1641}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8c_ac62516a02963d1d0e4d64c23aa471fe6}\index{network\_manager.c@{network\_manager.c}!network\_manager\_is\_running@{network\_manager\_is\_running}}
+\index{network\_manager\_is\_running@{network\_manager\_is\_running}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_is\_running()}{network\_manager\_is\_running()}}
+{\footnotesize\ttfamily \label{network__manager_8c_ac62516a02963d1d0e4d64c23aa471fe6} 
+bool network\+\_\+manager\+\_\+is\+\_\+running (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00366}{366}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8c_a5a75f5aa08d8026a465143e5eae86616}\index{network\_manager.c@{network\_manager.c}!network\_manager\_notify\_config\_change@{network\_manager\_notify\_config\_change}}
+\index{network\_manager\_notify\_config\_change@{network\_manager\_notify\_config\_change}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_notify\_config\_change()}{network\_manager\_notify\_config\_change()}}
+{\footnotesize\ttfamily \label{network__manager_8c_a5a75f5aa08d8026a465143e5eae86616} 
+void network\+\_\+manager\+\_\+notify\+\_\+config\+\_\+change (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00350}{350}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8c_a37c2555a31427a21faeddfdd9c47a63a}\index{network\_manager.c@{network\_manager.c}!network\_manager\_request\_actuals\_update@{network\_manager\_request\_actuals\_update}}
+\index{network\_manager\_request\_actuals\_update@{network\_manager\_request\_actuals\_update}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_request\_actuals\_update()}{network\_manager\_request\_actuals\_update()}}
+{\footnotesize\ttfamily \label{network__manager_8c_a37c2555a31427a21faeddfdd9c47a63a} 
+void network\+\_\+manager\+\_\+request\+\_\+actuals\+\_\+update (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00358}{358}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8c_a529112e8f5aa464cf92ea14eb23b6740}\index{network\_manager.c@{network\_manager.c}!network\_manager\_start@{network\_manager\_start}}
+\index{network\_manager\_start@{network\_manager\_start}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_start()}{network\_manager\_start()}}
+{\footnotesize\ttfamily \label{network__manager_8c_a529112e8f5aa464cf92ea14eb23b6740} 
+bool network\+\_\+manager\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l01619}{1619}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{network__manager_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{network__manager_8c_ad70eff1f84adae6bb151005a07251136}\index{network\_manager.c@{network\_manager.c}!last\_gateway\_probe@{last\_gateway\_probe}}
+\index{last\_gateway\_probe@{last\_gateway\_probe}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{last\_gateway\_probe}{last\_gateway\_probe}}
+{\footnotesize\ttfamily \label{network__manager_8c_ad70eff1f84adae6bb151005a07251136} 
+Tick\+Type\+\_\+t last\+\_\+gateway\+\_\+probe}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00034}{34}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+
+\Hypertarget{network__manager_8c_a9eccf797c96c5d746ab0618ad04d4cc5}\index{network\_manager.c@{network\_manager.c}!last\_successful\_activity@{last\_successful\_activity}}
+\index{last\_successful\_activity@{last\_successful\_activity}!network\_manager.c@{network\_manager.c}}
+\doxysubsubsection{\texorpdfstring{last\_successful\_activity}{last\_successful\_activity}}
+{\footnotesize\ttfamily \label{network__manager_8c_a9eccf797c96c5d746ab0618ad04d4cc5} 
+Tick\+Type\+\_\+t last\+\_\+successful\+\_\+activity}
+
+
+
+Definition at line \mbox{\hyperlink{network__manager_8c_source_l00033}{33}} of file \mbox{\hyperlink{network__manager_8c_source}{network\+\_\+manager.\+c}}.
+

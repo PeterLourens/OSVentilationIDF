@@ -1,0 +1,821 @@
+\doxysection{i2c\+\_\+sensors.\+c}
+\hypertarget{i2c__sensors_8c_source}{}\label{i2c__sensors_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_sensors.c@{/home/peter/Development/OSVentilationIDF/main/i2c\_sensors.c}}
+\mbox{\hyperlink{i2c__sensors_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{i2c__sensors_8h}{i2c\_sensors.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00014}00014\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}i2c\_sensors"{}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00016}00016\ \textcolor{comment}{//\ FIFO\ buffer\ for\ sensor\ moving\ average\ calculation}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00017}00017\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ sensor\_fifo[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][5][\mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\_FIFO\_SIZE}}];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ sum[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][5]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00019}00019\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ avg[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][5]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00020}00020\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ fifoSize[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][5]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00021}00021\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ fifoHead[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][5]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00023}00023\ \textcolor{comment}{//\ Sensor\ slot\ model\ (per\ bus,\ per\ channel)}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00024}\mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{00024}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00025}00025\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00026}\mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{00026}}\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}}\ =\ 0,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00027}\mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2af7cfebf7c6791ce8160c892e2b7efc2e}{00027}}\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2af7cfebf7c6791ce8160c892e2b7efc2e}{SENSOR\_AHT20}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00028}\mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a51260366058ac1b092d201dfde5984ee}{00028}}\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a51260366058ac1b092d201dfde5984ee}{SENSOR\_DHT20}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00029}\mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{00029}}\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00030}00030\ \}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{sensor\_type\_t}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00032}\mbox{\hyperlink{structsensor__slot__t}{00032}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00033}00033\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00034}\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{00034}}\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{sensor\_type\_t}}\ \mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00035}\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{00035}}\ \ \ \ \ i2c\_master\_dev\_handle\_t\ \mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00036}00036\ \}\ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00038}00038\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ bus0\_sensors[\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00039}00039\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ bus1\_sensors[\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00041}00041\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ reset\_sensor\_average\_slot(\textcolor{keywordtype}{int}\ bus,\ \textcolor{keywordtype}{int}\ slot)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00042}00042\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00043}00043\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ m\ =\ 0;\ m\ <\ 5;\ ++m)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00044}00044\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ sum[bus][slot][m]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ avg[bus][slot][m]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ fifoSize[bus][slot][m]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ fifoHead[bus][slot][m]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\_FIFO\_SIZE}};\ ++i)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_fifo[bus][slot][m][i]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00054}00054\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00055}00055\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00057}00057\ \textcolor{comment}{//\ TCA9548A\ helpers}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00065}\mbox{\hyperlink{i2c__sensors_8c_a1f979d728c9b17b94734d8666c38acd9}{00065}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a1f979d728c9b17b94734d8666c38acd9}{i2c\_init\_tca9548}}(i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ *dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00066}00066\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00067}00067\ \ \ \ \ \textcolor{keywordflow}{if}\ (!bus\_handle\ ||\ !dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00068}00068\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00070}00070\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00072}00072\ \ \ \ \ \textcolor{keyword}{const}\ i2c\_device\_config\_t\ tca9548\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00073}00073\ \ \ \ \ \ \ \ \ .dev\_addr\_length\ =\ I2C\_ADDR\_BIT\_LEN\_7,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ .device\_address\ =\ \mbox{\hyperlink{globals_8h_abfb34ac4c9680ad680f95f9420cc8610}{TCA9548\_I2C\_ADDR}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00075}00075\ \ \ \ \ \ \ \ \ .scl\_speed\_hz\ =\ 100000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00076}00076\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00077}00077\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00078}00078\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_bus\_add\_device(bus\_handle,\ \&tca9548\_cfg,\ dev\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00079}00079\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00080}00080\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ add\ device:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00082}00082\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00083}00083\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00084}00084\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00085}00085\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00094}\mbox{\hyperlink{i2c__sensors_8c_afab3800bd0c8fae2e389415892a8ae82}{00094}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_afab3800bd0c8fae2e389415892a8ae82}{i2c\_tca9548\_set\_channel}}(i2c\_master\_dev\_handle\_t\ dev\_handle,\ uint8\_t\ channel)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00095}00095\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00096}00096\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dev\_handle\ ||\ channel\ >\ 7)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00098}00098\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00099}00099\ \ \ \ \ uint8\_t\ mask\ =\ (1u\ <<\ channel);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00101}00101\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_transmit(dev\_handle,\ \&mask,\ 1,\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00102}00102\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00103}00103\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ select\ channel\ \%u\ (mask=0x\%02X):\ \%s"{}},\ channel,\ mask,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00105}00105\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00106}00106\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00107}00107\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00108}00108\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00109}00109\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00110}00110\ \textcolor{comment}{//\ Sensor\ type\ helpers}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00117}\mbox{\hyperlink{i2c__sensors_8c_a4cce5d85d8937564adf2ee5fcae2591e}{00117}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{i2c__sensors_8c_a4cce5d85d8937564adf2ee5fcae2591e}{is\_scd4x}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00118}00118\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00119}00119\ \ \ \ \ \textcolor{keywordflow}{return}\ (strcmp(type,\ \textcolor{stringliteral}{"{}SCD41"{}})\ ==\ 0\ ||\ strcmp(type,\ \textcolor{stringliteral}{"{}SCD40"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00120}00120\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00121}00121\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00128}\mbox{\hyperlink{i2c__sensors_8c_a36020ace44725f38ac0117105e043557}{00128}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{i2c__sensors_8c_a36020ace44725f38ac0117105e043557}{is\_aht20}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00129}00129\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00130}00130\ \ \ \ \ \textcolor{keywordflow}{return}\ (strcmp(type,\ \textcolor{stringliteral}{"{}AHT20"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00131}00131\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00132}00132\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00139}\mbox{\hyperlink{i2c__sensors_8c_a34b6f689d6884a95771ca26fd77c8772}{00139}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{i2c__sensors_8c_a34b6f689d6884a95771ca26fd77c8772}{is\_dht20}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00140}00140\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00141}00141\ \ \ \ \ \textcolor{keywordflow}{return}\ (strcmp(type,\ \textcolor{stringliteral}{"{}DHT20"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00142}00142\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00150}00150\ \textcolor{keyword}{static}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{sensor\_type\_t}}\ sensor\_type\_from\_str(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type\_str)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00151}00151\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00152}00152\ \ \ \ \ \textcolor{keywordflow}{if}\ (!type\_str)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00154}00154\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_a36020ace44725f38ac0117105e043557}{is\_aht20}}(type\_str))}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00155}00155\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2af7cfebf7c6791ce8160c892e2b7efc2e}{SENSOR\_AHT20}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00156}00156\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_a34b6f689d6884a95771ca26fd77c8772}{is\_dht20}}(type\_str))}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00157}00157\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a51260366058ac1b092d201dfde5984ee}{SENSOR\_DHT20}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00158}00158\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_a4cce5d85d8937564adf2ee5fcae2591e}{is\_scd4x}}(type\_str))}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00159}00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00160}00160\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(type\_str,\ \textcolor{stringliteral}{"{}None"{}})\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00161}00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00162}00162\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00163}00163\ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00164}00164\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00165}00165\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00166}00166\ \textcolor{comment}{//\ Helpers\ for\ checking\ output\ aht20\ and\ dht20\ sensors}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00174}00174\ \textcolor{keyword}{static}\ uint8\_t\ xht20\_crc8(\textcolor{keyword}{const}\ uint8\_t\ *data,\ \textcolor{keywordtype}{size\_t}\ len)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00175}00175\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00176}00176\ \ \ \ \ uint8\_t\ crc\ =\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00178}00178\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ len;\ i++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00179}00179\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ crc\ \string^=\ data[i];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ b\ =\ 0;\ b\ <\ 8;\ b++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (crc\ \&\ 0x80)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ crc\ =\ (crc\ <<\ 1)\ \string^\ 0x31;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ crc\ <<=\ 1;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00187}00187\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00188}00188\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00189}00189\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00190}00190\ \ \ \ \ \textcolor{keywordflow}{return}\ crc;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00191}00191\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00199}00199\ \textcolor{keyword}{static}\ esp\_err\_t\ xht20\_validate(\textcolor{keyword}{const}\ uint8\_t\ *data)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00200}00200\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00201}00201\ \ \ \ \ \textcolor{comment}{//\ Check\ busy\ flag}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00202}00202\ \ \ \ \ \textcolor{keywordflow}{if}\ (data[0]\ \&\ 0x80)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00203}00203\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00204}00204\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00205}00205\ \ \ \ \ \textcolor{comment}{//\ CRC\ check:\ compute\ over\ bytes\ 0–5}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00206}00206\ \ \ \ \ uint8\_t\ crc\ =\ xht20\_crc8(data,\ 6);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00207}00207\ \ \ \ \ \textcolor{keywordflow}{if}\ (crc\ !=\ data[6])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00208}00208\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_CRC;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00209}00209\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00210}00210\ \ \ \ \ \textcolor{comment}{//\ Extract\ raw\ values}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00211}00211\ \ \ \ \ uint32\_t\ raw\_h\ =\ ((uint32\_t)data[1]\ <<\ 12)\ |}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ((uint32\_t)data[2]\ <<\ 4)\ |}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (data[3]\ >>\ 4);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00214}00214\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00215}00215\ \ \ \ \ uint32\_t\ raw\_t\ =\ (((uint32\_t)data[3]\ \&\ 0x0F)\ <<\ 16)\ |}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ((uint32\_t)data[4]\ <<\ 8)\ |}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ data[5];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00218}00218\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00219}00219\ \ \ \ \ \textcolor{comment}{//\ Basic\ sanity\ checks}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00220}00220\ \ \ \ \ \textcolor{keywordflow}{if}\ (raw\_h\ ==\ 0\ ||\ raw\_h\ >=\ 0x100000)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00222}00222\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00223}00223\ \ \ \ \ \textcolor{keywordflow}{if}\ (raw\_t\ ==\ 0\ ||\ raw\_t\ >=\ 0x100000)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00224}00224\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00225}00225\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00226}00226\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00227}00227\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00229}00229\ \textcolor{comment}{//\ Pre-\/load\ sensor\ type\ so\ sensors\ only\ once}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00233}\mbox{\hyperlink{i2c__sensors_8c_af72040ee03c9d882a6993d0ebdc72b52}{00233}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__sensors_8c_af72040ee03c9d882a6993d0ebdc72b52}{preload\_sensor\_types\_from\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00234}00234\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00235}00235\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ ch\ =\ 0;\ ch\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ch++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00236}00236\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ bus0\_sensors[ch].type\ =\ sensor\_type\_from\_str(\mbox{\hyperlink{globals_8c_af0e9d3e368300fd4059ea6757701fa1b}{bus0\_sensor\_settings}}[ch].type);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ bus1\_sensors[ch].type\ =\ sensor\_type\_from\_str(\mbox{\hyperlink{globals_8c_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\_sensor\_settings}}[ch].type);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00239}00239\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00240}00240\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00241}00241\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00245}\mbox{\hyperlink{i2c__sensors_8c_aba8b1ecc3074f67f381df368f203e76f}{00245}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__sensors_8c_aba8b1ecc3074f67f381df368f203e76f}{reload\_and\_init\_sensors}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00246}00246\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00247}00247\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_af72040ee03c9d882a6993d0ebdc72b52}{preload\_sensor\_types\_from\_config}}();}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00248}00248\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a7de69590ec0ef7c8fa3d288e84588426}{init\_sensors\_on\_mux\_channels}}();}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00249}00249\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00250}00250\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00251}00251\ \textcolor{comment}{//\ Sensor\ init\ helpers\ (per\ type)}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00259}\mbox{\hyperlink{i2c__sensors_8c_a75489f76c32b32d51f7dc5a7c3668e07}{00259}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a75489f76c32b32d51f7dc5a7c3668e07}{i2c\_aht20\_init}}(i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ *dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00260}00260\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00261}00261\ \ \ \ \ \textcolor{keywordflow}{if}\ (!bus\_handle\ ||\ !dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00262}00262\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00263}00263\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00264}00264\ \ \ \ \ \textcolor{keyword}{const}\ i2c\_device\_config\_t\ aht20\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00265}00265\ \ \ \ \ \ \ \ \ .dev\_addr\_length\ =\ I2C\_ADDR\_BIT\_LEN\_7,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00266}00266\ \ \ \ \ \ \ \ \ .device\_address\ =\ \mbox{\hyperlink{globals_8h_abe5403d468bd30329b3f3aba9acaf1ad}{AHT20\_I2C\_ADDR}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ .scl\_speed\_hz\ =\ 100000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00268}00268\ \ \ \ \ \ \ \ \ .scl\_wait\_us\ =\ 2000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00269}00269\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00270}00270\ \ \ \ \ \textcolor{keywordflow}{return}\ i2c\_master\_bus\_add\_device(bus\_handle,\ \&aht20\_cfg,\ dev\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00271}00271\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00272}00272\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00281}\mbox{\hyperlink{i2c__sensors_8c_a171099de7e13430bc88ca29eac054b6c}{00281}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a171099de7e13430bc88ca29eac054b6c}{aht20\_read}}(i2c\_master\_dev\_handle\_t\ dev\_handle,\ \textcolor{keywordtype}{float}\ *temperature,\ \textcolor{keywordtype}{float}\ *humidity)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00282}00282\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00283}00283\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dev\_handle\ ||\ !temperature\ ||\ !humidity)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00284}00284\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00285}00285\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00286}00286\ \ \ \ \ esp\_err\_t\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00287}00287\ \ \ \ \ uint8\_t\ cmd[]\ =\ \{0xAC,\ 0x33,\ 0x00\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00288}00288\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00289}00289\ \ \ \ \ \textcolor{comment}{//\ Trigger\ measurement}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00290}00290\ \ \ \ \ err\ =\ i2c\_master\_transmit(dev\_handle,\ cmd,\ \textcolor{keyword}{sizeof}(cmd),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00291}00291\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00292}00292\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00293}00293\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00294}00294\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(120));\ \textcolor{comment}{//\ Wait\ for\ measurement}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00295}00295\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00296}00296\ \ \ \ \ uint8\_t\ data[7];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00297}00297\ \ \ \ \ err\ =\ i2c\_master\_receive(dev\_handle,\ data,\ \textcolor{keyword}{sizeof}(data),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00298}00298\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00299}00299\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00300}00300\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00301}00301\ \ \ \ \ err\ =\ xht20\_validate(data);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00302}00302\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00303}00303\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00304}00304\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00305}00305\ \ \ \ \ uint32\_t\ raw\_humidity\ =\ ((uint32\_t)(data[1]\ <<\ 12\ |\ data[2]\ <<\ 4\ |\ (data[3]\ >>\ 4)));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00306}00306\ \ \ \ \ uint32\_t\ raw\_temperature\ =\ ((uint32\_t)((data[3]\ \&\ 0x0F)\ <<\ 16\ |\ data[4]\ <<\ 8\ |\ data[5]));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00307}00307\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00308}00308\ \ \ \ \ *humidity\ =\ ((float)raw\_humidity\ *\ 100.0f)\ /\ 1048576.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00309}00309\ \ \ \ \ *temperature\ =\ ((float)raw\_temperature\ *\ 200.0f\ /\ 1048576.0f)\ -\/\ 50.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00310}00310\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00311}00311\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00312}00312\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00313}00313\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00321}\mbox{\hyperlink{i2c__sensors_8c_a4978ca1810e0a6a737b47f596a7331e0}{00321}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a4978ca1810e0a6a737b47f596a7331e0}{i2c\_dht20\_init}}(i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ *dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00322}00322\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00323}00323\ \ \ \ \ \textcolor{keywordflow}{if}\ (!bus\_handle\ ||\ !dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00324}00324\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00325}00325\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00326}00326\ \ \ \ \ \textcolor{keyword}{const}\ i2c\_device\_config\_t\ dht20\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00327}00327\ \ \ \ \ \ \ \ \ .dev\_addr\_length\ =\ I2C\_ADDR\_BIT\_LEN\_7,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00328}00328\ \ \ \ \ \ \ \ \ .device\_address\ =\ \mbox{\hyperlink{globals_8h_a5187929b30503b11456d6e28873be909}{DHT20\_I2C\_ADDR}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00329}00329\ \ \ \ \ \ \ \ \ .scl\_speed\_hz\ =\ 100000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00330}00330\ \ \ \ \ \ \ \ \ .scl\_wait\_us\ =\ 50000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00331}00331\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00332}00332\ \ \ \ \ \textcolor{keywordflow}{return}\ i2c\_master\_bus\_add\_device(bus\_handle,\ \&dht20\_cfg,\ dev\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00333}00333\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00334}00334\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00343}\mbox{\hyperlink{i2c__sensors_8c_a6e6e68d136b9477af4aa8b0da8b9cc11}{00343}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a6e6e68d136b9477af4aa8b0da8b9cc11}{dht20\_read}}(i2c\_master\_dev\_handle\_t\ dev\_handle,\ \textcolor{keywordtype}{float}\ *temperature,\ \textcolor{keywordtype}{float}\ *humidity)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00344}00344\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00345}00345\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dev\_handle\ ||\ !temperature\ ||\ !humidity)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00346}00346\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00347}00347\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00348}00348\ \ \ \ \ esp\_err\_t\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00349}00349\ \ \ \ \ uint8\_t\ cmd[]\ =\ \{0xAC,\ 0x33,\ 0x00\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00350}00350\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00351}00351\ \ \ \ \ \textcolor{comment}{//\ Wake\ up\ sensor\ (dummy\ read)}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00352}00352\ \ \ \ \ uint8\_t\ dummy[1];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00353}00353\ \ \ \ \ (void)i2c\_master\_receive(dev\_handle,\ dummy,\ 1,\ 50);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00354}00354\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00355}00355\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00356}00356\ \ \ \ \ \textcolor{comment}{//\ Read\ status}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00357}00357\ \ \ \ \ uint8\_t\ status[1];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00358}00358\ \ \ \ \ err\ =\ i2c\_master\_receive(dev\_handle,\ status,\ 1,\ 50);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00359}00359\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00360}00360\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00361}00361\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00362}00362\ \ \ \ \ \textcolor{comment}{//\ Trigger\ measurement}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00363}00363\ \ \ \ \ err\ =\ i2c\_master\_transmit(dev\_handle,\ cmd,\ \textcolor{keyword}{sizeof}(cmd),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00364}00364\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00365}00365\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00366}00366\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00367}00367\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(80));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00368}00368\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00369}00369\ \ \ \ \ uint8\_t\ data[7];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00370}00370\ \ \ \ \ err\ =\ i2c\_master\_receive(dev\_handle,\ data,\ \textcolor{keyword}{sizeof}(data),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00371}00371\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00373}00373\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00374}00374\ \ \ \ \ err\ =\ xht20\_validate(data);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00375}00375\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00377}00377\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00378}00378\ \ \ \ \ uint32\_t\ raw\_humidity\ =\ ((uint32\_t)data[1]\ <<\ 12)\ |\ ((uint32\_t)data[2]\ <<\ 4)\ |\ (data[3]\ >>\ 4);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00379}00379\ \ \ \ \ uint32\_t\ raw\_temperature\ =\ (((uint32\_t)data[3]\ \&\ 0x0F)\ <<\ 16)\ |\ ((uint32\_t)data[4]\ <<\ 8)\ |\ data[5];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00380}00380\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00381}00381\ \ \ \ \ *humidity\ =\ (raw\_humidity\ *\ 100.0f)\ /\ 1048576.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00382}00382\ \ \ \ \ *temperature\ =\ (raw\_temperature\ *\ 200.0f\ /\ 1048576.0f)\ -\/\ 50.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00383}00383\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00384}00384\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00385}00385\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00386}00386\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00394}\mbox{\hyperlink{i2c__sensors_8c_a012a5875844e792945542d1b1e490fa0}{00394}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a012a5875844e792945542d1b1e490fa0}{i2c\_init\_scd41}}(i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ *dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00395}00395\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00396}00396\ \ \ \ \ \textcolor{keywordflow}{if}\ (!bus\_handle\ ||\ !dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00397}00397\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00398}00398\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00399}00399\ \ \ \ \ \textcolor{keyword}{const}\ i2c\_device\_config\_t\ scd41\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00400}00400\ \ \ \ \ \ \ \ \ .dev\_addr\_length\ =\ I2C\_ADDR\_BIT\_LEN\_7,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ .device\_address\ =\ \mbox{\hyperlink{globals_8h_a2ebd509cac3a17cea08322e44dc02e48}{SCD41\_I2C\_ADDR}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00402}00402\ \ \ \ \ \ \ \ \ .scl\_speed\_hz\ =\ 100000,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00403}00403\ \ \ \ \ \ \ \ \ .scl\_wait\_us\ =\ 2000,\ \textcolor{comment}{//\ 2\ ms\ clock-\/stretch\ allowance}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00404}00404\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00405}00405\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00406}00406\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_bus\_add\_device(bus\_handle,\ \&scd41\_cfg,\ dev\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00407}00407\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00408}00408\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00409}00409\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00410}00410\ \ \ \ \ \textcolor{comment}{//\ Optional\ but\ recommended:\ stop\ any\ previous\ measurement}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00411}00411\ \ \ \ \ uint8\_t\ stop\_cmd[2]\ =\ \{0x3F,\ 0x86\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00412}00412\ \ \ \ \ i2c\_master\_transmit(*dev\_handle,\ stop\_cmd,\ 2,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00413}00413\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00414}00414\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00415}00415\ \ \ \ \ \textcolor{comment}{//\ Reset}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00416}00416\ \ \ \ \ uint8\_t\ reset\_cmd[2]\ =\ \{0x36,\ 0x32\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00417}00417\ \ \ \ \ err\ =\ i2c\_master\_transmit(*dev\_handle,\ reset\_cmd,\ 2,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00418}00418\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00419}00419\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00420}00420\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00421}00421\ \ \ \ \ \textcolor{comment}{//\ REQUIRED:\ wait\ 1\ second\ AFTER\ reset}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00422}00422\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00423}00423\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00424}00424\ \ \ \ \ \textcolor{comment}{//\ Start\ periodic\ measurement}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00425}00425\ \ \ \ \ uint8\_t\ start\_cmd[2]\ =\ \{0x21,\ 0xB1\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00426}00426\ \ \ \ \ err\ =\ i2c\_master\_transmit(*dev\_handle,\ start\_cmd,\ 2,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00427}00427\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00429}00429\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00430}00430\ \ \ \ \ \textcolor{comment}{//\ Warm-\/up}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00431}00431\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00432}00432\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00433}00433\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}SCD41\ initialized\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00434}00434\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00435}00435\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00436}00436\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00437}00437\ \textcolor{comment}{//\ SCD41\ helpers}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00445}\mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{00445}}\ uint8\_t\ \mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{scd41\_crc8}}(\textcolor{keyword}{const}\ uint8\_t\ *data,\ \textcolor{keywordtype}{size\_t}\ len)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00446}00446\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00447}00447\ \ \ \ \ uint8\_t\ crc\ =\ 0xFF;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00448}00448\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ len;\ i++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00449}00449\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00450}00450\ \ \ \ \ \ \ \ \ crc\ \string^=\ data[i];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00451}00451\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ b\ =\ 0;\ b\ <\ 8;\ b++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00452}00452\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (crc\ \&\ 0x80)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ crc\ =\ (crc\ <<\ 1)\ \string^\ 0x31;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00456}00456\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ crc\ <<=\ 1;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00457}00457\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00458}00458\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00459}00459\ \ \ \ \ \textcolor{keywordflow}{return}\ crc;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00460}00460\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00461}00461\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00469}\mbox{\hyperlink{i2c__sensors_8c_aed7572374dcbd9652943a148bad169c4}{00469}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_aed7572374dcbd9652943a148bad169c4}{scd41\_data\_ready}}(i2c\_master\_dev\_handle\_t\ dev\_handle,\ \textcolor{keywordtype}{bool}\ *data\_ready)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00470}00470\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00471}00471\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dev\_handle\ ||\ !data\_ready)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00472}00472\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00473}00473\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00474}00474\ \ \ \ \ uint8\_t\ cmd[2]\ =\ \{0xE4,\ 0xB8\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00475}00475\ \ \ \ \ uint8\_t\ response[3];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00476}00476\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00477}00477\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_transmit(dev\_handle,\ cmd,\ \textcolor{keyword}{sizeof}(cmd),\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00478}00478\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00479}00479\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00480}00480\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Transmit\ failed:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00481}00481\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00482}00482\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00483}00483\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00484}00484\ \ \ \ \ err\ =\ i2c\_master\_receive(dev\_handle,\ response,\ \textcolor{keyword}{sizeof}(response),\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00485}00485\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00486}00486\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00487}00487\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Receive\ failed:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00488}00488\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00489}00489\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00490}00490\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00491}00491\ \ \ \ \ uint8\_t\ crc\ =\ \mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{scd41\_crc8}}(response,\ 2);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00492}00492\ \ \ \ \ \textcolor{keywordflow}{if}\ (crc\ !=\ response[2])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00493}00493\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00494}00494\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}CRC\ mismatch:\ got\ 0x\%02X,\ expected\ 0x\%02X"{}},\ response[2],\ crc);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00495}00495\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_CRC;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00496}00496\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00497}00497\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00498}00498\ \ \ \ \ uint16\_t\ status\ =\ ((uint16\_t)response[0]\ <<\ 8)\ |\ response[1];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00499}00499\ \ \ \ \ *data\_ready\ =\ (status\ \&\ 0x8000)\ !=\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00500}00500\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00501}00501\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00502}00502\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00503}00503\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00513}\mbox{\hyperlink{i2c__sensors_8c_a04a5633f2ff5a878a455f5b7be6771a7}{00513}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a04a5633f2ff5a878a455f5b7be6771a7}{scd41\_read}}(i2c\_master\_dev\_handle\_t\ dev\_handle,\ uint16\_t\ *co2,\ \textcolor{keywordtype}{float}\ *temp,\ \textcolor{keywordtype}{float}\ *rh)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00514}00514\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00515}00515\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dev\_handle\ ||\ !co2\ ||\ !temp\ ||\ !rh)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00517}00517\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00518}00518\ \ \ \ \ uint8\_t\ cmd[2]\ =\ \{0xEC,\ 0x05\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00519}00519\ \ \ \ \ uint8\_t\ response[9];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00520}00520\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00521}00521\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_transmit(dev\_handle,\ cmd,\ \textcolor{keyword}{sizeof}(cmd),\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00522}00522\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00524}00524\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00525}00525\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00526}00526\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00527}00527\ \ \ \ \ err\ =\ i2c\_master\_receive(dev\_handle,\ response,\ \textcolor{keyword}{sizeof}(response),\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00528}00528\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00529}00529\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00530}00530\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00531}00531\ \ \ \ \ \textcolor{comment}{//\ CO₂}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00532}00532\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{scd41\_crc8}}(response,\ 2)\ !=\ response[2])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00533}00533\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_CRC;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00534}00534\ \ \ \ \ *co2\ =\ ((uint16\_t)response[0]\ <<\ 8)\ |\ response[1];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00535}00535\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00536}00536\ \ \ \ \ \textcolor{comment}{//\ Temperature}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00537}00537\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{scd41\_crc8}}(response\ +\ 3,\ 2)\ !=\ response[5])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00538}00538\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_CRC;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00539}00539\ \ \ \ \ uint16\_t\ raw\_temp\ =\ ((uint16\_t)response[3]\ <<\ 8)\ |\ response[4];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00540}00540\ \ \ \ \ *temp\ =\ -\/45.0f\ +\ 175.0f\ *\ ((float)raw\_temp\ /\ 65535.0f);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00541}00541\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00542}00542\ \ \ \ \ \textcolor{comment}{//\ Humidity}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00543}00543\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__sensors_8c_aeaae1542ebb2cf1747323b997715a2a7}{scd41\_crc8}}(response\ +\ 6,\ 2)\ !=\ response[8])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00544}00544\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_CRC;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00545}00545\ \ \ \ \ uint16\_t\ raw\_rh\ =\ ((uint16\_t)response[6]\ <<\ 8)\ |\ response[7];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00546}00546\ \ \ \ \ *rh\ =\ 100.0f\ *\ ((float)raw\_rh\ /\ 65535.0f);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00547}00547\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00548}00548\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00549}00549\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00550}00550\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00562}00562\ \textcolor{keyword}{static}\ esp\_err\_t\ configure\_bus\_channel(\mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ *slots,\ \textcolor{keywordtype}{int}\ bus\_index,\ i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ tca\_handle,\ uint8\_t\ ch,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type\_str)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00563}00563\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00564}00564\ \ \ \ \ \textcolor{keywordflow}{if}\ (!slots\ ||\ !bus\_handle\ ||\ !tca\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00565}00565\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00566}00566\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ invalid\ handles\ (bus=\%p\ tca=\%p)"{}},\ bus\_index,\ ch,\ bus\_handle,\ tca\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00567}00567\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00568}00568\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00569}00569\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00570}00570\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{sensor\_type\_t}}\ new\_type\ =\ sensor\_type\_from\_str(type\_str);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00571}00571\ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2}{sensor\_type\_t}}\ old\_type\ =\ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00572}00572\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00573}00573\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG\ ENTER:\ bus=\%d\ ch=\%d\ old=\%d\ new=\%d\ bus\_handle=\%p\ tca=\%p\ slot\_handle=\%p"{}},\ bus\_index,\ ch,\ old\_type,\ new\_type,\ (\textcolor{keywordtype}{void}\ *)bus\_handle,\ (\textcolor{keywordtype}{void}\ *)tca\_handle,\ (\textcolor{keywordtype}{void}\ *)slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00574}00574\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00575}00575\ \ \ \ \ \textcolor{keywordflow}{if}\ (new\_type\ ==\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00576}00576\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00577}00577\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (slots[ch].handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00578}00578\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00579}00579\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ removing\ existing\ handle\ \%p"{}},\ bus\_index,\ ch,\ (\textcolor{keywordtype}{void}\ *)slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00580}00580\ \ \ \ \ \ \ \ \ \ \ \ \ i2c\_master\_bus\_rm\_device(slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00581}00581\ \ \ \ \ \ \ \ \ \ \ \ \ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00582}00582\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00583}00583\ \ \ \ \ \ \ \ \ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ =\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00584}00584\ \ \ \ \ \ \ \ \ reset\_sensor\_average\_slot(bus\_index,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00585}00585\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00586}00586\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00587}00587\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00588}00588\ \ \ \ \ \textcolor{comment}{//\ If\ already\ configured\ with\ same\ type\ and\ handle\ present,\ skip\ re-\/init\ */}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00589}00589\ \ \ \ \ \textcolor{keywordflow}{if}\ (old\_type\ ==\ new\_type\ \&\&\ slots[ch].handle\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00590}00590\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00591}00591\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ already\ initialized\ (type=\%d\ handle=\%p),\ skipping"{}},\ bus\_index,\ ch,\ new\_type,\ (\textcolor{keywordtype}{void}\ *)slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00592}00592\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00593}00593\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00594}00594\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00595}00595\ \ \ \ \ \textcolor{comment}{//\ Clear\ stale\ average\ data\ when\ a\ channel\ is\ reconfigured\ or\ replaced.}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00596}00596\ \ \ \ \ reset\_sensor\_average\_slot(bus\_index,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00597}00597\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00598}00598\ \ \ \ \ \textcolor{comment}{//\ If\ a\ different\ type\ or\ no\ handle,\ remove\ old\ handle\ first\ */}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00599}00599\ \ \ \ \ \textcolor{keywordflow}{if}\ (slots[ch].handle)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00600}00600\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00601}00601\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ removing\ stale\ handle\ \%p\ before\ re-\/init"{}},\ bus\_index,\ ch,\ (\textcolor{keywordtype}{void}\ *)slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00602}00602\ \ \ \ \ \ \ \ \ i2c\_master\_bus\_rm\_device(slots[ch].handle);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00603}00603\ \ \ \ \ \ \ \ \ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00604}00604\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00605}00605\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00606}00606\ \ \ \ \ \textcolor{comment}{//\ Select\ mux\ channel\ with\ a\ few\ retries}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00607}00607\ \ \ \ \ esp\_err\_t\ err\ =\ ESP\_ERR\_INVALID\_STATE;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00608}00608\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ attempt\ =\ 0;\ attempt\ <\ 3;\ ++attempt)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00609}00609\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00610}00610\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ selecting\ mux\ channel\ \%u\ (attempt\ \%d)"{}},\ bus\_index,\ ch,\ ch,\ attempt);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00611}00611\ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_afab3800bd0c8fae2e389415892a8ae82}{i2c\_tca9548\_set\_channel}}(tca\_handle,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00612}00612\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ mux\ select\ -\/>\ \%s"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00613}00613\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00614}00614\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00615}00615\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00616}00616\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00617}00617\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00618}00618\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00619}00619\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ mux\ select\ failed\ after\ retries:\ \%s"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00620}00620\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00621}00621\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00622}00622\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00623}00623\ \ \ \ \ \textcolor{comment}{//\ Small\ settle\ time\ after\ channel\ select\ (SCD4x\ benefits\ from\ a\ bit\ more)}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00624}00624\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(20));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00625}00625\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00626}00626\ \ \ \ \ i2c\_master\_dev\_handle\_t\ h\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00627}00627\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00628}00628\ \ \ \ \ \textcolor{comment}{//\ Initialize\ device\ with\ conservative\ retries\ for\ flaky\ states}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00629}00629\ \ \ \ \ \textcolor{keywordflow}{switch}\ (new\_type)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00630}00630\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00631}00631\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2af7cfebf7c6791ce8160c892e2b7efc2e}{SENSOR\_AHT20}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00632}00632\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ attempt\ =\ 0;\ attempt\ <\ 3;\ ++attempt)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00633}00633\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00634}00634\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ AHT20\ init\ attempt\ \%d"{}},\ bus\_index,\ ch,\ attempt);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00635}00635\ \ \ \ \ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a75489f76c32b32d51f7dc5a7c3668e07}{i2c\_aht20\_init}}(bus\_handle,\ \&h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00636}00636\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ AHT20\ init\ -\/>\ \%s\ handle=\%p"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err),\ (\textcolor{keywordtype}{void}\ *)h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00637}00637\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00638}00638\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00639}00639\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00640}00640\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00641}00641\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00642}00642\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00643}00643\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a51260366058ac1b092d201dfde5984ee}{SENSOR\_DHT20}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00644}00644\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ attempt\ =\ 0;\ attempt\ <\ 3;\ ++attempt)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00645}00645\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00646}00646\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ DHT20\ init\ attempt\ \%d"{}},\ bus\_index,\ ch,\ attempt);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00647}00647\ \ \ \ \ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a4978ca1810e0a6a737b47f596a7331e0}{i2c\_dht20\_init}}(bus\_handle,\ \&h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00648}00648\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ DHT20\ init\ -\/>\ \%s\ handle=\%p"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err),\ (\textcolor{keywordtype}{void}\ *)h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00649}00649\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00650}00650\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00651}00651\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(10));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00652}00652\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00653}00653\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00654}00654\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00655}00655\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00656}00656\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ SCD4x\ is\ strict:\ try\ a\ few\ times,\ with\ slightly\ longer\ delays\ between\ attempts}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00657}00657\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ attempt\ =\ 0;\ attempt\ <\ 4;\ ++attempt)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00658}00658\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00659}00659\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ SCD41\ init\ attempt\ \%d"{}},\ bus\_index,\ ch,\ attempt);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00660}00660\ \ \ \ \ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a012a5875844e792945542d1b1e490fa0}{i2c\_init\_scd41}}(bus\_handle,\ \&h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00661}00661\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ SCD41\ init\ -\/>\ \%s\ handle=\%p"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err),\ (\textcolor{keywordtype}{void}\ *)h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00662}00662\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00663}00663\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00664}00664\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00665}00665\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ re-\/select\ mux\ before\ retrying\ init,\ in\ case\ channel\ dropped}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00666}00666\ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_t\ sel\ =\ \mbox{\hyperlink{i2c__sensors_8c_afab3800bd0c8fae2e389415892a8ae82}{i2c\_tca9548\_set\_channel}}(tca\_handle,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00667}00667\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ re-\/select\ mux\ -\/>\ \%s"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(sel));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00668}00668\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(20));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00669}00669\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00670}00670\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00671}00671\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00672}00672\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00673}00673\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ unknown\ sensor\ type\ \%d"{}},\ bus\_index,\ ch,\ new\_type);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00674}00674\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00675}00675\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00676}00676\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00677}00677\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00678}00678\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00679}00679\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG:\ bus=\%d\ ch=\%d\ init\ failed\ after\ retries:\ \%s"{}},\ bus\_index,\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00680}00680\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00681}00681\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00682}00682\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00683}00683\ \ \ \ \ \textcolor{comment}{//\ Success:\ store\ handle\ and\ type}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00684}00684\ \ \ \ \ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}}\ =\ h;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00685}00685\ \ \ \ \ slots[ch].\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ =\ new\_type;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00686}00686\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00687}00687\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}CONFIG\ OK:\ bus=\%d\ ch=\%d\ type=\%d\ handle=\%p"{}},\ bus\_index,\ ch,\ new\_type,\ (\textcolor{keywordtype}{void}\ *)h);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00688}00688\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00689}00689\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00690}00690\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00691}00691\ \textcolor{comment}{//\ Public:\ init\_sensors\_on\_mux\_channels}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00697}\mbox{\hyperlink{i2c__sensors_8c_a7de69590ec0ef7c8fa3d288e84588426}{00697}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a7de69590ec0ef7c8fa3d288e84588426}{init\_sensors\_on\_mux\_channels}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00698}00698\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00699}00699\ \ \ \ \ esp\_err\_t\ ret\ =\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00700}00700\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00701}00701\ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}INIT:\ bus0\ mux=\%p\ bus1\ mux=\%p"{}},\ \mbox{\hyperlink{globals_8c_abf2db498ee5bfc50c210a73d702b61fc}{tca9548\_bus0\_handle}},\ \mbox{\hyperlink{globals_8c_a064478940aa6735f7aa2c239c08f994c}{tca9548\_bus1\_handle}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00702}00702\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00703}00703\ \ \ \ \ \textcolor{comment}{//\ Bus0}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00704}00704\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ ch\ =\ 0;\ ch\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ch++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00705}00705\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00706}00706\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type\_str\ =\ \mbox{\hyperlink{globals_8c_af0e9d3e368300fd4059ea6757701fa1b}{bus0\_sensor\_settings}}[ch].type;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00707}00707\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}INIT:\ bus0\ ch=\%d\ type=\%s"{}},\ ch,\ type\_str);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00708}00708\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00709}00709\ \ \ \ \ \ \ \ \ esp\_err\_t\ err\ =\ configure\_bus\_channel(}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00710}00710\ \ \ \ \ \ \ \ \ \ \ \ \ bus0\_sensors,\ 0,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00711}00711\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_aefb351ec52ac77546d12f5dd1332c8b8}{i2c\_bus0\_handle}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00712}00712\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_abf2db498ee5bfc50c210a73d702b61fc}{tca9548\_bus0\_handle}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00713}00713\ \ \ \ \ \ \ \ \ \ \ \ \ ch,\ type\_str);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00714}00714\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00715}00715\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00716}00716\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00717}00717\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}INIT:\ bus0\ ch=\%d\ failed:\ \%s"{}},\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00718}00718\ \ \ \ \ \ \ \ \ \ \ \ \ ret\ =\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00719}00719\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00720}00720\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00721}00721\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00722}00722\ \ \ \ \ \textcolor{comment}{//\ Bus1}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00723}00723\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ ch\ =\ 0;\ ch\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ch++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00724}00724\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00725}00725\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *type\_str\ =\ \mbox{\hyperlink{globals_8c_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\_sensor\_settings}}[ch].type;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00726}00726\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}INIT:\ bus1\ ch=\%d\ type=\%s"{}},\ ch,\ type\_str);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00727}00727\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00728}00728\ \ \ \ \ \ \ \ \ esp\_err\_t\ err\ =\ configure\_bus\_channel(}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00729}00729\ \ \ \ \ \ \ \ \ \ \ \ \ bus1\_sensors,\ 1,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00730}00730\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a82c5c41e821bcf6357378e1c61702de0}{i2c\_bus1\_handle}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00731}00731\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a064478940aa6735f7aa2c239c08f994c}{tca9548\_bus1\_handle}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00732}00732\ \ \ \ \ \ \ \ \ \ \ \ \ ch,\ type\_str);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00733}00733\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00734}00734\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00735}00735\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00736}00736\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}INIT:\ bus1\ ch=\%d\ failed:\ \%s"{}},\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00737}00737\ \ \ \ \ \ \ \ \ \ \ \ \ ret\ =\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00738}00738\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00739}00739\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00740}00740\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00741}00741\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00742}00742\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00743}00743\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00751}\mbox{\hyperlink{i2c__sensors_8c_ab0890b3f408a66c55d29bfb75a657822}{00751}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{i2c__sensors_8c_ab0890b3f408a66c55d29bfb75a657822}{configured\_sensor}}(\textcolor{keywordtype}{int}\ bus,\ \textcolor{keywordtype}{int}\ slot)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00752}00752\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00753}00753\ \ \ \ \ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ *slots\ =\ (bus\ ==\ 0)\ ?\ bus0\_sensors\ :\ bus1\_sensors;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00754}00754\ \ \ \ \ \textcolor{keywordflow}{return}\ slots[slot].\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ !=\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00755}00755\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00756}00756\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00764}\mbox{\hyperlink{i2c__sensors_8c_a8ebde081db04209b50fa3c0ca378b7d6}{00764}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{i2c__sensors_8c_a8ebde081db04209b50fa3c0ca378b7d6}{sensor\_supports\_co2}}(\textcolor{keywordtype}{int}\ bus,\ \textcolor{keywordtype}{int}\ slot)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00765}00765\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00766}00766\ \ \ \ \ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ *slots\ =\ (bus\ ==\ 0)\ ?\ bus0\_sensors\ :\ bus1\_sensors;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00767}00767\ \ \ \ \ \textcolor{keywordflow}{return}\ slots[slot].\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ ==\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00768}00768\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00769}00769\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00775}\mbox{\hyperlink{i2c__sensors_8c_a8a473764f5efa100fa0ac4163c0ccf16}{00775}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__sensors_8c_a8a473764f5efa100fa0ac4163c0ccf16}{read\_sensors\_into\_queue}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00776}00776\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00777}00777\ \ \ \ \ \textcolor{keywordtype}{float}\ snapshot[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00778}00778\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00779}00779\ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ bus\ =\ 0;\ bus\ <\ \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}};\ bus++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00780}00780\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00781}00781\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ *slots\ =\ (bus\ ==\ 0)\ ?\ bus0\_sensors\ :\ bus1\_sensors;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00782}00782\ \ \ \ \ \ \ \ \ i2c\_master\_dev\_handle\_t\ tca\ =\ (bus\ ==\ 0)\ ?\ \mbox{\hyperlink{globals_8c_abf2db498ee5bfc50c210a73d702b61fc}{tca9548\_bus0\_handle}}\ :\ \mbox{\hyperlink{globals_8c_a064478940aa6735f7aa2c239c08f994c}{tca9548\_bus1\_handle}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00783}00783\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00784}00784\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ:\ Starting\ bus\ \%d\ (tca=\%p)"{}},\ bus,\ tca);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00785}00785\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00786}00786\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (uint8\_t\ ch\ =\ 0;\ ch\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ch++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00787}00787\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00788}00788\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structsensor__slot__t}{sensor\_slot\_t}}\ *slot\ =\ \&slots[ch];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00789}00789\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00790}00790\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Always\ clear\ snapshot\ to\ avoid\ stale\ CO2/pressure/gas}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00791}00791\ \ \ \ \ \ \ \ \ \ \ \ \ memset(snapshot[bus][ch],\ 0,\ \textcolor{keyword}{sizeof}(snapshot[bus][ch]));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00792}00792\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00793}00793\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ:\ bus=\%d\ ch=\%d\ type=\%d\ handle=\%p"{}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00794}00794\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bus,\ ch,\ slot-\/>\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}},\ slot-\/>\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00795}00795\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00796}00796\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ No\ sensor\ configured\ or\ not\ initialized}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00797}00797\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (slot-\/>\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ ==\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2aa2a7066f2f56f1e85dbf20bb6007b57a}{SENSOR\_NONE}}\ ||\ slot-\/>\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00798}00798\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00799}00799\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ:\ bus=\%d\ ch=\%d\ skipped\ (no\ sensor\ or\ handle\ NULL)"{}},\ bus,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00800}00800\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00801}00801\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00802}00802\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00803}00803\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Select\ mux\ channel}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00804}00804\ \ \ \ \ \ \ \ \ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_afab3800bd0c8fae2e389415892a8ae82}{i2c\_tca9548\_set\_channel}}(tca,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00805}00805\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00806}00806\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00807}00807\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ:\ bus=\%d\ ch=\%d\ mux\ select\ failed:\ \%s"{}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00808}00808\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bus,\ ch,\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00809}00809\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00810}00810\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00811}00811\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00812}00812\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3));}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00813}00813\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00814}00814\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ temp\ =\ 0,\ rh\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00815}00815\ \ \ \ \ \ \ \ \ \ \ \ \ uint16\_t\ co2\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00816}00816\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ ok\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00817}00817\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00818}00818\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{switch}\ (slot-\/>\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00819}00819\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00820}00820\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2af7cfebf7c6791ce8160c892e2b7efc2e}{SENSOR\_AHT20}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00821}00821\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ok\ =\ (\mbox{\hyperlink{i2c__sensors_8c_a171099de7e13430bc88ca29eac054b6c}{aht20\_read}}(slot-\/>\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}},\ \&temp,\ \&rh)\ ==\ ESP\_OK);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00822}00822\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00823}00823\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00824}00824\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a51260366058ac1b092d201dfde5984ee}{SENSOR\_DHT20}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00825}00825\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ok\ =\ (\mbox{\hyperlink{i2c__sensors_8c_a6e6e68d136b9477af4aa8b0da8b9cc11}{dht20\_read}}(slot-\/>\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}},\ \&temp,\ \&rh)\ ==\ ESP\_OK);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00826}00826\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00827}00827\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00828}00828\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00829}00829\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ok\ =\ (\mbox{\hyperlink{i2c__sensors_8c_a04a5633f2ff5a878a455f5b7be6771a7}{scd41\_read}}(slot-\/>\mbox{\hyperlink{structsensor__slot__t_a5f9305f12f87eb72d9b48e32caa23851}{handle}},\ \&co2,\ \&temp,\ \&rh)\ ==\ ESP\_OK);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00830}00830\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00831}00831\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00832}00832\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00833}00833\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ok\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00834}00834\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00835}00835\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00836}00836\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00837}00837\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!ok)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00838}00838\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00839}00839\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ:\ bus=\%d\ ch=\%d\ read\ failed"{}},\ bus,\ ch);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00840}00840\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00841}00841\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00842}00842\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00843}00843\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Write\ snapshot}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00844}00844\ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}{IDX\_TEMP}}]\ =\ temp;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00845}00845\ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}}]\ =\ rh;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00846}00846\ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}]\ =\ (slot-\/>\mbox{\hyperlink{structsensor__slot__t_a53db8f38104c74e7a721b6eb0b76ef15}{type}}\ ==\ \mbox{\hyperlink{i2c__sensors_8c_a089f166159fb19f10d81c65c1d8793a2a0a18638306073a91668707a2b967243e}{SENSOR\_SCD41}})\ ?\ (\textcolor{keywordtype}{float})co2\ :\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00847}00847\ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}]\ =\ (float)esp\_timer\_get\_time();}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00848}00848\ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}]\ =\ 1.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00849}00849\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00850}00850\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}READ\ OK:\ bus=\%d\ ch=\%d\ T=\%.2f\ H=\%.2f\ CO2=\%.0f"{}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00851}00851\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bus,\ ch,\ temp,\ rh,\ snapshot[bus][ch][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}]);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00852}00852\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00853}00853\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00854}00854\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00855}00855\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}================\ RAW\ SENSOR\ ARRAY\ ================"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00856}00856\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ bus\ =\ 0;\ bus\ <\ \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}};\ bus++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00857}00857\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00858}00858\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ slot\ =\ 0;\ slot\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ slot++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00859}00859\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00860}00860\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00861}00861\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}RAW\ bus=\%d\ slot=\%d\ |\ "{}}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00862}00862\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}valid=\%d\ temp=\%.2f\ hum=\%.2f\ co2=\%.2f\ press=\%.2f\ gas=\%.2f\ ts=\%.0f"{}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00863}00863\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bus,\ slot,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00864}00864\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\textcolor{keywordtype}{int})snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00865}00865\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}{IDX\_TEMP}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00866}00866\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda}{IDX\_PRESSURE}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a4ddb89942b372644fe4c42a7a857ca93}{IDX\_GAS\_RES}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snapshot[bus][slot][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}]);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00871}00871\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00872}00872\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00873}00873\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00874}00874\ \ \ \ \ xQueueOverwrite(\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}},\ snapshot);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00875}00875\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00876}00876\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00877}00877\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00878}00878\ \textcolor{comment}{//\ Averaging\ logic\ (unchanged\ except\ for\ using\ same\ snapshot\ layout)}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00884}\mbox{\hyperlink{i2c__sensors_8c_a5b7307fab1bf8e372fcf6fb3103c90f7}{00884}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__sensors_8c_a5b7307fab1bf8e372fcf6fb3103c90f7}{sensor\_data\_average}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00885}00885\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00886}00886\ \ \ \ \ \textcolor{keywordtype}{float}\ sensor\_data[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00887}00887\ \ \ \ \ \textcolor{keywordtype}{float}\ sensor\_avg\_data[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00888}00888\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00889}00889\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueuePeek(\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}},\ \&sensor\_data,\ 0)\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00890}00890\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00891}00891\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}sensor\_data\_average:\ sensor\_queue\ empty"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00892}00892\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00893}00893\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00894}00894\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00895}00895\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ meas\_indices[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00896}00896\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}{IDX\_TEMP}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00897}00897\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00898}00898\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00899}00899\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda}{IDX\_PRESSURE}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00900}00900\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8h_a4ddb89942b372644fe4c42a7a857ca93}{IDX\_GAS\_RES}}\};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00901}00901\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ meas\_count\ =\ \textcolor{keyword}{sizeof}(meas\_indices)\ /\ \textcolor{keyword}{sizeof}(meas\_indices[0]);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00902}00902\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00903}00903\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ bus\ =\ 0;\ bus\ <\ \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}};\ bus++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00904}00904\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00905}00905\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ slot\ =\ 0;\ slot\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ slot++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00906}00906\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00907}00907\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!sensor\_data[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}])}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00908}00908\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00909}00909\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reset\_sensor\_average\_slot(bus,\ slot);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00910}00910\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00911}00911\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00912}00912\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00913}00913\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ m\ =\ 0;\ m\ <\ meas\_count;\ m++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00914}00914\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00915}00915\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ field\ =\ meas\_indices[m];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00916}00916\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][field]\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00917}00917\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00918}00918\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00919}00919\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00920}00920\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00921}00921\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ m\ =\ 0;\ m\ <\ meas\_count;\ m++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00922}00922\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00923}00923\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ field\ =\ meas\_indices[m];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00924}00924\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a4aa3ef68338a18153d625d7ecfa9f8ea}{fifoPush}}(bus,\ slot,\ m,\ sensor\_data[bus][slot][field]);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00925}00925\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][field]\ =\ avg[bus][slot][m];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00926}00926\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00927}00927\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00928}00928\ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}]\ =\ sensor\_data[bus][slot][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00929}00929\ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}]\ =\ sensor\_data[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00930}00930\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00931}00931\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00932}00932\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00933}00933\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}================\ AVERAGED\ SENSOR\ ARRAY\ ================"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00934}00934\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ bus\ =\ 0;\ bus\ <\ \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}};\ bus++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00935}00935\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00936}00936\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ slot\ =\ 0;\ slot\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ slot++)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00937}00937\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00938}00938\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00939}00939\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}RAW\ bus=\%d\ slot=\%d\ |\ "{}}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00940}00940\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{stringliteral}{"{}valid=\%d\ temp=\%.2f\ hum=\%.2f\ co2=\%.2f\ press=\%.2f\ gas=\%.2f\ ts=\%.0f"{}},}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00941}00941\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ bus,\ slot,}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00942}00942\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (\textcolor{keywordtype}{int})sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\_VALID}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00943}00943\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}{IDX\_TEMP}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00944}00944\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00945}00945\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00946}00946\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda}{IDX\_PRESSURE}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00947}00947\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a4ddb89942b372644fe4c42a7a857ca93}{IDX\_GAS\_RES}}],}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00948}00948\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sensor\_avg\_data[bus][slot][\mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\_TIMESTAMP}}]);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00949}00949\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00950}00950\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00951}00951\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00952}00952\ \ \ \ \ xQueueOverwrite(\mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}},\ sensor\_avg\_data);}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00953}00953\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00954}00954\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00963}\mbox{\hyperlink{i2c__sensors_8c_a4aa3ef68338a18153d625d7ecfa9f8ea}{00963}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__sensors_8c_a4aa3ef68338a18153d625d7ecfa9f8ea}{fifoPush}}(\textcolor{keywordtype}{int}\ bus,\ \textcolor{keywordtype}{int}\ slot,\ \textcolor{keywordtype}{int}\ measurement,\ \textcolor{keywordtype}{float}\ value)}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00964}00964\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00965}00965\ \ \ \ \ \textcolor{keywordtype}{int}\ head\ =\ fifoHead[bus][slot][measurement];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00966}00966\ \ \ \ \ \textcolor{keywordtype}{int}\ size\ =\ fifoSize[bus][slot][measurement];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00967}00967\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00968}00968\ \ \ \ \ \textcolor{keywordflow}{if}\ (size\ <\ \mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\_FIFO\_SIZE}})}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00969}00969\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00970}00970\ \ \ \ \ \ \ \ \ sensor\_fifo[bus][slot][measurement][(head\ +\ size)\ \%\ \mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\_FIFO\_SIZE}}]\ =\ value;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00971}00971\ \ \ \ \ \ \ \ \ sum[bus][slot][measurement]\ +=\ value;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00972}00972\ \ \ \ \ \ \ \ \ fifoSize[bus][slot][measurement]++;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00973}00973\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00974}00974\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00975}00975\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00976}00976\ \ \ \ \ \ \ \ \ sum[bus][slot][measurement]\ -\/=\ sensor\_fifo[bus][slot][measurement][head];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00977}00977\ \ \ \ \ \ \ \ \ sensor\_fifo[bus][slot][measurement][head]\ =\ value;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00978}00978\ \ \ \ \ \ \ \ \ sum[bus][slot][measurement]\ +=\ value;}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00979}00979\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00980}00980\ \ \ \ \ \ \ \ \ fifoHead[bus][slot][measurement]\ =\ (head\ +\ 1)\ \%\ \mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\_FIFO\_SIZE}};}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00981}00981\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00982}00982\ }
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00983}00983\ \ \ \ \ avg[bus][slot][measurement]\ =\ sum[bus][slot][measurement]\ /\ fifoSize[bus][slot][measurement];}
+\DoxyCodeLine{\Hypertarget{i2c__sensors_8c_source_l00984}00984\ \}}
+
+\end{DoxyCode}

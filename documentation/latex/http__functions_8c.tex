@@ -1,0 +1,325 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/http\+\_\+functions.c File Reference}
+\hypertarget{http__functions_8c}{}\label{http__functions_8c}\index{/home/peter/Development/OSVentilationIDF/main/http\_functions.c@{/home/peter/Development/OSVentilationIDF/main/http\_functions.c}}
+
+
+Embedded HTTP and Web\+Socket server handlers for the firmware UI.  
+
+
+{\ttfamily \#include "{}http\+\_\+functions.\+h"{}}\newline
+Include dependency graph for http\+\_\+functions.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char pure\+\_\+min\+\_\+css\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_af975690011c392a4221274de144818af}{asm}} ("{}\+\_\+binary\+\_\+pure\+\_\+min\+\_\+css\+\_\+start"{})
+\item 
+const char pure\+\_\+min\+\_\+css\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_af530d8e0dd6fd3b86830d0b1735a8374}{asm}} ("{}\+\_\+binary\+\_\+pure\+\_\+min\+\_\+css\+\_\+end"{})
+\item 
+const char styles\+\_\+css\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a14ffde7cd1f321719f39106a0fafa35a}{asm}} ("{}\+\_\+binary\+\_\+styles\+\_\+css\+\_\+start"{})
+\item 
+const char styles\+\_\+css\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_ac9a038acd1cbe6f42890fba9be73b0fa}{asm}} ("{}\+\_\+binary\+\_\+styles\+\_\+css\+\_\+end"{})
+\item 
+const char ui\+\_\+js\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a16c5b7b487639b4927a00f717c4f1183}{asm}} ("{}\+\_\+binary\+\_\+ui\+\_\+js\+\_\+start"{})
+\item 
+const char ui\+\_\+js\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a5ee3d4d0c7b23d4a8eb23299aeef3d74}{asm}} ("{}\+\_\+binary\+\_\+ui\+\_\+js\+\_\+end"{})
+\item 
+const char send\+\_\+json\+\_\+ws\+\_\+js\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_afa3d53de0f736bad6f43622cbf415ed4}{asm}} ("{}\+\_\+binary\+\_\+send\+\_\+json\+\_\+ws\+\_\+js\+\_\+start"{})
+\item 
+const char send\+\_\+json\+\_\+ws\+\_\+js\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a1f6674e76746dc2068f5050949c72f75}{asm}} ("{}\+\_\+binary\+\_\+send\+\_\+json\+\_\+ws\+\_\+js\+\_\+end"{})
+\item 
+const uint8\+\_\+t favicon\+\_\+ico\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a6b0380c4515b49f9f71d01a188fda1c4}{asm}} ("{}\+\_\+binary\+\_\+favicon\+\_\+ico\+\_\+start"{})
+\item 
+const uint8\+\_\+t favicon\+\_\+ico\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_ad4e8db8ceb133b2f52a893c00c559b5e}{asm}} ("{}\+\_\+binary\+\_\+favicon\+\_\+ico\+\_\+end"{})
+\item 
+const char index\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_abb0823210783650d19ecce679af139a4}{asm}} ("{}\+\_\+binary\+\_\+index\+\_\+html\+\_\+start"{})
+\item 
+const char index\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_aa7e2baa4946ec83cc3e9074b30bb50a7}{asm}} ("{}\+\_\+binary\+\_\+index\+\_\+html\+\_\+end"{})
+\item 
+const char sensor\+\_\+config\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a37c82017ab803d8acc23e7d911153da5}{asm}} ("{}\+\_\+binary\+\_\+sensor\+\_\+config\+\_\+html\+\_\+start"{})
+\item 
+const char sensor\+\_\+config\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a668df230ee6833e16bed46b35ff14fcd}{asm}} ("{}\+\_\+binary\+\_\+sensor\+\_\+config\+\_\+html\+\_\+end"{})
+\item 
+const char config\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a175ad8bb2792f7d5266188e40eeebbdb}{asm}} ("{}\+\_\+binary\+\_\+config\+\_\+html\+\_\+start"{})
+\item 
+const char config\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a2f4e16ebc70f68141539aa64a2b92332}{asm}} ("{}\+\_\+binary\+\_\+config\+\_\+html\+\_\+end"{})
+\item 
+const char statemachine\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_aab8c6644091ab87791487b2f8d142f20}{asm}} ("{}\+\_\+binary\+\_\+statemachine\+\_\+html\+\_\+start"{})
+\item 
+const char statemachine\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_ae79413b54801b62a1c358b4b331a6374}{asm}} ("{}\+\_\+binary\+\_\+statemachine\+\_\+html\+\_\+end"{})
+\item 
+const char valvecontrol\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a387332a92a54ca26fc2bb3a483d357be}{asm}} ("{}\+\_\+binary\+\_\+valvecontrol\+\_\+html\+\_\+start"{})
+\item 
+const char valvecontrol\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a46c8b5ca115d1a36537647b8daed7363}{asm}} ("{}\+\_\+binary\+\_\+valvecontrol\+\_\+html\+\_\+end"{})
+\item 
+const char webserial\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a1d78a2e687330c20875e4eb9ce3f7eec}{asm}} ("{}\+\_\+binary\+\_\+webserial\+\_\+html\+\_\+start"{})
+\item 
+const char webserial\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_afd5c179674a1d439453279b70a34300e}{asm}} ("{}\+\_\+binary\+\_\+webserial\+\_\+html\+\_\+end"{})
+\item 
+const char stats\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_acaf1e1700772cee897292ae74f039662}{asm}} ("{}\+\_\+binary\+\_\+stats\+\_\+html\+\_\+start"{})
+\item 
+const char stats\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a6a493ae6c6e827c62e0bb6e5873bac59}{asm}} ("{}\+\_\+binary\+\_\+stats\+\_\+html\+\_\+end"{})
+\item 
+const char reboot\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a0a59f6a6f003e4cb9acbd674b4c0a51f}{asm}} ("{}\+\_\+binary\+\_\+reboot\+\_\+html\+\_\+start"{})
+\item 
+const char reboot\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} \mbox{\hyperlink{http__functions_8c_a4d8bf89c88aea79aad7f2dad1e64c37b}{asm}} ("{}\+\_\+binary\+\_\+reboot\+\_\+html\+\_\+end"{})
+\item 
+void \mbox{\hyperlink{http__functions_8c_a98b3b9a15f61ddde482666cf2a899dac}{ws\+\_\+async\+\_\+send}} (const char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Broadcast raw text to all connected Web\+Socket clients. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{http__functions_8c_a9dd8efe54e059142817e14d63550cd7f}{http\+\_\+server\+\_\+start}} (void)
+\begin{DoxyCompactList}\small\item\em Start the embedded HTTP server and bind URI handlers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__functions_8c_ae960cfbc7dba6d406e29b2e76655f913}{register\+\_\+http\+\_\+handlers}} (httpd\+\_\+handle\+\_\+t server)
+\begin{DoxyCompactList}\small\item\em Register the HTTP URI handlers for the embedded web interface. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{http__functions_8c_a626ad843a2f9e2d959e4314a194af08e}{http\+\_\+server\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Stop the embedded HTTP server and release its resources. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Embedded HTTP and Web\+Socket server handlers for the firmware UI. 
+
+This module serves embedded web assets, handles configuration POSTs, and provides Web\+Socket support for status and control commands. 
+
+Definition in file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{http__functions_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{http__functions_8c_a2f4e16ebc70f68141539aa64a2b92332}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [1/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a2f4e16ebc70f68141539aa64a2b92332} 
+const char config\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+config\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a175ad8bb2792f7d5266188e40eeebbdb}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [2/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a175ad8bb2792f7d5266188e40eeebbdb} 
+const char config\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+config\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_ad4e8db8ceb133b2f52a893c00c559b5e}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [3/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_ad4e8db8ceb133b2f52a893c00c559b5e} 
+const uint8\+\_\+t favicon\+\_\+ico\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+favicon\+\_\+ico\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a6b0380c4515b49f9f71d01a188fda1c4}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [4/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a6b0380c4515b49f9f71d01a188fda1c4} 
+const uint8\+\_\+t favicon\+\_\+ico\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+favicon\+\_\+ico\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_aa7e2baa4946ec83cc3e9074b30bb50a7}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [5/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_aa7e2baa4946ec83cc3e9074b30bb50a7} 
+const char index\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+index\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_abb0823210783650d19ecce679af139a4}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [6/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_abb0823210783650d19ecce679af139a4} 
+const char index\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+index\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_af530d8e0dd6fd3b86830d0b1735a8374}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [7/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_af530d8e0dd6fd3b86830d0b1735a8374} 
+const char pure\+\_\+min\+\_\+css\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+pure\+\_\+min\+\_\+css\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_af975690011c392a4221274de144818af}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [8/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_af975690011c392a4221274de144818af} 
+const char pure\+\_\+min\+\_\+css\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+pure\+\_\+min\+\_\+css\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a4d8bf89c88aea79aad7f2dad1e64c37b}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [9/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a4d8bf89c88aea79aad7f2dad1e64c37b} 
+const char reboot\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+reboot\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a0a59f6a6f003e4cb9acbd674b4c0a51f}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [10/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a0a59f6a6f003e4cb9acbd674b4c0a51f} 
+const char reboot\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+reboot\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a1f6674e76746dc2068f5050949c72f75}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [11/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a1f6674e76746dc2068f5050949c72f75} 
+const char send\+\_\+json\+\_\+ws\+\_\+js\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+send\+\_\+json\+\_\+ws\+\_\+js\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_afa3d53de0f736bad6f43622cbf415ed4}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [12/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_afa3d53de0f736bad6f43622cbf415ed4} 
+const char send\+\_\+json\+\_\+ws\+\_\+js\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+send\+\_\+json\+\_\+ws\+\_\+js\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a668df230ee6833e16bed46b35ff14fcd}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [13/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a668df230ee6833e16bed46b35ff14fcd} 
+const char sensor\+\_\+config\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+sensor\+\_\+config\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a37c82017ab803d8acc23e7d911153da5}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [14/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a37c82017ab803d8acc23e7d911153da5} 
+const char sensor\+\_\+config\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+sensor\+\_\+config\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_ae79413b54801b62a1c358b4b331a6374}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [15/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_ae79413b54801b62a1c358b4b331a6374} 
+const char statemachine\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+statemachine\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_aab8c6644091ab87791487b2f8d142f20}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [16/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_aab8c6644091ab87791487b2f8d142f20} 
+const char statemachine\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+statemachine\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a6a493ae6c6e827c62e0bb6e5873bac59}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [17/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a6a493ae6c6e827c62e0bb6e5873bac59} 
+const char stats\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+stats\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_acaf1e1700772cee897292ae74f039662}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [18/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_acaf1e1700772cee897292ae74f039662} 
+const char stats\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+stats\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_ac9a038acd1cbe6f42890fba9be73b0fa}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [19/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_ac9a038acd1cbe6f42890fba9be73b0fa} 
+const char styles\+\_\+css\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+styles\+\_\+css\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a14ffde7cd1f321719f39106a0fafa35a}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [20/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a14ffde7cd1f321719f39106a0fafa35a} 
+const char styles\+\_\+css\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+styles\+\_\+css\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a5ee3d4d0c7b23d4a8eb23299aeef3d74}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [21/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a5ee3d4d0c7b23d4a8eb23299aeef3d74} 
+const char ui\+\_\+js\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+ui\+\_\+js\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a16c5b7b487639b4927a00f717c4f1183}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [22/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a16c5b7b487639b4927a00f717c4f1183} 
+const char ui\+\_\+js\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+ui\+\_\+js\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a46c8b5ca115d1a36537647b8daed7363}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [23/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a46c8b5ca115d1a36537647b8daed7363} 
+const char valvecontrol\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+valvecontrol\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a387332a92a54ca26fc2bb3a483d357be}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [24/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a387332a92a54ca26fc2bb3a483d357be} 
+const char valvecontrol\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+valvecontrol\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_afd5c179674a1d439453279b70a34300e}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [25/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_afd5c179674a1d439453279b70a34300e} 
+const char webserial\+\_\+html\+\_\+end\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+webserial\+\_\+html\+\_\+end"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a1d78a2e687330c20875e4eb9ce3f7eec}\index{http\_functions.c@{http\_functions.c}!asm@{asm}}
+\index{asm@{asm}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{asm()}{asm()}\hspace{0.1cm}{\footnotesize\ttfamily [26/26]}}
+{\footnotesize\ttfamily \label{http__functions_8c_a1d78a2e687330c20875e4eb9ce3f7eec} 
+const char webserial\+\_\+html\+\_\+start\mbox{[}$\,$\mbox{]} asm (\begin{DoxyParamCaption}\item[{"{}\+\_\+binary\+\_\+webserial\+\_\+html\+\_\+start"{}}]{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [extern]}}
+
+\Hypertarget{http__functions_8c_a9dd8efe54e059142817e14d63550cd7f}\index{http\_functions.c@{http\_functions.c}!http\_server\_start@{http\_server\_start}}
+\index{http\_server\_start@{http\_server\_start}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{http\_server\_start()}{http\_server\_start()}}
+{\footnotesize\ttfamily \label{http__functions_8c_a9dd8efe54e059142817e14d63550cd7f} 
+esp\+\_\+err\+\_\+t http\+\_\+server\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Start the embedded HTTP server and bind URI handlers. 
+
+Start the embedded HTTP server and bind handlers.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01478}{1478}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8c_a626ad843a2f9e2d959e4314a194af08e}\index{http\_functions.c@{http\_functions.c}!http\_server\_stop@{http\_server\_stop}}
+\index{http\_server\_stop@{http\_server\_stop}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{http\_server\_stop()}{http\_server\_stop()}}
+{\footnotesize\ttfamily \label{http__functions_8c_a626ad843a2f9e2d959e4314a194af08e} 
+esp\+\_\+err\+\_\+t http\+\_\+server\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Stop the embedded HTTP server and release its resources. 
+
+Stop the embedded HTTP server and release resources.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01865}{1865}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8c_ae960cfbc7dba6d406e29b2e76655f913}\index{http\_functions.c@{http\_functions.c}!register\_http\_handlers@{register\_http\_handlers}}
+\index{register\_http\_handlers@{register\_http\_handlers}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{register\_http\_handlers()}{register\_http\_handlers()}}
+{\footnotesize\ttfamily \label{http__functions_8c_ae960cfbc7dba6d406e29b2e76655f913} 
+void register\+\_\+http\+\_\+handlers (\begin{DoxyParamCaption}\item[{httpd\+\_\+handle\+\_\+t}]{server}{}\end{DoxyParamCaption})}
+
+
+
+Register the HTTP URI handlers for the embedded web interface. 
+
+Register HTTP URI handlers on an active server.
+
+
+\begin{DoxyParams}{Parameters}
+{\em server} & A running HTTP server handle. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01526}{1526}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8c_a98b3b9a15f61ddde482666cf2a899dac}\index{http\_functions.c@{http\_functions.c}!ws\_async\_send@{ws\_async\_send}}
+\index{ws\_async\_send@{ws\_async\_send}!http\_functions.c@{http\_functions.c}}
+\doxysubsubsection{\texorpdfstring{ws\_async\_send()}{ws\_async\_send()}}
+{\footnotesize\ttfamily \label{http__functions_8c_a98b3b9a15f61ddde482666cf2a899dac} 
+void ws\+\_\+async\+\_\+send (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Broadcast raw text to all connected Web\+Socket clients. 
+
+Send raw text to all connected Web\+Socket clients.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Pointer to the data buffer. \\
+\hline
+{\em len} & Length of the buffer in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01424}{1424}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+

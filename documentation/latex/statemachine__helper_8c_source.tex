@@ -1,0 +1,533 @@
+\doxysection{statemachine\+\_\+helper.\+c}
+\hypertarget{statemachine__helper_8c_source}{}\label{statemachine__helper_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.c@{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.c}}
+\mbox{\hyperlink{statemachine__helper_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{statemachine__helper_8h}{statemachine\_helper.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00014}00014\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}sm\_helpers"{}};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00016}00016\ \textcolor{comment}{//\ Find\ state\ index\ by\ name\ (case-\/insensitive).\ Returns\ -\/1\ if\ not\ found.}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00017}\mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{00017}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{find\_state\_index\_by\_name\_ci}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *name)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00018}00018\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00019}00019\ \ \ \ \ \textcolor{keywordflow}{if}\ (!name)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00020}00020\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00022}00022\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\_NR\_STATES}};\ ++i)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00023}00023\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00024}00024\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[i].state\_name;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00025}00025\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!s)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00026}00026\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00027}00027\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (strcasecmp(s,\ name)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00028}00028\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ i;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00029}00029\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00030}00030\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00031}00031\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00033}00033\ \textcolor{comment}{//\ Return\ true\ if\ current\ time\ falls\ into\ configured\ "{}day"{}\ window.}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00034}\mbox{\hyperlink{statemachine__helper_8c_a2bbf20bce579e05c5dd135246668f7b2}{00034}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_a2bbf20bce579e05c5dd135246668f7b2}{is\_day}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00035}00035\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00036}00036\ \ \ \ \ \textcolor{keywordtype}{int}\ wday\_d\_h\ =\ 0,\ wday\_d\_m\ =\ 0,\ wday\_n\_h\ =\ 0,\ wday\_n\_m\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00037}00037\ \ \ \ \ \textcolor{keywordtype}{int}\ wkend\_d\_h\ =\ 0,\ wkend\_d\_m\ =\ 0,\ wkend\_n\_h\ =\ 0,\ wkend\_n\_m\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00039}00039\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00040}00040\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ wday\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ wday\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ wday\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ wday\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ wkend\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ wkend\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ wkend\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ wkend\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00050}00050\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00051}00051\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00052}00052\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}is\_day:\ state\_config\_mutex\ unavailable,\ using\ defaults"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00054}00054\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00056}00056\ \ \ \ \ time\_t\ now\ =\ time(NULL);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00057}00057\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ tm\_now;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00058}00058\ \ \ \ \ localtime\_r(\&now,\ \&tm\_now);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00059}00059\ \ \ \ \ \textcolor{keywordtype}{int}\ current\_minutes\ =\ tm\_now.tm\_hour\ *\ 60\ +\ tm\_now.tm\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00061}00061\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{is\_weekend}}())}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00062}00062\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ day\_start\ =\ wkend\_d\_h\ *\ 60\ +\ wkend\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ night\_start\ =\ wkend\_n\_h\ *\ 60\ +\ wkend\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ start\ ==\ stop,\ treat\ as\ full-\/day}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (day\_start\ ==\ night\_start)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (day\_start\ <\ night\_start)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (current\_minutes\ >=\ day\_start\ \&\&\ current\_minutes\ <\ night\_start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ wrapping\ window}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (current\_minutes\ >=\ day\_start\ ||\ current\_minutes\ <\ night\_start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00072}00072\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00073}00073\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00074}00074\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00075}00075\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ day\_start\ =\ wday\_d\_h\ *\ 60\ +\ wday\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ night\_start\ =\ wday\_n\_h\ *\ 60\ +\ wday\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (day\_start\ ==\ night\_start)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (day\_start\ <\ night\_start)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (current\_minutes\ >=\ day\_start\ \&\&\ current\_minutes\ <\ night\_start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (current\_minutes\ >=\ day\_start\ ||\ current\_minutes\ <\ night\_start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00082}00082\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00083}00083\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00085}00085\ \textcolor{comment}{//\ Return\ true\ if\ today\ matches\ configured\ weekend\ days}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00086}\mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{00086}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{is\_weekend}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00087}00087\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00088}00088\ \ \ \ \ \textcolor{keywordtype}{char}\ wk1[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00089}00089\ \ \ \ \ \textcolor{keywordtype}{char}\ wk2[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00090}00090\ \ \ \ \ \textcolor{keywordtype}{char}\ today[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00092}00092\ \ \ \ \ \mbox{\hyperlink{general_8c_a2d0208dd7c43529fcddb5d087c0c40c1}{formatted\_day}}(today,\ \textcolor{keyword}{sizeof}(today));\ \textcolor{comment}{//\ e.g.,\ "{}Mon"{},\ "{}Tue"{},\ or\ localized\ string}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00094}00094\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00095}00095\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00096}00096\ \ \ \ \ \ \ \ \ strncpy(wk1,\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d1,\ \textcolor{keyword}{sizeof}(wk1)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ strncpy(wk2,\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d2,\ \textcolor{keyword}{sizeof}(wk2)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00099}00099\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00100}00100\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00101}00101\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}is\_weekend:\ state\_config\_mutex\ unavailable,\ assuming\ not\ weekend"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00104}00104\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00105}00105\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00106}00106\ \ \ \ \ \textcolor{comment}{//\ Compare\ strings\ exactly\ (config\ expected\ to\ match\ formatted\_day\ output)}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00107}00107\ \ \ \ \ \textcolor{keywordflow}{if}\ (wk1[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'}\ \&\&\ strcmp(today,\ wk1)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00109}00109\ \ \ \ \ \textcolor{keywordflow}{if}\ (wk2[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'}\ \&\&\ strcmp(today,\ wk2)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00111}00111\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00112}00112\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00113}00113\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00114}00114\ \textcolor{comment}{//\ Return\ true\ if\ current\ time\ is\ within\ the\ cooking\ state\ window}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00115}\mbox{\hyperlink{statemachine__helper_8c_adab1407545fb6a4bc3165407db12ad3a}{00115}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_adab1407545fb6a4bc3165407db12ad3a}{cooking\_times}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00116}00116\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00117}00117\ \ \ \ \ \textcolor{keywordtype}{int}\ idx\ =\ \mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{find\_state\_index\_by\_name\_ci}}(\mbox{\hyperlink{globals_8c_a0b362ab28cb37bbd67729678b0a79d38}{STATE\_COOKING}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00118}00118\ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00119}00119\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}cooking\_times:\ state\ not\ configured"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00122}00122\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00124}00124\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_h\ =\ 0,\ start\_m\ =\ 0,\ stop\_h\ =\ 0,\ stop\_m\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00125}00125\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00126}00126\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ start\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ start\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ stop\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ stop\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00131}00131\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00132}00132\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00133}00133\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00134}00134\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00135}00135\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}cooking\_times:\ state\_config\_mutex\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00136}00136\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00137}00137\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00139}00139\ \ \ \ \ time\_t\ now\ =\ time(NULL);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00140}00140\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ tm\_now;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00141}00141\ \ \ \ \ localtime\_r(\&now,\ \&tm\_now);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00143}00143\ \ \ \ \ \textcolor{keywordtype}{int}\ cur\_h\ =\ tm\_now.tm\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00144}00144\ \ \ \ \ \textcolor{keywordtype}{int}\ cur\_m\ =\ tm\_now.tm\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00145}00145\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00146}00146\ \ \ \ \ \textcolor{comment}{//\ If\ start\ ==\ stop\ -\/>\ full\ day}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00147}00147\ \ \ \ \ \textcolor{keywordflow}{if}\ (start\_h\ ==\ stop\_h\ \&\&\ start\_m\ ==\ stop\_m)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00150}00150\ \ \ \ \ \textcolor{keywordflow}{if}\ (cur\_h\ ==\ start\_h\ \&\&\ cur\_m\ >\ start\_m)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00152}00152\ \ \ \ \ \textcolor{keywordflow}{if}\ (cur\_h\ ==\ stop\_h\ \&\&\ cur\_m\ >=\ stop\_m)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00155}00155\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00156}00156\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00157}00157\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00158}00158\ \textcolor{comment}{//\ Helper:\ compute\ overlap\ minutes\ between\ two\ windows\ [a\_start,a\_stop)\ and\ [b\_start,b\_stop)}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00159}00159\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ minutes\_overlap(\textcolor{keywordtype}{int}\ a\_start,\ \textcolor{keywordtype}{int}\ a\_stop,\ \textcolor{keywordtype}{int}\ b\_start,\ \textcolor{keywordtype}{int}\ b\_stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00160}00160\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordtype}{int}\ total\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00162}00162\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00163}00163\ \ \ \ \ \textcolor{keywordtype}{int}\ a\_s[2],\ a\_e[2],\ a\_cnt\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00164}00164\ \ \ \ \ \textcolor{keywordflow}{if}\ (a\_start\ ==\ a\_stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00165}00165\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00166}00166\ \ \ \ \ \ \ \ \ a\_s[0]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00167}00167\ \ \ \ \ \ \ \ \ a\_e[0]\ =\ 1440;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00168}00168\ \ \ \ \ \ \ \ \ a\_cnt\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00169}00169\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00170}00170\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (a\_start\ <\ a\_stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00171}00171\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ a\_s[0]\ =\ a\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ a\_e[0]\ =\ a\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ a\_cnt\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00175}00175\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00176}00176\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00177}00177\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ a\_s[0]\ =\ a\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ a\_e[0]\ =\ 1440;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ a\_s[1]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ a\_e[1]\ =\ a\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ a\_cnt\ =\ 2;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00183}00183\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00184}00184\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00185}00185\ \ \ \ \ \textcolor{keywordtype}{int}\ b\_s[2],\ b\_e[2],\ b\_cnt\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00186}00186\ \ \ \ \ \textcolor{keywordflow}{if}\ (b\_start\ ==\ b\_stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00187}00187\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00188}00188\ \ \ \ \ \ \ \ \ b\_s[0]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ b\_e[0]\ =\ 1440;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ b\_cnt\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00191}00191\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00192}00192\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (b\_start\ <\ b\_stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00193}00193\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ b\_s[0]\ =\ b\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00195}00195\ \ \ \ \ \ \ \ \ b\_e[0]\ =\ b\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00196}00196\ \ \ \ \ \ \ \ \ b\_cnt\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00197}00197\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00198}00198\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00199}00199\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00200}00200\ \ \ \ \ \ \ \ \ b\_s[0]\ =\ b\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00201}00201\ \ \ \ \ \ \ \ \ b\_e[0]\ =\ 1440;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ b\_s[1]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00203}00203\ \ \ \ \ \ \ \ \ b\_e[1]\ =\ b\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00204}00204\ \ \ \ \ \ \ \ \ b\_cnt\ =\ 2;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00205}00205\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00206}00206\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00207}00207\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ a\_cnt;\ ++i)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00208}00208\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00209}00209\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ j\ =\ 0;\ j\ <\ b\_cnt;\ ++j)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00210}00210\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ ov\_s\ =\ (a\_s[i]\ >\ b\_s[j])\ ?\ a\_s[i]\ :\ b\_s[j];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ ov\_e\ =\ (a\_e[i]\ <\ b\_e[j])\ ?\ a\_e[i]\ :\ b\_e[j];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ov\_e\ >\ ov\_s)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ total\ +=\ ov\_e\ -\/\ ov\_s;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00216}00216\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00217}00217\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00218}00218\ \ \ \ \ \textcolor{keywordflow}{return}\ total;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00219}00219\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00220}00220\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00221}00221\ \textcolor{comment}{//\ Determine\ whether\ cycling\ should\ run\ during\ the\ day\ window}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00222}\mbox{\hyperlink{statemachine__helper_8c_a88cb84d084a76ff39347b764997b5cef}{00222}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_a88cb84d084a76ff39347b764997b5cef}{valve\_cycle\_times\_day}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00223}00223\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00224}00224\ \ \ \ \ \textcolor{keywordtype}{int}\ idx\ =\ \mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{find\_state\_index\_by\_name\_ci}}(\mbox{\hyperlink{globals_8c_a771ce7a1bfdca26127eba54c62521197}{STATE\_CYCLINGDAY}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00225}00225\ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00226}00226\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00227}00227\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_day:\ state\ not\ configured"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00228}00228\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00229}00229\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00230}00230\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00231}00231\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_h,\ start\_m,\ stop\_h,\ stop\_m,\ interval\_min,\ duration\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00232}00232\ \ \ \ \ \textcolor{keywordtype}{int}\ wday\_d\_h,\ wday\_d\_m,\ wday\_n\_h,\ wday\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00233}00233\ \ \ \ \ \textcolor{keywordtype}{int}\ wkend\_d\_h,\ wkend\_d\_m,\ wkend\_n\_h,\ wkend\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00234}00234\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00235}00235\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00236}00236\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ start\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ start\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ stop\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ stop\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ interval\_min\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].cycling\_interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ duration\_min\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].duration\_minutes;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00243}00243\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ wday\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ wday\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ wday\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ wday\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00248}00248\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ wkend\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ wkend\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ wkend\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ wkend\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00253}00253\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00255}00255\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00256}00256\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00257}00257\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_day:\ could\ not\ take\ state\_config\_mutex"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00259}00259\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00260}00260\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00261}00261\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00262}00262\ \ \ \ \ \textcolor{keywordflow}{if}\ (interval\_min\ <\ 30\ ||\ duration\_min\ <=\ 5)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00263}00263\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00264}00264\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_day:\ invalid\ interval/duration\ interval=\%d\ duration=\%d"{}},\ interval\_min,\ duration\_min);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00265}00265\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00266}00266\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00267}00267\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00268}00268\ \ \ \ \ time\_t\ now\ =\ time(NULL);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00269}00269\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ tm\_now;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00270}00270\ \ \ \ \ localtime\_r(\&now,\ \&tm\_now);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00271}00271\ \ \ \ \ \textcolor{keywordtype}{int}\ current\ =\ tm\_now.tm\_hour\ *\ 60\ +\ tm\_now.tm\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00272}00272\ \ \ \ \ \textcolor{keywordtype}{int}\ start\ =\ start\_h\ *\ 60\ +\ start\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00273}00273\ \ \ \ \ \textcolor{keywordtype}{int}\ stop\ =\ stop\_h\ *\ 60\ +\ stop\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00274}00274\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00275}00275\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ current\ is\ inside\ the\ configured\ cycling\ window}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00276}00276\ \ \ \ \ \textcolor{keywordtype}{bool}\ in\_window;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00277}00277\ \ \ \ \ \textcolor{keywordflow}{if}\ (start\ ==\ stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00278}00278\ \ \ \ \ \ \ \ \ in\_window\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00279}00279\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (start\ <\ stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00280}00280\ \ \ \ \ \ \ \ \ in\_window\ =\ (current\ >=\ start\ \&\&\ current\ <\ stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00281}00281\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00282}00282\ \ \ \ \ \ \ \ \ in\_window\ =\ (current\ >=\ start\ ||\ current\ <\ stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00284}00284\ \ \ \ \ \textcolor{keywordflow}{if}\ (!in\_window)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00285}00285\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00286}00286\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00287}00287\ \ \ \ \ \textcolor{keywordtype}{int}\ day\_start,\ day\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00288}00288\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{is\_weekend}}())}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00289}00289\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00290}00290\ \ \ \ \ \ \ \ \ day\_start\ =\ wkend\_d\_h\ *\ 60\ +\ wkend\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00291}00291\ \ \ \ \ \ \ \ \ day\_stop\ =\ wkend\_n\_h\ *\ 60\ +\ wkend\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00292}00292\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00293}00293\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00294}00294\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00295}00295\ \ \ \ \ \ \ \ \ day\_start\ =\ wday\_d\_h\ *\ 60\ +\ wday\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00296}00296\ \ \ \ \ \ \ \ \ day\_stop\ =\ wday\_n\_h\ *\ 60\ +\ wday\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00297}00297\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00299}00299\ \ \ \ \ \textcolor{keywordtype}{int}\ overlap\ =\ minutes\_overlap(start,\ stop,\ day\_start,\ day\_stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00300}00300\ \ \ \ \ \textcolor{keywordflow}{if}\ (overlap\ <=\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00301}00301\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00302}00302\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00303}00303\ \ \ \ \ \textcolor{keywordtype}{int}\ max\_cycles\ =\ ((overlap\ -\/\ 1)\ /\ interval\_min)\ +\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00304}00304\ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_cycles\ <=\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00306}00306\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00307}00307\ \ \ \ \ \textcolor{keywordtype}{int}\ elapsed\ =\ (current\ >=\ start)\ ?\ (current\ -\/\ start)\ :\ (current\ +\ 1440\ -\/\ start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00308}00308\ \ \ \ \ \textcolor{keywordtype}{int}\ cycle\_index\ =\ elapsed\ /\ interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00309}00309\ \ \ \ \ \textcolor{keywordflow}{if}\ (cycle\_index\ >=\ max\_cycles)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00310}00310\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00311}00311\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00312}00312\ \ \ \ \ \textcolor{keywordtype}{int}\ elapsed\_mod\ =\ elapsed\ \%\ interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00313}00313\ \ \ \ \ \textcolor{keywordflow}{return}\ (elapsed\_mod\ <\ duration\_min);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00314}00314\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00316}00316\ \textcolor{comment}{//\ Determine\ whether\ cycling\ should\ run\ during\ the\ night\ window}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00317}\mbox{\hyperlink{statemachine__helper_8c_a42c970122ae370a12a8ec4b247066448}{00317}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_a42c970122ae370a12a8ec4b247066448}{valve\_cycle\_times\_night}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00318}00318\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00319}00319\ \ \ \ \ \textcolor{keywordtype}{int}\ idx\ =\ \mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{find\_state\_index\_by\_name\_ci}}(\mbox{\hyperlink{globals_8c_a1e67e976ab7e62536f8445ecd0427d4d}{STATE\_CYCLINGNIGHT}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00320}00320\ \ \ \ \ \textcolor{keywordflow}{if}\ (idx\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00321}00321\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00322}00322\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_night:\ state\ not\ configured"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00323}00323\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00324}00324\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00325}00325\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00326}00326\ \ \ \ \ \textcolor{keywordtype}{int}\ start\_h,\ start\_m,\ stop\_h,\ stop\_m,\ interval\_min,\ duration\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00327}00327\ \ \ \ \ \textcolor{keywordtype}{int}\ wday\_d\_h,\ wday\_d\_m,\ wday\_n\_h,\ wday\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00328}00328\ \ \ \ \ \textcolor{keywordtype}{int}\ wkend\_d\_h,\ wkend\_d\_m,\ wkend\_n\_h,\ wkend\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00329}00329\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00330}00330\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00331}00331\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ start\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00333}00333\ \ \ \ \ \ \ \ \ start\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_start\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00334}00334\ \ \ \ \ \ \ \ \ stop\_h\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_hour;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00335}00335\ \ \ \ \ \ \ \ \ stop\_m\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].state\_end\_minute;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00336}00336\ \ \ \ \ \ \ \ \ interval\_min\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].cycling\_interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00337}00337\ \ \ \ \ \ \ \ \ duration\_min\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[idx].duration\_minutes;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00338}00338\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00339}00339\ \ \ \ \ \ \ \ \ wday\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00340}00340\ \ \ \ \ \ \ \ \ wday\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00341}00341\ \ \ \ \ \ \ \ \ wday\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ wday\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00343}00343\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00344}00344\ \ \ \ \ \ \ \ \ wkend\_d\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00345}00345\ \ \ \ \ \ \ \ \ wkend\_d\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00346}00346\ \ \ \ \ \ \ \ \ wkend\_n\_h\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_h\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00347}00347\ \ \ \ \ \ \ \ \ wkend\_n\_m\ =\ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_m\_start;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00348}00348\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00349}00349\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00350}00350\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00351}00351\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00352}00352\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00353}00353\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_night:\ could\ not\ take\ state\_config\_mutex"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00354}00354\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00355}00355\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00356}00356\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00357}00357\ \ \ \ \ \textcolor{keywordflow}{if}\ (interval\_min\ <\ 30\ ||\ duration\_min\ <=\ 5)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00358}00358\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00359}00359\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}valve\_cycle\_times\_night:\ invalid\ interval/duration\ interval=\%d\ duration=\%d"{}},\ interval\_min,\ duration\_min);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00360}00360\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00361}00361\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00362}00362\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00363}00363\ \ \ \ \ time\_t\ now\ =\ time(NULL);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00364}00364\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ tm\_now;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00365}00365\ \ \ \ \ localtime\_r(\&now,\ \&tm\_now);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00366}00366\ \ \ \ \ \textcolor{keywordtype}{int}\ current\ =\ tm\_now.tm\_hour\ *\ 60\ +\ tm\_now.tm\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00367}00367\ \ \ \ \ \textcolor{keywordtype}{int}\ start\ =\ start\_h\ *\ 60\ +\ start\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00368}00368\ \ \ \ \ \textcolor{keywordtype}{int}\ stop\ =\ stop\_h\ *\ 60\ +\ stop\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00369}00369\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00370}00370\ \ \ \ \ \textcolor{keywordtype}{bool}\ in\_window;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00371}00371\ \ \ \ \ \textcolor{keywordflow}{if}\ (start\ ==\ stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ in\_window\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00373}00373\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (start\ <\ stop)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00374}00374\ \ \ \ \ \ \ \ \ in\_window\ =\ (current\ >=\ start\ \&\&\ current\ <\ stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00375}00375\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00376}00376\ \ \ \ \ \ \ \ \ in\_window\ =\ (current\ >=\ start\ ||\ current\ <\ stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00377}00377\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00378}00378\ \ \ \ \ \textcolor{keywordflow}{if}\ (!in\_window)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00380}00380\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00381}00381\ \ \ \ \ \textcolor{keywordtype}{int}\ night\_start,\ night\_stop;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00382}00382\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{is\_weekend}}())}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00383}00383\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00384}00384\ \ \ \ \ \ \ \ \ night\_start\ =\ wkend\_n\_h\ *\ 60\ +\ wkend\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00385}00385\ \ \ \ \ \ \ \ \ night\_stop\ =\ wkend\_d\_h\ *\ 60\ +\ wkend\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00386}00386\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00387}00387\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00388}00388\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00389}00389\ \ \ \ \ \ \ \ \ night\_start\ =\ wday\_n\_h\ *\ 60\ +\ wday\_n\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00390}00390\ \ \ \ \ \ \ \ \ night\_stop\ =\ wday\_d\_h\ *\ 60\ +\ wday\_d\_m;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00391}00391\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00392}00392\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00393}00393\ \ \ \ \ \textcolor{keywordtype}{int}\ overlap\ =\ minutes\_overlap(start,\ stop,\ night\_start,\ night\_stop);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00394}00394\ \ \ \ \ \textcolor{keywordflow}{if}\ (overlap\ <=\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00395}00395\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00396}00396\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00397}00397\ \ \ \ \ \textcolor{keywordtype}{int}\ max\_cycles\ =\ ((overlap\ -\/\ 1)\ /\ interval\_min)\ +\ 1;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00398}00398\ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_cycles\ <=\ 0)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00399}00399\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00400}00400\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00401}00401\ \ \ \ \ \textcolor{keywordtype}{int}\ elapsed\ =\ (current\ >=\ start)\ ?\ (current\ -\/\ start)\ :\ (current\ +\ 1440\ -\/\ start);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00402}00402\ \ \ \ \ \textcolor{keywordtype}{int}\ cycle\_index\ =\ elapsed\ /\ interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00403}00403\ \ \ \ \ \textcolor{keywordflow}{if}\ (cycle\_index\ >=\ max\_cycles)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00404}00404\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00405}00405\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00406}00406\ \ \ \ \ \textcolor{keywordtype}{int}\ elapsed\_mod\ =\ elapsed\ \%\ interval\_min;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00407}00407\ \ \ \ \ \textcolor{keywordflow}{return}\ (elapsed\_mod\ <\ duration\_min);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00408}00408\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00409}00409\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00410}00410\ \textcolor{comment}{//\ Safe\ string\ helper}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00411}00411\ \textcolor{keyword}{static}\ \textcolor{keyword}{inline}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *safe\_str(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00412}00412\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00413}00413\ \ \ \ \ \textcolor{keywordflow}{return}\ (s\ \&\&\ s[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'})\ ?\ s\ :\ \textcolor{stringliteral}{"{}(null)"{}};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00414}00414\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00415}00415\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00416}00416\ \textcolor{comment}{//\ Select\ sensors\ for\ CO2\ and\ RH\ lists\ using\ averaged\ data}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00417}\mbox{\hyperlink{statemachine__helper_8c_a2dcc826036e38226014be04552dab09d}{00417}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine__helper_8c_a2dcc826036e38226014be04552dab09d}{select\_sensors}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00418}00418\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00419}00419\ \ \ \ \ \textcolor{keywordtype}{int}\ j\ =\ 0;\ \textcolor{comment}{//\ CO2\ counter}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00420}00420\ \ \ \ \ \textcolor{keywordtype}{int}\ k\ =\ 0;\ \textcolor{comment}{//\ RH\ counter}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00422}00422\ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314}{co2\_sensor\_counter}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00423}00423\ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413}{rh\_sensor\_counter}}\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00424}00424\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00425}00425\ \ \ \ \ \textcolor{comment}{//\ Ensure\ queue\ is\ ready\ and\ item\ size\ matches}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00426}00426\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{globals_8c_a15aa079749cb4983f369adc523d1aa2e}{sensors\_queues\_ready}}\ ||\ \mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00427}00427\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}select\_sensors:\ sensor\_avg\_queue\ not\ ready"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00430}00430\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00431}00431\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a9b57f84a6a017690d8f551533fd01c7f}{sensor\_avg\_item\_size}}\ !=\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]))}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00432}00432\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00433}00433\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}select\_sensors:\ sensor\_avg\_item\_size\ mismatch"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00434}00434\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00435}00435\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00436}00436\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00437}00437\ \ \ \ \ \textcolor{keywordtype}{float}\ sensor\_data[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00438}00438\ \ \ \ \ memset(sensor\_data,\ 0,\ \textcolor{keyword}{sizeof}(sensor\_data));}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00439}00439\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00440}00440\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueuePeek(\mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}},\ sensor\_data,\ pdMS\_TO\_TICKS(50))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00441}00441\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00442}00442\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}select\_sensors:\ failed\ to\ peek\ sensor\_avg\_queue"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00443}00443\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00444}00444\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00445}00445\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00446}00446\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ++i)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00447}00447\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00448}00448\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structbus__sensor__t}{bus\_sensor\_t}}\ *s0\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00449}00449\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structbus__sensor__t}{bus\_sensor\_t}}\ *s1\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00450}00450\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00451}00451\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00452}00452\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00453}00453\ \ \ \ \ \ \ \ \ \ \ \ \ s0\ =\ \&\mbox{\hyperlink{globals_8c_af0e9d3e368300fd4059ea6757701fa1b}{bus0\_sensor\_settings}}[i];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00454}00454\ \ \ \ \ \ \ \ \ \ \ \ \ s1\ =\ \&\mbox{\hyperlink{globals_8c_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\_sensor\_settings}}[i];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00455}00455\ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00456}00456\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00457}00457\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00458}00458\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00459}00459\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}select\_sensors:\ sensor\_cfg\_mutex\ unavailable;\ using\ defaults"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00460}00460\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00461}00461\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00462}00462\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bus\ 0\ CO2}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00463}00463\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s0\ \&\&\ s0-\/>\mbox{\hyperlink{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba}{co2\_enabled}}\ \&\&\ j\ <\ \mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00464}00464\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00465}00465\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ reading\ =\ sensor\_data[0][i][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00466}00466\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!isfinite(reading))}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00467}00467\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reading\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00468}00468\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\_sensors}}[j].valve\ =\ (\textcolor{keywordtype}{char}\ *)safe\_str(s0-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00469}00469\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\_sensors}}[j].co2\_reading\ =\ reading;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00470}00470\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}CO2\ sensor:\ \%s\ =\ \%.2f"{}},\ safe\_str(s0-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}}),\ reading);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00471}00471\ \ \ \ \ \ \ \ \ \ \ \ \ ++j;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00472}00472\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00473}00473\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00474}00474\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bus\ 1\ CO2}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00475}00475\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s1\ \&\&\ s1-\/>\mbox{\hyperlink{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba}{co2\_enabled}}\ \&\&\ j\ <\ \mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00476}00476\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00477}00477\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ reading\ =\ sensor\_data[1][i][\mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\_CO2}}];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00478}00478\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!isfinite(reading))}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00479}00479\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reading\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00480}00480\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\_sensors}}[j].valve\ =\ (\textcolor{keywordtype}{char}\ *)safe\_str(s1-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00481}00481\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\_sensors}}[j].co2\_reading\ =\ reading;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00482}00482\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}CO2\ sensor:\ \%s\ =\ \%.2f"{}},\ safe\_str(s1-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}}),\ reading);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00483}00483\ \ \ \ \ \ \ \ \ \ \ \ \ ++j;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00484}00484\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00485}00485\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00486}00486\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bus\ 0\ RH}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00487}00487\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s0\ \&\&\ s0-\/>\mbox{\hyperlink{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974}{rh\_enabled}}\ \&\&\ k\ <\ \mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00488}00488\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00489}00489\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ reading\ =\ sensor\_data[0][i][\mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}}];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00490}00490\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!isfinite(reading))}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00491}00491\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reading\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00492}00492\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\_sensors}}[k].valve\ =\ (\textcolor{keywordtype}{char}\ *)safe\_str(s0-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00493}00493\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\_sensors}}[k].rh\_reading\ =\ reading;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00494}00494\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}RH\ sensor:\ \%s\ =\ \%.2f"{}},\ safe\_str(s0-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}}),\ reading);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00495}00495\ \ \ \ \ \ \ \ \ \ \ \ \ ++k;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00496}00496\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00497}00497\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00498}00498\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bus\ 1\ RH}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00499}00499\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s1\ \&\&\ s1-\/>\mbox{\hyperlink{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974}{rh\_enabled}}\ \&\&\ k\ <\ \mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00500}00500\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00501}00501\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ reading\ =\ sensor\_data[1][i][\mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\_HUMIDITY}}];}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00502}00502\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!isfinite(reading))}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00503}00503\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ reading\ =\ 0.0f;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00504}00504\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\_sensors}}[k].valve\ =\ (\textcolor{keywordtype}{char}\ *)safe\_str(s1-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00505}00505\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\_sensors}}[k].rh\_reading\ =\ reading;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}RH\ sensor:\ \%s\ =\ \%.2f"{}},\ safe\_str(s1-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}}),\ reading);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ ++k;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00508}00508\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00509}00509\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00510}00510\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00511}00511\ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314}{co2\_sensor\_counter}}\ =\ j;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00512}00512\ \ \ \ \ \mbox{\hyperlink{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413}{rh\_sensor\_counter}}\ =\ k;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00513}00513\ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00514}00514\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00515}00515\ \textcolor{comment}{//\ Consume\ and\ clear\ a\ POST-\/requested\ valve\ move\ flag\ (thread-\/safe)}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00516}\mbox{\hyperlink{statemachine__helper_8c_a080d7fe786ddcc0b7cd7c1a021e759ee}{00516}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8c_a080d7fe786ddcc0b7cd7c1a021e759ee}{statemachine\_consume\_valve\_move\_request}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00517}00517\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00518}00518\ \ \ \ \ \textcolor{keywordtype}{bool}\ rv\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00519}00519\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a021ac41598969aa8e3413e1550634803}{valve\_control\_data\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a021ac41598969aa8e3413e1550634803}{valve\_control\_data\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00520}00520\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00521}00521\ \ \ \ \ \ \ \ \ rv\ =\ \mbox{\hyperlink{globals_8c_abc791a3668cb84d233088fd4412b5f79}{valvecontroldata}}.valve\_move\_request\_from\_post;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00522}00522\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_abc791a3668cb84d233088fd4412b5f79}{valvecontroldata}}.valve\_move\_request\_from\_post\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a021ac41598969aa8e3413e1550634803}{valve\_control\_data\_mutex}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00524}00524\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00525}00525\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00526}00526\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00527}00527\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}statemachine\_consume\_valve\_move\_request:\ could\ not\ take\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00528}00528\ \ \ \ \ \ \ \ \ rv\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00529}00529\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00530}00530\ \ \ \ \ \textcolor{keywordflow}{return}\ rv;}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8c_source_l00531}00531\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,307 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/i2c\+\_\+ds3231.h File Reference}
+\hypertarget{i2c__ds3231_8h}{}\label{i2c__ds3231_8h}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.h@{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.h}}
+
+
+DS3231 RTC I2C support interfaces and helpers.  
+
+
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+sntp.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+wifi.\+h$>$}\newline
+{\ttfamily \#include $<$nvs\+\_\+flash.\+h$>$}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+Include dependency graph for i2c\+\_\+ds3231.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{i2c__ds3231_8h_a142b529b95a279f6a821b94773b53ffe}{DS3231\+\_\+\+REG\+\_\+\+TIME}}~0x00
+\item 
+\#define \mbox{\hyperlink{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023}{DS3231\+\_\+\+REG\+\_\+\+STATUS}}~0x0F
+\item 
+\#define \mbox{\hyperlink{i2c__ds3231_8h_aa03c8831a5b1e11abc00e730c23ecc55}{DS3231\+\_\+\+REG\+\_\+\+TEMP\+\_\+\+MSB}}~0x11
+\item 
+\#define \mbox{\hyperlink{i2c__ds3231_8h_a35ddcaf5258fc941f90f8428c2032fa1}{DS3231\+\_\+\+REG\+\_\+\+TEMP\+\_\+\+LSB}}~0x12
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a74583bba190992e3b2b111a78ea66791}{i2c\+\_\+ds3231\+\_\+init}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Initialize DS3231 device on the provided I2C bus. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__ds3231_8h_a0cdf1a0427f32558c94350fed383932e}{init\+\_\+system\+\_\+time\+\_\+from\+\_\+ds3231}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Initialize system time from the DS3231 RTC. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a884468d4d19b9be0073a42e1eaec2ee5}{update\+\_\+ds3231\+\_\+from\+\_\+system\+\_\+time}} (void)
+\begin{DoxyCompactList}\small\item\em Update DS3231 from current system time. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a7dbb19d34c3ee28172c5496f72ff8fd6}{sync\+\_\+system\+\_\+and\+\_\+ds3231\+\_\+with\+\_\+ntp}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Synchronize system clock and DS3231 with NTP and optionally update the RTC. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_aa6879968bcc8ed5b8932cef930ba8faf}{bin2bcd}} (uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Convert a binary value to BCD. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a9b64f3c3717b4e10c09b215130f96418}{ds3231\+\_\+set\+\_\+time}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, const struct tm \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Set the DS3231 time from a struct tm. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_adcdb907cb756fe88f03bd62f25d1df55}{ds3231\+\_\+get\+\_\+time}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, struct tm \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read the DS3231 time into a struct tm. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a1dc21998091081f723ac254b9f120d70}{ds3231\+\_\+read\+\_\+reg}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, uint8\+\_\+t, uint8\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read a single DS3231 register. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a7b0931ec316272da10e2ef8272b3764a}{ds3231\+\_\+write\+\_\+reg}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, uint8\+\_\+t, uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Write a single DS3231 register. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a0e87f22bb6e871d1abc4e9d00e9d83ae}{ds3231\+\_\+read\+\_\+temperature}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, float \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read temperature in degrees Celsius from the DS3231. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__ds3231_8h_a645a44c2ae1091818a9a0b4bd1345f30}{ds3231\+\_\+check\+\_\+status}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Read the DS3231 status register and format diagnostics. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__ds3231_8h_a2f80be22d383809524d6bbf5cecdcbce}{ds3231\+\_\+health\+\_\+monitor}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Perform periodic DS3231 health monitoring. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__ds3231_8h_a1ff2c723fbf6b26c2e2af3b4380f085b}{save\+\_\+ds3231\+\_\+diagnostics}} (float)
+\begin{DoxyCompactList}\small\item\em Save DS3231 diagnostics to NVS. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__ds3231_8h_ad055aa3e6e97867469362898154ddd01}{read\+\_\+ds3231\+\_\+diagnostics}} (void)
+\begin{DoxyCompactList}\small\item\em Read DS3231 diagnostics from NVS. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+DS3231 RTC I2C support interfaces and helpers. 
+
+
+
+Definition in file \mbox{\hyperlink{i2c__ds3231_8h_source}{i2c\+\_\+ds3231.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{i2c__ds3231_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!DS3231\_REG\_STATUS@{DS3231\_REG\_STATUS}}
+\index{DS3231\_REG\_STATUS@{DS3231\_REG\_STATUS}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{DS3231\_REG\_STATUS}{DS3231\_REG\_STATUS}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023} 
+\#define DS3231\+\_\+\+REG\+\_\+\+STATUS~0x0F}
+
+
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8h_source_l00016}{16}} of file \mbox{\hyperlink{i2c__ds3231_8h_source}{i2c\+\_\+ds3231.\+h}}.
+
+\Hypertarget{i2c__ds3231_8h_a35ddcaf5258fc941f90f8428c2032fa1}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!DS3231\_REG\_TEMP\_LSB@{DS3231\_REG\_TEMP\_LSB}}
+\index{DS3231\_REG\_TEMP\_LSB@{DS3231\_REG\_TEMP\_LSB}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{DS3231\_REG\_TEMP\_LSB}{DS3231\_REG\_TEMP\_LSB}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a35ddcaf5258fc941f90f8428c2032fa1} 
+\#define DS3231\+\_\+\+REG\+\_\+\+TEMP\+\_\+\+LSB~0x12}
+
+
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8h_source_l00018}{18}} of file \mbox{\hyperlink{i2c__ds3231_8h_source}{i2c\+\_\+ds3231.\+h}}.
+
+\Hypertarget{i2c__ds3231_8h_aa03c8831a5b1e11abc00e730c23ecc55}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!DS3231\_REG\_TEMP\_MSB@{DS3231\_REG\_TEMP\_MSB}}
+\index{DS3231\_REG\_TEMP\_MSB@{DS3231\_REG\_TEMP\_MSB}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{DS3231\_REG\_TEMP\_MSB}{DS3231\_REG\_TEMP\_MSB}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_aa03c8831a5b1e11abc00e730c23ecc55} 
+\#define DS3231\+\_\+\+REG\+\_\+\+TEMP\+\_\+\+MSB~0x11}
+
+
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8h_source_l00017}{17}} of file \mbox{\hyperlink{i2c__ds3231_8h_source}{i2c\+\_\+ds3231.\+h}}.
+
+\Hypertarget{i2c__ds3231_8h_a142b529b95a279f6a821b94773b53ffe}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!DS3231\_REG\_TIME@{DS3231\_REG\_TIME}}
+\index{DS3231\_REG\_TIME@{DS3231\_REG\_TIME}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{DS3231\_REG\_TIME}{DS3231\_REG\_TIME}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a142b529b95a279f6a821b94773b53ffe} 
+\#define DS3231\+\_\+\+REG\+\_\+\+TIME~0x00}
+
+
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8h_source_l00015}{15}} of file \mbox{\hyperlink{i2c__ds3231_8h_source}{i2c\+\_\+ds3231.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{i2c__ds3231_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{i2c__ds3231_8h_aa6879968bcc8ed5b8932cef930ba8faf}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!bin2bcd@{bin2bcd}}
+\index{bin2bcd@{bin2bcd}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{bin2bcd()}{bin2bcd()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_aa6879968bcc8ed5b8932cef930ba8faf} 
+uint8\+\_\+t bin2bcd (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{}{}\end{DoxyParamCaption})}
+
+
+
+Convert a binary value to BCD. 
+
+\Hypertarget{i2c__ds3231_8h_a645a44c2ae1091818a9a0b4bd1345f30}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_check\_status@{ds3231\_check\_status}}
+\index{ds3231\_check\_status@{ds3231\_check\_status}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_check\_status()}{ds3231\_check\_status()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a645a44c2ae1091818a9a0b4bd1345f30} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+check\+\_\+status (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{bufsize}{}\end{DoxyParamCaption})}
+
+
+
+Read the DS3231 status register and format diagnostics. 
+
+Read the DS3231 status register and format diagnostics. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00288}{288}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_adcdb907cb756fe88f03bd62f25d1df55}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_get\_time@{ds3231\_get\_time}}
+\index{ds3231\_get\_time@{ds3231\_get\_time}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_get\_time()}{ds3231\_get\_time()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_adcdb907cb756fe88f03bd62f25d1df55} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+get\+\_\+time (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{struct tm \texorpdfstring{$\ast$}{*}}]{timeinfo}{}\end{DoxyParamCaption})}
+
+
+
+Read the DS3231 time into a struct tm. 
+
+Read the DS3231 time into a struct tm. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00119}{119}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a2f80be22d383809524d6bbf5cecdcbce}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_health\_monitor@{ds3231\_health\_monitor}}
+\index{ds3231\_health\_monitor@{ds3231\_health\_monitor}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_health\_monitor()}{ds3231\_health\_monitor()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a2f80be22d383809524d6bbf5cecdcbce} 
+void ds3231\+\_\+health\+\_\+monitor (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{}\end{DoxyParamCaption})}
+
+
+
+Perform periodic DS3231 health monitoring. 
+
+Perform periodic DS3231 health monitoring. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00323}{323}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a1dc21998091081f723ac254b9f120d70}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_read\_reg@{ds3231\_read\_reg}}
+\index{ds3231\_read\_reg@{ds3231\_read\_reg}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_read\_reg()}{ds3231\_read\_reg()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a1dc21998091081f723ac254b9f120d70} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+read\+\_\+reg (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{uint8\+\_\+t}]{reg}{, }\item[{uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{val}{}\end{DoxyParamCaption})}
+
+
+
+Read a single DS3231 register. 
+
+Read a single DS3231 register. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00252}{252}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a0e87f22bb6e871d1abc4e9d00e9d83ae}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_read\_temperature@{ds3231\_read\_temperature}}
+\index{ds3231\_read\_temperature@{ds3231\_read\_temperature}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_read\_temperature()}{ds3231\_read\_temperature()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a0e87f22bb6e871d1abc4e9d00e9d83ae} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+read\+\_\+temperature (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{temp\+\_\+c}{}\end{DoxyParamCaption})}
+
+
+
+Read temperature in degrees Celsius from the DS3231. 
+
+Read temperature in degrees Celsius from the DS3231. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00270}{270}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a9b64f3c3717b4e10c09b215130f96418}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_set\_time@{ds3231\_set\_time}}
+\index{ds3231\_set\_time@{ds3231\_set\_time}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_set\_time()}{ds3231\_set\_time()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a9b64f3c3717b4e10c09b215130f96418} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+set\+\_\+time (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{const struct tm \texorpdfstring{$\ast$}{*}}]{timeinfo}{}\end{DoxyParamCaption})}
+
+
+
+Set the DS3231 time from a struct tm. 
+
+Set the DS3231 time from a struct tm. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00100}{100}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a7b0931ec316272da10e2ef8272b3764a}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!ds3231\_write\_reg@{ds3231\_write\_reg}}
+\index{ds3231\_write\_reg@{ds3231\_write\_reg}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_write\_reg()}{ds3231\_write\_reg()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a7b0931ec316272da10e2ef8272b3764a} 
+esp\+\_\+err\+\_\+t ds3231\+\_\+write\+\_\+reg (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev}{, }\item[{uint8\+\_\+t}]{reg}{, }\item[{uint8\+\_\+t}]{val}{}\end{DoxyParamCaption})}
+
+
+
+Write a single DS3231 register. 
+
+Write a single DS3231 register. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00260}{260}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a74583bba190992e3b2b111a78ea66791}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!i2c\_ds3231\_init@{i2c\_ds3231\_init}}
+\index{i2c\_ds3231\_init@{i2c\_ds3231\_init}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_ds3231\_init()}{i2c\_ds3231\_init()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a74583bba190992e3b2b111a78ea66791} 
+esp\+\_\+err\+\_\+t i2c\+\_\+ds3231\+\_\+init (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize DS3231 device on the provided I2C bus. 
+
+Initialize DS3231 device on the provided I2C bus. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00019}{19}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a0cdf1a0427f32558c94350fed383932e}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!init\_system\_time\_from\_ds3231@{init\_system\_time\_from\_ds3231}}
+\index{init\_system\_time\_from\_ds3231@{init\_system\_time\_from\_ds3231}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{init\_system\_time\_from\_ds3231()}{init\_system\_time\_from\_ds3231()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a0cdf1a0427f32558c94350fed383932e} 
+void init\+\_\+system\+\_\+time\+\_\+from\+\_\+ds3231 (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize system time from the DS3231 RTC. 
+
+Initialize system time from the DS3231 RTC. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00052}{52}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_ad055aa3e6e97867469362898154ddd01}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!read\_ds3231\_diagnostics@{read\_ds3231\_diagnostics}}
+\index{read\_ds3231\_diagnostics@{read\_ds3231\_diagnostics}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{read\_ds3231\_diagnostics()}{read\_ds3231\_diagnostics()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_ad055aa3e6e97867469362898154ddd01} 
+void read\+\_\+ds3231\+\_\+diagnostics (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Read DS3231 diagnostics from NVS. 
+
+Read DS3231 diagnostics from NVS. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00366}{366}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a1ff2c723fbf6b26c2e2af3b4380f085b}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!save\_ds3231\_diagnostics@{save\_ds3231\_diagnostics}}
+\index{save\_ds3231\_diagnostics@{save\_ds3231\_diagnostics}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{save\_ds3231\_diagnostics()}{save\_ds3231\_diagnostics()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a1ff2c723fbf6b26c2e2af3b4380f085b} 
+void save\+\_\+ds3231\+\_\+diagnostics (\begin{DoxyParamCaption}\item[{float}]{temp\+\_\+c}{}\end{DoxyParamCaption})}
+
+
+
+Save DS3231 diagnostics to NVS. 
+
+Save DS3231 diagnostics to NVS. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00339}{339}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a7dbb19d34c3ee28172c5496f72ff8fd6}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!sync\_system\_and\_ds3231\_with\_ntp@{sync\_system\_and\_ds3231\_with\_ntp}}
+\index{sync\_system\_and\_ds3231\_with\_ntp@{sync\_system\_and\_ds3231\_with\_ntp}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{sync\_system\_and\_ds3231\_with\_ntp()}{sync\_system\_and\_ds3231\_with\_ntp()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a7dbb19d34c3ee28172c5496f72ff8fd6} 
+esp\+\_\+err\+\_\+t sync\+\_\+system\+\_\+and\+\_\+ds3231\+\_\+with\+\_\+ntp (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Synchronize system clock and DS3231 with NTP and optionally update the RTC. 
+
+Synchronize system clock and DS3231 with NTP and optionally update the RTC. 
+
+Definition at line \mbox{\hyperlink{i2c__ds3231_8c_source_l00152}{152}} of file \mbox{\hyperlink{i2c__ds3231_8c_source}{i2c\+\_\+ds3231.\+c}}.
+
+\Hypertarget{i2c__ds3231_8h_a884468d4d19b9be0073a42e1eaec2ee5}\index{i2c\_ds3231.h@{i2c\_ds3231.h}!update\_ds3231\_from\_system\_time@{update\_ds3231\_from\_system\_time}}
+\index{update\_ds3231\_from\_system\_time@{update\_ds3231\_from\_system\_time}!i2c\_ds3231.h@{i2c\_ds3231.h}}
+\doxysubsubsection{\texorpdfstring{update\_ds3231\_from\_system\_time()}{update\_ds3231\_from\_system\_time()}}
+{\footnotesize\ttfamily \label{i2c__ds3231_8h_a884468d4d19b9be0073a42e1eaec2ee5} 
+esp\+\_\+err\+\_\+t update\+\_\+ds3231\+\_\+from\+\_\+system\+\_\+time (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Update DS3231 from current system time. 
+

@@ -1,0 +1,569 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/config\+\_\+files.h File Reference}
+\hypertarget{config__files_8h}{}\label{config__files_8h}\index{/home/peter/Development/OSVentilationIDF/main/config\_files.h@{/home/peter/Development/OSVentilationIDF/main/config\_files.h}}
+
+
+Public configuration loading and parsing interfaces.  
+
+
+{\ttfamily \#include $<$c\+JSON.\+h$>$}\newline
+{\ttfamily \#include $<$dirent.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+Include dependency graph for config\+\_\+files.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_ab916f0f2f47f94cf9e4e44063d47481d}{load\+\_\+sensor\+\_\+config}} (const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Load sensor configuration for the specified bus. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a81d6b78e8d3fb9e78619a90cff215a51}{load\+\_\+wifi\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load Wi-\/\+Fi networking configuration from /data/json/wifi\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a7f3d1d42aa5dc3771878489c1c3da9c8}{load\+\_\+ethernet\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load Ethernet networking configuration from /data/json/ethernet\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a81037411e2e8b66c67cba34bae474f1a}{load\+\_\+time\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load time synchronization configuration from /data/json/time\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_acadc0b7b0d1a65b322c9806c4db6a323}{load\+\_\+mqtt\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load MQTT configuration from /data/json/mqtt\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a7c0f40001838665e86d0ace66ceadf4a}{load\+\_\+influxdb\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load Influx\+DB reporting configuration from /data/json/influxdb\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_ae84752d3b8313299cbaf2e8bffa6dd6d}{load\+\_\+fan\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load fan control configuration from /data/json/fan\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_afab78ae80b0c3741ecde847cab78b358}{load\+\_\+i2c\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load I2C bus configuration from /data/json/i2c\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a9473b8a9a74298ec11bc3d40fb177b2f}{load\+\_\+syslog\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load syslog forwarding configuration from /data/json/syslog\+\_\+config.json. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_ac72d6ed07c44365d3ac9607b0a546778}{load\+\_\+statemachine\+\_\+general\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load general statemachine settings from /data/json/sm\+\_\+general\+\_\+config.json. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{config__files_8h_a93b19abd029009209007316cd7198e06}{match\+\_\+pattern}} (const char \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Match a string against a simple wildcard pattern. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{config__files_8h_a0e8d8b1be42e041e90cd9c992054d8dd}{parse\+\_\+bool\+\_\+flexible}} (const c\+JSON \texorpdfstring{$\ast$}{*}, bool \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Parse a flexible boolean value from JSON. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{config__files_8h_a3a1af233f56b59dcf57a8e991225f078}{parse\+\_\+int\+\_\+flexible}} (const c\+JSON \texorpdfstring{$\ast$}{*}, int \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Parse a flexible integer value from JSON. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{config__files_8h_a68c13344fbad687572c2b449c4c4a676}{parse\+\_\+state\+\_\+object}} (const c\+JSON \texorpdfstring{$\ast$}{*}, \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Parse a single JSON object into a statemachine configuration structure. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{config__files_8h_a2193df50a799911faf5718a9c241dd54}{get\+\_\+state\+\_\+config}} (size\+\_\+t, \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Copy a snapshot of a statemachine configuration entry. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a73aa032e00f2e660616ad49d082e5f45}{read\+\_\+state\+\_\+configs\+\_\+from\+\_\+json}} (const char \texorpdfstring{$\ast$}{*}, const char \texorpdfstring{$\ast$}{*}, int, size\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read state configuration files from a directory and populate statemachine\+\_\+config. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{config__files_8h_a541442023da9f2da977a4be0d2d1eeef}{load\+\_\+state\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Load state configuration files from the configured filesystem. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public configuration loading and parsing interfaces. 
+
+This header exposes the functions used to load JSON-\/backed configuration files for sensors, networking, MQTT, Influx\+DB, fan control, I2C, syslog, and the statemachine. It also provides flexible JSON helper functions for parsing booleans, integers, and state objects. 
+
+Definition in file \mbox{\hyperlink{config__files_8h_source}{config\+\_\+files.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{config__files_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{config__files_8h_a2193df50a799911faf5718a9c241dd54}\index{config\_files.h@{config\_files.h}!get\_state\_config@{get\_state\_config}}
+\index{get\_state\_config@{get\_state\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{get\_state\_config()}{get\_state\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a2193df50a799911faf5718a9c241dd54} 
+void get\+\_\+state\+\_\+config (\begin{DoxyParamCaption}\item[{size\+\_\+t}]{index}{, }\item[{\mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Copy a snapshot of a statemachine configuration entry. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & The state index to copy. \\
+\hline
+{\em out} & Destination buffer for the state config.\\
+\hline
+\end{DoxyParams}
+Copy a snapshot of a statemachine configuration entry.
+
+This function takes the state config mutex, copies the requested entry, and releases the mutex to provide a safe snapshot to the caller.
+
+
+\begin{DoxyParams}{Parameters}
+{\em index} & Index of the state to copy. \\
+\hline
+{\em out} & Destination buffer for the copied state. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01214}{1214}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a7f3d1d42aa5dc3771878489c1c3da9c8}\index{config\_files.h@{config\_files.h}!load\_ethernet\_config@{load\_ethernet\_config}}
+\index{load\_ethernet\_config@{load\_ethernet\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_ethernet\_config()}{load\_ethernet\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a7f3d1d42aa5dc3771878489c1c3da9c8} 
+esp\+\_\+err\+\_\+t load\+\_\+ethernet\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load Ethernet networking configuration from /data/json/ethernet\+\_\+config.json. 
+
+This reads static IP/\+DHCP settings and stores them under the network config mutex. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load Ethernet networking configuration from /data/json/ethernet\+\_\+config.json.
+
+This reads /data/json/ethernet\+\_\+config.json, validates the JSON payload, and updates the ethernet\+\_\+config structure under the network configuration mutex.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the file cannot be read or parsed. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00277}{277}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_ae84752d3b8313299cbaf2e8bffa6dd6d}\index{config\_files.h@{config\_files.h}!load\_fan\_config@{load\_fan\_config}}
+\index{load\_fan\_config@{load\_fan\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_fan\_config()}{load\_fan\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_ae84752d3b8313299cbaf2e8bffa6dd6d} 
+esp\+\_\+err\+\_\+t load\+\_\+fan\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load fan control configuration from /data/json/fan\+\_\+config.json. 
+
+This updates the runtime fan\+\_\+control settings used by the fan control module. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load fan control configuration from /data/json/fan\+\_\+config.json.
+
+Reads /data/json/fan\+\_\+config.json and updates the runtime fan\+\_\+config settings used by the fan control module for HTTP or MQTT fan commands. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00639}{639}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_afab78ae80b0c3741ecde847cab78b358}\index{config\_files.h@{config\_files.h}!load\_i2c\_config@{load\_i2c\_config}}
+\index{load\_i2c\_config@{load\_i2c\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_i2c\_config()}{load\_i2c\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_afab78ae80b0c3741ecde847cab78b358} 
+esp\+\_\+err\+\_\+t load\+\_\+i2c\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load I2C bus configuration from /data/json/i2c\+\_\+config.json. 
+
+This updates the I2C multiplexing and LCD enable settings. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load I2C bus configuration from /data/json/i2c\+\_\+config.json.
+
+This reads /data/json/i2c\+\_\+config.json and updates bus multiplexer and LCD enable settings used by the I2C subsystem. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00737}{737}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a7c0f40001838665e86d0ace66ceadf4a}\index{config\_files.h@{config\_files.h}!load\_influxdb\_config@{load\_influxdb\_config}}
+\index{load\_influxdb\_config@{load\_influxdb\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_influxdb\_config()}{load\_influxdb\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a7c0f40001838665e86d0ace66ceadf4a} 
+esp\+\_\+err\+\_\+t load\+\_\+influxdb\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load Influx\+DB reporting configuration from /data/json/influxdb\+\_\+config.json. 
+
+This updates the stored Influx\+DB connection parameters and credentials. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load Influx\+DB reporting configuration from /data/json/influxdb\+\_\+config.json.
+
+This reads /data/json/influxdb\+\_\+config.json and stores the values in the runtime influxdb\+\_\+config structure under a mutex. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00549}{549}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_acadc0b7b0d1a65b322c9806c4db6a323}\index{config\_files.h@{config\_files.h}!load\_mqtt\_config@{load\_mqtt\_config}}
+\index{load\_mqtt\_config@{load\_mqtt\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_mqtt\_config()}{load\_mqtt\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_acadc0b7b0d1a65b322c9806c4db6a323} 
+esp\+\_\+err\+\_\+t load\+\_\+mqtt\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load MQTT configuration from /data/json/mqtt\+\_\+config.json. 
+
+This updates the in-\/memory MQTT settings used for messaging and telemetry. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load MQTT configuration from /data/json/mqtt\+\_\+config.json.
+
+This reads /data/json/mqtt\+\_\+config.json and updates the runtime mqtt\+\_\+config structure under the MQTT configuration mutex. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00462}{462}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_ab916f0f2f47f94cf9e4e44063d47481d}\index{config\_files.h@{config\_files.h}!load\_sensor\_config@{load\_sensor\_config}}
+\index{load\_sensor\_config@{load\_sensor\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_sensor\_config()}{load\_sensor\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_ab916f0f2f47f94cf9e4e44063d47481d} 
+esp\+\_\+err\+\_\+t load\+\_\+sensor\+\_\+config (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{config\+\_\+name}{}\end{DoxyParamCaption})}
+
+
+
+Load sensor configuration for the specified bus. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em config\+\_\+name} & The base name of the sensor config file without extension (for example "{}bus0\+\_\+sensor\+\_\+config"{} or "{}bus1\+\_\+sensor\+\_\+config"{}). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load sensor configuration for the specified bus.
+
+The runtime bus sensor settings are updated from /data/json/$<$config\+\_\+name$>$.json. Supported config\+\_\+name values include "{}bus0\+\_\+sensor\+\_\+config"{} and "{}bus1\+\_\+sensor\+\_\+config"{}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em config\+\_\+name} & The name of the sensor config file without the .json suffix. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t describing the failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00029}{29}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a541442023da9f2da977a4be0d2d1eeef}\index{config\_files.h@{config\_files.h}!load\_state\_config@{load\_state\_config}}
+\index{load\_state\_config@{load\_state\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_state\_config()}{load\_state\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a541442023da9f2da977a4be0d2d1eeef} 
+esp\+\_\+err\+\_\+t load\+\_\+state\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load state configuration files from the configured filesystem. 
+
+This is the high-\/level entry point for loading the statemachine state definitions. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load state configuration files from the configured filesystem.
+
+This high-\/level loader reads files matching the configured state pattern and populates the runtime state table used by the statemachine task. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01381}{1381}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_ac72d6ed07c44365d3ac9607b0a546778}\index{config\_files.h@{config\_files.h}!load\_statemachine\_general\_config@{load\_statemachine\_general\_config}}
+\index{load\_statemachine\_general\_config@{load\_statemachine\_general\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_statemachine\_general\_config()}{load\_statemachine\_general\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_ac72d6ed07c44365d3ac9607b0a546778} 
+esp\+\_\+err\+\_\+t load\+\_\+statemachine\+\_\+general\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load general statemachine settings from /data/json/sm\+\_\+general\+\_\+config.json. 
+
+This populates the runtime statemachine general configuration values. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load general statemachine settings from /data/json/sm\+\_\+general\+\_\+config.json.
+
+This reads /data/json/sm\+\_\+general\+\_\+config.json and updates the global statemachine\+\_\+gen\+\_\+config structure, including weekday/weekend timing and RH/\+CO2 setpoints. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00921}{921}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a9473b8a9a74298ec11bc3d40fb177b2f}\index{config\_files.h@{config\_files.h}!load\_syslog\_config@{load\_syslog\_config}}
+\index{load\_syslog\_config@{load\_syslog\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_syslog\_config()}{load\_syslog\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a9473b8a9a74298ec11bc3d40fb177b2f} 
+esp\+\_\+err\+\_\+t load\+\_\+syslog\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load syslog forwarding configuration from /data/json/syslog\+\_\+config.json. 
+
+This updates syslog endpoint settings and device identity strings. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load syslog forwarding configuration from /data/json/syslog\+\_\+config.json.
+
+This reads /data/json/syslog\+\_\+config.json and stores the syslog endpoint, hostname, application name, and device ID in runtime state. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00822}{822}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a81037411e2e8b66c67cba34bae474f1a}\index{config\_files.h@{config\_files.h}!load\_time\_config@{load\_time\_config}}
+\index{load\_time\_config@{load\_time\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_time\_config()}{load\_time\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a81037411e2e8b66c67cba34bae474f1a} 
+esp\+\_\+err\+\_\+t load\+\_\+time\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load time synchronization configuration from /data/json/time\+\_\+config.json. 
+
+This populates the runtime time\+\_\+config structure with NTP server and timezone. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load time synchronization configuration from /data/json/time\+\_\+config.json.
+
+This reads /data/json/time\+\_\+config.json and stores the NTP server and timezone values into the runtime time\+\_\+config structure.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00383}{383}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a81d6b78e8d3fb9e78619a90cff215a51}\index{config\_files.h@{config\_files.h}!load\_wifi\_config@{load\_wifi\_config}}
+\index{load\_wifi\_config@{load\_wifi\_config}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{load\_wifi\_config()}{load\_wifi\_config()}}
+{\footnotesize\ttfamily \label{config__files_8h_a81d6b78e8d3fb9e78619a90cff215a51} 
+esp\+\_\+err\+\_\+t load\+\_\+wifi\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Load Wi-\/\+Fi networking configuration from /data/json/wifi\+\_\+config.json. 
+
+This updates the in-\/memory wifi\+\_\+config structure under the network config mutex. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Load Wi-\/\+Fi networking configuration from /data/json/wifi\+\_\+config.json.
+
+This reads /data/json/wifi\+\_\+config.json and copies configured values into the runtime wifi\+\_\+config structure under a mutex to prevent concurrent updates.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the file cannot be read or parsed. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l00165}{165}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a93b19abd029009209007316cd7198e06}\index{config\_files.h@{config\_files.h}!match\_pattern@{match\_pattern}}
+\index{match\_pattern@{match\_pattern}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{match\_pattern()}{match\_pattern()}}
+{\footnotesize\ttfamily \label{config__files_8h_a93b19abd029009209007316cd7198e06} 
+bool match\+\_\+pattern (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{name}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{pattern}{}\end{DoxyParamCaption})}
+
+
+
+Match a string against a simple wildcard pattern. 
+
+Supports \textquotesingle{}\texorpdfstring{$\ast$}{*}\textquotesingle{} for any sequence of characters and \textquotesingle{}?\textquotesingle{} for a single character. 
+\begin{DoxyParams}{Parameters}
+{\em name} & The input string to test. \\
+\hline
+{\em pattern} & The wildcard pattern to match against. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if {\ttfamily name} matches {\ttfamily pattern}, false otherwise.
+\end{DoxyReturn}
+Match a string against a simple wildcard pattern.
+
+The function supports standard wildcard matching semantics for the statemachine file name discovery routines. 
+\begin{DoxyParams}{Parameters}
+{\em name} & The candidate string to match. \\
+\hline
+{\em pattern} & The wildcard pattern to match against. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the name matches the pattern, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01038}{1038}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a0e8d8b1be42e041e90cd9c992054d8dd}\index{config\_files.h@{config\_files.h}!parse\_bool\_flexible@{parse\_bool\_flexible}}
+\index{parse\_bool\_flexible@{parse\_bool\_flexible}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{parse\_bool\_flexible()}{parse\_bool\_flexible()}}
+{\footnotesize\ttfamily \label{config__files_8h_a0e8d8b1be42e041e90cd9c992054d8dd} 
+bool parse\+\_\+bool\+\_\+flexible (\begin{DoxyParamCaption}\item[{const c\+JSON \texorpdfstring{$\ast$}{*}}]{item}{, }\item[{bool \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Parse a flexible boolean value from JSON. 
+
+This accepts JSON booleans, numeric values, and common string values like "{}\+On"{}, "{}\+Off"{}, "{}true"{}, "{}false"{}, "{}1"{}, and "{}0"{}. 
+\begin{DoxyParams}{Parameters}
+{\em item} & The c\+JSON item to parse. \\
+\hline
+{\em out} & Destination for the parsed boolean. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if parsing succeeded, false otherwise.
+\end{DoxyReturn}
+Parse a flexible boolean value from JSON.
+
+Accepts JSON booleans, numeric values, and string values such as "{}\+On"{}, "{}\+Off"{}, "{}true"{}, "{}false"{}, "{}1"{}, and "{}0"{}. 
+\begin{DoxyParams}{Parameters}
+{\em item} & The JSON item to parse. \\
+\hline
+{\em out} & Pointer to receive the parsed boolean. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if parsing succeeded, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01082}{1082}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a3a1af233f56b59dcf57a8e991225f078}\index{config\_files.h@{config\_files.h}!parse\_int\_flexible@{parse\_int\_flexible}}
+\index{parse\_int\_flexible@{parse\_int\_flexible}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{parse\_int\_flexible()}{parse\_int\_flexible()}}
+{\footnotesize\ttfamily \label{config__files_8h_a3a1af233f56b59dcf57a8e991225f078} 
+bool parse\+\_\+int\+\_\+flexible (\begin{DoxyParamCaption}\item[{const c\+JSON \texorpdfstring{$\ast$}{*}}]{item}{, }\item[{int \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Parse a flexible integer value from JSON. 
+
+This accepts JSON numbers or string-\/encoded integers. 
+\begin{DoxyParams}{Parameters}
+{\em item} & The c\+JSON item to parse. \\
+\hline
+{\em out} & Destination for the parsed integer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if parsing succeeded, false otherwise.
+\end{DoxyReturn}
+Parse a flexible integer value from JSON.
+
+Accepts JSON numbers or string-\/encoded integers. 
+\begin{DoxyParams}{Parameters}
+{\em item} & The JSON item to parse. \\
+\hline
+{\em out} & Pointer to receive the parsed integer. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if parsing succeeded, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01131}{1131}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a68c13344fbad687572c2b449c4c4a676}\index{config\_files.h@{config\_files.h}!parse\_state\_object@{parse\_state\_object}}
+\index{parse\_state\_object@{parse\_state\_object}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{parse\_state\_object()}{parse\_state\_object()}}
+{\footnotesize\ttfamily \label{config__files_8h_a68c13344fbad687572c2b449c4c4a676} 
+bool parse\+\_\+state\+\_\+object (\begin{DoxyParamCaption}\item[{const c\+JSON \texorpdfstring{$\ast$}{*}}]{obj}{, }\item[{\mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Parse a single JSON object into a statemachine configuration structure. 
+
+This translates a JSON state object containing fields such as state\+\_\+name, fanspeed, start/end times, valve positions, and enable\+\_\+state into the runtime \doxylink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t} representation. 
+\begin{DoxyParams}{Parameters}
+{\em obj} & The JSON object to parse. \\
+\hline
+{\em out} & Destination statemachine config. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the object was parsed successfully, false otherwise.
+\end{DoxyReturn}
+Parse a single JSON object into a statemachine configuration structure.
+
+This helper maps JSON fields such as state\+\_\+name, fanspeed, timing, valve positions, and enable\+\_\+state into the runtime \doxylink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t} structure. 
+\begin{DoxyParams}{Parameters}
+{\em obj} & JSON object describing a single state. \\
+\hline
+{\em out} & Destination state config structure. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if parsing succeeded, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01162}{1162}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+
+\Hypertarget{config__files_8h_a73aa032e00f2e660616ad49d082e5f45}\index{config\_files.h@{config\_files.h}!read\_state\_configs\_from\_json@{read\_state\_configs\_from\_json}}
+\index{read\_state\_configs\_from\_json@{read\_state\_configs\_from\_json}!config\_files.h@{config\_files.h}}
+\doxysubsubsection{\texorpdfstring{read\_state\_configs\_from\_json()}{read\_state\_configs\_from\_json()}}
+{\footnotesize\ttfamily \label{config__files_8h_a73aa032e00f2e660616ad49d082e5f45} 
+esp\+\_\+err\+\_\+t read\+\_\+state\+\_\+configs\+\_\+from\+\_\+json (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{mount\+\_\+point}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{pattern}{, }\item[{int}]{max\+\_\+files}{, }\item[{size\+\_\+t \texorpdfstring{$\ast$}{*}}]{out\+\_\+states}{}\end{DoxyParamCaption})}
+
+
+
+Read state configuration files from a directory and populate statemachine\+\_\+config. 
+
+This supports JSON files whose root can be an object or an array of objects and loads them in order until the state array is full or the file limit is reached. 
+\begin{DoxyParams}{Parameters}
+{\em mount\+\_\+point} & Directory to scan, e.\+g. "{}/data/json"{}. \\
+\hline
+{\em pattern} & Wildcard pattern for matching file names. \\
+\hline
+{\em max\+\_\+files} & Maximum number of matched files to process. Use \texorpdfstring{$<$}{<}=0 to process all. \\
+\hline
+{\em out\+\_\+states} & Number of states parsed into the runtime config array. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
+\end{DoxyReturn}
+Read state configuration files from a directory and populate statemachine\+\_\+config.
+
+Supports JSON root being a single object or an array of objects.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mount\+\_\+point} & e.\+g., "{}/data"{} \\
+\hline
+{\em pattern} & e.\+g., "{}state\+\_\+\texorpdfstring{$\ast$}{*}.\+json"{} \\
+\hline
+{\em max\+\_\+files} & limit on number of files to process (\texorpdfstring{$>$}{>}0). If \texorpdfstring{$<$}{<}=0 -\/\texorpdfstring{$>$}{>} process all matched. \\
+\hline
+{\em out\+\_\+states} & output\+: number of states parsed into statemachine\+\_\+config\mbox{[}\mbox{]} \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, error otherwise.
+\end{DoxyReturn}
+Load statemachine configurations from JSON files in a directory.
+
+This function scans the given directory for filenames matching the wildcard pattern, reads matching JSON files, and converts each object or array entry into a statemachine configuration entry.
+
+
+\begin{DoxyParams}{Parameters}
+{\em mount\+\_\+point} & Directory path to scan, e.\+g. "{}/data/json"{}. \\
+\hline
+{\em pattern} & Wildcard filename pattern, e.\+g. "{}state\texorpdfstring{$\ast$}{*}\+\_\+config.\+json"{}. \\
+\hline
+{\em max\+\_\+files} & Maximum number of files to process; use \texorpdfstring{$<$}{<}=0 for no limit. \\
+\hline
+{\em out\+\_\+states} & Output count of states loaded. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{config__files_8c_source_l01248}{1248}} of file \mbox{\hyperlink{config__files_8c_source}{config\+\_\+files.\+c}}.
+

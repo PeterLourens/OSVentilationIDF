@@ -1,0 +1,200 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/rgb\+\_\+leds.c File Reference}
+\hypertarget{rgb__leds_8c}{}\label{rgb__leds_8c}\index{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.c@{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.c}}
+
+
+RGB LED support and state-\/based color mapping for the OSVentilation firmware.  
+
+
+{\ttfamily \#include "{}rgb\+\_\+leds.\+h"{}}\newline
+Include dependency graph for rgb\+\_\+leds.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} \mbox{\hyperlink{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}{state\+\_\+to\+\_\+color}} (int state)
+\item 
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} \mbox{\hyperlink{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}{fan\+\_\+to\+\_\+color}} (int fanspeed)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42}{init\+\_\+rgb\+\_\+led}} (void)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a09ab352305e903741db7201c43f0e66e}{leds\+\_\+set\+\_\+brightness}} (uint8\+\_\+t b)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}{set\+\_\+led\+\_\+brightness}} (int led, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} color, uint8\+\_\+t brightness)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\+\_\+led}} (int led, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} color)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}{set\+\_\+off}} (int led)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}{toggle\+\_\+led}} (int led, \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} color, bool \texorpdfstring{$\ast$}{*}state)
+\item 
+void \mbox{\hyperlink{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d}{leds\+\_\+update}} (const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*}sm)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+led\+\_\+strip\+\_\+handle\+\_\+t \mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\+\_\+leds}} = NULL
+\item 
+const \mbox{\hyperlink{structColor__t}{Color\+\_\+t}} \mbox{\hyperlink{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}{COLORS}} \mbox{[}$\,$\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+RGB LED support and state-\/based color mapping for the OSVentilation firmware. 
+
+
+
+Definition in file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{rgb__leds_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}\index{rgb\_leds.c@{rgb\_leds.c}!fan\_to\_color@{fan\_to\_color}}
+\index{fan\_to\_color@{fan\_to\_color}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{fan\_to\_color()}{fan\_to\_color()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890} 
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} fan\+\_\+to\+\_\+color (\begin{DoxyParamCaption}\item[{int}]{fanspeed}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00094}{94}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42}\index{rgb\_leds.c@{rgb\_leds.c}!init\_rgb\_led@{init\_rgb\_led}}
+\index{init\_rgb\_led@{init\_rgb\_led}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{init\_rgb\_led()}{init\_rgb\_led()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42} 
+esp\+\_\+err\+\_\+t init\+\_\+rgb\+\_\+led (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00111}{111}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a09ab352305e903741db7201c43f0e66e}\index{rgb\_leds.c@{rgb\_leds.c}!leds\_set\_brightness@{leds\_set\_brightness}}
+\index{leds\_set\_brightness@{leds\_set\_brightness}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{leds\_set\_brightness()}{leds\_set\_brightness()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a09ab352305e903741db7201c43f0e66e} 
+void leds\+\_\+set\+\_\+brightness (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00133}{133}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d}\index{rgb\_leds.c@{rgb\_leds.c}!leds\_update@{leds\_update}}
+\index{leds\_update@{leds\_update}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{leds\_update()}{leds\_update()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d} 
+void leds\+\_\+update (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{sm}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00173}{173}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}\index{rgb\_leds.c@{rgb\_leds.c}!set\_led@{set\_led}}
+\index{set\_led@{set\_led}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{set\_led()}{set\_led()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5} 
+void set\+\_\+led (\begin{DoxyParamCaption}\item[{int}]{led}{, }\item[{\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}]{color}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00151}{151}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}\index{rgb\_leds.c@{rgb\_leds.c}!set\_led\_brightness@{set\_led\_brightness}}
+\index{set\_led\_brightness@{set\_led\_brightness}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{set\_led\_brightness()}{set\_led\_brightness()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f} 
+void set\+\_\+led\+\_\+brightness (\begin{DoxyParamCaption}\item[{int}]{led}{, }\item[{\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}]{color}{, }\item[{uint8\+\_\+t}]{brightness}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00139}{139}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}\index{rgb\_leds.c@{rgb\_leds.c}!set\_off@{set\_off}}
+\index{set\_off@{set\_off}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{set\_off()}{set\_off()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342} 
+void set\+\_\+off (\begin{DoxyParamCaption}\item[{int}]{led}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00156}{156}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}\index{rgb\_leds.c@{rgb\_leds.c}!state\_to\_color@{state\_to\_color}}
+\index{state\_to\_color@{state\_to\_color}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{state\_to\_color()}{state\_to\_color()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f} 
+\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}} state\+\_\+to\+\_\+color (\begin{DoxyParamCaption}\item[{int}]{state}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00053}{53}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}\index{rgb\_leds.c@{rgb\_leds.c}!toggle\_led@{toggle\_led}}
+\index{toggle\_led@{toggle\_led}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{toggle\_led()}{toggle\_led()}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57} 
+void toggle\+\_\+led (\begin{DoxyParamCaption}\item[{int}]{led}{, }\item[{\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{Color\+Name\+\_\+t}}}]{color}{, }\item[{bool \texorpdfstring{$\ast$}{*}}]{state}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00162}{162}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{rgb__leds_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}\index{rgb\_leds.c@{rgb\_leds.c}!COLORS@{COLORS}}
+\index{COLORS@{COLORS}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{COLORS}{COLORS}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac} 
+const \mbox{\hyperlink{structColor__t}{Color\+\_\+t}} COLORS\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=\ \{}
+\DoxyCodeLine{\ \ \ \ \{255,\ 0,\ 0\},\ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 255,\ 0\},\ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 0,\ 255\},\ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 255,\ 0\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 0,\ 255\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 255,\ 255\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 255,\ 255\},\ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 128,\ 0\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{128,\ 0,\ 128\},\ \ \ }
+\DoxyCodeLine{}
+\DoxyCodeLine{\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 64,\ 0\},\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 165,\ 0\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 215,\ 0\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 105,\ 180\},\ }
+\DoxyCodeLine{\ \ \ \ \{255,\ 20,\ 147\},\ \ }
+\DoxyCodeLine{\ \ \ \ \{135,\ 206,\ 235\},\ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 128,\ 128\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 100,\ 0\},\ \ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{75,\ 0,\ 130\},\ \ \ \ }
+\DoxyCodeLine{\ \ \ \ \{173,\ 216,\ 230\},\ }
+\DoxyCodeLine{\ \ \ \ \{152,\ 255,\ 152\},\ }
+\DoxyCodeLine{\ \ \ \ \{210,\ 105,\ 30\},\ \ }
+\DoxyCodeLine{\ \ \ \ \{46,\ 139,\ 87\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{0,\ 191,\ 255\},\ \ \ }
+\DoxyCodeLine{\ \ \ \ \{123,\ 104,\ 238\},\ }
+\DoxyCodeLine{\ \ \ \ \{240,\ 128,\ 128\},\ }
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00023}{23}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+
+\Hypertarget{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}\index{rgb\_leds.c@{rgb\_leds.c}!rgb\_leds@{rgb\_leds}}
+\index{rgb\_leds@{rgb\_leds}!rgb\_leds.c@{rgb\_leds.c}}
+\doxysubsubsection{\texorpdfstring{rgb\_leds}{rgb\_leds}}
+{\footnotesize\ttfamily \label{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479} 
+led\+\_\+strip\+\_\+handle\+\_\+t rgb\+\_\+leds = NULL}
+
+
+
+Definition at line \mbox{\hyperlink{rgb__leds_8c_source_l00017}{17}} of file \mbox{\hyperlink{rgb__leds_8c_source}{rgb\+\_\+leds.\+c}}.
+

@@ -1,0 +1,59 @@
+\doxysection{http\+\_\+helper.\+h}
+\hypertarget{http__helper_8h_source}{}\label{http__helper_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/http\_helper.h@{/home/peter/Development/OSVentilationIDF/main/http\_helper.h}}
+\mbox{\hyperlink{http__helper_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ HTTP\_HELPER\_H}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ HTTP\_HELPER\_H}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <stdarg.h>}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <cJSON.h>}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <driver/i2c\_master.h>}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00026}\mbox{\hyperlink{structtar__header__t}{00026}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00027}00027\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00028}\mbox{\hyperlink{structtar__header__t_ac2e82bd5ddcd7168f2089d4d70bc6bcb}{00028}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_ac2e82bd5ddcd7168f2089d4d70bc6bcb}{name}}[100];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00029}\mbox{\hyperlink{structtar__header__t_aa3b552a449d7673c127c37df7b11ee26}{00029}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_aa3b552a449d7673c127c37df7b11ee26}{mode}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00030}\mbox{\hyperlink{structtar__header__t_a47fcb64efe4f50445cf1d069ddb3d849}{00030}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a47fcb64efe4f50445cf1d069ddb3d849}{uid}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00031}\mbox{\hyperlink{structtar__header__t_abe16a9d4b3ff6da1e42a04eea1559e56}{00031}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_abe16a9d4b3ff6da1e42a04eea1559e56}{gid}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00032}\mbox{\hyperlink{structtar__header__t_afd232c6cd3078c67ece1c124dc9ed2ea}{00032}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_afd232c6cd3078c67ece1c124dc9ed2ea}{size}}[12];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00033}\mbox{\hyperlink{structtar__header__t_a4b61bab463342bcda086bc607c93b8b5}{00033}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a4b61bab463342bcda086bc607c93b8b5}{mtime}}[12];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00034}\mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{00034}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{chksum}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00035}\mbox{\hyperlink{structtar__header__t_ae3b026dfd91c3b3007fce3fc0fb20f1d}{00035}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_ae3b026dfd91c3b3007fce3fc0fb20f1d}{typeflag}};}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00036}\mbox{\hyperlink{structtar__header__t_aa7d670f7c627af6a5119e2eaa25887ad}{00036}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_aa7d670f7c627af6a5119e2eaa25887ad}{linkname}}[100];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00037}\mbox{\hyperlink{structtar__header__t_a7d23f43caa139f4beb6822c8fddf7ecd}{00037}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a7d23f43caa139f4beb6822c8fddf7ecd}{magic}}[6];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00038}\mbox{\hyperlink{structtar__header__t_a2919a22d5588768763ffd4ff57c27459}{00038}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a2919a22d5588768763ffd4ff57c27459}{version}}[2];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00039}\mbox{\hyperlink{structtar__header__t_a7cd1c10899b9c4e448514aab30f84b05}{00039}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a7cd1c10899b9c4e448514aab30f84b05}{uname}}[32];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00040}\mbox{\hyperlink{structtar__header__t_a2ab89172697517d5993de9e8c57437bc}{00040}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a2ab89172697517d5993de9e8c57437bc}{gname}}[32];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00041}\mbox{\hyperlink{structtar__header__t_a42aa73d3a6b65efd5ba278d76c87be02}{00041}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a42aa73d3a6b65efd5ba278d76c87be02}{devmajor}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00042}\mbox{\hyperlink{structtar__header__t_a9ed8c8d78908364e7485cc8d92207456}{00042}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a9ed8c8d78908364e7485cc8d92207456}{devminor}}[8];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00043}\mbox{\hyperlink{structtar__header__t_a86f1e9e118af117945f14e699123096f}{00043}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a86f1e9e118af117945f14e699123096f}{prefix}}[155];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00044}\mbox{\hyperlink{structtar__header__t_a87e4faec435b2fb6a0e9a29621f38bf8}{00044}}\ \ \ \ \ \textcolor{keywordtype}{char}\ \mbox{\hyperlink{structtar__header__t_a87e4faec435b2fb6a0e9a29621f38bf8}{padding}}[12];}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00045}00045\ \}\ \mbox{\hyperlink{structtar__header__t}{tar\_header\_t}};}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00046}00046\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00047}00047\ \textcolor{comment}{//\ Function\ declarations}}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00056}00056\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{http__helper_8h_a94f18a23cf6f6643effd2df2c0cb29d9}{remove\_ansi\_escape\_codes}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00065}00065\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{http__helper_8h_ae22982ee4c77cae0a413b9e7918e746b}{websocket\_log\_output}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ va\_list);}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00074}00074\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{http__helper_8h_a072b5c6d8f22a7f7c4c539191c8f13a9}{uart\_log\_output}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ va\_list);}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00083}00083\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{http__helper_8h_ac401e75b16a75b57d22558f86a9fdb71}{write\_json\_atomic\_fs}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ cJSON\ *);}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00090}00090\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__helper_8h_ae8049a538be155ce23241691e2772325}{tar\_fill\_checksum}}(\mbox{\hyperlink{structtar__header__t}{tar\_header\_t}}\ *hdr);}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00091}00091\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00099}00099\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__helper_8h_afb3af713b48777bdf3b54ea719e70752}{tar\_write\_header}}(httpd\_req\_t\ *req,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename,\ \textcolor{keywordtype}{size\_t}\ filesize);}
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8h_source_l00101}00101\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

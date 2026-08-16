@@ -1,6 +1,6 @@
 var sys__stats_8c =
 [
-    [ "EthSnapshot_t", "struct_eth_snapshot__t.html", "struct_eth_snapshot__t" ],
+    [ "EthSnapshot_t", "structEthSnapshot__t.html", "structEthSnapshot__t" ],
     [ "SAFE_APPEND", "sys__stats_8c.html#acbc74d3e0c5527eb9bfe1de9bd825cf1", null ],
     [ "append_header", "sys__stats_8c.html#aef621e600baaecd9d056247c385db804", null ],
     [ "append_heap_stats", "sys__stats_8c.html#a8fd914e6c2b8b61978713adbedcaabe7", null ],

@@ -1,0 +1,123 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/statemachine\+\_\+helper.c File Reference}
+\hypertarget{statemachine__helper_8c}{}\label{statemachine__helper_8c}\index{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.c@{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.c}}
+
+
+Helper utilities for state evaluation, time window checks, and cycling logic.  
+
+
+{\ttfamily \#include "{}statemachine\+\_\+helper.\+h"{}}\newline
+Include dependency graph for statemachine\+\_\+helper.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}{find\+\_\+state\+\_\+index\+\_\+by\+\_\+name\+\_\+ci}} (const char \texorpdfstring{$\ast$}{*}name)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_a2bbf20bce579e05c5dd135246668f7b2}{is\+\_\+day}} (void)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}{is\+\_\+weekend}} (void)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_adab1407545fb6a4bc3165407db12ad3a}{cooking\+\_\+times}} (void)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_a88cb84d084a76ff39347b764997b5cef}{valve\+\_\+cycle\+\_\+times\+\_\+day}} (void)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_a42c970122ae370a12a8ec4b247066448}{valve\+\_\+cycle\+\_\+times\+\_\+night}} (void)
+\item 
+void \mbox{\hyperlink{statemachine__helper_8c_a2dcc826036e38226014be04552dab09d}{select\+\_\+sensors}} (void)
+\item 
+bool \mbox{\hyperlink{statemachine__helper_8c_a080d7fe786ddcc0b7cd7c1a021e759ee}{statemachine\+\_\+consume\+\_\+valve\+\_\+move\+\_\+request}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Helper utilities for state evaluation, time window checks, and cycling logic. 
+
+
+
+Definition in file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{statemachine__helper_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{statemachine__helper_8c_adab1407545fb6a4bc3165407db12ad3a}\index{statemachine\_helper.c@{statemachine\_helper.c}!cooking\_times@{cooking\_times}}
+\index{cooking\_times@{cooking\_times}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{cooking\_times()}{cooking\_times()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_adab1407545fb6a4bc3165407db12ad3a} 
+bool cooking\+\_\+times (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00115}{115}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a}\index{statemachine\_helper.c@{statemachine\_helper.c}!find\_state\_index\_by\_name\_ci@{find\_state\_index\_by\_name\_ci}}
+\index{find\_state\_index\_by\_name\_ci@{find\_state\_index\_by\_name\_ci}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{find\_state\_index\_by\_name\_ci()}{find\_state\_index\_by\_name\_ci()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a774307d5c2f51f385f8de9b61fb1db4a} 
+int find\+\_\+state\+\_\+index\+\_\+by\+\_\+name\+\_\+ci (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{name}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00017}{17}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a2bbf20bce579e05c5dd135246668f7b2}\index{statemachine\_helper.c@{statemachine\_helper.c}!is\_day@{is\_day}}
+\index{is\_day@{is\_day}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{is\_day()}{is\_day()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a2bbf20bce579e05c5dd135246668f7b2} 
+bool is\+\_\+day (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00034}{34}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce}\index{statemachine\_helper.c@{statemachine\_helper.c}!is\_weekend@{is\_weekend}}
+\index{is\_weekend@{is\_weekend}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{is\_weekend()}{is\_weekend()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a33084da12177128329aed9bfc5be50ce} 
+bool is\+\_\+weekend (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00086}{86}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a2dcc826036e38226014be04552dab09d}\index{statemachine\_helper.c@{statemachine\_helper.c}!select\_sensors@{select\_sensors}}
+\index{select\_sensors@{select\_sensors}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{select\_sensors()}{select\_sensors()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a2dcc826036e38226014be04552dab09d} 
+void select\+\_\+sensors (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00417}{417}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a080d7fe786ddcc0b7cd7c1a021e759ee}\index{statemachine\_helper.c@{statemachine\_helper.c}!statemachine\_consume\_valve\_move\_request@{statemachine\_consume\_valve\_move\_request}}
+\index{statemachine\_consume\_valve\_move\_request@{statemachine\_consume\_valve\_move\_request}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{statemachine\_consume\_valve\_move\_request()}{statemachine\_consume\_valve\_move\_request()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a080d7fe786ddcc0b7cd7c1a021e759ee} 
+bool statemachine\+\_\+consume\+\_\+valve\+\_\+move\+\_\+request (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00516}{516}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a88cb84d084a76ff39347b764997b5cef}\index{statemachine\_helper.c@{statemachine\_helper.c}!valve\_cycle\_times\_day@{valve\_cycle\_times\_day}}
+\index{valve\_cycle\_times\_day@{valve\_cycle\_times\_day}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{valve\_cycle\_times\_day()}{valve\_cycle\_times\_day()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a88cb84d084a76ff39347b764997b5cef} 
+bool valve\+\_\+cycle\+\_\+times\+\_\+day (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00222}{222}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+
+\Hypertarget{statemachine__helper_8c_a42c970122ae370a12a8ec4b247066448}\index{statemachine\_helper.c@{statemachine\_helper.c}!valve\_cycle\_times\_night@{valve\_cycle\_times\_night}}
+\index{valve\_cycle\_times\_night@{valve\_cycle\_times\_night}!statemachine\_helper.c@{statemachine\_helper.c}}
+\doxysubsubsection{\texorpdfstring{valve\_cycle\_times\_night()}{valve\_cycle\_times\_night()}}
+{\footnotesize\ttfamily \label{statemachine__helper_8c_a42c970122ae370a12a8ec4b247066448} 
+bool valve\+\_\+cycle\+\_\+times\+\_\+night (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine__helper_8c_source_l00317}{317}} of file \mbox{\hyperlink{statemachine__helper_8c_source}{statemachine\+\_\+helper.\+c}}.
+

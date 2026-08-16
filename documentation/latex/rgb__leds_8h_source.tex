@@ -1,0 +1,108 @@
+\doxysection{rgb\+\_\+leds.\+h}
+\hypertarget{rgb__leds_8h_source}{}\label{rgb__leds_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.h@{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.h}}
+\mbox{\hyperlink{rgb__leds_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ RGB\_LEDS\_H}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ RGB\_LEDS\_H}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <driver/i2c\_master.h>}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <led\_strip.h>}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00021}\mbox{\hyperlink{rgb__leds_8h_a8a6bd7a49ceea22233fb2313ef2060cd}{00021}}\ \textcolor{preprocessor}{\#define\ RGB\_LED\_NUM\ 2\ \ \ \ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ The\ number\ of\ LEDs\ (pixels)\ on\ WS2812B\ LED\ strip}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00022}\mbox{\hyperlink{rgb__leds_8h_aa2afe4e6527e6419ad167cb2526ff0b8}{00022}}\ \textcolor{preprocessor}{\#define\ RMT\_RESOLUTION\_HZ\ 8000000\ }\textcolor{comment}{//\ 8\ MHz}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00024}00024\ \textcolor{comment}{//\ RGB\ LED\ handle}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00025}00025\ \textcolor{keyword}{extern}\ led\_strip\_handle\_t\ \mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00027}\mbox{\hyperlink{structColor__t}{00027}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00028}00028\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00029}\mbox{\hyperlink{structColor__t_a48c78ec6afac399fb7263f20cd46bf82}{00029}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structColor__t_a48c78ec6afac399fb7263f20cd46bf82}{r}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00030}\mbox{\hyperlink{structColor__t_a653fcbd2b14ba615686e4599b12f480b}{00030}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structColor__t_a653fcbd2b14ba615686e4599b12f480b}{g}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00031}\mbox{\hyperlink{structColor__t_a2656ce3f60e822ca183a9dd9f11ae450}{00031}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structColor__t_a2656ce3f60e822ca183a9dd9f11ae450}{b}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00032}00032\ \}\ \mbox{\hyperlink{structColor__t}{Color\_t}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00034}\mbox{\hyperlink{structLedRule__t}{00034}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00035}00035\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00036}\mbox{\hyperlink{structLedRule__t_a4f5cffef0ca618733443180f92d55793}{00036}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structLedRule__t_a4f5cffef0ca618733443180f92d55793}{priority}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00037}\mbox{\hyperlink{structLedRule__t_a1a75bbf06c09945ab1ceaa630316f62a}{00037}}\ \ \ \ \ bool\ (*\mbox{\hyperlink{structLedRule__t_a1a75bbf06c09945ab1ceaa630316f62a}{condition}})(\textcolor{keyword}{const}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ *sm);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00038}\mbox{\hyperlink{structLedRule__t_adeee793b3e8db9217913aae713aaff49}{00038}}\ \ \ \ \ void\ (*\mbox{\hyperlink{structLedRule__t_adeee793b3e8db9217913aae713aaff49}{action}})(\textcolor{keyword}{const}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ *sm,\ uint8\_t\ brightness);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00039}00039\ \}\ \mbox{\hyperlink{structLedRule__t}{LedRule\_t}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00041}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{00041}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00042}00042\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00043}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{00043}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00044}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}{00044}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}{COLOR\_GREEN}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00045}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}{00045}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}{COLOR\_BLUE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00046}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}{00046}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}{COLOR\_YELLOW}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00047}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37}{00047}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37}{COLOR\_MAGENTA}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00048}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7896ff2cc707b5873da0b97d38bf852e}{00048}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7896ff2cc707b5873da0b97d38bf852e}{COLOR\_CYAN}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00049}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec}{00049}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec}{COLOR\_WHITE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00050}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0d36904c1e8ef3978abfe51c57b70423}{00050}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0d36904c1e8ef3978abfe51c57b70423}{COLOR\_ORANGE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00051}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc}{00051}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc}{COLOR\_PURPLE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00052}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}{00052}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}{COLOR\_DEEP\_ORANGE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00053}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa4da0c4ea2ebe32ae38cb82e3a8ef804}{00053}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa4da0c4ea2ebe32ae38cb82e3a8ef804}{COLOR\_AMBER}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00054}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6}{00054}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6}{COLOR\_GOLD}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00055}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb}{00055}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb}{COLOR\_HOT\_PINK}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00056}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0f0c45d1d6eb272466bae0b597af6ccf}{00056}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba0f0c45d1d6eb272466bae0b597af6ccf}{COLOR\_DEEP\_PINK}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00057}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457babf002dcb50831be52fe09196a3b2417b}{00057}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457babf002dcb50831be52fe09196a3b2417b}{COLOR\_SKY\_BLUE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00058}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a}{00058}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a}{COLOR\_TEAL}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00059}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac666d99764e8658d0c60166e6cc3a93e}{00059}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac666d99764e8658d0c60166e6cc3a93e}{COLOR\_DARK\_GREEN}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00060}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c}{00060}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c}{COLOR\_INDIGO}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00061}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba97e4b144ec0f5f6a6d19eccd00a1cba8}{00061}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba97e4b144ec0f5f6a6d19eccd00a1cba8}{COLOR\_LIGHT\_BLUE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00062}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1948ac4299c6876345623d32d62a02c2}{00062}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1948ac4299c6876345623d32d62a02c2}{COLOR\_MINT}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00063}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d}{00063}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d}{COLOR\_CHOCOLATE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00064}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd}{00064}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd}{COLOR\_SEA\_GREEN}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00065}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}{00065}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}{COLOR\_DEEP\_SKY\_BLUE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00066}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2}{00066}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2}{COLOR\_MEDIUM\_SLATE\_BLUE}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00067}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba285ad4acdaf695a00c5d28eb4eda05b4}{00067}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba285ad4acdaf695a00c5d28eb4eda05b4}{COLOR\_LIGHT\_CORAL}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00068}\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{00068}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{COLOR\_COUNT}}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00069}00069\ \}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00071}\mbox{\hyperlink{structBlinkState__t}{00071}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00072}00072\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00073}\mbox{\hyperlink{structBlinkState__t_a439ed81a25697a057ec0632027ee1c2c}{00073}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structBlinkState__t_a439ed81a25697a057ec0632027ee1c2c}{enabled}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00074}\mbox{\hyperlink{structBlinkState__t_a7669a91a596a5e7f06d1363e211bce11}{00074}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structBlinkState__t_a7669a91a596a5e7f06d1363e211bce11}{led\_on}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00075}\mbox{\hyperlink{structBlinkState__t_a5e9b362398370bbf599aa8242b2f68f7}{00075}}\ \ \ \ \ TickType\_t\ \mbox{\hyperlink{structBlinkState__t_a5e9b362398370bbf599aa8242b2f68f7}{next\_toggle}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00076}\mbox{\hyperlink{structBlinkState__t_ab15fea66d131d09d8a731f46097cfa43}{00076}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structBlinkState__t_ab15fea66d131d09d8a731f46097cfa43}{on\_ms}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00077}\mbox{\hyperlink{structBlinkState__t_a21e5eb795f8f28504d7ac941ec53e7ed}{00077}}\ \ \ \ \ uint32\_t\ \mbox{\hyperlink{structBlinkState__t_a21e5eb795f8f28504d7ac941ec53e7ed}{off\_ms}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00078}\mbox{\hyperlink{structBlinkState__t_ac70910393e4a8b5eb24cd4e821615f1b}{00078}}\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ \mbox{\hyperlink{structBlinkState__t_ac70910393e4a8b5eb24cd4e821615f1b}{color}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00079}\mbox{\hyperlink{structBlinkState__t_ac6ede3deccb408834c59e783ee30c7b9}{00079}}\ \ \ \ \ uint8\_t\ \mbox{\hyperlink{structBlinkState__t_ac6ede3deccb408834c59e783ee30c7b9}{brightness}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00080}00080\ \}\ \mbox{\hyperlink{structBlinkState__t}{BlinkState\_t}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00082}00082\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structColor__t}{Color\_t}}\ \mbox{\hyperlink{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}{COLORS}}[\mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba496fbcd07039ae663b1cb959e5b1782d}{COLOR\_COUNT}}];}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00084}00084\ \textcolor{comment}{//\ Function\ declarations}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00086}00086\ esp\_err\_t\ \mbox{\hyperlink{rgb__leds_8h_aa5c378cd8fe1665ba43767a57fbd1c42}{init\_rgb\_led}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00087}00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_a94038ba1401403cc315e49d6bb7976c9}{set\_led\_brightness}}(\textcolor{keywordtype}{int},\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}},\ uint8\_t);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00088}00088\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_aba2bf9a87597f97af74bb1e4f37ab04c}{set\_led}}(\textcolor{keywordtype}{int},\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00089}00089\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_abd7cc0795e320b317b4e93908ba32648}{set\_off}}(\textcolor{keywordtype}{int});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00090}\mbox{\hyperlink{rgb__leds_8h_a95e73c2991b4f8fc46f2bbfa78b562e5}{00090}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_a95e73c2991b4f8fc46f2bbfa78b562e5}{leds\_set\_snapshot}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ *);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00091}\mbox{\hyperlink{rgb__leds_8h_a19ca8bb73d9f9d3858ab1a366b5096f9}{00091}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_a19ca8bb73d9f9d3858ab1a366b5096f9}{leds\_notify\_update}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00092}00092\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_a00bd1fd8a4e3a0e41993beed66af301f}{leds\_set\_brightness}}(uint8\_t);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00093}00093\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8h_a013d64a44c426460005786fdbcb5ff1b}{leds\_update}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ *);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00095}00095\ \textcolor{comment}{/*uint8\_t\ apply\_brightness(uint8\_t,\ uint8\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00096}00096\ \textcolor{comment}{void\ set\_single\_led\_color\_with\_brightness(int,\ uint8\_t,\ uint8\_t,\ uint8\_t,\ uint8\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00097}00097\ \textcolor{comment}{void\ set\_led\_color(int,\ ColorName\_t,\ uint8\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00098}00098\ \textcolor{comment}{void\ blink\_led(int,\ ColorName\_t,\ uint8\_t,\ uint32\_t,\ uint32\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00099}00099\ \textcolor{comment}{void\ blink\_slow(int,\ ColorName\_t,\ uint8\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00100}00100\ \textcolor{comment}{void\ blink\_fast(int,\ ColorName\_t,\ uint8\_t);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00101}00101\ \textcolor{comment}{void\ blink\_stop(int);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00102}00102\ \textcolor{comment}{bool\ sm\_get\_snapshot(Statemachine\_actuals\_t\ *);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00103}00103\ \textcolor{comment}{void\ rgb\_leds\_update(void);}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00104}00104\ \textcolor{comment}{void\ update\_status\_leds(const\ Statemachine\_actuals\_t\ *,\ uint8\_t);*/}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00105}00105\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8h_source_l00106}00106\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

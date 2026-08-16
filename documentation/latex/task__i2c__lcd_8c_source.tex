@@ -1,0 +1,282 @@
+\doxysection{task\+\_\+i2c\+\_\+lcd.\+c}
+\hypertarget{task__i2c__lcd_8c_source}{}\label{task__i2c__lcd_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_lcd.c@{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_lcd.c}}
+\mbox{\hyperlink{task__i2c__lcd_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__i2c__lcd_8h}{task\_i2c\_lcd.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_i2c\_LCD"{}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00017}00017\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ i2c\_lcd\_stack[5120];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00018}00018\ \textcolor{keyword}{static}\ StaticTask\_t\ i2c\_lcd\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00019}00019\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ i2c\_lcd\_stack\_size\ =\ 5120;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 5120\ words\ =\ 20\ KB}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00021}\mbox{\hyperlink{task__i2c__lcd_8c_a045e98ef80147ad694d5f048f6db2325}{00021}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__lcd_8c_a045e98ef80147ad694d5f048f6db2325}{stop\_task\_i2c\_lcd}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00022}00022\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00023}00023\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00024}00024\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00025}00025\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ task\ already\ stopped"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00026}00026\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00027}00027\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00029}00029\ \ \ \ \ \textcolor{comment}{//\ Optional:\ turn\ off\ LCD\ hardware}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00030}00030\ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_ab84aa39864d1f61797588a56b0d9034d}{i2c\_lcd\_clear}}();}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00031}00031\ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_a92c829d8691e09819601b95836b9da5d}{i2c\_lcd\_backlight\_set}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00033}00033\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Stopping\ LCD\ task..."{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00034}00034\ \ \ \ \ vTaskDelete(\mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00035}00035\ \ \ \ \ \mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00036}00036\ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00038}\mbox{\hyperlink{task__i2c__lcd_8c_ae17437b7ce12dcd27f7a51f57faa2123}{00038}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__lcd_8c_ae17437b7ce12dcd27f7a51f57faa2123}{start\_task\_i2c\_lcd}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00039}00039\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00040}00040\ \ \ \ \ \mbox{\hyperlink{structI2C__config__t}{I2C\_config\_t}}\ cfg;}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00042}00042\ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00043}00043\ \ \ \ \ memcpy(\&cfg,\ \&\mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}},\ \textcolor{keyword}{sizeof}(cfg));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00044}00044\ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00046}00046\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(cfg.\mbox{\hyperlink{structI2C__config__t_a7e4e6f38a425d070bb118367bf86b33f}{enable\_lcd}},\ \textcolor{stringliteral}{"{}On"{}})\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00047}00047\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ disabled\ →\ task\ not\ started"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00050}00050\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00052}00052\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}}\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00053}00053\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ task\ already\ running"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00056}00056\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00058}00058\ \ \ \ \ \mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__i2c__lcd_8c_a4677be9997af47689c11547eb30e714c}{task\_i2c\_lcd\_code}},\ \textcolor{stringliteral}{"{}i2c\_lcd"{}},\ i2c\_lcd\_stack\_size,\ NULL,\ 6,\ i2c\_lcd\_stack,\ \&i2c\_lcd\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00060}00060\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}})}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00062}00062\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ task\ started"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00064}00064\ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00066}\mbox{\hyperlink{task__i2c__lcd_8c_a4677be9997af47689c11547eb30e714c}{00066}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__lcd_8c_a4677be9997af47689c11547eb30e714c}{task\_i2c\_lcd\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00067}00067\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00068}00068\ \ \ \ \ \mbox{\hyperlink{structI2C__config__t}{I2C\_config\_t}}\ cfg;}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00069}00069\ \ \ \ \ \textcolor{keywordtype}{char}\ uptime[20]\ =\ \{\};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00070}00070\ \ \ \ \ \textcolor{keywordtype}{char}\ ping\_result[20]\ =\ \{\};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00071}00071\ \ \ \ \ \textcolor{keywordtype}{char}\ formatted\_time[32]\ =\ \{\};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00072}00072\ \ \ \ \ \textcolor{keywordtype}{char}\ wifi\_ip[16]\ =\ \textcolor{stringliteral}{"{}0.0.0.0"{}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00073}00073\ \ \ \ \ \textcolor{keywordtype}{char}\ eth\_ip[16]\ =\ \textcolor{stringliteral}{"{}0.0.0.0"{}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00074}00074\ \ \ \ \ \textcolor{keywordtype}{char}\ buf[200]\ =\ \{\};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00076}00076\ \ \ \ \ \textcolor{comment}{//\ Copy\ config\ under\ mutex\ if\ available}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00077}00077\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}},\ portMAX\_DELAY)\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00078}00078\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ memcpy(\&cfg,\ \&\mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}},\ \textcolor{keyword}{sizeof}(cfg));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00081}00081\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00082}00082\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00083}00083\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}i2c\_config\_mutex\ not\ available;\ using\ defaults"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ memset(\&cfg,\ 0,\ \textcolor{keyword}{sizeof}(cfg));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00086}00086\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00088}00088\ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(cfg.\mbox{\hyperlink{structI2C__config__t_a7e4e6f38a425d070bb118367bf86b33f}{enable\_lcd}},\ \textcolor{stringliteral}{"{}Off"{}})\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00089}00089\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ disabled\ →\ terminating\ LCD\ task"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a2b74b90cf673582acb7d43efa4aeda9c}{task\_i2c\_lcd}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ vTaskDelete(NULL);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00093}00093\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00095}00095\ \ \ \ \ \textcolor{comment}{//\ LCD\ availability\ flag\ (degraded\ mode)}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00096}00096\ \ \ \ \ \textcolor{keywordtype}{bool}\ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00097}00097\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00098}00098\ \ \ \ \ \textcolor{comment}{//\ Try\ to\ initialize\ LCD\ device\ with\ retries\ and\ backoff.}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00099}00099\ \ \ \ \ \textcolor{keyword}{const}\ TickType\_t\ retry\_initial\_delay\ =\ pdMS\_TO\_TICKS(1000);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00100}00100\ \ \ \ \ \textcolor{keyword}{const}\ TickType\_t\ retry\_long\_delay\ =\ pdMS\_TO\_TICKS(30000);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00102}00102\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00103}00103\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!lcd\_available)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ab08a929d9ec8f4e45889e2daab1b7739}{i2c\_lcd\_init\_device}}()\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ device\ initialized\ and\ available"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Ensure\ display\ is\ in\ known\ state}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_ab84aa39864d1f61797588a56b0d9034d}{i2c\_lcd\_clear}}();}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_a92c829d8691e09819601b95836b9da5d}{i2c\_lcd\_backlight\_set}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ init\ failed;\ will\ retry\ in\ 1s"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(retry\_initial\_delay);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Try\ again\ a\ few\ times\ quickly,\ then\ back\ off}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ab08a929d9ec8f4e45889e2daab1b7739}{i2c\_lcd\_init\_device}}()\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ init\ retry\ failed;\ backing\ off\ 30s"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(retry\_long\_delay);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ device\ initialized\ on\ retry"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_ab84aa39864d1f61797588a56b0d9034d}{i2c\_lcd\_clear}}();}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_a92c829d8691e09819601b95836b9da5d}{i2c\_lcd\_backlight\_set}}(\textcolor{keyword}{false});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00133}00133\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00134}00134\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00135}00135\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ LCD\ is\ available,\ perform\ normal\ update\ cycle}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00136}00136\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lcd\_available)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00137}00137\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Display\ 1\ -\/\ General\ info}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{general_8c_a92231c5baf01ef89de17130c220cffae}{formatted\_uptime}}(uptime,\ \textcolor{keyword}{sizeof}(uptime));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{general_8c_a2af39f4ace3105d51da3c357ecb058d4}{formatted\_datetime}}(formatted\_time,\ \textcolor{keyword}{sizeof}(formatted\_time));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(buf,\ \textcolor{keyword}{sizeof}(buf),\ \textcolor{stringliteral}{"{}\%s\(\backslash\)nUp:\ \%s"{}},\ formatted\_time,\ uptime);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ac8f93a894e4448f63378e8bbe195df1d}{i2c\_lcd\_write\_text}}(buf)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ write\ general\ info\ to\ LCD;\ marking\ LCD\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ small\ delay\ before\ next\ init\ attempt}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00149}00149\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00151}00151\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Display\ 2\ -\/\ Network\ info}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\_mutex}},\ pdMS\_TO\_TICKS(20))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00154}00154\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00155}00155\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a478f0c2c075116ec3f06b481bc02db0c}{sm\_actuals}}.wifi\_ip\_addr[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'})}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00156}00156\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(wifi\_ip,\ \mbox{\hyperlink{globals_8c_a478f0c2c075116ec3f06b481bc02db0c}{sm\_actuals}}.wifi\_ip\_addr,\ \textcolor{keyword}{sizeof}(wifi\_ip)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a478f0c2c075116ec3f06b481bc02db0c}{sm\_actuals}}.eth\_ip\_addr[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'}\ \&\&\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.has\_ethernet)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00158}00158\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(eth\_ip,\ \mbox{\hyperlink{globals_8c_a478f0c2c075116ec3f06b481bc02db0c}{sm\_actuals}}.eth\_ip\_addr,\ \textcolor{keyword}{sizeof}(eth\_ip)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00159}00159\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00161}00161\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}statemachine\_mutex\ not\ available\ for\ network\ info"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00165}00165\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00166}00166\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{network__functions_8c_af959a495a2955a3e222bd900387a5acc}{ping\_gateway}}())}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00167}00167\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00168}00168\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(ping\_result,\ \textcolor{keyword}{sizeof}(ping\_result),\ \textcolor{stringliteral}{"{}Gateway\ OK"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00169}00169\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00170}00170\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(ping\_result,\ \textcolor{keyword}{sizeof}(ping\_result),\ \textcolor{stringliteral}{"{}Gateway\ unreachable"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00174}00174\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ snprintf(buf,\ \textcolor{keyword}{sizeof}(buf),\ \textcolor{stringliteral}{"{}Wifi:\%s\(\backslash\)nEth:\%s\(\backslash\)n\%s"{}},\ wifi\_ip,\ eth\_ip,\ ping\_result);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ac8f93a894e4448f63378e8bbe195df1d}{i2c\_lcd\_write\_text}}(buf)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ write\ network\ info\ to\ LCD;\ marking\ LCD\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00184}00184\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Display\ 3\ -\/\ Statemachine\ state}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00186}00186\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_a4d2628d9853ed04094e95b9d7aa561a9}{build\_sm\_actuals\_buffer}}(buf,\ \textcolor{keyword}{sizeof}(buf));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00187}00187\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ac8f93a894e4448f63378e8bbe195df1d}{i2c\_lcd\_write\_text}}(buf)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00188}00188\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ write\ state\ info\ to\ LCD;\ marking\ LCD\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00192}00192\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00193}00193\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00196}00196\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Display\ 4\ -\/\ Sensors}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wait\ for\ sensor\ queues\ to\ be\ ready}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (!\mbox{\hyperlink{globals_8c_a15aa079749cb4983f369adc523d1aa2e}{sensors\_queues\_ready}})}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00200}00200\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Waiting\ for\ sensor\ queues\ to\ be\ ready..."{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00201}00201\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(50));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00203}00203\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a9b57f84a6a017690d8f551533fd01c7f}{sensor\_avg\_item\_size}}\ !=\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]))}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}sensor\_avg\_queue\ item\ size\ mismatch:\ expected\ \%zu\ got\ \%zu"{}},}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00207}00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]),\ \mbox{\hyperlink{globals_8c_a9b57f84a6a017690d8f551533fd01c7f}{sensor\_avg\_item\_size}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ skip\ sensor\ display\ but\ keep\ LCD\ alive}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00209}00209\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00210}00210\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ avg[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueuePeek(\mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}},\ avg,\ 0)\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ avg\ sensor\ queue;\ skipping\ sensor\ display"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ bus\ =\ 0;\ bus\ <\ \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}};\ bus++)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00220}00220\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ ch\ =\ 0;\ ch\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ ch++)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00222}00222\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00223}00223\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ active\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00224}00224\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}},\ pdMS\_TO\_TICKS(20))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00225}00225\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structbus__sensor__t}{bus\_sensor\_t}}\ *meta\ =\ (bus\ ==\ 0)\ ?\ \&\mbox{\hyperlink{globals_8c_af0e9d3e368300fd4059ea6757701fa1b}{bus0\_sensor\_settings}}[ch]\ :\ \&\mbox{\hyperlink{globals_8c_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\_sensor\_settings}}[ch];}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\ =\ (strcmp(meta-\/>\mbox{\hyperlink{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd}{type}},\ \textcolor{stringliteral}{"{}None"{}})\ !=\ 0);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00230}00230\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00231}00231\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00232}00232\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}sensor\_cfg\_mutex\ not\ available;\ assuming\ sensor\ active"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00233}00233\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ active\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00235}00235\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!active)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00238}00238\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_a82f87149db2db26c4b6ec16038b5f4db}{format\_sensor\_overview}}(buf,\ \textcolor{keyword}{sizeof}(buf),\ bus,\ ch,\ avg);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ac8f93a894e4448f63378e8bbe195df1d}{i2c\_lcd\_write\_text}}(buf)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ write\ sensor\ overview\ for\ b\%ds\%d;\ marking\ LCD\ unavailable"{}},\ bus,\ ch);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!lcd\_available)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00253}00253\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!lcd\_available)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ short\ delay\ before\ re-\/init\ attempts}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00257}00257\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00260}00260\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Display\ 5\ -\/\ Valve\ positions}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__lcd_8c_ae5e4b73813686ba9d070db7a1acad4c2}{build\_valve\_positions\_buffer}}(buf,\ \textcolor{keyword}{sizeof}(buf));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__lcd_8c_ac8f93a894e4448f63378e8bbe195df1d}{i2c\_lcd\_write\_text}}(buf)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ write\ valve\ positions\ to\ LCD;\ marking\ LCD\ unavailable"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ lcd\_available\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(500));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00268}00268\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00269}00269\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00270}00270\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00271}00271\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00272}00272\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00273}00273\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00274}00274\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ LCD\ not\ available:\ wait\ and\ retry\ init\ periodically}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LCD\ unavailable;\ retrying\ initialization\ in\ 30s"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(retry\_long\_delay);}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ next\ loop\ iteration\ will\ attempt\ init}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00278}00278\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00279}00279\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__lcd_8c_source_l00280}00280\ \}}
+
+\end{DoxyCode}

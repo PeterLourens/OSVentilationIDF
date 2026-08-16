@@ -1,0 +1,275 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/statemachine.c File Reference}
+\hypertarget{statemachine_8c}{}\label{statemachine_8c}\index{/home/peter/Development/OSVentilationIDF/main/statemachine.c@{/home/peter/Development/OSVentilationIDF/main/statemachine.c}}
+
+
+State machine runtime logic and state transition entry points.  
+
+
+{\ttfamily \#include "{}statemachine.\+h"{}}\newline
+Include dependency graph for statemachine.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{statemachine_8c_a698cd211faae13ee7a85f1d740e1d5e0}{init\+\_\+statemachine}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a0e57b192099637ff71dcf0df93d2c9cb}{run\+\_\+statemachine}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_ac7817c714014d0321178c1f12525f62d}{stopped\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_afbcb951eafe0c095eb8865f0066f7569}{init\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a70e9a63327dc20eabea333778b0febb7}{day\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_ad989b23a20167360aff86705466f34c3}{night\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_ac8982f4a395dd06097567b94193407fa}{high\+\_\+co2\+\_\+day\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_ab8e691c384e136f8891465748b74054f}{high\+\_\+co2\+\_\+night\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a1aec138142e0672642fd887773a46698}{high\+\_\+rh\+\_\+day\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a829bf2433ddd5bfcc53d4017b7646c94}{high\+\_\+rh\+\_\+night\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_ac6c834acebafbafed3bf80728c5c27c2}{cooking\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a4b822387382783a61b4138654781681d}{valve\+\_\+cycle\+\_\+day\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a1064535029e730710fc47dacf68ed737}{valve\+\_\+cycle\+\_\+night\+\_\+transitions}} (void)
+\item 
+void \mbox{\hyperlink{statemachine_8c_a8940b8c0f871ea261398854e0216f053}{manual\+\_\+high\+\_\+speed\+\_\+transitions}} (void)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{statemachine_8c_a141cd44ed07defbb141d69c96e5ad599}{old\+\_\+time}} = 0
+\item 
+int \mbox{\hyperlink{statemachine_8c_aa97c7080953b1a37809879b21049d531}{elapsed\+\_\+time}} = 0
+\item 
+int \mbox{\hyperlink{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314}{co2\+\_\+sensor\+\_\+counter}} = 0
+\item 
+int \mbox{\hyperlink{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413}{rh\+\_\+sensor\+\_\+counter}} = 0
+\item 
+\mbox{\hyperlink{structCO2__Sensors__t}{CO2\+\_\+\+Sensors\+\_\+t}} \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\+\_\+sensors}} \mbox{[}\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\+\_\+\+SENSORS}}\mbox{]} = \{\}
+\item 
+\mbox{\hyperlink{structRH__Sensors__t}{RH\+\_\+\+Sensors\+\_\+t}} \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\+\_\+sensors}} \mbox{[}\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\+\_\+\+SENSORS}}\mbox{]} = \{\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+State machine runtime logic and state transition entry points. 
+
+
+
+Definition in file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{statemachine_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{statemachine_8c_ac6c834acebafbafed3bf80728c5c27c2}\index{statemachine.c@{statemachine.c}!cooking\_transitions@{cooking\_transitions}}
+\index{cooking\_transitions@{cooking\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{cooking\_transitions()}{cooking\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_ac6c834acebafbafed3bf80728c5c27c2} 
+void cooking\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l01264}{1264}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a70e9a63327dc20eabea333778b0febb7}\index{statemachine.c@{statemachine.c}!day\_transitions@{day\_transitions}}
+\index{day\_transitions@{day\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{day\_transitions()}{day\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a70e9a63327dc20eabea333778b0febb7} 
+void day\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00175}{175}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_ac8982f4a395dd06097567b94193407fa}\index{statemachine.c@{statemachine.c}!high\_co2\_day\_transitions@{high\_co2\_day\_transitions}}
+\index{high\_co2\_day\_transitions@{high\_co2\_day\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{high\_co2\_day\_transitions()}{high\_co2\_day\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_ac8982f4a395dd06097567b94193407fa} 
+void high\+\_\+co2\+\_\+day\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00475}{475}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_ab8e691c384e136f8891465748b74054f}\index{statemachine.c@{statemachine.c}!high\_co2\_night\_transitions@{high\_co2\_night\_transitions}}
+\index{high\_co2\_night\_transitions@{high\_co2\_night\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{high\_co2\_night\_transitions()}{high\_co2\_night\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_ab8e691c384e136f8891465748b74054f} 
+void high\+\_\+co2\+\_\+night\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00689}{689}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a1aec138142e0672642fd887773a46698}\index{statemachine.c@{statemachine.c}!high\_rh\_day\_transitions@{high\_rh\_day\_transitions}}
+\index{high\_rh\_day\_transitions@{high\_rh\_day\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{high\_rh\_day\_transitions()}{high\_rh\_day\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a1aec138142e0672642fd887773a46698} 
+void high\+\_\+rh\+\_\+day\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00920}{920}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a829bf2433ddd5bfcc53d4017b7646c94}\index{statemachine.c@{statemachine.c}!high\_rh\_night\_transitions@{high\_rh\_night\_transitions}}
+\index{high\_rh\_night\_transitions@{high\_rh\_night\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{high\_rh\_night\_transitions()}{high\_rh\_night\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a829bf2433ddd5bfcc53d4017b7646c94} 
+void high\+\_\+rh\+\_\+night\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l01101}{1101}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a698cd211faae13ee7a85f1d740e1d5e0}\index{statemachine.c@{statemachine.c}!init\_statemachine@{init\_statemachine}}
+\index{init\_statemachine@{init\_statemachine}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{init\_statemachine()}{init\_statemachine()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a698cd211faae13ee7a85f1d740e1d5e0} 
+void init\+\_\+statemachine (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00056}{56}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_afbcb951eafe0c095eb8865f0066f7569}\index{statemachine.c@{statemachine.c}!init\_transitions@{init\_transitions}}
+\index{init\_transitions@{init\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{init\_transitions()}{init\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_afbcb951eafe0c095eb8865f0066f7569} 
+void init\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00146}{146}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a8940b8c0f871ea261398854e0216f053}\index{statemachine.c@{statemachine.c}!manual\_high\_speed\_transitions@{manual\_high\_speed\_transitions}}
+\index{manual\_high\_speed\_transitions@{manual\_high\_speed\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{manual\_high\_speed\_transitions()}{manual\_high\_speed\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a8940b8c0f871ea261398854e0216f053} 
+void manual\+\_\+high\+\_\+speed\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l01383}{1383}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_ad989b23a20167360aff86705466f34c3}\index{statemachine.c@{statemachine.c}!night\_transitions@{night\_transitions}}
+\index{night\_transitions@{night\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{night\_transitions()}{night\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_ad989b23a20167360aff86705466f34c3} 
+void night\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00328}{328}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a0e57b192099637ff71dcf0df93d2c9cb}\index{statemachine.c@{statemachine.c}!run\_statemachine@{run\_statemachine}}
+\index{run\_statemachine@{run\_statemachine}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{run\_statemachine()}{run\_statemachine()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a0e57b192099637ff71dcf0df93d2c9cb} 
+void run\+\_\+statemachine (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00072}{72}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_ac7817c714014d0321178c1f12525f62d}\index{statemachine.c@{statemachine.c}!stopped\_transitions@{stopped\_transitions}}
+\index{stopped\_transitions@{stopped\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{stopped\_transitions()}{stopped\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_ac7817c714014d0321178c1f12525f62d} 
+void stopped\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00131}{131}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a4b822387382783a61b4138654781681d}\index{statemachine.c@{statemachine.c}!valve\_cycle\_day\_transitions@{valve\_cycle\_day\_transitions}}
+\index{valve\_cycle\_day\_transitions@{valve\_cycle\_day\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{valve\_cycle\_day\_transitions()}{valve\_cycle\_day\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a4b822387382783a61b4138654781681d} 
+void valve\+\_\+cycle\+\_\+day\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l01321}{1321}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a1064535029e730710fc47dacf68ed737}\index{statemachine.c@{statemachine.c}!valve\_cycle\_night\_transitions@{valve\_cycle\_night\_transitions}}
+\index{valve\_cycle\_night\_transitions@{valve\_cycle\_night\_transitions}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{valve\_cycle\_night\_transitions()}{valve\_cycle\_night\_transitions()}}
+{\footnotesize\ttfamily \label{statemachine_8c_a1064535029e730710fc47dacf68ed737} 
+void valve\+\_\+cycle\+\_\+night\+\_\+transitions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l01353}{1353}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{statemachine_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314}\index{statemachine.c@{statemachine.c}!co2\_sensor\_counter@{co2\_sensor\_counter}}
+\index{co2\_sensor\_counter@{co2\_sensor\_counter}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{co2\_sensor\_counter}{co2\_sensor\_counter}}
+{\footnotesize\ttfamily \label{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314} 
+int co2\+\_\+sensor\+\_\+counter = 0}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00018}{18}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}\index{statemachine.c@{statemachine.c}!co2\_sensors@{co2\_sensors}}
+\index{co2\_sensors@{co2\_sensors}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{co2\_sensors}{co2\_sensors}}
+{\footnotesize\ttfamily \label{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc} 
+\mbox{\hyperlink{structCO2__Sensors__t}{CO2\+\_\+\+Sensors\+\_\+t}} co2\+\_\+sensors\mbox{[}\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\+\_\+\+SENSORS}}\mbox{]} = \{\}}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00021}{21}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_aa97c7080953b1a37809879b21049d531}\index{statemachine.c@{statemachine.c}!elapsed\_time@{elapsed\_time}}
+\index{elapsed\_time@{elapsed\_time}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{elapsed\_time}{elapsed\_time}}
+{\footnotesize\ttfamily \label{statemachine_8c_aa97c7080953b1a37809879b21049d531} 
+int elapsed\+\_\+time = 0}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00017}{17}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a141cd44ed07defbb141d69c96e5ad599}\index{statemachine.c@{statemachine.c}!old\_time@{old\_time}}
+\index{old\_time@{old\_time}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{old\_time}{old\_time}}
+{\footnotesize\ttfamily \label{statemachine_8c_a141cd44ed07defbb141d69c96e5ad599} 
+int old\+\_\+time = 0}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00016}{16}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413}\index{statemachine.c@{statemachine.c}!rh\_sensor\_counter@{rh\_sensor\_counter}}
+\index{rh\_sensor\_counter@{rh\_sensor\_counter}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{rh\_sensor\_counter}{rh\_sensor\_counter}}
+{\footnotesize\ttfamily \label{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413} 
+int rh\+\_\+sensor\+\_\+counter = 0}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00019}{19}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+
+\Hypertarget{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}\index{statemachine.c@{statemachine.c}!rh\_sensors@{rh\_sensors}}
+\index{rh\_sensors@{rh\_sensors}!statemachine.c@{statemachine.c}}
+\doxysubsubsection{\texorpdfstring{rh\_sensors}{rh\_sensors}}
+{\footnotesize\ttfamily \label{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f} 
+\mbox{\hyperlink{structRH__Sensors__t}{RH\+\_\+\+Sensors\+\_\+t}} rh\+\_\+sensors\mbox{[}\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\+\_\+\+SENSORS}}\mbox{]} = \{\}}
+
+
+
+Definition at line \mbox{\hyperlink{statemachine_8c_source_l00022}{22}} of file \mbox{\hyperlink{statemachine_8c_source}{statemachine.\+c}}.
+

@@ -1,0 +1,153 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/logging.h File Reference}
+\hypertarget{logging_8h}{}\label{logging_8h}\index{/home/peter/Development/OSVentilationIDF/main/logging.h@{/home/peter/Development/OSVentilationIDF/main/logging.h}}
+
+
+Logging macros that forward formatted logs to syslog when enabled.  
+
+
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include "{}syslog.\+h"{}}\newline
+Include dependency graph for logging.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\+\_\+\+FORMAT\+\_\+\+AND\+\_\+\+SEND}}(tag,  level,  prefix,  fmt, ...)
+\item 
+\#define \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(tag,  fmt, ...)
+\item 
+\#define \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(tag,  fmt, ...)
+\item 
+\#define \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(tag,  fmt, ...)
+\item 
+\#define \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(tag,  fmt, ...)
+\item 
+\#define \mbox{\hyperlink{logging_8h_aaf89c0f81556cc8ef82b3912ef68a7ce}{LOGV}}(tag,  fmt, ...)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}{syslog\+\_\+enabled}}
+\begin{DoxyCompactList}\small\item\em Global flag enabling syslog forwarding of logs. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Logging macros that forward formatted logs to syslog when enabled. 
+
+
+
+Definition in file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{logging_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}\index{logging.h@{logging.h}!LOG\_FORMAT\_AND\_SEND@{LOG\_FORMAT\_AND\_SEND}}
+\index{LOG\_FORMAT\_AND\_SEND@{LOG\_FORMAT\_AND\_SEND}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOG\_FORMAT\_AND\_SEND}{LOG\_FORMAT\_AND\_SEND}}
+{\footnotesize\ttfamily \label{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697} 
+\#define LOG\+\_\+\+FORMAT\+\_\+\+AND\+\_\+\+SEND(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{level}{, }\item[{}]{prefix}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00023}{23}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+\Hypertarget{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}\index{logging.h@{logging.h}!LOGD@{LOGD}}
+\index{LOGD@{LOGD}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOGD}{LOGD}}
+{\footnotesize\ttfamily \label{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c} 
+\#define LOGD(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\_FORMAT\_AND\_SEND}}(tag,\ ESP\_LOG\_DEBUG,\ \textcolor{stringliteral}{"{}DEBUG"{}},\ fmt,\ \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00075}{75}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+\Hypertarget{logging_8h_a2704585717c3309ece5ec541ed1aabc1}\index{logging.h@{logging.h}!LOGE@{LOGE}}
+\index{LOGE@{LOGE}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOGE}{LOGE}}
+{\footnotesize\ttfamily \label{logging_8h_a2704585717c3309ece5ec541ed1aabc1} 
+\#define LOGE(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\_FORMAT\_AND\_SEND}}(tag,\ ESP\_LOG\_ERROR,\ \textcolor{stringliteral}{"{}ERROR"{}},\ fmt,\ \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00072}{72}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+\Hypertarget{logging_8h_a90dca01b8743434fbdaf72c69d03a139}\index{logging.h@{logging.h}!LOGI@{LOGI}}
+\index{LOGI@{LOGI}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOGI}{LOGI}}
+{\footnotesize\ttfamily \label{logging_8h_a90dca01b8743434fbdaf72c69d03a139} 
+\#define LOGI(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\_FORMAT\_AND\_SEND}}(tag,\ ESP\_LOG\_INFO,\ \textcolor{stringliteral}{"{}INFO"{}},\ fmt,\ \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00074}{74}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+\Hypertarget{logging_8h_aaf89c0f81556cc8ef82b3912ef68a7ce}\index{logging.h@{logging.h}!LOGV@{LOGV}}
+\index{LOGV@{LOGV}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOGV}{LOGV}}
+{\footnotesize\ttfamily \label{logging_8h_aaf89c0f81556cc8ef82b3912ef68a7ce} 
+\#define LOGV(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\_FORMAT\_AND\_SEND}}(tag,\ ESP\_LOG\_VERBOSE,\ \textcolor{stringliteral}{"{}VERBOSE"{}},\ fmt,\ \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00076}{76}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+\Hypertarget{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}\index{logging.h@{logging.h}!LOGW@{LOGW}}
+\index{LOGW@{LOGW}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{LOGW}{LOGW}}
+{\footnotesize\ttfamily \label{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1} 
+\#define LOGW(\begin{DoxyParamCaption}\item[{}]{tag}{, }\item[{}]{fmt}{, }\item[{}]{}...{}\end{DoxyParamCaption})}
+
+{\bfseries Value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\mbox{\hyperlink{logging_8h_adbd4a1bb7a8f628e853617d8d7bab697}{LOG\_FORMAT\_AND\_SEND}}(tag,\ ESP\_LOG\_WARN,\ \textcolor{stringliteral}{"{}WARN"{}},\ fmt,\ \#\#\_\_VA\_ARGS\_\_)}
+
+\end{DoxyCode}
+
+
+Definition at line \mbox{\hyperlink{logging_8h_source_l00073}{73}} of file \mbox{\hyperlink{logging_8h_source}{logging.\+h}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{logging_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}\index{logging.h@{logging.h}!syslog\_enabled@{syslog\_enabled}}
+\index{syslog\_enabled@{syslog\_enabled}!logging.h@{logging.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_enabled}{syslog\_enabled}}
+{\footnotesize\ttfamily \label{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8} 
+bool syslog\+\_\+enabled\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Global flag enabling syslog forwarding of logs. 
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00031}{31}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+

@@ -1,0 +1,83 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/stats\+\_\+worker.c File Reference}
+\hypertarget{stats__worker_8c}{}\label{stats__worker_8c}\index{/home/peter/Development/OSVentilationIDF/main/stats\_worker.c@{/home/peter/Development/OSVentilationIDF/main/stats\_worker.c}}
+
+
+Background worker for stats requests and Web\+Socket statistics publishing.  
+
+
+{\ttfamily \#include "{}stats\+\_\+worker.\+h"{}}\newline
+Include dependency graph for stats\+\_\+worker.\+c\+:
+% FIG 0
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{stats__worker_8c_a682178f92b58195793bd4a5ed8706b42}{STATS\+\_\+\+WORKER\+\_\+\+STACK}}~4096
+\item 
+\#define \mbox{\hyperlink{stats__worker_8c_aa8176959fadb86797662d43b43042eb9}{STATS\+\_\+\+WORKER\+\_\+\+PRIO}}~5
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{stats__worker_8c_ac0a1577cfaebd5f03932cd0eb3acb629}{stats\+\_\+worker\+\_\+init}} (void)
+\item 
+bool \mbox{\hyperlink{stats__worker_8c_ab954397048020baafd42e0b595962bd2}{stats\+\_\+worker\+\_\+request}} (const char \texorpdfstring{$\ast$}{*}cmd)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Background worker for stats requests and Web\+Socket statistics publishing. 
+
+
+
+Definition in file \mbox{\hyperlink{stats__worker_8c_source}{stats\+\_\+worker.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{stats__worker_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{stats__worker_8c_aa8176959fadb86797662d43b43042eb9}\index{stats\_worker.c@{stats\_worker.c}!STATS\_WORKER\_PRIO@{STATS\_WORKER\_PRIO}}
+\index{STATS\_WORKER\_PRIO@{STATS\_WORKER\_PRIO}!stats\_worker.c@{stats\_worker.c}}
+\doxysubsubsection{\texorpdfstring{STATS\_WORKER\_PRIO}{STATS\_WORKER\_PRIO}}
+{\footnotesize\ttfamily \label{stats__worker_8c_aa8176959fadb86797662d43b43042eb9} 
+\#define STATS\+\_\+\+WORKER\+\_\+\+PRIO~5}
+
+
+
+Definition at line \mbox{\hyperlink{stats__worker_8c_source_l00016}{16}} of file \mbox{\hyperlink{stats__worker_8c_source}{stats\+\_\+worker.\+c}}.
+
+\Hypertarget{stats__worker_8c_a682178f92b58195793bd4a5ed8706b42}\index{stats\_worker.c@{stats\_worker.c}!STATS\_WORKER\_STACK@{STATS\_WORKER\_STACK}}
+\index{STATS\_WORKER\_STACK@{STATS\_WORKER\_STACK}!stats\_worker.c@{stats\_worker.c}}
+\doxysubsubsection{\texorpdfstring{STATS\_WORKER\_STACK}{STATS\_WORKER\_STACK}}
+{\footnotesize\ttfamily \label{stats__worker_8c_a682178f92b58195793bd4a5ed8706b42} 
+\#define STATS\+\_\+\+WORKER\+\_\+\+STACK~4096}
+
+
+
+Definition at line \mbox{\hyperlink{stats__worker_8c_source_l00015}{15}} of file \mbox{\hyperlink{stats__worker_8c_source}{stats\+\_\+worker.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{stats__worker_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{stats__worker_8c_ac0a1577cfaebd5f03932cd0eb3acb629}\index{stats\_worker.c@{stats\_worker.c}!stats\_worker\_init@{stats\_worker\_init}}
+\index{stats\_worker\_init@{stats\_worker\_init}!stats\_worker.c@{stats\_worker.c}}
+\doxysubsubsection{\texorpdfstring{stats\_worker\_init()}{stats\_worker\_init()}}
+{\footnotesize\ttfamily \label{stats__worker_8c_ac0a1577cfaebd5f03932cd0eb3acb629} 
+void stats\+\_\+worker\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{stats__worker_8c_source_l00049}{49}} of file \mbox{\hyperlink{stats__worker_8c_source}{stats\+\_\+worker.\+c}}.
+
+\Hypertarget{stats__worker_8c_ab954397048020baafd42e0b595962bd2}\index{stats\_worker.c@{stats\_worker.c}!stats\_worker\_request@{stats\_worker\_request}}
+\index{stats\_worker\_request@{stats\_worker\_request}!stats\_worker.c@{stats\_worker.c}}
+\doxysubsubsection{\texorpdfstring{stats\_worker\_request()}{stats\_worker\_request()}}
+{\footnotesize\ttfamily \label{stats__worker_8c_ab954397048020baafd42e0b595962bd2} 
+bool stats\+\_\+worker\+\_\+request (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{cmd}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{stats__worker_8c_source_l00062}{62}} of file \mbox{\hyperlink{stats__worker_8c_source}{stats\+\_\+worker.\+c}}.
+

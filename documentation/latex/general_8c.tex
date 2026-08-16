@@ -1,0 +1,313 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/general.c File Reference}
+\hypertarget{general_8c}{}\label{general_8c}\index{/home/peter/Development/OSVentilationIDF/main/general.c@{/home/peter/Development/OSVentilationIDF/main/general.c}}
+
+
+General utility functions for system initialization and runtime helpers.  
+
+
+{\ttfamily \#include "{}general.\+h"{}}\newline
+Include dependency graph for general.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{general_8c_acae851b7d5bb3f90f1584d6ae457cc48}{state\+\_\+nr\+\_\+to\+\_\+str}} (\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}} state)
+\begin{DoxyCompactList}\small\item\em Convert a statemachine state enum to a human-\/readable string. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{general_8c_acd9bcc7936989793ed3455e3992fdd22}{fan\+\_\+speed\+\_\+to\+\_\+str}} (\mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}} f)
+\begin{DoxyCompactList}\small\item\em Convert a fan speed enum to a human-\/readable string. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{general_8c_a1ad3d847e3f03fa2b786624e78a16b08}{init\+\_\+nvs}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the NVS partition used for configuration storage. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{general_8c_ab7d13c3b82fb1474e464782d00de491c}{init\+\_\+littlefs}} (void)
+\begin{DoxyCompactList}\small\item\em Mount the Little\+FS partition used for runtime JSON and persistent data. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\+\_\+file}} (const char \texorpdfstring{$\ast$}{*}path, char \texorpdfstring{$\ast$}{*}buffer, size\+\_\+t buffer\+Size)
+\begin{DoxyCompactList}\small\item\em Read the contents of a file into a buffer and null-\/terminate it. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{general_8c_a961e4f91906bb550ca850594eb8a5033}{create\+\_\+mutexes}} (void)
+\begin{DoxyCompactList}\small\item\em Create global mutexes used by runtime configuration and tasks. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_aacd5bb470555f61358c21f9ba138068f}{init\+\_\+timezone}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the runtime timezone from the loaded time configuration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a92231c5baf01ef89de17130c220cffae}{formatted\+\_\+uptime}} (char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t bufsize)
+\begin{DoxyCompactList}\small\item\em Format the current uptime into a human-\/readable string. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a17a42747791f295ff5825b19d4d0bc73}{formatted\+\_\+daydatetime}} (char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t bufsize)
+\begin{DoxyCompactList}\small\item\em Format the current local date and time including weekday abbreviation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a2af39f4ace3105d51da3c357ecb058d4}{formatted\+\_\+datetime}} (char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t bufsize)
+\begin{DoxyCompactList}\small\item\em Format the current local date and time without weekday text. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a2d0208dd7c43529fcddb5d087c0c40c1}{formatted\+\_\+day}} (char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t bufsize)
+\begin{DoxyCompactList}\small\item\em Format the current local weekday name. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a484896840cdb7f6931727f02b8610e5b}{set\+\_\+log\+\_\+levels}} (void)
+\begin{DoxyCompactList}\small\item\em Configure ESP log levels for firmware subsystems. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{general_8c_a227adedc30c16342fe127b37016a42d9}{print\+\_\+html\+\_\+file}} (const char \texorpdfstring{$\ast$}{*}filepath)
+\begin{DoxyCompactList}\small\item\em Print an HTML file to the console for debugging purposes. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+General utility functions for system initialization and runtime helpers. 
+
+This module provides NVS/\+Little\+FS initialization, shared mutex creation, formatted date/time helpers, and file I/O utilities used across the firmware. 
+
+Definition in file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{general_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{general_8c_a961e4f91906bb550ca850594eb8a5033}\index{general.c@{general.c}!create\_mutexes@{create\_mutexes}}
+\index{create\_mutexes@{create\_mutexes}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{create\_mutexes()}{create\_mutexes()}}
+{\footnotesize\ttfamily \label{general_8c_a961e4f91906bb550ca850594eb8a5033} 
+esp\+\_\+err\+\_\+t create\+\_\+mutexes (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Create global mutexes used by runtime configuration and tasks. 
+
+If any mutex creation fails, this function cleans up already-\/created mutexes to keep the system in a consistent state.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK when all mutexes were created, ESP\+\_\+\+FAIL otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00228}{228}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_acd9bcc7936989793ed3455e3992fdd22}\index{general.c@{general.c}!fan\_speed\_to\_str@{fan\_speed\_to\_str}}
+\index{fan\_speed\_to\_str@{fan\_speed\_to\_str}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{fan\_speed\_to\_str()}{fan\_speed\_to\_str()}}
+{\footnotesize\ttfamily \label{general_8c_acd9bcc7936989793ed3455e3992fdd22} 
+const char \texorpdfstring{$\ast$}{*} fan\+\_\+speed\+\_\+to\+\_\+str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}}}]{f}{}\end{DoxyParamCaption})}
+
+
+
+Convert a fan speed enum to a human-\/readable string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em f} & The fan speed enumeration to convert. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Constant string label for the requested fan speed. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00068}{68}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a2af39f4ace3105d51da3c357ecb058d4}\index{general.c@{general.c}!formatted\_datetime@{formatted\_datetime}}
+\index{formatted\_datetime@{formatted\_datetime}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{formatted\_datetime()}{formatted\_datetime()}}
+{\footnotesize\ttfamily \label{general_8c_a2af39f4ace3105d51da3c357ecb058d4} 
+void formatted\+\_\+datetime (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{bufsize}{}\end{DoxyParamCaption})}
+
+
+
+Format the current local date and time without weekday text. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the formatted date/time string. \\
+\hline
+{\em bufsize} & Size of {\ttfamily buf} in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00472}{472}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a2d0208dd7c43529fcddb5d087c0c40c1}\index{general.c@{general.c}!formatted\_day@{formatted\_day}}
+\index{formatted\_day@{formatted\_day}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{formatted\_day()}{formatted\_day()}}
+{\footnotesize\ttfamily \label{general_8c_a2d0208dd7c43529fcddb5d087c0c40c1} 
+void formatted\+\_\+day (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{bufsize}{}\end{DoxyParamCaption})}
+
+
+
+Format the current local weekday name. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the weekday string. \\
+\hline
+{\em bufsize} & Size of {\ttfamily buf} in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00490}{490}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a17a42747791f295ff5825b19d4d0bc73}\index{general.c@{general.c}!formatted\_daydatetime@{formatted\_daydatetime}}
+\index{formatted\_daydatetime@{formatted\_daydatetime}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{formatted\_daydatetime()}{formatted\_daydatetime()}}
+{\footnotesize\ttfamily \label{general_8c_a17a42747791f295ff5825b19d4d0bc73} 
+void formatted\+\_\+daydatetime (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{bufsize}{}\end{DoxyParamCaption})}
+
+
+
+Format the current local date and time including weekday abbreviation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the formatted date/time string. \\
+\hline
+{\em bufsize} & Size of {\ttfamily buf} in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00452}{452}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a92231c5baf01ef89de17130c220cffae}\index{general.c@{general.c}!formatted\_uptime@{formatted\_uptime}}
+\index{formatted\_uptime@{formatted\_uptime}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{formatted\_uptime()}{formatted\_uptime()}}
+{\footnotesize\ttfamily \label{general_8c_a92231c5baf01ef89de17130c220cffae} 
+void formatted\+\_\+uptime (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{bufsize}{}\end{DoxyParamCaption})}
+
+
+
+Format the current uptime into a human-\/readable string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the uptime string. \\
+\hline
+{\em bufsize} & Size of {\ttfamily buf} in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00434}{434}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_ab7d13c3b82fb1474e464782d00de491c}\index{general.c@{general.c}!init\_littlefs@{init\_littlefs}}
+\index{init\_littlefs@{init\_littlefs}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{init\_littlefs()}{init\_littlefs()}}
+{\footnotesize\ttfamily \label{general_8c_ab7d13c3b82fb1474e464782d00de491c} 
+esp\+\_\+err\+\_\+t init\+\_\+littlefs (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Mount the Little\+FS partition used for runtime JSON and persistent data. 
+
+This function registers the Little\+FS partition and logs partition usage after successfully mounting.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00123}{123}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a1ad3d847e3f03fa2b786624e78a16b08}\index{general.c@{general.c}!init\_nvs@{init\_nvs}}
+\index{init\_nvs@{init\_nvs}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{init\_nvs()}{init\_nvs()}}
+{\footnotesize\ttfamily \label{general_8c_a1ad3d847e3f03fa2b786624e78a16b08} 
+esp\+\_\+err\+\_\+t init\+\_\+nvs (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the NVS partition used for configuration storage. 
+
+If NVS requires erasing or upgrading, this function performs the necessary cleanup and retries initialization.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00093}{93}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_aacd5bb470555f61358c21f9ba138068f}\index{general.c@{general.c}!init\_timezone@{init\_timezone}}
+\index{init\_timezone@{init\_timezone}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{init\_timezone()}{init\_timezone()}}
+{\footnotesize\ttfamily \label{general_8c_aacd5bb470555f61358c21f9ba138068f} 
+void init\+\_\+timezone (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the runtime timezone from the loaded time configuration. 
+
+Reads the configured NTP server and timezone settings under mutex protection and configures the C runtime timezone environment. 
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00406}{406}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a227adedc30c16342fe127b37016a42d9}\index{general.c@{general.c}!print\_html\_file@{print\_html\_file}}
+\index{print\_html\_file@{print\_html\_file}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{print\_html\_file()}{print\_html\_file()}}
+{\footnotesize\ttfamily \label{general_8c_a227adedc30c16342fe127b37016a42d9} 
+void print\+\_\+html\+\_\+file (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{filepath}{}\end{DoxyParamCaption})}
+
+
+
+Print an HTML file to the console for debugging purposes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em filepath} & Path to the HTML file to print. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00598}{598}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a8424f992f15f195b9f82211a7399f59d}\index{general.c@{general.c}!read\_file@{read\_file}}
+\index{read\_file@{read\_file}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{read\_file()}{read\_file()}}
+{\footnotesize\ttfamily \label{general_8c_a8424f992f15f195b9f82211a7399f59d} 
+esp\+\_\+err\+\_\+t read\+\_\+file (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{buffer}{, }\item[{size\+\_\+t}]{buffer\+Size}{}\end{DoxyParamCaption})}
+
+
+
+Read the contents of a file into a buffer and null-\/terminate it. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Filesystem path to read. \\
+\hline
+{\em buffer} & Buffer to receive file contents. \\
+\hline
+{\em buffer\+Size} & Size of {\ttfamily buffer} in bytes. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00191}{191}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_a484896840cdb7f6931727f02b8610e5b}\index{general.c@{general.c}!set\_log\_levels@{set\_log\_levels}}
+\index{set\_log\_levels@{set\_log\_levels}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{set\_log\_levels()}{set\_log\_levels()}}
+{\footnotesize\ttfamily \label{general_8c_a484896840cdb7f6931727f02b8610e5b} 
+void set\+\_\+log\+\_\+levels (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Configure ESP log levels for firmware subsystems. 
+
+This helper sets default log severity levels for selected modules and reduces noise from less important subsystems. 
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00518}{518}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{general_8c_acae851b7d5bb3f90f1584d6ae457cc48}\index{general.c@{general.c}!state\_nr\_to\_str@{state\_nr\_to\_str}}
+\index{state\_nr\_to\_str@{state\_nr\_to\_str}!general.c@{general.c}}
+\doxysubsubsection{\texorpdfstring{state\_nr\_to\_str()}{state\_nr\_to\_str()}}
+{\footnotesize\ttfamily \label{general_8c_acae851b7d5bb3f90f1584d6ae457cc48} 
+const char \texorpdfstring{$\ast$}{*} state\+\_\+nr\+\_\+to\+\_\+str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}}}]{state}{}\end{DoxyParamCaption})}
+
+
+
+Convert a statemachine state enum to a human-\/readable string. 
+
+General utility declarations, ordered to match \doxylink{general_8c}{main/general.\+c}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em state} & The state enumeration to convert. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Constant string label for the requested state. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00025}{25}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+

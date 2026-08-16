@@ -1,0 +1,259 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/http\+\_\+helper.h File Reference}
+\hypertarget{http__helper_8h}{}\label{http__helper_8h}\index{/home/peter/Development/OSVentilationIDF/main/http\_helper.h@{/home/peter/Development/OSVentilationIDF/main/http\_helper.h}}
+
+
+Header for HTTP helper utilities\+: TAR response headers, atomic JSON writes, and log formatting.  
+
+
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+{\ttfamily \#include $<$c\+JSON.\+h$>$}\newline
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+attr.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+Include dependency graph for http\+\_\+helper.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structtar__header__t}{tar\+\_\+header\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em TAR header structure used for HTTP file downloads. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+size\+\_\+t \mbox{\hyperlink{http__helper_8h_a94f18a23cf6f6643effd2df2c0cb29d9}{remove\+\_\+ansi\+\_\+escape\+\_\+codes}} (const char \texorpdfstring{$\ast$}{*}, char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Remove ANSI escape sequences from a buffer. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{http__helper_8h_ae22982ee4c77cae0a413b9e7918e746b}{websocket\+\_\+log\+\_\+output}} (const char \texorpdfstring{$\ast$}{*}, va\+\_\+list)
+\begin{DoxyCompactList}\small\item\em Web\+Socket log printer used by the ESP log system. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{http__helper_8h_a072b5c6d8f22a7f7c4c539191c8f13a9}{uart\+\_\+log\+\_\+output}} (const char \texorpdfstring{$\ast$}{*}, va\+\_\+list)
+\begin{DoxyCompactList}\small\item\em UART log output helper that also writes to standard output. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{http__helper_8h_ac401e75b16a75b57d22558f86a9fdb71}{write\+\_\+json\+\_\+atomic\+\_\+fs}} (const char \texorpdfstring{$\ast$}{*}, c\+JSON \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Atomically write a c\+JSON object to a file by writing a temporary file and renaming it. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__helper_8h_ae8049a538be155ce23241691e2772325}{tar\+\_\+fill\+\_\+checksum}} (\mbox{\hyperlink{structtar__header__t}{tar\+\_\+header\+\_\+t}} \texorpdfstring{$\ast$}{*}hdr)
+\begin{DoxyCompactList}\small\item\em Compute the TAR checksum for a header block. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__helper_8h_afb3af713b48777bdf3b54ea719e70752}{tar\+\_\+write\+\_\+header}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req, const char \texorpdfstring{$\ast$}{*}filename, size\+\_\+t filesize)
+\begin{DoxyCompactList}\small\item\em Write a TAR file header into the HTTP response stream. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Header for HTTP helper utilities\+: TAR response headers, atomic JSON writes, and log formatting. 
+
+
+
+Definition in file \mbox{\hyperlink{http__helper_8h_source}{http\+\_\+helper.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{http__helper_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{http__helper_8h_a94f18a23cf6f6643effd2df2c0cb29d9}\index{http\_helper.h@{http\_helper.h}!remove\_ansi\_escape\_codes@{remove\_ansi\_escape\_codes}}
+\index{remove\_ansi\_escape\_codes@{remove\_ansi\_escape\_codes}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{remove\_ansi\_escape\_codes()}{remove\_ansi\_escape\_codes()}}
+{\footnotesize\ttfamily \label{http__helper_8h_a94f18a23cf6f6643effd2df2c0cb29d9} 
+size\+\_\+t remove\+\_\+ansi\+\_\+escape\+\_\+codes (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{input}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{output}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Remove ANSI escape sequences from a buffer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em input} & Source string containing ANSI codes. \\
+\hline
+{\em output} & Buffer to receive cleaned text. \\
+\hline
+{\em len} & Number of bytes available in input. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+size\+\_\+t Number of bytes written to output, excluding the terminating null.
+\end{DoxyReturn}
+Remove ANSI escape sequences from a buffer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em input} & Source buffer containing possible ANSI codes. \\
+\hline
+{\em output} & Destination buffer for cleaned text. \\
+\hline
+{\em len} & Length of source buffer in bytes. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+size\+\_\+t Number of bytes written to output excluding the terminating null. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00027}{27}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+
+\Hypertarget{http__helper_8h_ae8049a538be155ce23241691e2772325}\index{http\_helper.h@{http\_helper.h}!tar\_fill\_checksum@{tar\_fill\_checksum}}
+\index{tar\_fill\_checksum@{tar\_fill\_checksum}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{tar\_fill\_checksum()}{tar\_fill\_checksum()}}
+{\footnotesize\ttfamily \label{http__helper_8h_ae8049a538be155ce23241691e2772325} 
+void tar\+\_\+fill\+\_\+checksum (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtar__header__t}{tar\+\_\+header\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{hdr}{}\end{DoxyParamCaption})}
+
+
+
+Compute the TAR checksum for a header block. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hdr} & Pointer to the TAR header to checksum.\\
+\hline
+\end{DoxyParams}
+Compute the TAR checksum for a header block.
+
+
+\begin{DoxyParams}{Parameters}
+{\em hdr} & Pointer to the TAR header to checksum. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00172}{172}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+
+\Hypertarget{http__helper_8h_afb3af713b48777bdf3b54ea719e70752}\index{http\_helper.h@{http\_helper.h}!tar\_write\_header@{tar\_write\_header}}
+\index{tar\_write\_header@{tar\_write\_header}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{tar\_write\_header()}{tar\_write\_header()}}
+{\footnotesize\ttfamily \label{http__helper_8h_afb3af713b48777bdf3b54ea719e70752} 
+void tar\+\_\+write\+\_\+header (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{filename}{, }\item[{size\+\_\+t}]{filesize}{}\end{DoxyParamCaption})}
+
+
+
+Write a TAR file header into the HTTP response stream. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em req} & HTTP request handle. \\
+\hline
+{\em filename} & File name written into the TAR header. \\
+\hline
+{\em filesize} & Size of the file in bytes.\\
+\hline
+\end{DoxyParams}
+Write a TAR file header into the HTTP response stream.
+
+
+\begin{DoxyParams}{Parameters}
+{\em req} & HTTP request handle. \\
+\hline
+{\em filename} & Name to include in the TAR entry. \\
+\hline
+{\em filesize} & File size in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00191}{191}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+
+\Hypertarget{http__helper_8h_a072b5c6d8f22a7f7c4c539191c8f13a9}\index{http\_helper.h@{http\_helper.h}!uart\_log\_output@{uart\_log\_output}}
+\index{uart\_log\_output@{uart\_log\_output}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{uart\_log\_output()}{uart\_log\_output()}}
+{\footnotesize\ttfamily \label{http__helper_8h_a072b5c6d8f22a7f7c4c539191c8f13a9} 
+int uart\+\_\+log\+\_\+output (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{sz\+Format}{, }\item[{va\+\_\+list}]{args}{}\end{DoxyParamCaption})}
+
+
+
+UART log output helper that also writes to standard output. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Format} & Printf-\/style format string. \\
+\hline
+{\em args} & Variable argument list. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Always returns 0 on success.
+\end{DoxyReturn}
+UART log output helper that also writes to standard output.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sz\+Format} & Format string. \\
+\hline
+{\em args} & Variadic list of parameters. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Always returns 0. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00107}{107}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+
+\Hypertarget{http__helper_8h_ae22982ee4c77cae0a413b9e7918e746b}\index{http\_helper.h@{http\_helper.h}!websocket\_log\_output@{websocket\_log\_output}}
+\index{websocket\_log\_output@{websocket\_log\_output}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{websocket\_log\_output()}{websocket\_log\_output()}}
+{\footnotesize\ttfamily \label{http__helper_8h_ae22982ee4c77cae0a413b9e7918e746b} 
+int websocket\+\_\+log\+\_\+output (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{fmt}{, }\item[{va\+\_\+list}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Web\+Socket log printer used by the ESP log system. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em fmt} & Printf-\/style format string. \\
+\hline
+{\em args} & Variable argument list. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Number of characters formatted.
+\end{DoxyReturn}
+Web\+Socket log printer used by the ESP log system.
+
+
+\begin{DoxyParams}{Parameters}
+{\em fmt} & Format string. \\
+\hline
+{\em args} & Variadic list of parameters. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int Number of characters formatted. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00064}{64}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+
+\Hypertarget{http__helper_8h_ac401e75b16a75b57d22558f86a9fdb71}\index{http\_helper.h@{http\_helper.h}!write\_json\_atomic\_fs@{write\_json\_atomic\_fs}}
+\index{write\_json\_atomic\_fs@{write\_json\_atomic\_fs}!http\_helper.h@{http\_helper.h}}
+\doxysubsubsection{\texorpdfstring{write\_json\_atomic\_fs()}{write\_json\_atomic\_fs()}}
+{\footnotesize\ttfamily \label{http__helper_8h_ac401e75b16a75b57d22558f86a9fdb71} 
+bool write\+\_\+json\+\_\+atomic\+\_\+fs (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{path}{, }\item[{c\+JSON \texorpdfstring{$\ast$}{*}}]{root}{}\end{DoxyParamCaption})}
+
+
+
+Atomically write a c\+JSON object to a file by writing a temporary file and renaming it. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Destination file path. \\
+\hline
+{\em root} & c\+JSON object to serialize. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the write and rename succeeded, false otherwise.
+\end{DoxyReturn}
+Atomically write a c\+JSON object to a file by writing a temporary file and renaming it.
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Destination path for the JSON file. \\
+\hline
+{\em root} & c\+JSON object to serialize and write. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true on success, false on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__helper_8c_source_l00127}{127}} of file \mbox{\hyperlink{http__helper_8c_source}{http\+\_\+helper.\+c}}.
+

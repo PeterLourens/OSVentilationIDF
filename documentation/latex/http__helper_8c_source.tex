@@ -1,0 +1,172 @@
+\doxysection{http\+\_\+helper.\+c}
+\hypertarget{http__helper_8c_source}{}\label{http__helper_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/http\_helper.c@{/home/peter/Development/OSVentilationIDF/main/http\_helper.c}}
+\mbox{\hyperlink{http__helper_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__helper_8h}{http\_helper.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__uart__sender_8h}{task\_uart\_sender.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00015}00015\ \textcolor{comment}{//\ Used\ to\ concatenate\ two\ log\ lines\ of\ the\ log\ output}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00016}00016\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ ws\_prefix\_pending\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00017}00017\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ ws\_prefix\_buf[256];\ \textcolor{comment}{//\ holds\ prefix\ until\ message\ arrives}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00027}\mbox{\hyperlink{http__helper_8c_af7c67dd6dea889902e8cfa21fcf37b40}{00027}}\ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{http__helper_8c_af7c67dd6dea889902e8cfa21fcf37b40}{remove\_ansi\_escape\_codes}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *input,\ \textcolor{keywordtype}{char}\ *output,\ \textcolor{keywordtype}{size\_t}\ len)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00028}00028\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00029}00029\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ptr\_in\ =\ input;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00030}00030\ \ \ \ \ \textcolor{keywordtype}{char}\ *ptr\_out\ =\ output;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordflow}{while}\ (ptr\_in\ <\ input\ +\ len)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00033}00033\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00034}00034\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*ptr\_in\ ==\ \textcolor{charliteral}{'\(\backslash\)033'})}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00035}00035\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00036}00036\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Skip\ until\ 'm'\ or\ end}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00037}00037\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *esc\_end\ =\ strchr(ptr\_in,\ \textcolor{charliteral}{'m'});}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (esc\_end)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00039}00039\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00040}00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ptr\_in\ =\ esc\_end\ +\ 1;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};\ \textcolor{comment}{//\ malformed\ escape,\ stop}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ *ptr\_out++\ =\ *ptr\_in++;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00051}00051\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00053}00053\ \ \ \ \ *ptr\_out\ =\ \textcolor{charliteral}{'\(\backslash\)0'};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ null\ terminate}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00054}00054\ \ \ \ \ \textcolor{keywordflow}{return}\ (ptr\_out\ -\/\ output);\ \textcolor{comment}{//\ number\ of\ chars\ written}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00055}00055\ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00064}\mbox{\hyperlink{http__helper_8c_a74fca8c99366c1067a129e43858cf216}{00064}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{http__helper_8c_a74fca8c99366c1067a129e43858cf216}{websocket\_log\_output}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *fmt,\ va\_list\ args)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00065}00065\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00066}00066\ \ \ \ \ va\_list\ uart\_args;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00067}00067\ \ \ \ \ va\_copy(uart\_args,\ args);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00068}00068\ \ \ \ \ \mbox{\hyperlink{task__uart__sender_8c_ad27761c252a5dd886332658b5a010fd5}{uart\_log\_vprintf}}(fmt,\ uart\_args);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00069}00069\ \ \ \ \ va\_end(uart\_args);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00071}00071\ \ \ \ \ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ log\_print\_buffer[512];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00072}00072\ \ \ \ \ \textcolor{keywordtype}{int}\ ret\ =\ vsnprintf(log\_print\_buffer,\ \textcolor{keyword}{sizeof}(log\_print\_buffer),\ fmt,\ args);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00074}00074\ \ \ \ \ \textcolor{keywordflow}{if}\ (ret\ >\ 0)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00075}00075\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Strip\ ANSI\ codes\ for\ WebSocket}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ clean\_buf[512];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{http__helper_8c_af7c67dd6dea889902e8cfa21fcf37b40}{remove\_ansi\_escape\_codes}}(log\_print\_buffer,\ clean\_buf,\ ret);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Detect\ prefix\ vs\ message}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!ws\_prefix\_pending\ \&\&\ strstr(clean\_buf,\ \textcolor{stringliteral}{"{}:"{}}))}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Likely\ the\ prefix\ line\ (ends\ with\ "{}:"{})}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(ws\_prefix\_buf,\ clean\_buf,\ \textcolor{keyword}{sizeof}(ws\_prefix\_buf));}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ ws\_prefix\_pending\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (ws\_prefix\_pending)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Concatenate\ prefix\ +\ message}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ final\_buf[768];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ final\_len\ =\ snprintf(final\_buf,\ \textcolor{keyword}{sizeof}(final\_buf),\ \textcolor{stringliteral}{"{}\%s\ \%s"{}},\ ws\_prefix\_buf,\ clean\_buf);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{http__functions_8c_a98b3b9a15f61ddde482666cf2a899dac}{ws\_async\_send}}(final\_buf,\ final\_len);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ ws\_prefix\_pending\ =\ \textcolor{keyword}{false};\ \textcolor{comment}{//\ reset}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00096}00096\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00097}00097\ \ \ \ \ \textcolor{keywordflow}{return}\ ret;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00098}00098\ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00107}\mbox{\hyperlink{http__helper_8c_a9986801916eeb7b5b5482846ca951f01}{00107}}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{http__helper_8c_a9986801916eeb7b5b5482846ca951f01}{uart\_log\_output}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *szFormat,\ va\_list\ args)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00108}00108\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00109}00109\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{char}\ log\_print\_buffer[512];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00110}00110\ \ \ \ \ \textcolor{keywordtype}{int}\ ret\ =\ vsnprintf(log\_print\_buffer,\ \textcolor{keyword}{sizeof}(log\_print\_buffer),\ szFormat,\ args);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00111}00111\ \ \ \ \ \textcolor{keywordflow}{if}\ (ret\ >=\ 0)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00112}00112\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Also\ copy\ console\ to\ UART}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ printf(\textcolor{stringliteral}{"{}\%.*s"{}},\ ret,\ log\_print\_buffer);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00115}00115\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00116}00116\ \ \ \ \ \textcolor{keywordflow}{return}\ (0);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00117}00117\ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00118}00118\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00119}00119\ \textcolor{comment}{//\ atomic\ write\ helper\ —\ writes\ tmp\ -\/>\ rename}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00127}\mbox{\hyperlink{http__helper_8c_a92b5c252a3b33e0053a177bf5278fafc}{00127}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{http__helper_8c_a92b5c252a3b33e0053a177bf5278fafc}{write\_json\_atomic\_fs}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *path,\ cJSON\ *root)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00128}00128\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00129}00129\ \ \ \ \ \textcolor{keywordflow}{if}\ (!path\ ||\ !root)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00132}00132\ \ \ \ \ \textcolor{keywordtype}{char}\ tmp\_path[128];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00133}00133\ \ \ \ \ snprintf(tmp\_path,\ \textcolor{keyword}{sizeof}(tmp\_path),\ \textcolor{stringliteral}{"{}\%s.tmp"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00134}00134\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00135}00135\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}})}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00136}00136\ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00138}00138\ \ \ \ \ FILE\ *f\ =\ fopen(tmp\_path,\ \textcolor{stringliteral}{"{}w"{}});}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00139}00139\ \ \ \ \ \textcolor{keywordflow}{if}\ (!f)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00140}00140\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00141}00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}})}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00144}00144\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00145}00145\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00146}00146\ \ \ \ \ \textcolor{keywordtype}{char}\ *out\ =\ cJSON\_PrintUnformatted(root);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00147}00147\ \ \ \ \ \textcolor{keywordflow}{if}\ (!out)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00148}00148\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00149}00149\ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}})}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00153}00153\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00155}00155\ \ \ \ \ fwrite(out,\ 1,\ strlen(out),\ f);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00156}00156\ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00157}00157\ \ \ \ \ free(out);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00158}00158\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00159}00159\ \ \ \ \ \textcolor{keywordtype}{int}\ r\ =\ rename(tmp\_path,\ path);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00160}00160\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00161}00161\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}})}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00163}00163\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00164}00164\ \ \ \ \ \textcolor{keywordflow}{return}\ (r\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00165}00165\ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00172}\mbox{\hyperlink{http__helper_8c_ae8049a538be155ce23241691e2772325}{00172}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__helper_8c_ae8049a538be155ce23241691e2772325}{tar\_fill\_checksum}}(\mbox{\hyperlink{structtar__header__t}{tar\_header\_t}}\ *hdr)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00173}00173\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00174}00174\ \ \ \ \ memset(hdr-\/>\mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{chksum}},\ \textcolor{charliteral}{'\ '},\ 8);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00175}00175\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int}\ sum\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00176}00176\ \ \ \ \ \textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *p\ =\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char}\ *)hdr;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00177}00177\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ 512;\ i++)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ sum\ +=\ p[i];}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00179}00179\ \ \ \ \ snprintf(hdr-\/>\mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{chksum}},\ 8,\ \textcolor{stringliteral}{"{}\%06o"{}},\ sum);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00180}00180\ \ \ \ \ hdr-\/>\mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{chksum}}[6]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00181}00181\ \ \ \ \ hdr-\/>\mbox{\hyperlink{structtar__header__t_ad820026096d076f218f4718318971928}{chksum}}[7]\ =\ \textcolor{charliteral}{'\ '};}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00182}00182\ \}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00183}00183\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00191}\mbox{\hyperlink{http__helper_8c_afb3af713b48777bdf3b54ea719e70752}{00191}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__helper_8c_afb3af713b48777bdf3b54ea719e70752}{tar\_write\_header}}(httpd\_req\_t\ *req,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename,\ \textcolor{keywordtype}{size\_t}\ filesize)}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00192}00192\ \{}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00193}00193\ \ \ \ \ \mbox{\hyperlink{structtar__header__t}{tar\_header\_t}}\ hdr;}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00194}00194\ \ \ \ \ memset(\&hdr,\ 0,\ \textcolor{keyword}{sizeof}(hdr));}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00196}00196\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_ac2e82bd5ddcd7168f2089d4d70bc6bcb}{name}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_ac2e82bd5ddcd7168f2089d4d70bc6bcb}{name}}),\ \textcolor{stringliteral}{"{}\%s"{}},\ filename);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00197}00197\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_aa3b552a449d7673c127c37df7b11ee26}{mode}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_aa3b552a449d7673c127c37df7b11ee26}{mode}}),\ \textcolor{stringliteral}{"{}\%07o"{}},\ 0644);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00198}00198\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_a47fcb64efe4f50445cf1d069ddb3d849}{uid}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_a47fcb64efe4f50445cf1d069ddb3d849}{uid}}),\ \textcolor{stringliteral}{"{}\%07o"{}},\ 0);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00199}00199\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_abe16a9d4b3ff6da1e42a04eea1559e56}{gid}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_abe16a9d4b3ff6da1e42a04eea1559e56}{gid}}),\ \textcolor{stringliteral}{"{}\%07o"{}},\ 0);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00200}00200\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_afd232c6cd3078c67ece1c124dc9ed2ea}{size}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_afd232c6cd3078c67ece1c124dc9ed2ea}{size}}),\ \textcolor{stringliteral}{"{}\%011o"{}},\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int})filesize);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00201}00201\ \ \ \ \ snprintf(hdr.\mbox{\hyperlink{structtar__header__t_a4b61bab463342bcda086bc607c93b8b5}{mtime}},\ \textcolor{keyword}{sizeof}(hdr.\mbox{\hyperlink{structtar__header__t_a4b61bab463342bcda086bc607c93b8b5}{mtime}}),\ \textcolor{stringliteral}{"{}\%011o"{}},\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{int})time(NULL));}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00202}00202\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00203}00203\ \ \ \ \ memcpy(hdr.\mbox{\hyperlink{structtar__header__t_a7d23f43caa139f4beb6822c8fddf7ecd}{magic}},\ \textcolor{stringliteral}{"{}ustar"{}},\ 5);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00204}00204\ \ \ \ \ memcpy(hdr.\mbox{\hyperlink{structtar__header__t_a2919a22d5588768763ffd4ff57c27459}{version}},\ \textcolor{stringliteral}{"{}00"{}},\ 2);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00205}00205\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00206}00206\ \ \ \ \ hdr.\mbox{\hyperlink{structtar__header__t_ae3b026dfd91c3b3007fce3fc0fb20f1d}{typeflag}}\ =\ \textcolor{charliteral}{'0'};\ \textcolor{comment}{//\ regular\ file}}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00207}00207\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00208}00208\ \ \ \ \ \mbox{\hyperlink{http__helper_8c_ae8049a538be155ce23241691e2772325}{tar\_fill\_checksum}}(\&hdr);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00209}00209\ }
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00210}00210\ \ \ \ \ httpd\_resp\_send\_chunk(req,\ (\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *)\&hdr,\ 512);}
+\DoxyCodeLine{\Hypertarget{http__helper_8c_source_l00211}00211\ \}}
+
+\end{DoxyCode}

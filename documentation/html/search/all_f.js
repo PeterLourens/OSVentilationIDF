@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['r_0',['r',['../struct_color__t.html#a48c78ec6afac399fb7263f20cd46bf82',1,'Color_t']]],
+  ['r_0',['r',['../structColor__t.html#a48c78ec6afac399fb7263f20cd46bf82',1,'Color_t']]],
   ['read_5fds3231_5fdiagnostics_1',['read_ds3231_diagnostics',['../i2c__ds3231_8c.html#ad055aa3e6e97867469362898154ddd01',1,'read_ds3231_diagnostics(void):&#160;i2c_ds3231.c'],['../i2c__ds3231_8h.html#ad055aa3e6e97867469362898154ddd01',1,'read_ds3231_diagnostics(void):&#160;i2c_ds3231.c']]],
   ['read_5ffile_2',['read_file',['../general_8c.html#a8424f992f15f195b9f82211a7399f59d',1,'read_file(const char *path, char *buffer, size_t bufferSize):&#160;general.c'],['../general_8h.html#ab05f893105518ecca57c7c8ded081d27',1,'read_file(const char *, char *, size_t):&#160;general.c']]],
   ['read_5fsensors_5finto_5fqueue_3',['read_sensors_into_queue',['../i2c__sensors_8c.html#a8a473764f5efa100fa0ac4163c0ccf16',1,'read_sensors_into_queue(void):&#160;i2c_sensors.c'],['../i2c__sensors_8h.html#a8a473764f5efa100fa0ac4163c0ccf16',1,'read_sensors_into_queue(void):&#160;i2c_sensors.c']]],
@@ -17,13 +17,13 @@ var searchData=
   ['rgb_5fleds_2ec_14',['rgb_leds.c',['../rgb__leds_8c.html',1,'']]],
   ['rgb_5fleds_2eh_15',['rgb_leds.h',['../rgb__leds_8h.html',1,'']]],
   ['rh_5fenabled_16',['rh_enabled',['../structbus__sensor__t.html#a8b75d148c06d4f777dcd8481e929b974',1,'bus_sensor_t']]],
-  ['rh_5fhigh_5flevel_17',['rh_high_level',['../struct_statemachine__gen__config__t.html#ad92f858b3ca826a78531aebc224e6cc9',1,'Statemachine_gen_config_t']]],
-  ['rh_5flow_5flevel_18',['rh_low_level',['../struct_statemachine__gen__config__t.html#a6815aefb221dda1c9a2de8ff0cee390a',1,'Statemachine_gen_config_t']]],
-  ['rh_5freading_19',['rh_reading',['../struct_r_h___sensors__t.html#a0cc04794e6ef4ada003b47785776cdbd',1,'RH_Sensors_t']]],
+  ['rh_5fhigh_5flevel_17',['rh_high_level',['../structStatemachine__gen__config__t.html#ad92f858b3ca826a78531aebc224e6cc9',1,'Statemachine_gen_config_t']]],
+  ['rh_5flow_5flevel_18',['rh_low_level',['../structStatemachine__gen__config__t.html#a6815aefb221dda1c9a2de8ff0cee390a',1,'Statemachine_gen_config_t']]],
+  ['rh_5freading_19',['rh_reading',['../structRH__Sensors__t.html#a0cc04794e6ef4ada003b47785776cdbd',1,'RH_Sensors_t']]],
   ['rh_5fsensor_5fcounter_20',['rh_sensor_counter',['../statemachine_8c.html#a625b10d3484d91abd64e6186a2f1c413',1,'rh_sensor_counter:&#160;statemachine.c'],['../statemachine_8h.html#a625b10d3484d91abd64e6186a2f1c413',1,'rh_sensor_counter:&#160;statemachine.c']]],
   ['rh_5fsensors_21',['rh_sensors',['../statemachine_8c.html#a588c4e51136b5a9fb020ad97a777ce4f',1,'rh_sensors:&#160;statemachine.c'],['../statemachine_8h.html#a588c4e51136b5a9fb020ad97a777ce4f',1,'rh_sensors:&#160;statemachine.c']]],
-  ['rh_5fsensors_5fhigh_22',['rh_sensors_high',['../struct_statemachine__actuals__t.html#a60122c2e236c133b28673c6a955f863e',1,'Statemachine_actuals_t::rh_sensors_high'],['../statemachine_8h.html#a72319cef036fa6afe1acc923e6524102',1,'rh_sensors_high:&#160;statemachine.h']]],
-  ['rh_5fsensors_5ft_23',['RH_Sensors_t',['../struct_r_h___sensors__t.html',1,'']]],
+  ['rh_5fsensors_5fhigh_22',['rh_sensors_high',['../structStatemachine__actuals__t.html#a60122c2e236c133b28673c6a955f863e',1,'Statemachine_actuals_t::rh_sensors_high'],['../statemachine_8h.html#a72319cef036fa6afe1acc923e6524102',1,'rh_sensors_high:&#160;statemachine.h']]],
+  ['rh_5fsensors_5ft_23',['RH_Sensors_t',['../structRH__Sensors__t.html',1,'']]],
   ['rmt_5fresolution_5fhz_24',['RMT_RESOLUTION_HZ',['../rgb__leds_8h.html#aa2afe4e6527e6419ad167cb2526ff0b8',1,'rgb_leds.h']]],
   ['run_5fstatemachine_25',['run_statemachine',['../statemachine_8c.html#a0e57b192099637ff71dcf0df93d2c9cb',1,'run_statemachine(void):&#160;statemachine.c'],['../statemachine_8h.html#a0e57b192099637ff71dcf0df93d2c9cb',1,'run_statemachine(void):&#160;statemachine.c']]]
 ];

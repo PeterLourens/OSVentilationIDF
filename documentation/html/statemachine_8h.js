@@ -1,7 +1,7 @@
 var statemachine_8h =
 [
-    [ "CO2_Sensors_t", "struct_c_o2___sensors__t.html", "struct_c_o2___sensors__t" ],
-    [ "RH_Sensors_t", "struct_r_h___sensors__t.html", "struct_r_h___sensors__t" ],
+    [ "CO2_Sensors_t", "structCO2__Sensors__t.html", "structCO2__Sensors__t" ],
+    [ "RH_Sensors_t", "structRH__Sensors__t.html", "structRH__Sensors__t" ],
     [ "cooking_transitions", "statemachine_8h.html#ac6c834acebafbafed3bf80728c5c27c2", null ],
     [ "day_transitions", "statemachine_8h.html#a70e9a63327dc20eabea333778b0febb7", null ],
     [ "high_co2_day_transitions", "statemachine_8h.html#ac8982f4a395dd06097567b94193407fa", null ],

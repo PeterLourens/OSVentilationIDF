@@ -1,0 +1,42 @@
+\doxysection{http\+\_\+send\+\_\+ws\+\_\+data.\+h}
+\hypertarget{http__send__ws__data_8h_source}{}\label{http__send__ws__data_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/http\_send\_ws\_data.h@{/home/peter/Development/OSVentilationIDF/main/http\_send\_ws\_data.h}}
+\mbox{\hyperlink{http__send__ws__data_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ HTTP\_SEND\_WS\_DATA\_H}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ HTTP\_SEND\_WS\_DATA\_H}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00015}\mbox{\hyperlink{http__send__ws__data_8h_a6f5bb61a1b51d244d64ccf2694e89bc9}{00015}}\ \textcolor{preprocessor}{\#define\ DETAILS\_CHUNK\_SIZE\ 1024}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00016}\mbox{\hyperlink{http__send__ws__data_8h_a32284ba01b0fa5471e3f6b4834c97346}{00016}}\ \textcolor{preprocessor}{\#define\ MAX\_WS\_CLIENTS\_TRACK\ 16}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00017}00017\ \textcolor{comment}{//\ \#define\ ENABLE\_PER\_CONN\_RATE\_LIMIT\ 0\ //\ enable\ optional\ per-\/connection\ rate\ limiting\ (define\ before\ including\ this\ header)}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__functions_8h}{http\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}esp\_timer.h"{}}}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00033}00033\ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{http__send__ws__data_8h_acf8b5514eac8b9d835426b147a78ff25}{get\_cpu\_temp\_c}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00038}00038\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__send__ws__data_8h_af425c96b333925214c1cd7c33f7afcb8}{send\_index\_html\_ws}}(httpd\_req\_t\ *req);}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00043}00043\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__send__ws__data_8h_a7c51d727a5094ab8fd36467659197887}{send\_sensor\_config\_json\_ws}}(httpd\_req\_t\ *req);}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00048}00048\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__send__ws__data_8h_a5d78a80e24293843bed21badd1705eb5}{send\_config\_json\_ws}}(httpd\_req\_t\ *req);}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00053}00053\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__send__ws__data_8h_ae6c1bdb69807d479e461d402eeef70c4}{send\_statemachine\_config\_json\_ws}}(httpd\_req\_t\ *req);}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00058}00058\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__send__ws__data_8h_a1c43e7e23b509639add460b20512314e}{send\_stats\_json\_ws}}(httpd\_req\_t\ *req);}
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{http__send__ws__data_8h_source_l00060}00060\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

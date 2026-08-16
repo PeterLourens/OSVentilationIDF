@@ -1,0 +1,112 @@
+\doxysection{task\+\_\+i2c\+\_\+sensors.\+c}
+\hypertarget{task__i2c__sensors_8c_source}{}\label{task__i2c__sensors_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_sensors.c@{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_sensors.c}}
+\mbox{\hyperlink{task__i2c__sensors_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__i2c__sensors_8h}{task\_i2c\_sensors.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_i2c\_sensors"{}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ i2c\_sensors\_stack[5120];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ i2c\_sensors\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ i2c\_sensors\_stack\_size\ =\ 5120;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 5120\ words\ =\ 20.480\ KB}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00020}00020\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ uint8\_t\ sensor\_queue\_storage[1\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}])];}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00021}00021\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ uint8\_t\ sensor\_avg\_queue\_storage[1\ *\ \textcolor{keyword}{sizeof}(\textcolor{keywordtype}{float}[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}])];}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00023}\mbox{\hyperlink{task__i2c__sensors_8c_ae72869b6745c7a6abae9d7b98512c1a0}{00023}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__sensors_8c_ae72869b6745c7a6abae9d7b98512c1a0}{start\_task\_i2c\_sensors}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00024}00024\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00025}00025\ \ \ \ \ \mbox{\hyperlink{globals_8c_a2c4c07bdb3ef92721dbaf8c5943b0c4c}{task\_i2c\_sensors}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__i2c__sensors_8c_a16b7689a80a39d8a5de4e4d671d0bb98}{task\_i2c\_sensors\_code}},\ \textcolor{stringliteral}{"{}i2c\_sensors"{}},\ i2c\_sensors\_stack\_size,\ NULL,\ 6,\ i2c\_sensors\_stack,\ \&i2c\_sensors\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00026}00026\ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00028}\mbox{\hyperlink{task__i2c__sensors_8c_a16b7689a80a39d8a5de4e4d671d0bb98}{00028}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__sensors_8c_a16b7689a80a39d8a5de4e4d671d0bb98}{task\_i2c\_sensors\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00029}00029\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00030}00030\ \ \ \ \ esp\_err\_t\ err\ =\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00032}00032\ \ \ \ \ \textcolor{comment}{//\ Compute\ snapshot\ size\ (must\ match\ other\ modules)}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00033}00033\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ snap\_count\ =\ (size\_t)\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}\ *\ (\textcolor{keywordtype}{size\_t})\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}\ *\ (size\_t)\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00034}00034\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ snapshot\_bytes\ =\ \textcolor{keyword}{sizeof}(float)\ *\ snap\_count;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00036}00036\ \ \ \ \ \textcolor{comment}{//\ Record\ item\ size\ globally\ so\ other\ tasks\ can\ sanity-\/check\ before\ peeking}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00037}00037\ \ \ \ \ \mbox{\hyperlink{globals_8c_a9b57f84a6a017690d8f551533fd01c7f}{sensor\_avg\_item\_size}}\ =\ snapshot\_bytes;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00039}00039\ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}task\_i2c\_sensors:\ snapshot\_bytes=\%zu,\ free\_heap=\%u"{}},\ snapshot\_bytes,\ esp\_get\_free\_heap\_size());}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00041}00041\ \ \ \ \ \textcolor{comment}{//\ Static\ storage\ must\ match\ the\ snapshot\ layout\ exactly}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00042}00042\ \ \ \ \ \textcolor{keyword}{static}\ StaticQueue\_t\ sensor\_queue\_struct;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00043}00043\ \ \ \ \ \textcolor{keyword}{static}\ StaticQueue\_t\ sensor\_avg\_queue\_struct;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00045}00045\ \ \ \ \ \textcolor{comment}{//\ Create\ static\ queues\ (1\ slot\ each)\ to\ avoid\ large\ heap\ allocations}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00046}00046\ \ \ \ \ \mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}}\ =\ xQueueCreateStatic(1,\ snapshot\_bytes,\ sensor\_queue\_storage,\ \&sensor\_queue\_struct);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00048}00048\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00049}00049\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}xQueueCreateStatic(sensor\_queue)\ failed\ (item\ size=\%zu)\ free\_heap=\%u"{}},\ snapshot\_bytes,\ esp\_get\_free\_heap\_size());}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Terminate\ task\ cleanly;\ consumers\ will\ wait\ for\ readiness\ flag}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ vTaskDelete(NULL);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00054}00054\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00055}00055\ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}created\ static\ sensor\_queue,\ item\ size=\%zu"{}},\ snapshot\_bytes);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00057}00057\ \ \ \ \ \mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}}\ =\ xQueueCreateStatic(1,\ snapshot\_bytes,\ sensor\_avg\_queue\_storage,\ \&sensor\_avg\_queue\_struct);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00059}00059\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00060}00060\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}xQueueCreateStatic(sensor\_avg\_queue)\ failed\ (item\ size=\%zu)\ free\_heap=\%u"{}},\ snapshot\_bytes,\ esp\_get\_free\_heap\_size());}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Clean\ up\ previously\ created\ queue\ before\ exiting}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ vQueueDelete(\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ vTaskDelete(NULL);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00067}00067\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00068}00068\ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}created\ static\ sensor\_avg\_queue,\ item\ size=\%zu"{}},\ snapshot\_bytes);}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00070}00070\ \ \ \ \ \textcolor{comment}{//\ Signal\ readiness\ for\ consumers}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00071}00071\ \ \ \ \ \mbox{\hyperlink{globals_8c_a15aa079749cb4983f369adc523d1aa2e}{sensors\_queues\_ready}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00072}00072\ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}sensor\ queues\ ready"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00074}00074\ \ \ \ \ \textcolor{comment}{//\ Initialize\ both\ TCA9548A\ multiplexers\ (log\ but\ continue\ even\ if\ one\ fails)}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00075}00075\ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a1f979d728c9b17b94734d8666c38acd9}{i2c\_init\_tca9548}}(\mbox{\hyperlink{globals_8c_aefb351ec52ac77546d12f5dd1332c8b8}{i2c\_bus0\_handle}},\ \&\mbox{\hyperlink{globals_8c_abf2db498ee5bfc50c210a73d702b61fc}{tca9548\_bus0\_handle}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00076}00076\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00077}00077\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ TCA9548\ on\ bus\ 0:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00079}00079\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00080}00080\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00081}00081\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}TCA9548\ initialized\ on\ bus\ 0\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00083}00083\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00085}00085\ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a1f979d728c9b17b94734d8666c38acd9}{i2c\_init\_tca9548}}(\mbox{\hyperlink{globals_8c_a82c5c41e821bcf6357378e1c61702de0}{i2c\_bus1\_handle}},\ \&\mbox{\hyperlink{globals_8c_a064478940aa6735f7aa2c239c08f994c}{tca9548\_bus1\_handle}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00086}00086\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00087}00087\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ TCA9548\ on\ bus\ 1:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00089}00089\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00090}00090\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00091}00091\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}TCA9548\ initialized\ on\ bus\ 1\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00093}00093\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00095}00095\ \ \ \ \ \textcolor{comment}{//\ Main\ loop:\ read\ +\ average}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00096}00096\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00097}00097\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ DO\ NOT\ reinitialize\ sensors\ here\ —\ only\ read\ them}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00099}00099\ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__sensors_8c_a8a473764f5efa100fa0ac4163c0ccf16}{read\_sensors\_into\_queue}}();}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ sensors\ into\ queue:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__sensors_8c_a5b7307fab1bf8e372fcf6fb3103c90f7}{sensor\_data\_average}}();}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Read\ sensors\ every\ 5\ seconds}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00109}00109\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__sensors_8c_source_l00110}00110\ \}}
+
+\end{DoxyCode}

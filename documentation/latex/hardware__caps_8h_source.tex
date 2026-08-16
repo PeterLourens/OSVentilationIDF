@@ -1,0 +1,73 @@
+\doxysection{hardware\+\_\+caps.\+h}
+\hypertarget{hardware__caps_8h_source}{}\label{hardware__caps_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.h@{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.h}}
+\mbox{\hyperlink{hardware__caps_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00017}\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{00017}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00018}00018\ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00019}\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}{00019}}\ \ \ \ \ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}{HW\_VERSION\_2}}\ =\ 2,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00020}\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{00020}}\ \ \ \ \ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\_VERSION\_3}}\ =\ 3}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00021}00021\ \}\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\_version\_t}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00029}\mbox{\hyperlink{structhw__caps__t}{00029}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00030}00030\ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00031}\mbox{\hyperlink{structhw__caps__t_a8738813b77c7416bfa5fde9744c352c2}{00031}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structhw__caps__t_a8738813b77c7416bfa5fde9744c352c2}{has\_ethernet}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00032}\mbox{\hyperlink{structhw__caps__t_a7f2f7acd837df9dd7aea7312f0d57b42}{00032}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structhw__caps__t_a7f2f7acd837df9dd7aea7312f0d57b42}{has\_wifi\_led}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00033}\mbox{\hyperlink{structhw__caps__t_ad04bd487684f4f2b9e796495f3e2f99f}{00033}}\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structhw__caps__t_ad04bd487684f4f2b9e796495f3e2f99f}{has\_eth\_led}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00035}00035\ \ \ \ \ \textcolor{comment}{//\ LED\ pins}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00036}\mbox{\hyperlink{structhw__caps__t_a7a5bf7440e6333255821e03b2759fa60}{00036}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a7a5bf7440e6333255821e03b2759fa60}{pin\_wifi\_led}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00037}\mbox{\hyperlink{structhw__caps__t_a63784f41f32a95bc0335fa6f64566fc6}{00037}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a63784f41f32a95bc0335fa6f64566fc6}{pin\_eth\_led}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00039}00039\ \ \ \ \ \textcolor{comment}{//\ I2C\ hardware\ configuration}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00040}\mbox{\hyperlink{structhw__caps__t_ad9bea15585526fe562fbcc11625f5f9a}{00040}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ad9bea15585526fe562fbcc11625f5f9a}{i2c\_master\_bus0\_sda\_io}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00041}\mbox{\hyperlink{structhw__caps__t_adf28f51e17939aa7b4a5a34509a76e9a}{00041}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_adf28f51e17939aa7b4a5a34509a76e9a}{i2c\_master\_bus0\_scl\_io}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00042}\mbox{\hyperlink{structhw__caps__t_ab86e13f47480e42fc1f3fc724044a704}{00042}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ab86e13f47480e42fc1f3fc724044a704}{i2c\_master\_bus1\_sda\_io}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00043}\mbox{\hyperlink{structhw__caps__t_ada94c20733532f4cfc8f057b07cfcc3c}{00043}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ada94c20733532f4cfc8f057b07cfcc3c}{i2c\_master\_bus1\_scl\_io}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00045}00045\ \ \ \ \ \textcolor{comment}{//\ Ethernet\ hardware\ configuration}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00046}\mbox{\hyperlink{structhw__caps__t_aa47aeb649bcb8017d4871fe243fc7e03}{00046}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_aa47aeb649bcb8017d4871fe243fc7e03}{w5500\_miso\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00047}\mbox{\hyperlink{structhw__caps__t_a98954590c9d0773c5f6d710293c00637}{00047}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a98954590c9d0773c5f6d710293c00637}{w5500\_mosi\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00048}\mbox{\hyperlink{structhw__caps__t_a36ee941071801efc232344849000fcb9}{00048}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a36ee941071801efc232344849000fcb9}{w5500\_sclk\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00049}\mbox{\hyperlink{structhw__caps__t_ade3f51ec65dc5afe7e354c3caa4196cc}{00049}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ade3f51ec65dc5afe7e354c3caa4196cc}{w5500\_cs\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00050}\mbox{\hyperlink{structhw__caps__t_ae4367a4e09b3718a37de240289be3209}{00050}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ae4367a4e09b3718a37de240289be3209}{w5500\_int\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00051}\mbox{\hyperlink{structhw__caps__t_a972311735457308ef94b68b2be1c9347}{00051}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a972311735457308ef94b68b2be1c9347}{w5500\_rst\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00053}00053\ \ \ \ \ \textcolor{comment}{//\ UART0\ hardware\ configuration}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00054}\mbox{\hyperlink{structhw__caps__t_a25472d0740080680495a0c276ef8bd59}{00054}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a25472d0740080680495a0c276ef8bd59}{uart0\_tx\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00055}\mbox{\hyperlink{structhw__caps__t_a4fa5d3cf1ce21b86da2e1ebc1d350a6f}{00055}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a4fa5d3cf1ce21b86da2e1ebc1d350a6f}{uart0\_rx\_gpio}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00057}00057\ \ \ \ \ \textcolor{comment}{//\ 74595\ pins\ circuit\ 1}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00058}\mbox{\hyperlink{structhw__caps__t_a7f7abc5e361d0381a71d725d0200c709}{00058}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a7f7abc5e361d0381a71d725d0200c709}{clockpin1}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00059}\mbox{\hyperlink{structhw__caps__t_ab8e7d3538e1c68ceeeb1b973a9f77e7c}{00059}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ab8e7d3538e1c68ceeeb1b973a9f77e7c}{latchpin1}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00060}\mbox{\hyperlink{structhw__caps__t_ab4c50913fa96ab56037ef4468a274571}{00060}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ab4c50913fa96ab56037ef4468a274571}{datapin1}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00061}00061\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00062}00062\ \ \ \ \ \textcolor{comment}{//\ 74595\ pins\ circuit\ 2}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00063}\mbox{\hyperlink{structhw__caps__t_a223f6f1f7310f7c341a35528073a8522}{00063}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a223f6f1f7310f7c341a35528073a8522}{clockpin2}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00064}\mbox{\hyperlink{structhw__caps__t_ac7a04e197019153b43e3d955ad8f6274}{00064}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ac7a04e197019153b43e3d955ad8f6274}{latchpin2}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00065}\mbox{\hyperlink{structhw__caps__t_a1582fcb2c157f1dfff8ae3b44f27086a}{00065}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a1582fcb2c157f1dfff8ae3b44f27086a}{datapin2}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00067}00067\ \ \ \ \ \textcolor{comment}{//\ RGB\ LEDs\ pin}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00068}\mbox{\hyperlink{structhw__caps__t_a6f34c280646c90af0a9464b2f4085d1c}{00068}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_a6f34c280646c90af0a9464b2f4085d1c}{rgb\_led\_pin}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00070}00070\ \ \ \ \ \textcolor{comment}{//\ Switches\ pins}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00071}\mbox{\hyperlink{structhw__caps__t_af21a917b2865b25f6fb88b29801d7fe9}{00071}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_af21a917b2865b25f6fb88b29801d7fe9}{switch1\_pin}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00072}\mbox{\hyperlink{structhw__caps__t_ad6a8adc742c452549af3e7c755b8c466}{00072}}\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structhw__caps__t_ad6a8adc742c452549af3e7c755b8c466}{switch2\_pin}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00074}00074\ \}\ \mbox{\hyperlink{structhw__caps__t}{hw\_caps\_t}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00079}00079\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\_version\_t}}\ \mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\_version}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00084}00084\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{structhw__caps__t}{hw\_caps\_t}}\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8h_source_l00089}00089\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{hardware__caps_8h_ae58df14f30461cb37e8607aca5522846}{hw\_init}}(\textcolor{keywordtype}{void});}
+
+\end{DoxyCode}

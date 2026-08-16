@@ -1,0 +1,34 @@
+\doxysection{mqtt\+\_\+handlers.\+c}
+\hypertarget{mqtt__handlers_8c_source}{}\label{mqtt__handlers_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/mqtt\_handlers.c@{/home/peter/Development/OSVentilationIDF/main/mqtt\_handlers.c}}
+\mbox{\hyperlink{mqtt__handlers_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mqtt__handlers_8h}{mqtt\_handlers.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00014}00014\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}mqtt\_handlers"{}};}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00021}\mbox{\hyperlink{mqtt_8h_a9e385175a1a9854600abcb8ef12abc56}{00021}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{mqtt__handlers_8c_a5296328a6374c77a2539ed17bab82d7c}{mqtt\_handle\_incoming}}(esp\_mqtt\_event\_handle\_t\ event)}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00022}00022\ \{}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00023}00023\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *topic\ =\ \textcolor{keyword}{event}-\/>topic;}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00024}00024\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *payload\ =\ \textcolor{keyword}{event}-\/>data;}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00025}00025\ \ \ \ \ \textcolor{keywordtype}{int}\ tlen\ =\ \textcolor{keyword}{event}-\/>topic\_len;}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00026}00026\ \ \ \ \ \textcolor{keywordtype}{int}\ plen\ =\ \textcolor{keyword}{event}-\/>data\_len;}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00028}00028\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}MQTT\ message\ received"{}});}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00029}00029\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Topic\ (\%d):\ \%.*s"{}},\ tlen,\ tlen,\ topic);}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00030}00030\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Payload\ (\%d):\ \%.*s"{}},\ plen,\ plen,\ payload);}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00031}00031\ }
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordflow}{if}\ (tlen\ ==\ strlen(\textcolor{stringliteral}{"{}zigbee2mqtt/Ventilation/action"{}})\ \&\&}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00033}00033\ \ \ \ \ \ \ \ \ strncmp(topic,\ \textcolor{stringliteral}{"{}zigbee2mqtt/Ventilation/action"{}},\ tlen)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00034}00034\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00035}00035\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_a1b7ed315c11d6726b5c6ae8eb7174d84}{statemachine\_set\_speed}}(payload,\ plen);}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00036}00036\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{mqtt__handlers_8c_source_l00037}00037\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,43 @@
+\doxysection{syslog.\+h}
+\hypertarget{syslog_8h_source}{}\label{syslog_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/syslog.h@{/home/peter/Development/OSVentilationIDF/main/syslog.h}}
+\mbox{\hyperlink{syslog_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ SYSLOG\_H}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ SYSLOG\_H}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <esp\_netif.h>}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <sys/socket.h>}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__functions_8h}{network\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00023}00023\ \textcolor{comment}{//\ Queue\ /\ worker\ configuration}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00024}\mbox{\hyperlink{syslog_8h_a4b9dec5bbecb4815a13be81a5e61b8aa}{00024}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_QUEUE\_LENGTH\ 64}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00025}\mbox{\hyperlink{syslog_8h_a3789d56554454c39a416b368eeeb7a8b}{00025}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_MAX\_LINE\_LEN\ 512}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00026}\mbox{\hyperlink{syslog_8h_a8421db09bcdd1d2eda90421d2c3ccf85}{00026}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_WORKER\_STACK\ 4096}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00027}\mbox{\hyperlink{syslog_8h_ad6259844e69f7260a58b73da723fd88e}{00027}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_WORKER\_PRIO\ 5}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00028}\mbox{\hyperlink{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43}{00028}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_SEND\_RETRIES\ 3}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00029}\mbox{\hyperlink{syslog_8h_a3b0b077cbe385058f258ac051ff57182}{00029}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_RETRY\_DELAY\_MS\ 500}}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00031}00031\ \textcolor{keyword}{extern}\ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{syslog_8c_a3ba8760c6d06f052277f059d6b2d2ab7}{g\_request\_syslog\_update}};}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00033}00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_a0b21c9808e4dbe22abd008367a1eaeef}{syslog\_send\_line}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00034}00034\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{syslog_8h_a5875aa075f63dd7b535ced071f751caf}{network\_wait\_for\_ip}}(\textcolor{keywordtype}{int},\ \textcolor{keywordtype}{int},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00035}00035\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_a96ec32e39db6dfc4b42d875e8f1c0416}{syslog\_enable}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00036}00036\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_a75c8a90b6c205d3df4c8dc0cc4fc2152}{syslog\_disable}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00037}00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_ab1e54a15fcb1206c48c501c107880ccf}{syslog\_queue\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00038}00038\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_a020c13fcbba60e55e063f099a00bea74}{syslog\_queue\_deinit}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00039}00039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8h_a1687dfe7b28a75c0dc10fe5e4bd0eb26}{syslog\_enqueue\_line}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *line);}
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{syslog_8h_source_l00041}00041\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

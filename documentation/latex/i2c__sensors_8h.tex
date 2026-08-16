@@ -1,0 +1,747 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/i2c\+\_\+sensors.h File Reference}
+\hypertarget{i2c__sensors_8h}{}\label{i2c__sensors_8h}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_sensors.h@{/home/peter/Development/OSVentilationIDF/main/i2c\_sensors.h}}
+
+
+Public sensor management interface for the OSVentilation I2C sensor subsystem.  
+
+
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/\+Free\+RTOS.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/task.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+rom\+\_\+sys.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+timer.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+attr.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}bme68x.\+h"{}}\newline
+{\ttfamily \#include "{}bme68x\+\_\+defs.\+h"{}}\newline
+Include dependency graph for i2c\+\_\+sensors.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_abda29d733834e7790037eb421603670e}{i2c\+\_\+init\+\_\+tca9548}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Initialize the TCA9548A multiplexer on the specified I2C bus. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a2182345fee381e19ee495847552ec28d}{i2c\+\_\+tca9548\+\_\+set\+\_\+channel}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Select a channel on the TCA9548A multiplexer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a29929dc11e94efd6b079cf26b62fab0c}{i2c\+\_\+aht20\+\_\+init}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Initialize an AHT20 sensor device on the I2C bus. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a2a7c67495178355eb985be0a23570dd3}{aht20\+\_\+read}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, float \texorpdfstring{$\ast$}{*}, float \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read temperature and humidity from an AHT20 sensor. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a65b8431c23fb20a4dbfa52766ae72f15}{i2c\+\_\+dht20\+\_\+init}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Initialize a DHT20 sensor device on the I2C bus. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a55dd84497a4250197fe27d48c5eac53a}{dht20\+\_\+read}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, float \texorpdfstring{$\ast$}{*}, float \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read temperature and humidity from a DHT20 sensor. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a2be33802b8c9056d35fad5e5faff7440}{i2c\+\_\+init\+\_\+scd41}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Initialize an SCD41 sensor device on the I2C bus. \end{DoxyCompactList}\item 
+uint8\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a9be15282c023bba4a96386c059945df2}{scd41\+\_\+crc8}} (const uint8\+\_\+t \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Compute SCD41 CRC8 for a buffer. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a448b637c3bd64a3c8d4135a546d079d4}{scd41\+\_\+data\+\_\+ready}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, bool \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Check whether SCD41 sensor data is ready. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_afa26a318014908cbf17b14fcbdbc066c}{scd41\+\_\+read}} (i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t, uint16\+\_\+t \texorpdfstring{$\ast$}{*}, float \texorpdfstring{$\ast$}{*}, float \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Read CO2, temperature, and humidity from an SCD41 sensor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__sensors_8h_a0803e5e96f23a910405971e7ef98c219}{is\+\_\+scd4x}} (const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Determine whether a sensor type string refers to an SCD4x sensor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__sensors_8h_af30baf60328e420e3abb5417b84f525c}{is\+\_\+aht20}} (const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Determine whether a sensor type string refers to an AHT20 sensor. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__sensors_8h_a3fde5cf9cf8b971f0e4b1128bb6aa271}{is\+\_\+dht20}} (const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Determine whether a sensor type string refers to a DHT20 sensor. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a7de69590ec0ef7c8fa3d288e84588426}{init\+\_\+sensors\+\_\+on\+\_\+mux\+\_\+channels}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize all configured sensors on their respective I2C multiplexer channels. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__sensors_8h_a7161a502b0d131a31da4e745e5f6f28f}{configured\+\_\+sensor}} (int, int)
+\begin{DoxyCompactList}\small\item\em Check whether a sensor is configured for the specified bus and slot. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__sensors_8h_ae345ac837521405237e7a870a12a5890}{sensor\+\_\+supports\+\_\+co2}} (int, int)
+\begin{DoxyCompactList}\small\item\em Check whether the configured sensor supports CO2 measurement. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__sensors_8h_a8a473764f5efa100fa0ac4163c0ccf16}{read\+\_\+sensors\+\_\+into\+\_\+queue}} (void)
+\begin{DoxyCompactList}\small\item\em Read all configured sensors and publish the latest values into the sensor queue. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__sensors_8h_aba8b1ecc3074f67f381df368f203e76f}{reload\+\_\+and\+\_\+init\+\_\+sensors}} (void)
+\begin{DoxyCompactList}\small\item\em Reload sensor configuration and initialize sensors based on the new settings. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__sensors_8h_af72040ee03c9d882a6993d0ebdc72b52}{preload\+\_\+sensor\+\_\+types\+\_\+from\+\_\+config}} (void)
+\begin{DoxyCompactList}\small\item\em Preload sensor type information from the configuration into local driver state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__sensors_8h_a5b7307fab1bf8e372fcf6fb3103c90f7}{sensor\+\_\+data\+\_\+average}} (void)
+\begin{DoxyCompactList}\small\item\em Compute moving averages for sensor data and publish average results into the average queue. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__sensors_8h_aea335ef5f60f80c8cc55caa662fa8bca}{fifo\+Push}} (int, int, int, float)
+\begin{DoxyCompactList}\small\item\em Push a new sensor measurement into the moving average FIFO. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public sensor management interface for the OSVentilation I2C sensor subsystem. 
+
+
+
+Definition in file \mbox{\hyperlink{i2c__sensors_8h_source}{i2c\+\_\+sensors.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{i2c__sensors_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{i2c__sensors_8h_a2a7c67495178355eb985be0a23570dd3}\index{i2c\_sensors.h@{i2c\_sensors.h}!aht20\_read@{aht20\_read}}
+\index{aht20\_read@{aht20\_read}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{aht20\_read()}{aht20\_read()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a2a7c67495178355eb985be0a23570dd3} 
+esp\+\_\+err\+\_\+t aht20\+\_\+read (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{temperature}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{humidity}{}\end{DoxyParamCaption})}
+
+
+
+Read temperature and humidity from an AHT20 sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em dev\+\_\+handle} & AHT20 device handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em temperature} & Measured temperature in degrees Celsius. \\
+\hline
+\mbox{\texttt{out}}  & {\em humidity} & Measured relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em dev\+\_\+handle} & AHT20 device handle. \\
+\hline
+{\em temperature} & Output temperature in degrees Celsius. \\
+\hline
+{\em humidity} & Output relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00281}{281}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a7161a502b0d131a31da4e745e5f6f28f}\index{i2c\_sensors.h@{i2c\_sensors.h}!configured\_sensor@{configured\_sensor}}
+\index{configured\_sensor@{configured\_sensor}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{configured\_sensor()}{configured\_sensor()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a7161a502b0d131a31da4e745e5f6f28f} 
+bool configured\+\_\+sensor (\begin{DoxyParamCaption}\item[{int}]{bus}{, }\item[{int}]{slot}{}\end{DoxyParamCaption})}
+
+
+
+Check whether a sensor is configured for the specified bus and slot. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus} & Bus index. \\
+\hline
+\mbox{\texttt{in}}  & {\em slot} & Channel slot index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if a sensor is configured and initialized.
+\end{DoxyReturn}
+Check whether a sensor is configured for the specified bus and slot.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus} & Bus index. \\
+\hline
+{\em slot} & Sensor slot index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if a valid sensor is configured. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00751}{751}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a55dd84497a4250197fe27d48c5eac53a}\index{i2c\_sensors.h@{i2c\_sensors.h}!dht20\_read@{dht20\_read}}
+\index{dht20\_read@{dht20\_read}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{dht20\_read()}{dht20\_read()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a55dd84497a4250197fe27d48c5eac53a} 
+esp\+\_\+err\+\_\+t dht20\+\_\+read (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{temperature}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{humidity}{}\end{DoxyParamCaption})}
+
+
+
+Read temperature and humidity from a DHT20 sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em dev\+\_\+handle} & DHT20 device handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em temperature} & Measured temperature in degrees Celsius. \\
+\hline
+\mbox{\texttt{out}}  & {\em humidity} & Measured relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em dev\+\_\+handle} & DHT20 device handle. \\
+\hline
+{\em temperature} & Output temperature in degrees Celsius. \\
+\hline
+{\em humidity} & Output relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00343}{343}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_aea335ef5f60f80c8cc55caa662fa8bca}\index{i2c\_sensors.h@{i2c\_sensors.h}!fifoPush@{fifoPush}}
+\index{fifoPush@{fifoPush}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{fifoPush()}{fifoPush()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_aea335ef5f60f80c8cc55caa662fa8bca} 
+void fifo\+Push (\begin{DoxyParamCaption}\item[{int}]{bus}{, }\item[{int}]{slot}{, }\item[{int}]{measurement}{, }\item[{float}]{value}{}\end{DoxyParamCaption})}
+
+
+
+Push a new sensor measurement into the moving average FIFO. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus} & I2C bus index. \\
+\hline
+\mbox{\texttt{in}}  & {\em slot} & Sensor slot index. \\
+\hline
+\mbox{\texttt{in}}  & {\em measurement} & Measurement index. \\
+\hline
+\mbox{\texttt{in}}  & {\em value} & Measurement value.\\
+\hline
+\end{DoxyParams}
+Push a new sensor measurement into the moving average FIFO.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus} & Bus index. \\
+\hline
+{\em slot} & Sensor slot index. \\
+\hline
+{\em measurement} & Measurement index within a sensor reading. \\
+\hline
+{\em value} & Measurement value to store. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00963}{963}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a29929dc11e94efd6b079cf26b62fab0c}\index{i2c\_sensors.h@{i2c\_sensors.h}!i2c\_aht20\_init@{i2c\_aht20\_init}}
+\index{i2c\_aht20\_init@{i2c\_aht20\_init}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_aht20\_init()}{i2c\_aht20\_init()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a29929dc11e94efd6b079cf26b62fab0c} 
+esp\+\_\+err\+\_\+t i2c\+\_\+aht20\+\_\+init (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize an AHT20 sensor device on the I2C bus. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em dev\+\_\+handle} & Device handle pointer to populate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+Initialize an AHT20 sensor device on the I2C bus.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+{\em dev\+\_\+handle} & Output pointer for the created sensor handle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00259}{259}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a65b8431c23fb20a4dbfa52766ae72f15}\index{i2c\_sensors.h@{i2c\_sensors.h}!i2c\_dht20\_init@{i2c\_dht20\_init}}
+\index{i2c\_dht20\_init@{i2c\_dht20\_init}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_dht20\_init()}{i2c\_dht20\_init()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a65b8431c23fb20a4dbfa52766ae72f15} 
+esp\+\_\+err\+\_\+t i2c\+\_\+dht20\+\_\+init (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize a DHT20 sensor device on the I2C bus. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em dev\+\_\+handle} & Device handle pointer to populate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+Initialize a DHT20 sensor device on the I2C bus.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+{\em dev\+\_\+handle} & Output pointer for the created sensor handle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00321}{321}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a2be33802b8c9056d35fad5e5faff7440}\index{i2c\_sensors.h@{i2c\_sensors.h}!i2c\_init\_scd41@{i2c\_init\_scd41}}
+\index{i2c\_init\_scd41@{i2c\_init\_scd41}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_init\_scd41()}{i2c\_init\_scd41()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a2be33802b8c9056d35fad5e5faff7440} 
+esp\+\_\+err\+\_\+t i2c\+\_\+init\+\_\+scd41 (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize an SCD41 sensor device on the I2C bus. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em dev\+\_\+handle} & Device handle pointer to populate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+Initialize an SCD41 sensor device on the I2C bus.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+{\em dev\+\_\+handle} & Output pointer for the created sensor handle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00394}{394}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_abda29d733834e7790037eb421603670e}\index{i2c\_sensors.h@{i2c\_sensors.h}!i2c\_init\_tca9548@{i2c\_init\_tca9548}}
+\index{i2c\_init\_tca9548@{i2c\_init\_tca9548}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_init\_tca9548()}{i2c\_init\_tca9548()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_abda29d733834e7790037eb421603670e} 
+esp\+\_\+err\+\_\+t i2c\+\_\+init\+\_\+tca9548 (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the TCA9548A multiplexer on the specified I2C bus. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus\+\_\+handle} & Handle to the I2C bus. \\
+\hline
+\mbox{\texttt{out}}  & {\em dev\+\_\+handle} & Pointer to receive the created device handle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Initialize the TCA9548A multiplexer on the specified I2C bus.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & Handle to the I2C bus. \\
+\hline
+{\em dev\+\_\+handle} & Output pointer for the created multiplexer device handle. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00065}{65}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a2182345fee381e19ee495847552ec28d}\index{i2c\_sensors.h@{i2c\_sensors.h}!i2c\_tca9548\_set\_channel@{i2c\_tca9548\_set\_channel}}
+\index{i2c\_tca9548\_set\_channel@{i2c\_tca9548\_set\_channel}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_tca9548\_set\_channel()}{i2c\_tca9548\_set\_channel()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a2182345fee381e19ee495847552ec28d} 
+esp\+\_\+err\+\_\+t i2c\+\_\+tca9548\+\_\+set\+\_\+channel (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{, }\item[{uint8\+\_\+t}]{channel}{}\end{DoxyParamCaption})}
+
+
+
+Select a channel on the TCA9548A multiplexer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em dev\+\_\+handle} & TCA9548A device handle. \\
+\hline
+\mbox{\texttt{in}}  & {\em channel} & Channel index (0-\/7). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+ARG if arguments are invalid.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em dev\+\_\+handle} & TCA9548A device handle. \\
+\hline
+{\em channel} & Channel index (0-\/7) to enable. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+ARG if invalid. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00094}{94}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a7de69590ec0ef7c8fa3d288e84588426}\index{i2c\_sensors.h@{i2c\_sensors.h}!init\_sensors\_on\_mux\_channels@{init\_sensors\_on\_mux\_channels}}
+\index{init\_sensors\_on\_mux\_channels@{init\_sensors\_on\_mux\_channels}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{init\_sensors\_on\_mux\_channels()}{init\_sensors\_on\_mux\_channels()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a7de69590ec0ef7c8fa3d288e84588426} 
+esp\+\_\+err\+\_\+t init\+\_\+sensors\+\_\+on\+\_\+mux\+\_\+channels (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize all configured sensors on their respective I2C multiplexer channels. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK if all configured sensors initialize successfully, or an error code otherwise.
+\end{DoxyReturn}
+Initialize all configured sensors on their respective I2C multiplexer channels.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK if all configured sensors initialize successfully, otherwise an error code. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00697}{697}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_af30baf60328e420e3abb5417b84f525c}\index{i2c\_sensors.h@{i2c\_sensors.h}!is\_aht20@{is\_aht20}}
+\index{is\_aht20@{is\_aht20}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{is\_aht20()}{is\_aht20()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_af30baf60328e420e3abb5417b84f525c} 
+bool is\+\_\+aht20 (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{type}{}\end{DoxyParamCaption})}
+
+
+
+Determine whether a sensor type string refers to an AHT20 sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches AHT20.
+\end{DoxyReturn}
+Determine whether a sensor type string refers to an AHT20 sensor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches AHT20. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00128}{128}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a3fde5cf9cf8b971f0e4b1128bb6aa271}\index{i2c\_sensors.h@{i2c\_sensors.h}!is\_dht20@{is\_dht20}}
+\index{is\_dht20@{is\_dht20}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{is\_dht20()}{is\_dht20()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a3fde5cf9cf8b971f0e4b1128bb6aa271} 
+bool is\+\_\+dht20 (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{type}{}\end{DoxyParamCaption})}
+
+
+
+Determine whether a sensor type string refers to a DHT20 sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches DHT20.
+\end{DoxyReturn}
+Determine whether a sensor type string refers to a DHT20 sensor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches DHT20. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00139}{139}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a0803e5e96f23a910405971e7ef98c219}\index{i2c\_sensors.h@{i2c\_sensors.h}!is\_scd4x@{is\_scd4x}}
+\index{is\_scd4x@{is\_scd4x}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{is\_scd4x()}{is\_scd4x()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a0803e5e96f23a910405971e7ef98c219} 
+bool is\+\_\+scd4x (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{type}{}\end{DoxyParamCaption})}
+
+
+
+Determine whether a sensor type string refers to an SCD4x sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches an SCD4x sensor.
+\end{DoxyReturn}
+Determine whether a sensor type string refers to an SCD4x sensor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em type} & Sensor type string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the type matches SCD40 or SCD41. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00117}{117}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_af72040ee03c9d882a6993d0ebdc72b52}\index{i2c\_sensors.h@{i2c\_sensors.h}!preload\_sensor\_types\_from\_config@{preload\_sensor\_types\_from\_config}}
+\index{preload\_sensor\_types\_from\_config@{preload\_sensor\_types\_from\_config}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{preload\_sensor\_types\_from\_config()}{preload\_sensor\_types\_from\_config()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_af72040ee03c9d882a6993d0ebdc72b52} 
+void preload\+\_\+sensor\+\_\+types\+\_\+from\+\_\+config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Preload sensor type information from the configuration into local driver state. 
+
+Preload sensor type information from the configuration into local driver state. 
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00233}{233}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a8a473764f5efa100fa0ac4163c0ccf16}\index{i2c\_sensors.h@{i2c\_sensors.h}!read\_sensors\_into\_queue@{read\_sensors\_into\_queue}}
+\index{read\_sensors\_into\_queue@{read\_sensors\_into\_queue}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{read\_sensors\_into\_queue()}{read\_sensors\_into\_queue()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a8a473764f5efa100fa0ac4163c0ccf16} 
+esp\+\_\+err\+\_\+t read\+\_\+sensors\+\_\+into\+\_\+queue (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Read all configured sensors and publish the latest values into the sensor queue. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Read all configured sensors and publish the latest values into the sensor queue.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00775}{775}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_aba8b1ecc3074f67f381df368f203e76f}\index{i2c\_sensors.h@{i2c\_sensors.h}!reload\_and\_init\_sensors@{reload\_and\_init\_sensors}}
+\index{reload\_and\_init\_sensors@{reload\_and\_init\_sensors}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{reload\_and\_init\_sensors()}{reload\_and\_init\_sensors()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_aba8b1ecc3074f67f381df368f203e76f} 
+void reload\+\_\+and\+\_\+init\+\_\+sensors (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Reload sensor configuration and initialize sensors based on the new settings. 
+
+Reload sensor configuration and initialize sensors based on the new settings. 
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00245}{245}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a9be15282c023bba4a96386c059945df2}\index{i2c\_sensors.h@{i2c\_sensors.h}!scd41\_crc8@{scd41\_crc8}}
+\index{scd41\_crc8@{scd41\_crc8}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{scd41\_crc8()}{scd41\_crc8()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a9be15282c023bba4a96386c059945df2} 
+uint8\+\_\+t scd41\+\_\+crc8 (\begin{DoxyParamCaption}\item[{const uint8\+\_\+t \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Compute SCD41 CRC8 for a buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em data} & Input data buffer. \\
+\hline
+\mbox{\texttt{in}}  & {\em len} & Number of bytes to compute. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Computed CRC8 value.
+\end{DoxyReturn}
+Compute SCD41 CRC8 for a buffer.
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Input bytes. \\
+\hline
+{\em len} & Number of bytes to process. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Calculated CRC8 value. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00445}{445}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a448b637c3bd64a3c8d4135a546d079d4}\index{i2c\_sensors.h@{i2c\_sensors.h}!scd41\_data\_ready@{scd41\_data\_ready}}
+\index{scd41\_data\_ready@{scd41\_data\_ready}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{scd41\_data\_ready()}{scd41\_data\_ready()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a448b637c3bd64a3c8d4135a546d079d4} 
+esp\+\_\+err\+\_\+t scd41\+\_\+data\+\_\+ready (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{, }\item[{bool \texorpdfstring{$\ast$}{*}}]{data\+\_\+ready}{}\end{DoxyParamCaption})}
+
+
+
+Check whether SCD41 sensor data is ready. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em dev\+\_\+handle} & SCD41 device handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em data\+\_\+ready} & True if data is available. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+Check whether SCD41 sensor data is ready.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dev\+\_\+handle} & SCD41 device handle. \\
+\hline
+{\em data\+\_\+ready} & Output flag that receives readiness state. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00469}{469}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_afa26a318014908cbf17b14fcbdbc066c}\index{i2c\_sensors.h@{i2c\_sensors.h}!scd41\_read@{scd41\_read}}
+\index{scd41\_read@{scd41\_read}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{scd41\_read()}{scd41\_read()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_afa26a318014908cbf17b14fcbdbc066c} 
+esp\+\_\+err\+\_\+t scd41\+\_\+read (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t}]{dev\+\_\+handle}{, }\item[{uint16\+\_\+t \texorpdfstring{$\ast$}{*}}]{co2}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{temp}{, }\item[{float \texorpdfstring{$\ast$}{*}}]{rh}{}\end{DoxyParamCaption})}
+
+
+
+Read CO2, temperature, and humidity from an SCD41 sensor. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em dev\+\_\+handle} & SCD41 device handle. \\
+\hline
+\mbox{\texttt{out}}  & {\em co2} & Measured CO2 concentration in ppm. \\
+\hline
+\mbox{\texttt{out}}  & {\em temp} & Measured temperature in degrees Celsius. \\
+\hline
+\mbox{\texttt{out}}  & {\em rh} & Measured relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
+\end{DoxyReturn}
+Read CO2, temperature, and humidity from an SCD41 sensor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em dev\+\_\+handle} & SCD41 device handle. \\
+\hline
+{\em co2} & Output CO2 concentration in ppm. \\
+\hline
+{\em temp} & Output temperature in degrees Celsius. \\
+\hline
+{\em rh} & Output relative humidity in percent. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00513}{513}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_a5b7307fab1bf8e372fcf6fb3103c90f7}\index{i2c\_sensors.h@{i2c\_sensors.h}!sensor\_data\_average@{sensor\_data\_average}}
+\index{sensor\_data\_average@{sensor\_data\_average}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_data\_average()}{sensor\_data\_average()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_a5b7307fab1bf8e372fcf6fb3103c90f7} 
+void sensor\+\_\+data\+\_\+average (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Compute moving averages for sensor data and publish average results into the average queue. 
+
+Compute moving averages for sensor data and publish average results into the average queue.
+
+The averaged results are published into the average queue. 
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00884}{884}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+
+\Hypertarget{i2c__sensors_8h_ae345ac837521405237e7a870a12a5890}\index{i2c\_sensors.h@{i2c\_sensors.h}!sensor\_supports\_co2@{sensor\_supports\_co2}}
+\index{sensor\_supports\_co2@{sensor\_supports\_co2}!i2c\_sensors.h@{i2c\_sensors.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_supports\_co2()}{sensor\_supports\_co2()}}
+{\footnotesize\ttfamily \label{i2c__sensors_8h_ae345ac837521405237e7a870a12a5890} 
+bool sensor\+\_\+supports\+\_\+co2 (\begin{DoxyParamCaption}\item[{int}]{bus}{, }\item[{int}]{slot}{}\end{DoxyParamCaption})}
+
+
+
+Check whether the configured sensor supports CO2 measurement. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em bus} & Bus index. \\
+\hline
+\mbox{\texttt{in}}  & {\em slot} & Channel slot index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the sensor supports CO2.
+\end{DoxyReturn}
+Check whether the configured sensor supports CO2 measurement.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus} & Bus index. \\
+\hline
+{\em slot} & Sensor slot index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the sensor is an SCD41. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__sensors_8c_source_l00764}{764}} of file \mbox{\hyperlink{i2c__sensors_8c_source}{i2c\+\_\+sensors.\+c}}.
+

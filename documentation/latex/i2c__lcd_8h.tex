@@ -1,0 +1,477 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/i2c\+\_\+lcd.h File Reference}
+\hypertarget{i2c__lcd_8h}{}\label{i2c__lcd_8h}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_lcd.h@{/home/peter/Development/OSVentilationIDF/main/i2c\_lcd.h}}
+
+
+Public LCD control interface for the I2C PCF8574 expander and HD44780 display.  
+
+
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}wifi\+\_\+functions.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+Include dependency graph for i2c\+\_\+lcd.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a48f88ae82042fb99c318b573c3f5058e}{i2c\+\_\+lcd\+\_\+init}} (i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t, i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Add and bind the LCD expander device to the specified I2C bus. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_ab08a929d9ec8f4e45889e2daab1b7739}{i2c\+\_\+lcd\+\_\+init\+\_\+device}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the attached LCD device and configure display mode. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_ae312754df817e258181a3a051e123da6}{lcd\+\_\+dev\+\_\+write\+\_\+byte}} (uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Write a raw byte to the PCF8574 expander. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a8eb3536d47b1e84b928aaccfcea005f1}{lcd\+\_\+pulse\+\_\+enable}} (uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Pulse the LCD enable signal through the expander. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_ac5fbdcfab840a6c9ae4e8bdb2fe6bbc1}{lcd\+\_\+write\+\_\+nibble}} (uint8\+\_\+t, uint8\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Write a 4-\/bit nibble to the LCD controller. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_ab84aa39864d1f61797588a56b0d9034d}{i2c\+\_\+lcd\+\_\+clear}} (void)
+\begin{DoxyCompactList}\small\item\em Clear the LCD display. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a26fc80a058d4560e6dd6b21e2682dc88}{i2c\+\_\+lcd\+\_\+set\+\_\+cursor}} (int, int)
+\begin{DoxyCompactList}\small\item\em Position the LCD cursor. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a795c9848b2015bbe90ee83389b23d981}{i2c\+\_\+lcd\+\_\+write\+\_\+text}} (const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Write a null-\/terminated string to the LCD. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a444f5cff03a19b5078491092e1c8d1f7}{lcd\+\_\+write\+\_\+backlight\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Apply the current backlight state to the expander. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__lcd_8h_a92c829d8691e09819601b95836b9da5d}{i2c\+\_\+lcd\+\_\+backlight\+\_\+set}} (bool on)
+\begin{DoxyCompactList}\small\item\em Enable or disable the LCD backlight. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{i2c__lcd_8h_a1aa305169ec8d09845ce0698ecfb50c1}{i2c\+\_\+lcd\+\_\+backlight\+\_\+get}} (void)
+\begin{DoxyCompactList}\small\item\em Query the current cached backlight state. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__lcd_8h_a8bba699c7a9319171ff6ca20feed15de}{format\+\_\+sensor\+\_\+overview}} (char \texorpdfstring{$\ast$}{*}, size\+\_\+t, int, int, float avg\mbox{[}\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}\mbox{]})
+\begin{DoxyCompactList}\small\item\em Format a sensor overview string for display. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__lcd_8h_a2f8bafdd9ed79b75efdc444de8d3e25c}{build\+\_\+valve\+\_\+positions\+\_\+buffer}} (char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build formatted valve position text for LCD output. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{i2c__lcd_8h_ab4fb53ffb9c2b9198a2e6f6b28a0faec}{build\+\_\+sm\+\_\+actuals\+\_\+buffer}} (char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build formatted statemachine actuals text for LCD output. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public LCD control interface for the I2C PCF8574 expander and HD44780 display. 
+
+
+
+Definition in file \mbox{\hyperlink{i2c__lcd_8h_source}{i2c\+\_\+lcd.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{i2c__lcd_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{i2c__lcd_8h_ab4fb53ffb9c2b9198a2e6f6b28a0faec}\index{i2c\_lcd.h@{i2c\_lcd.h}!build\_sm\_actuals\_buffer@{build\_sm\_actuals\_buffer}}
+\index{build\_sm\_actuals\_buffer@{build\_sm\_actuals\_buffer}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{build\_sm\_actuals\_buffer()}{build\_sm\_actuals\_buffer()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_ab4fb53ffb9c2b9198a2e6f6b28a0faec} 
+void build\+\_\+sm\+\_\+actuals\+\_\+buffer (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Build formatted statemachine actuals text for LCD output. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer. \\
+\hline
+{\em buf\+\_\+size} & Output buffer size.\\
+\hline
+\end{DoxyParams}
+Build formatted statemachine actuals text for LCD output.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the formatted status text. \\
+\hline
+{\em buf\+\_\+size} & Size of the output buffer. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00541}{541}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a2f8bafdd9ed79b75efdc444de8d3e25c}\index{i2c\_lcd.h@{i2c\_lcd.h}!build\_valve\_positions\_buffer@{build\_valve\_positions\_buffer}}
+\index{build\_valve\_positions\_buffer@{build\_valve\_positions\_buffer}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{build\_valve\_positions\_buffer()}{build\_valve\_positions\_buffer()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a2f8bafdd9ed79b75efdc444de8d3e25c} 
+void build\+\_\+valve\+\_\+positions\+\_\+buffer (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Build formatted valve position text for LCD output. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer. \\
+\hline
+{\em buf\+\_\+size} & Output buffer size.\\
+\hline
+\end{DoxyParams}
+Build formatted valve position text for LCD output.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Output buffer for the formatted valve positions. \\
+\hline
+{\em buf\+\_\+size} & Size of the output buffer. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00477}{477}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a8bba699c7a9319171ff6ca20feed15de}\index{i2c\_lcd.h@{i2c\_lcd.h}!format\_sensor\_overview@{format\_sensor\_overview}}
+\index{format\_sensor\_overview@{format\_sensor\_overview}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{format\_sensor\_overview()}{format\_sensor\_overview()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a8bba699c7a9319171ff6ca20feed15de} 
+void format\+\_\+sensor\+\_\+overview (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{, }\item[{int}]{bus}{, }\item[{int}]{ch}{, }\item[{float}]{avg}{\mbox{[}\+MAX\+\_\+\+I2\+C\+\_\+\+BUSES\mbox{]}\mbox{[}\+CHANNELS\+\_\+\+PER\+\_\+\+BUS\mbox{]}\mbox{[}\+DATA\+\_\+\+FIELDS\mbox{]}}\end{DoxyParamCaption})}
+
+
+
+Format a sensor overview string for display. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em out} & Output buffer. \\
+\hline
+{\em out\+\_\+size} & Size of the output buffer. \\
+\hline
+{\em bus} & Sensor bus index. \\
+\hline
+{\em ch} & Sensor channel index. \\
+\hline
+{\em avg} & Average sensor readings array.\\
+\hline
+\end{DoxyParams}
+Format a sensor overview string for display.
+
+
+\begin{DoxyParams}{Parameters}
+{\em out} & Output buffer for the formatted string. \\
+\hline
+{\em out\+\_\+size} & Maximum number of bytes available in the output buffer. \\
+\hline
+{\em bus} & Sensor bus index. \\
+\hline
+{\em ch} & Sensor channel index. \\
+\hline
+{\em avg} & Average sensor readings array. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00381}{381}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a1aa305169ec8d09845ce0698ecfb50c1}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_backlight\_get@{i2c\_lcd\_backlight\_get}}
+\index{i2c\_lcd\_backlight\_get@{i2c\_lcd\_backlight\_get}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_backlight\_get()}{i2c\_lcd\_backlight\_get()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a1aa305169ec8d09845ce0698ecfb50c1} 
+bool i2c\+\_\+lcd\+\_\+backlight\+\_\+get (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Query the current cached backlight state. 
+
+\begin{DoxyReturn}{Returns}
+true if backlight is enabled, false otherwise.
+\end{DoxyReturn}
+Query the current cached backlight state.
+
+\begin{DoxyReturn}{Returns}
+true if the backlight is currently enabled, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00367}{367}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a92c829d8691e09819601b95836b9da5d}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_backlight\_set@{i2c\_lcd\_backlight\_set}}
+\index{i2c\_lcd\_backlight\_set@{i2c\_lcd\_backlight\_set}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_backlight\_set()}{i2c\_lcd\_backlight\_set()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a92c829d8691e09819601b95836b9da5d} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+backlight\+\_\+set (\begin{DoxyParamCaption}\item[{bool}]{on}{}\end{DoxyParamCaption})}
+
+
+
+Enable or disable the LCD backlight. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em on} & true to enable the backlight. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em on} & true to turn backlight on, false to turn it off. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the backlight state cannot be written. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00334}{334}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_ab84aa39864d1f61797588a56b0d9034d}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_clear@{i2c\_lcd\_clear}}
+\index{i2c\_lcd\_clear@{i2c\_lcd\_clear}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_clear()}{i2c\_lcd\_clear()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_ab84aa39864d1f61797588a56b0d9034d} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+clear (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Clear the LCD display. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the clear command fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00220}{220}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a48f88ae82042fb99c318b573c3f5058e}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_init@{i2c\_lcd\_init}}
+\index{i2c\_lcd\_init@{i2c\_lcd\_init}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_init()}{i2c\_lcd\_init()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a48f88ae82042fb99c318b573c3f5058e} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+init (\begin{DoxyParamCaption}\item[{i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t}]{bus\+\_\+handle}{, }\item[{i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \texorpdfstring{$\ast$}{*}}]{dev\+\_\+handle}{}\end{DoxyParamCaption})}
+
+
+
+Add and bind the LCD expander device to the specified I2C bus. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & I2C bus handle. \\
+\hline
+{\em dev\+\_\+handle} & Pointer to the device handle to populate. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em bus\+\_\+handle} & Handle for the I2C bus to attach the device to. \\
+\hline
+{\em dev\+\_\+handle} & Pointer to the device handle that will be populated on success. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if device setup fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00042}{42}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_ab08a929d9ec8f4e45889e2daab1b7739}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_init\_device@{i2c\_lcd\_init\_device}}
+\index{i2c\_lcd\_init\_device@{i2c\_lcd\_init\_device}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_init\_device()}{i2c\_lcd\_init\_device()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_ab08a929d9ec8f4e45889e2daab1b7739} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+init\+\_\+device (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the attached LCD device and configure display mode. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Initialize the attached LCD device and configure display mode.
+
+This performs the required 4-\/bit initialization sequence and configures the display. \begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if initialization fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00156}{156}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a26fc80a058d4560e6dd6b21e2682dc88}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_set\_cursor@{i2c\_lcd\_set\_cursor}}
+\index{i2c\_lcd\_set\_cursor@{i2c\_lcd\_set\_cursor}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_set\_cursor()}{i2c\_lcd\_set\_cursor()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a26fc80a058d4560e6dd6b21e2682dc88} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+set\+\_\+cursor (\begin{DoxyParamCaption}\item[{int}]{row}{, }\item[{int}]{col}{}\end{DoxyParamCaption})}
+
+
+
+Position the LCD cursor. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em row} & Zero-\/based row index. \\
+\hline
+{\em col} & Zero-\/based column index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Position the LCD cursor.
+
+
+\begin{DoxyParams}{Parameters}
+{\em row} & Zero-\/based row index. \\
+\hline
+{\em col} & Zero-\/based column index. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the cursor position command fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00234}{234}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a795c9848b2015bbe90ee83389b23d981}\index{i2c\_lcd.h@{i2c\_lcd.h}!i2c\_lcd\_write\_text@{i2c\_lcd\_write\_text}}
+\index{i2c\_lcd\_write\_text@{i2c\_lcd\_write\_text}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_lcd\_write\_text()}{i2c\_lcd\_write\_text()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a795c9848b2015bbe90ee83389b23d981} 
+esp\+\_\+err\+\_\+t i2c\+\_\+lcd\+\_\+write\+\_\+text (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{text}{}\end{DoxyParamCaption})}
+
+
+
+Write a null-\/terminated string to the LCD. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & Text to display. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Write a null-\/terminated string to the LCD.
+
+This function handles line wrapping and newline characters across the configured display geometry. 
+\begin{DoxyParams}{Parameters}
+{\em text} & Null-\/terminated string to display. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if writing fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00255}{255}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_ae312754df817e258181a3a051e123da6}\index{i2c\_lcd.h@{i2c\_lcd.h}!lcd\_dev\_write\_byte@{lcd\_dev\_write\_byte}}
+\index{lcd\_dev\_write\_byte@{lcd\_dev\_write\_byte}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_dev\_write\_byte()}{lcd\_dev\_write\_byte()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_ae312754df817e258181a3a051e123da6} 
+esp\+\_\+err\+\_\+t lcd\+\_\+dev\+\_\+write\+\_\+byte (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Write a raw byte to the PCF8574 expander. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Raw output byte. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Write a raw byte to the PCF8574 expander.
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Raw byte to transmit to PCF8574. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the I2C transfer fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00070}{70}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a8eb3536d47b1e84b928aaccfcea005f1}\index{i2c\_lcd.h@{i2c\_lcd.h}!lcd\_pulse\_enable@{lcd\_pulse\_enable}}
+\index{lcd\_pulse\_enable@{lcd\_pulse\_enable}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_pulse\_enable()}{lcd\_pulse\_enable()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a8eb3536d47b1e84b928aaccfcea005f1} 
+esp\+\_\+err\+\_\+t lcd\+\_\+pulse\+\_\+enable (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{data}{}\end{DoxyParamCaption})}
+
+
+
+Pulse the LCD enable signal through the expander. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Control and backlight flags to transmit. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Pulse the LCD enable signal through the expander.
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & Data/control byte including RS/\+RW/backlight bits. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the enable pulse fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00102}{102}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_a444f5cff03a19b5078491092e1c8d1f7}\index{i2c\_lcd.h@{i2c\_lcd.h}!lcd\_write\_backlight\_state@{lcd\_write\_backlight\_state}}
+\index{lcd\_write\_backlight\_state@{lcd\_write\_backlight\_state}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_write\_backlight\_state()}{lcd\_write\_backlight\_state()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_a444f5cff03a19b5078491092e1c8d1f7} 
+esp\+\_\+err\+\_\+t lcd\+\_\+write\+\_\+backlight\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Apply the current backlight state to the expander. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+Apply the current backlight state to the expander.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if the I2C write fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00313}{313}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+
+\Hypertarget{i2c__lcd_8h_ac5fbdcfab840a6c9ae4e8bdb2fe6bbc1}\index{i2c\_lcd.h@{i2c\_lcd.h}!lcd\_write\_nibble@{lcd\_write\_nibble}}
+\index{lcd\_write\_nibble@{lcd\_write\_nibble}!i2c\_lcd.h@{i2c\_lcd.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_write\_nibble()}{lcd\_write\_nibble()}}
+{\footnotesize\ttfamily \label{i2c__lcd_8h_ac5fbdcfab840a6c9ae4e8bdb2fe6bbc1} 
+esp\+\_\+err\+\_\+t lcd\+\_\+write\+\_\+nibble (\begin{DoxyParamCaption}\item[{uint8\+\_\+t}]{nibble}{, }\item[{uint8\+\_\+t}]{control\+\_\+flags}{}\end{DoxyParamCaption})}
+
+
+
+Write a 4-\/bit nibble to the LCD controller. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em nibble} & Nibble to send. \\
+\hline
+{\em control\+\_\+flags} & RS/\+RW/backlight flags. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an error code on failure.
+\end{DoxyReturn}
+
+\begin{DoxyParams}{Parameters}
+{\em nibble} & Nibble value to send in the upper data half-\/byte. \\
+\hline
+{\em control\+\_\+flags} & RS/\+RW/backlight control flags. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t if transmission fails. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__lcd_8c_source_l00122}{122}} of file \mbox{\hyperlink{i2c__lcd_8c_source}{i2c\+\_\+lcd.\+c}}.
+

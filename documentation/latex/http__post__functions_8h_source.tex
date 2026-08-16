@@ -1,0 +1,52 @@
+\doxysection{http\+\_\+post\+\_\+functions.\+h}
+\hypertarget{http__post__functions_8h_source}{}\label{http__post__functions_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/http\_post\_functions.h@{/home/peter/Development/OSVentilationIDF/main/http\_post\_functions.h}}
+\mbox{\hyperlink{http__post__functions_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ HTTP\_POST\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ HTTP\_POST\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}cJSON.h"{}}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}driver/i2c\_master.h"{}}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__i2c__lcd_8h}{task\_i2c\_lcd.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00022}\mbox{\hyperlink{http__post__functions_8h_a1cc03b061f75b7874f0111f10c02d897}{00022}}\ \textcolor{preprocessor}{\#define\ LOG\_BUF\_SIZE\ 256}}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00032}00032\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a74fe13465e2732416136e18a040a3b8d}{build\_bus\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t},\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00037}00037\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_aac5c2f8f190c24f1789fd005ee2ebce1}{build\_wifi\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00042}00042\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a06a62a54204ff8c55f0b57416ce996b9}{build\_ethernet\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00047}00047\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__post__functions_8h_af12146017cf8658f4b314a3a534f0886}{lcd\_apply\_config\_change}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00052}00052\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a6cefd98e6074863253d5cf2c56213dfc}{build\_i2c\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00057}00057\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a0c896fd2c2ddd427537844d92c1d1896}{build\_mqtt\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00062}00062\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a6b04602d9dc0d6a8e7d2061cd679c204}{build\_influxdb\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00067}00067\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a221c54635087c32197ce70c1f2c6ddb4}{build\_fan\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00072}00072\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a275daacc78e1baf0e68d7455fc32b065}{build\_syslog\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00079}00079\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__post__functions_8h_a31b251c5d005fb098f56e2438ee91b59}{url\_decode\_inplace}}(\textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00084}00084\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a1fcb2f8862e2263bc4656a1c7cb73490}{build\_time\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00089}00089\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_afbc317a568fa97fe4bb989751910b648}{build\_state\_gen\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00090}00090\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00096}00096\ cJSON\ *\mbox{\hyperlink{http__post__functions_8h_a84ba8753c2f9bdf9f5bfc0ba4aa3a4bf}{build\_state\_config\_from\_body\_urlencoded}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t},\ \textcolor{keywordtype}{int});}
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00097}00097\ }
+\DoxyCodeLine{\Hypertarget{http__post__functions_8h_source_l00098}00098\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

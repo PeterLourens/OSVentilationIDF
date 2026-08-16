@@ -1,0 +1,42 @@
+\doxysection{statemachine\+\_\+helper.\+h}
+\hypertarget{statemachine__helper_8h_source}{}\label{statemachine__helper_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.h@{/home/peter/Development/OSVentilationIDF/main/statemachine\_helper.h}}
+\mbox{\hyperlink{statemachine__helper_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ STATEMACHINE\_HELPER\_H}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ STATEMACHINE\_HELPER\_H}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <math.h>}\ \textcolor{comment}{//\ For\ isfinite()}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{statemachine_8h}{statemachine.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}\ \textcolor{comment}{//\ for\ sensor\ queue\ readiness\ globals\ if\ needed}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00022}00022\ \textcolor{comment}{//\ Sensor\ averaging\ helpers}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00023}00023\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine__helper_8h_a5b7307fab1bf8e372fcf6fb3103c90f7}{sensor\_data\_average}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00025}00025\ \textcolor{comment}{//\ Return\ index\ of\ a\ state\ by\ case-\/insensitive\ name,\ or\ -\/1\ if\ not\ found}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00026}00026\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine__helper_8h_a774307d5c2f51f385f8de9b61fb1db4a}{find\_state\_index\_by\_name\_ci}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *name);}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00028}00028\ \textcolor{comment}{//\ Time\ and\ mode\ helpers}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00029}00029\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8h_a2bbf20bce579e05c5dd135246668f7b2}{is\_day}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00030}00030\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8h_a33084da12177128329aed9bfc5be50ce}{is\_weekend}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00031}00031\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8h_adab1407545fb6a4bc3165407db12ad3a}{cooking\_times}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00033}00033\ \textcolor{comment}{//\ Cycling\ valve\ helpers:\ return\ true\ when\ valve\ should\ be\ active\ in\ day\ or\ night\ cycling\ states}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00034}00034\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8h_a88cb84d084a76ff39347b764997b5cef}{valve\_cycle\_times\_day}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00035}00035\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{statemachine__helper_8h_a42c970122ae370a12a8ec4b247066448}{valve\_cycle\_times\_night}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00037}00037\ \textcolor{comment}{//\ Select\ sensors\ which\ have\ high\ readings}}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00038}00038\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine__helper_8h_a2dcc826036e38226014be04552dab09d}{select\_sensors}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{statemachine__helper_8h_source_l00040}00040\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,658 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/influxdb.c File Reference}
+\hypertarget{influxdb_8c}{}\label{influxdb_8c}\index{/home/peter/Development/OSVentilationIDF/main/influxdb.c@{/home/peter/Development/OSVentilationIDF/main/influxdb.c}}
+
+
+Influx\+DB payload building and send-\/task implementation.  
+
+
+{\ttfamily \#include "{}influxdb.\+h"{}}\newline
+Include dependency graph for influxdb.\+c\+:
+% FIG 0
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structinflux__job__t}{influx\+\_\+job\+\_\+t}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{influxdb_8c_a42f285adc8960c307c19b0f98625c85f}{INFLUX\+\_\+\+QUEUE\+\_\+\+LEN}}~32
+\item 
+\#define \mbox{\hyperlink{influxdb_8c_af9d8e6312fe4d08807df2d735fb6800d}{INFLUX\+\_\+\+MAX\+\_\+\+PAYLOAD}}~8192
+\item 
+\#define \mbox{\hyperlink{influxdb_8c_a44a6259f88aa645611bcdf03c8d4d332}{INFLUX\+\_\+\+SENSORS\+\_\+\+CHUNK}}~2048
+\item 
+\#define \mbox{\hyperlink{influxdb_8c_a89ea0f5a2a72448ea50bf4dc394fa167}{INFLUX\+\_\+\+SENDER\+\_\+\+STACK}}~8192
+\item 
+\#define \mbox{\hyperlink{influxdb_8c_a724d7d2fa025aae6957793d066e480a2}{INFLUX\+\_\+\+SENDER\+\_\+\+PRIO}}~5
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{influxdb_8c_a4e1b30e5a34a97bd12df076a8df11b75}{influxdb\+\_\+wait\+\_\+ready}} (Tick\+Type\+\_\+t timeout\+\_\+ticks)
+\begin{DoxyCompactList}\small\item\em Wait for the Influx\+DB queue to become ready. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{influxdb_8c_af3060cb403db557b5f420714f342ea39}{influxdb\+\_\+enqueue\+\_\+sensor\+\_\+line}} (int bus, int ch, float sensor\+\_\+val\mbox{[}\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}\mbox{]}, float avg\+\_\+val\mbox{[}\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}\mbox{]})
+\begin{DoxyCompactList}\small\item\em Build and enqueue an Influx\+DB line for a single sensor. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a70c63b42621bf284740d93f6ab5332b5}{influxdb\+\_\+set\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms}} (uint32\+\_\+t ms)
+\begin{DoxyCompactList}\small\item\em Set the DMA monitor reporting interval. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{influxdb_8c_aeef096a7ab4920979f1636b5301ea358}{influxdb\+\_\+get\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms}} (void)
+\begin{DoxyCompactList}\small\item\em Get the current DMA monitor reporting interval. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a9bb92ac35b6fae6e167acfd39524f089}{influxdb\+\_\+set\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms}} (uint32\+\_\+t ms)
+\begin{DoxyCompactList}\small\item\em Set the base Influx\+DB task interval. \end{DoxyCompactList}\item 
+uint32\+\_\+t \mbox{\hyperlink{influxdb_8c_a0f1f299cd84267d18ae0ad6facb77b02}{influxdb\+\_\+get\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms}} (void)
+\begin{DoxyCompactList}\small\item\em Get the current base Influx\+DB task interval. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a7a77d1c59401bf176ee1716e1628a0d7}{influxdb\+\_\+get\+\_\+config\+\_\+snapshot}} (\mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}out)
+\begin{DoxyCompactList}\small\item\em Copy the current Influx\+DB configuration into the provided snapshot. \end{DoxyCompactList}\item 
+int64\+\_\+t \mbox{\hyperlink{influxdb_8c_adea0e95512c2cde7de19c5422a069bf4}{influxdb\+\_\+get\+\_\+timestamp}} (void)
+\begin{DoxyCompactList}\small\item\em Retrieve a nanosecond-\/resolution timestamp for Influx\+DB line protocol. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_adf2ee6d8e970914753039c6e7703498e}{influxdb\+\_\+build\+\_\+url}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size, const \mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}cfg)
+\begin{DoxyCompactList}\small\item\em Build the Influx\+DB write endpoint URL from configuration. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_ad6c5cb1aa8c59d439bd8867f2940f216}{influxdb\+\_\+append\+\_\+line}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size, const char \texorpdfstring{$\ast$}{*}line)
+\begin{DoxyCompactList}\small\item\em Append a single line to the Influx\+DB payload buffer. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a21a81dc08551e53f1541269f226c4ff3}{influxdb\+\_\+build\+\_\+payload\+\_\+dma}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size, const char \texorpdfstring{$\ast$}{*}host\+\_\+tag)
+\begin{DoxyCompactList}\small\item\em Build a DMA metrics payload line for Influx\+DB. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{influxdb_8c_aeb5b2c9a35f6411ff800bebc2247f893}{influxdb\+\_\+enqueue\+\_\+dma\+\_\+metrics}} (const char \texorpdfstring{$\ast$}{*}host\+\_\+tag)
+\begin{DoxyCompactList}\small\item\em Enqueue DMA metrics payload for sending. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{influxdb_8c_a76b63f80149a23fbe84ffa985ffac12c}{influxdb\+\_\+dma\+\_\+monitor\+\_\+tick}} (void)
+\begin{DoxyCompactList}\small\item\em Tick the DMA monitor and enqueue metrics on the configured interval. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_aaae5bae1bd60e16228202cd970e85513}{influxdb\+\_\+build\+\_\+payload\+\_\+actuals}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Build an Influx\+DB payload for system actuals. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a6a820db91fd96fed47dccdd7a4848c18}{influxdb\+\_\+build\+\_\+payload\+\_\+uptime}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Build an uptime-\/only Influx\+DB payload. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_a858d289918d0ee40eb51be6e83867d32}{influxdb\+\_\+build\+\_\+payload\+\_\+valves}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Build an Influx\+DB payload describing valve positions. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_ace66ca39bc5c5ed246dbb9ef47180c7e}{influxdb\+\_\+build\+\_\+payload\+\_\+sensors\+\_\+for\+\_\+bus}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size, float sensor\mbox{[}\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}\mbox{]}, float avg\mbox{[}\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}\mbox{[}\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}\mbox{]}, int bus)
+\begin{DoxyCompactList}\small\item\em Build Influx\+DB sensor payloads for a single bus. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{influxdb_8c_a242305ca91997b8696597fadf6a803b4}{influxdb\+\_\+init\+\_\+sender}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the Influx\+DB sender subsystem. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{influxdb_8c_a83b53a96c830013ff30b2d1c42f45010}{influxdb\+\_\+enqueue\+\_\+payload}} (const char \texorpdfstring{$\ast$}{*}payload, size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Enqueue a raw Influx\+DB line protocol payload for sending. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{influxdb_8c_aa4004dc89e2d65499b5ee5af1720122d}{influxdb\+\_\+process}} (Queue\+Handle\+\_\+t sensor\+\_\+q, Queue\+Handle\+\_\+t avg\+\_\+q)
+\begin{DoxyCompactList}\small\item\em Process sensor and system data into Influx\+DB payloads for enqueueing. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{influxdb_8c_abec6c02fe6593891d0ef639bfc1e7740}{influx\+\_\+queue}} = NULL
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{influxdb_8c_a7f339c669404cffe83a04d98e067a0fa}{influx\+\_\+sender\+\_\+task\+\_\+handle}} = NULL
+\item 
+uint32\+\_\+t \mbox{\hyperlink{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a}{g\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms}} = 20000
+\item 
+uint32\+\_\+t \mbox{\hyperlink{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41}{g\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms}} = 5000
+\item 
+uint32\+\_\+t \mbox{\hyperlink{influxdb_8c_a4ba1d83558fc20bed62b45d8ee519492}{g\+\_\+monitor\+\_\+tick\+\_\+resolution\+\_\+ms}} = 1000
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Influx\+DB payload building and send-\/task implementation. 
+
+
+
+Definition in file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{influxdb_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{influxdb_8c_af9d8e6312fe4d08807df2d735fb6800d}\index{influxdb.c@{influxdb.c}!INFLUX\_MAX\_PAYLOAD@{INFLUX\_MAX\_PAYLOAD}}
+\index{INFLUX\_MAX\_PAYLOAD@{INFLUX\_MAX\_PAYLOAD}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{INFLUX\_MAX\_PAYLOAD}{INFLUX\_MAX\_PAYLOAD}}
+{\footnotesize\ttfamily \label{influxdb_8c_af9d8e6312fe4d08807df2d735fb6800d} 
+\#define INFLUX\+\_\+\+MAX\+\_\+\+PAYLOAD~8192}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00021}{21}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a42f285adc8960c307c19b0f98625c85f}\index{influxdb.c@{influxdb.c}!INFLUX\_QUEUE\_LEN@{INFLUX\_QUEUE\_LEN}}
+\index{INFLUX\_QUEUE\_LEN@{INFLUX\_QUEUE\_LEN}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{INFLUX\_QUEUE\_LEN}{INFLUX\_QUEUE\_LEN}}
+{\footnotesize\ttfamily \label{influxdb_8c_a42f285adc8960c307c19b0f98625c85f} 
+\#define INFLUX\+\_\+\+QUEUE\+\_\+\+LEN~32}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00020}{20}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a724d7d2fa025aae6957793d066e480a2}\index{influxdb.c@{influxdb.c}!INFLUX\_SENDER\_PRIO@{INFLUX\_SENDER\_PRIO}}
+\index{INFLUX\_SENDER\_PRIO@{INFLUX\_SENDER\_PRIO}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{INFLUX\_SENDER\_PRIO}{INFLUX\_SENDER\_PRIO}}
+{\footnotesize\ttfamily \label{influxdb_8c_a724d7d2fa025aae6957793d066e480a2} 
+\#define INFLUX\+\_\+\+SENDER\+\_\+\+PRIO~5}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00024}{24}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a89ea0f5a2a72448ea50bf4dc394fa167}\index{influxdb.c@{influxdb.c}!INFLUX\_SENDER\_STACK@{INFLUX\_SENDER\_STACK}}
+\index{INFLUX\_SENDER\_STACK@{INFLUX\_SENDER\_STACK}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{INFLUX\_SENDER\_STACK}{INFLUX\_SENDER\_STACK}}
+{\footnotesize\ttfamily \label{influxdb_8c_a89ea0f5a2a72448ea50bf4dc394fa167} 
+\#define INFLUX\+\_\+\+SENDER\+\_\+\+STACK~8192}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00023}{23}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a44a6259f88aa645611bcdf03c8d4d332}\index{influxdb.c@{influxdb.c}!INFLUX\_SENSORS\_CHUNK@{INFLUX\_SENSORS\_CHUNK}}
+\index{INFLUX\_SENSORS\_CHUNK@{INFLUX\_SENSORS\_CHUNK}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{INFLUX\_SENSORS\_CHUNK}{INFLUX\_SENSORS\_CHUNK}}
+{\footnotesize\ttfamily \label{influxdb_8c_a44a6259f88aa645611bcdf03c8d4d332} 
+\#define INFLUX\+\_\+\+SENSORS\+\_\+\+CHUNK~2048}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00022}{22}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{influxdb_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{influxdb_8c_ad6c5cb1aa8c59d439bd8867f2940f216}\index{influxdb.c@{influxdb.c}!influxdb\_append\_line@{influxdb\_append\_line}}
+\index{influxdb\_append\_line@{influxdb\_append\_line}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_append\_line()}{influxdb\_append\_line()}}
+{\footnotesize\ttfamily \label{influxdb_8c_ad6c5cb1aa8c59d439bd8867f2940f216} 
+void influxdb\+\_\+append\+\_\+line (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{line}{}\end{DoxyParamCaption})}
+
+
+
+Append a single line to the Influx\+DB payload buffer. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+\mbox{\texttt{in}}  & {\em line} & Line text to append. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00302}{302}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_aaae5bae1bd60e16228202cd970e85513}\index{influxdb.c@{influxdb.c}!influxdb\_build\_payload\_actuals@{influxdb\_build\_payload\_actuals}}
+\index{influxdb\_build\_payload\_actuals@{influxdb\_build\_payload\_actuals}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_payload\_actuals()}{influxdb\_build\_payload\_actuals()}}
+{\footnotesize\ttfamily \label{influxdb_8c_aaae5bae1bd60e16228202cd970e85513} 
+void influxdb\+\_\+build\+\_\+payload\+\_\+actuals (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Build an Influx\+DB payload for system actuals. 
+
+Build the payload for actuals metrics.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00415}{415}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a21a81dc08551e53f1541269f226c4ff3}\index{influxdb.c@{influxdb.c}!influxdb\_build\_payload\_dma@{influxdb\_build\_payload\_dma}}
+\index{influxdb\_build\_payload\_dma@{influxdb\_build\_payload\_dma}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_payload\_dma()}{influxdb\_build\_payload\_dma()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a21a81dc08551e53f1541269f226c4ff3} 
+void influxdb\+\_\+build\+\_\+payload\+\_\+dma (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{host\+\_\+tag}{}\end{DoxyParamCaption})}
+
+
+
+Build a DMA metrics payload line for Influx\+DB. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+\mbox{\texttt{in}}  & {\em host\+\_\+tag} & Optional host identifier tag. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00331}{331}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_ace66ca39bc5c5ed246dbb9ef47180c7e}\index{influxdb.c@{influxdb.c}!influxdb\_build\_payload\_sensors\_for\_bus@{influxdb\_build\_payload\_sensors\_for\_bus}}
+\index{influxdb\_build\_payload\_sensors\_for\_bus@{influxdb\_build\_payload\_sensors\_for\_bus}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_payload\_sensors\_for\_bus()}{influxdb\_build\_payload\_sensors\_for\_bus()}}
+{\footnotesize\ttfamily \label{influxdb_8c_ace66ca39bc5c5ed246dbb9ef47180c7e} 
+void influxdb\+\_\+build\+\_\+payload\+\_\+sensors\+\_\+for\+\_\+bus (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{, }\item[{float}]{sensor}{\mbox{[}\+MAX\+\_\+\+I2\+C\+\_\+\+BUSES\mbox{]}\mbox{[}\+CHANNELS\+\_\+\+PER\+\_\+\+BUS\mbox{]}\mbox{[}\+DATA\+\_\+\+FIELDS\mbox{]}, }\item[{float}]{avg}{\mbox{[}\+MAX\+\_\+\+I2\+C\+\_\+\+BUSES\mbox{]}\mbox{[}\+CHANNELS\+\_\+\+PER\+\_\+\+BUS\mbox{]}\mbox{[}\+DATA\+\_\+\+FIELDS\mbox{]}, }\item[{int}]{bus}{}\end{DoxyParamCaption})}
+
+
+
+Build Influx\+DB sensor payloads for a single bus. 
+
+Build a sensor payload chunk for a single bus.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+ & {\em sensor} & Raw sensor snapshot array. \\
+\hline
+ & {\em avg} & Averaged sensor snapshot array. \\
+\hline
+ & {\em bus} & Sensor bus index. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00620}{620}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a6a820db91fd96fed47dccdd7a4848c18}\index{influxdb.c@{influxdb.c}!influxdb\_build\_payload\_uptime@{influxdb\_build\_payload\_uptime}}
+\index{influxdb\_build\_payload\_uptime@{influxdb\_build\_payload\_uptime}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_payload\_uptime()}{influxdb\_build\_payload\_uptime()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a6a820db91fd96fed47dccdd7a4848c18} 
+void influxdb\+\_\+build\+\_\+payload\+\_\+uptime (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Build an uptime-\/only Influx\+DB payload. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00538}{538}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a858d289918d0ee40eb51be6e83867d32}\index{influxdb.c@{influxdb.c}!influxdb\_build\_payload\_valves@{influxdb\_build\_payload\_valves}}
+\index{influxdb\_build\_payload\_valves@{influxdb\_build\_payload\_valves}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_payload\_valves()}{influxdb\_build\_payload\_valves()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a858d289918d0ee40eb51be6e83867d32} 
+void influxdb\+\_\+build\+\_\+payload\+\_\+valves (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Build an Influx\+DB payload describing valve positions. 
+
+Build the payload for valve position metrics.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Payload buffer. \\
+\hline
+ & {\em out\+\_\+size} & Buffer size. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00566}{566}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_adf2ee6d8e970914753039c6e7703498e}\index{influxdb.c@{influxdb.c}!influxdb\_build\_url@{influxdb\_build\_url}}
+\index{influxdb\_build\_url@{influxdb\_build\_url}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_build\_url()}{influxdb\_build\_url()}}
+{\footnotesize\ttfamily \label{influxdb_8c_adf2ee6d8e970914753039c6e7703498e} 
+void influxdb\+\_\+build\+\_\+url (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{, }\item[{const \mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{cfg}{}\end{DoxyParamCaption})}
+
+
+
+Build the Influx\+DB write endpoint URL from configuration. 
+
+Build the Influx\+DB write URL from the current configuration.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & URL buffer. \\
+\hline
+ & {\em out\+\_\+size} & Size of the URL buffer. \\
+\hline
+\mbox{\texttt{in}}  & {\em cfg} & Configuration snapshot. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00287}{287}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a76b63f80149a23fbe84ffa985ffac12c}\index{influxdb.c@{influxdb.c}!influxdb\_dma\_monitor\_tick@{influxdb\_dma\_monitor\_tick}}
+\index{influxdb\_dma\_monitor\_tick@{influxdb\_dma\_monitor\_tick}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_dma\_monitor\_tick()}{influxdb\_dma\_monitor\_tick()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a76b63f80149a23fbe84ffa985ffac12c} 
+bool influxdb\+\_\+dma\+\_\+monitor\+\_\+tick (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Tick the DMA monitor and enqueue metrics on the configured interval. 
+
+\begin{DoxyReturn}{Returns}
+true if a DMA metric payload was enqueued. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00377}{377}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_aeb5b2c9a35f6411ff800bebc2247f893}\index{influxdb.c@{influxdb.c}!influxdb\_enqueue\_dma\_metrics@{influxdb\_enqueue\_dma\_metrics}}
+\index{influxdb\_enqueue\_dma\_metrics@{influxdb\_enqueue\_dma\_metrics}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_enqueue\_dma\_metrics()}{influxdb\_enqueue\_dma\_metrics()}}
+{\footnotesize\ttfamily \label{influxdb_8c_aeb5b2c9a35f6411ff800bebc2247f893} 
+bool influxdb\+\_\+enqueue\+\_\+dma\+\_\+metrics (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{host\+\_\+tag}{}\end{DoxyParamCaption})}
+
+
+
+Enqueue DMA metrics payload for sending. 
+
+Enqueue a DMA metrics payload for Influx\+DB.
+
+
+\begin{DoxyParams}{Parameters}
+{\em host\+\_\+tag} & Optional host tag. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the payload was enqueued successfully. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00358}{358}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a83b53a96c830013ff30b2d1c42f45010}\index{influxdb.c@{influxdb.c}!influxdb\_enqueue\_payload@{influxdb\_enqueue\_payload}}
+\index{influxdb\_enqueue\_payload@{influxdb\_enqueue\_payload}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_enqueue\_payload()}{influxdb\_enqueue\_payload()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a83b53a96c830013ff30b2d1c42f45010} 
+bool influxdb\+\_\+enqueue\+\_\+payload (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{payload}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Enqueue a raw Influx\+DB line protocol payload for sending. 
+
+Enqueue a raw Influx\+DB payload line.
+
+
+\begin{DoxyParams}{Parameters}
+{\em payload} & Null-\/terminated payload string. \\
+\hline
+{\em len} & Length of the payload string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if queued successfully. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00899}{899}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_af3060cb403db557b5f420714f342ea39}\index{influxdb.c@{influxdb.c}!influxdb\_enqueue\_sensor\_line@{influxdb\_enqueue\_sensor\_line}}
+\index{influxdb\_enqueue\_sensor\_line@{influxdb\_enqueue\_sensor\_line}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_enqueue\_sensor\_line()}{influxdb\_enqueue\_sensor\_line()}}
+{\footnotesize\ttfamily \label{influxdb_8c_af3060cb403db557b5f420714f342ea39} 
+bool influxdb\+\_\+enqueue\+\_\+sensor\+\_\+line (\begin{DoxyParamCaption}\item[{int}]{bus}{, }\item[{int}]{ch}{, }\item[{float}]{sensor\+\_\+val}{\mbox{[}\+DATA\+\_\+\+FIELDS\mbox{]}, }\item[{float}]{avg\+\_\+val}{\mbox{[}\+DATA\+\_\+\+FIELDS\mbox{]}}\end{DoxyParamCaption})}
+
+
+
+Build and enqueue an Influx\+DB line for a single sensor. 
+
+Build and enqueue a single sensor measurement line for Influx\+DB.
+
+
+\begin{DoxyParams}{Parameters}
+{\em bus} & Sensor bus index. \\
+\hline
+{\em ch} & Sensor channel index. \\
+\hline
+{\em sensor\+\_\+val} & Raw measurement values. \\
+\hline
+{\em avg\+\_\+val} & Averaged measurement values. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the payload was successfully enqueued. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00088}{88}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a7a77d1c59401bf176ee1716e1628a0d7}\index{influxdb.c@{influxdb.c}!influxdb\_get\_config\_snapshot@{influxdb\_get\_config\_snapshot}}
+\index{influxdb\_get\_config\_snapshot@{influxdb\_get\_config\_snapshot}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_get\_config\_snapshot()}{influxdb\_get\_config\_snapshot()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a7a77d1c59401bf176ee1716e1628a0d7} 
+void influxdb\+\_\+get\+\_\+config\+\_\+snapshot (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Copy the current Influx\+DB configuration into the provided snapshot. 
+
+Copy the current Influx\+DB configuration into an output snapshot.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Output configuration snapshot. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00217}{217}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_aeef096a7ab4920979f1636b5301ea358}\index{influxdb.c@{influxdb.c}!influxdb\_get\_dma\_monitor\_interval\_ms@{influxdb\_get\_dma\_monitor\_interval\_ms}}
+\index{influxdb\_get\_dma\_monitor\_interval\_ms@{influxdb\_get\_dma\_monitor\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_get\_dma\_monitor\_interval\_ms()}{influxdb\_get\_dma\_monitor\_interval\_ms()}}
+{\footnotesize\ttfamily \label{influxdb_8c_aeef096a7ab4920979f1636b5301ea358} 
+uint32\+\_\+t influxdb\+\_\+get\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the current DMA monitor reporting interval. 
+
+Get the currently configured DMA monitor interval.
+
+\begin{DoxyReturn}{Returns}
+Interval in milliseconds. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00183}{183}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a0f1f299cd84267d18ae0ad6facb77b02}\index{influxdb.c@{influxdb.c}!influxdb\_get\_influx\_task\_interval\_ms@{influxdb\_get\_influx\_task\_interval\_ms}}
+\index{influxdb\_get\_influx\_task\_interval\_ms@{influxdb\_get\_influx\_task\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_get\_influx\_task\_interval\_ms()}{influxdb\_get\_influx\_task\_interval\_ms()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a0f1f299cd84267d18ae0ad6facb77b02} 
+uint32\+\_\+t influxdb\+\_\+get\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the current base Influx\+DB task interval. 
+
+Get the configured base Influx task interval.
+
+\begin{DoxyReturn}{Returns}
+Interval in milliseconds. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00206}{206}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_adea0e95512c2cde7de19c5422a069bf4}\index{influxdb.c@{influxdb.c}!influxdb\_get\_timestamp@{influxdb\_get\_timestamp}}
+\index{influxdb\_get\_timestamp@{influxdb\_get\_timestamp}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_get\_timestamp()}{influxdb\_get\_timestamp()}}
+{\footnotesize\ttfamily \label{influxdb_8c_adea0e95512c2cde7de19c5422a069bf4} 
+int64\+\_\+t influxdb\+\_\+get\+\_\+timestamp (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Retrieve a nanosecond-\/resolution timestamp for Influx\+DB line protocol. 
+
+Get a high-\/resolution timestamp for Influx\+DB line protocol.
+
+\begin{DoxyReturn}{Returns}
+Timestamp in nanoseconds since the Unix epoch. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00230}{230}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a242305ca91997b8696597fadf6a803b4}\index{influxdb.c@{influxdb.c}!influxdb\_init\_sender@{influxdb\_init\_sender}}
+\index{influxdb\_init\_sender@{influxdb\_init\_sender}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_init\_sender()}{influxdb\_init\_sender()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a242305ca91997b8696597fadf6a803b4} 
+bool influxdb\+\_\+init\+\_\+sender (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the Influx\+DB sender subsystem. 
+
+Initialize the Influx\+DB sender task and queue.
+
+\begin{DoxyReturn}{Returns}
+true if initialization succeeded. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00863}{863}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_aa4004dc89e2d65499b5ee5af1720122d}\index{influxdb.c@{influxdb.c}!influxdb\_process@{influxdb\_process}}
+\index{influxdb\_process@{influxdb\_process}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_process()}{influxdb\_process()}}
+{\footnotesize\ttfamily \label{influxdb_8c_aa4004dc89e2d65499b5ee5af1720122d} 
+void influxdb\+\_\+process (\begin{DoxyParamCaption}\item[{Queue\+Handle\+\_\+t}]{sensor\+\_\+q}{, }\item[{Queue\+Handle\+\_\+t}]{avg\+\_\+q}{}\end{DoxyParamCaption})}
+
+
+
+Process sensor and system data into Influx\+DB payloads for enqueueing. 
+
+Process queued telemetry into Influx\+DB payloads and enqueue them for sending.
+
+
+\begin{DoxyParams}{Parameters}
+{\em sensor\+\_\+q} & Handle to the raw sensor queue. \\
+\hline
+{\em avg\+\_\+q} & Handle to the averaged sensor queue. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00949}{949}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a70c63b42621bf284740d93f6ab5332b5}\index{influxdb.c@{influxdb.c}!influxdb\_set\_dma\_monitor\_interval\_ms@{influxdb\_set\_dma\_monitor\_interval\_ms}}
+\index{influxdb\_set\_dma\_monitor\_interval\_ms@{influxdb\_set\_dma\_monitor\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_set\_dma\_monitor\_interval\_ms()}{influxdb\_set\_dma\_monitor\_interval\_ms()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a70c63b42621bf284740d93f6ab5332b5} 
+void influxdb\+\_\+set\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{ms}{}\end{DoxyParamCaption})}
+
+
+
+Set the DMA monitor reporting interval. 
+
+Set the DMA monitor interval used by the Influx\+DB monitor payload.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ms} & Interval in milliseconds. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00171}{171}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a9bb92ac35b6fae6e167acfd39524f089}\index{influxdb.c@{influxdb.c}!influxdb\_set\_influx\_task\_interval\_ms@{influxdb\_set\_influx\_task\_interval\_ms}}
+\index{influxdb\_set\_influx\_task\_interval\_ms@{influxdb\_set\_influx\_task\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_set\_influx\_task\_interval\_ms()}{influxdb\_set\_influx\_task\_interval\_ms()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a9bb92ac35b6fae6e167acfd39524f089} 
+void influxdb\+\_\+set\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms (\begin{DoxyParamCaption}\item[{uint32\+\_\+t}]{ms}{}\end{DoxyParamCaption})}
+
+
+
+Set the base Influx\+DB task interval. 
+
+Set the base Influx task interval.
+
+
+\begin{DoxyParams}{Parameters}
+{\em ms} & Interval in milliseconds. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00194}{194}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a4e1b30e5a34a97bd12df076a8df11b75}\index{influxdb.c@{influxdb.c}!influxdb\_wait\_ready@{influxdb\_wait\_ready}}
+\index{influxdb\_wait\_ready@{influxdb\_wait\_ready}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influxdb\_wait\_ready()}{influxdb\_wait\_ready()}}
+{\footnotesize\ttfamily \label{influxdb_8c_a4e1b30e5a34a97bd12df076a8df11b75} 
+bool influxdb\+\_\+wait\+\_\+ready (\begin{DoxyParamCaption}\item[{Tick\+Type\+\_\+t}]{timeout\+\_\+ticks}{}\end{DoxyParamCaption})}
+
+
+
+Wait for the Influx\+DB queue to become ready. 
+
+Wait until the Influx queue has been created and is ready.
+
+
+\begin{DoxyParams}{Parameters}
+{\em timeout\+\_\+ticks} & Number of RTOS ticks to wait. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if ready before timeout, false otherwise. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00045}{45}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{influxdb_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41}\index{influxdb.c@{influxdb.c}!g\_dma\_monitor\_interval\_ms@{g\_dma\_monitor\_interval\_ms}}
+\index{g\_dma\_monitor\_interval\_ms@{g\_dma\_monitor\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{g\_dma\_monitor\_interval\_ms}{g\_dma\_monitor\_interval\_ms}}
+{\footnotesize\ttfamily \label{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41} 
+uint32\+\_\+t g\+\_\+dma\+\_\+monitor\+\_\+interval\+\_\+ms = 5000}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00028}{28}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a}\index{influxdb.c@{influxdb.c}!g\_influx\_task\_interval\_ms@{g\_influx\_task\_interval\_ms}}
+\index{g\_influx\_task\_interval\_ms@{g\_influx\_task\_interval\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{g\_influx\_task\_interval\_ms}{g\_influx\_task\_interval\_ms}}
+{\footnotesize\ttfamily \label{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a} 
+uint32\+\_\+t g\+\_\+influx\+\_\+task\+\_\+interval\+\_\+ms = 20000}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00027}{27}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a4ba1d83558fc20bed62b45d8ee519492}\index{influxdb.c@{influxdb.c}!g\_monitor\_tick\_resolution\_ms@{g\_monitor\_tick\_resolution\_ms}}
+\index{g\_monitor\_tick\_resolution\_ms@{g\_monitor\_tick\_resolution\_ms}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{g\_monitor\_tick\_resolution\_ms}{g\_monitor\_tick\_resolution\_ms}}
+{\footnotesize\ttfamily \label{influxdb_8c_a4ba1d83558fc20bed62b45d8ee519492} 
+uint32\+\_\+t g\+\_\+monitor\+\_\+tick\+\_\+resolution\+\_\+ms = 1000}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00029}{29}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_abec6c02fe6593891d0ef639bfc1e7740}\index{influxdb.c@{influxdb.c}!influx\_queue@{influx\_queue}}
+\index{influx\_queue@{influx\_queue}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influx\_queue}{influx\_queue}}
+{\footnotesize\ttfamily \label{influxdb_8c_abec6c02fe6593891d0ef639bfc1e7740} 
+Queue\+Handle\+\_\+t influx\+\_\+queue = NULL}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00016}{16}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+
+\Hypertarget{influxdb_8c_a7f339c669404cffe83a04d98e067a0fa}\index{influxdb.c@{influxdb.c}!influx\_sender\_task\_handle@{influx\_sender\_task\_handle}}
+\index{influx\_sender\_task\_handle@{influx\_sender\_task\_handle}!influxdb.c@{influxdb.c}}
+\doxysubsubsection{\texorpdfstring{influx\_sender\_task\_handle}{influx\_sender\_task\_handle}}
+{\footnotesize\ttfamily \label{influxdb_8c_a7f339c669404cffe83a04d98e067a0fa} 
+Task\+Handle\+\_\+t influx\+\_\+sender\+\_\+task\+\_\+handle = NULL}
+
+
+
+Definition at line \mbox{\hyperlink{influxdb_8c_source_l00017}{17}} of file \mbox{\hyperlink{influxdb_8c_source}{influxdb.\+c}}.
+

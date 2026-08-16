@@ -1,0 +1,57 @@
+\doxysection{i2c\+\_\+functions.\+c}
+\hypertarget{i2c__functions_8c_source}{}\label{i2c__functions_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_functions.c@{/home/peter/Development/OSVentilationIDF/main/i2c\_functions.c}}
+\mbox{\hyperlink{i2c__functions_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{i2c__functions_8h}{i2c\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00017}00017\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}i2c\_functions"{}};}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00024}\mbox{\hyperlink{i2c__functions_8c_a39e18db7ead510094d920f9acee77eac}{00024}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__functions_8c_a39e18db7ead510094d920f9acee77eac}{i2c\_init\_master0}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00025}00025\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00026}00026\ \ \ \ \ esp\_err\_t\ err\ =\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00028}00028\ \ \ \ \ i2c\_master\_bus\_config\_t\ i2c\_bus0\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00029}00029\ \ \ \ \ \ \ \ \ .clk\_source\ =\ I2C\_CLK\_SRC\_DEFAULT,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00030}00030\ \ \ \ \ \ \ \ \ .i2c\_port\ =\ 0,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00031}00031\ \ \ \ \ \ \ \ \ .sda\_io\_num\ =\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.i2c\_master\_bus0\_sda\_io,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00032}00032\ \ \ \ \ \ \ \ \ .scl\_io\_num\ =\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.i2c\_master\_bus0\_scl\_io,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00033}00033\ \ \ \ \ \ \ \ \ .glitch\_ignore\_cnt\ =\ 7,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00034}00034\ \ \ \ \ \ \ \ \ .flags.enable\_internal\_pullup\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00035}00035\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00036}00036\ \ \ \ \ err\ =\ i2c\_new\_master\_bus(\&i2c\_bus0\_cfg,\ \&\mbox{\hyperlink{globals_8c_aefb351ec52ac77546d12f5dd1332c8b8}{i2c\_bus0\_handle}});}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00037}00037\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00038}00038\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00039}00039\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ I2C\ master\ bus\ 0:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00040}00040\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00042}00042\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00043}00043\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00045}\mbox{\hyperlink{i2c__functions_8c_a9d3397255ea3cd0730517edd22a18beb}{00045}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__functions_8c_a9d3397255ea3cd0730517edd22a18beb}{i2c\_init\_master1}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00046}00046\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00047}00047\ \ \ \ \ esp\_err\_t\ err\ =\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00049}00049\ \ \ \ \ i2c\_master\_bus\_config\_t\ i2c\_bus1\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ .clk\_source\ =\ I2C\_CLK\_SRC\_DEFAULT,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ .i2c\_port\ =\ 1,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ .sda\_io\_num\ =\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.i2c\_master\_bus1\_sda\_io,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ .scl\_io\_num\ =\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.i2c\_master\_bus1\_scl\_io,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ .glitch\_ignore\_cnt\ =\ 7,}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ .flags.enable\_internal\_pullup\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00056}00056\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00057}00057\ \ \ \ \ err\ =\ i2c\_new\_master\_bus(\&i2c\_bus1\_cfg,\ \&\mbox{\hyperlink{globals_8c_a82c5c41e821bcf6357378e1c61702de0}{i2c\_bus1\_handle}});}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00058}00058\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00059}00059\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ I2C\ master\ bus\ 0:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00061}00061\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00062}00062\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__functions_8c_source_l00063}00063\ \}}
+
+\end{DoxyCode}

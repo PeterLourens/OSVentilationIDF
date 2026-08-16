@@ -1,0 +1,74 @@
+\doxysection{eth\+\_\+functions.\+h}
+\hypertarget{eth__functions_8h_source}{}\label{eth__functions_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/eth\_functions.h@{/home/peter/Development/OSVentilationIDF/main/eth\_functions.h}}
+\mbox{\hyperlink{eth__functions_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00016}00016\ \textcolor{preprocessor}{\#ifndef\ TASK\_ETH\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00017}00017\ \textcolor{preprocessor}{\#define\ TASK\_ETH\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <driver/spi\_master.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <esp\_netif.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ <esp\_eth\_netif\_glue.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ <esp\_eth.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <esp\_eth\_mac.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ <esp\_eth\_phy.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ <esp\_eth\_mac\_spi.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ <arpa/inet.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <esp\_idf\_version.h>}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sys__stats_8h}{sys\_stats.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__manager_8h}{network\_manager.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00035}00035\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__functions_8h}{network\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00037}00037\ \textcolor{keyword}{extern}\ esp\_netif\_t\ *\mbox{\hyperlink{eth__functions_8c_a9ea2954ad22025318d0d8e31236cc8b3}{eth\_netif}};}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00038}00038\ \textcolor{keyword}{extern}\ esp\_eth\_handle\_t\ \mbox{\hyperlink{eth__functions_8c_a2de8665296107d26a2a527034e0bf2f9}{eth\_handle}};}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00046}00046\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_af89d4cb7564dda18b4d15cb719405ca4}{eth\_lifecycle\_init\_once}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00055}00055\ esp\_err\_t\ \mbox{\hyperlink{eth__functions_8h_aec832b03be0eaa8b74f74a9e4855f8dd}{eth\_hardware\_reset}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00057}00057\ esp\_err\_t\ \mbox{\hyperlink{eth__functions_8h_a9cb9ed4c6f2c4c1313ecf8993c06391d}{eth\_hardware\_reset\_safe}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00064}00064\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_ac3e62dc70fbe1edc6aa97f5536a56eff}{eth\_teardown\_safe}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00071}00071\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{eth__functions_8h_a7253f023a5396e8fe4eeba5d2aff51b1}{eth\_is\_connected}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00072}00072\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00079}00079\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{eth__functions_8h_a84b588ee86e129becb7c9501a827e113}{ethernet\_link\_is\_up}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00086}00086\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_a97fccc4d177f1ed03f51d3cee80dfca6}{eth\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00093}00093\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_ac083d14cefd22175cce5b2b32d604dbd}{attempt\_guarded\_eth\_restart}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00100}00100\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_a35e913e4e772138708751649995fc419}{handle\_deferred\_eth\_teardown\_if\_needed}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00107}00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_ab28f31c30317345e104ebf7b1c8bb3f2}{eth\_start}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00108}00108\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00116}00116\ esp\_err\_t\ \mbox{\hyperlink{eth__functions_8h_adddc09a7abc75ea5f74991d2d4ea23d5}{eth\_software\_restart}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00123}00123\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_a89d75d93d7ad1d242a929cbfd539e8ca}{eth\_stop}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00124}00124\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00130}00130\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{eth__functions_8h_aa9beadd076bf20623cd4696537a86b7e}{ethernet\_config\_is\_enabled}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00137}00137\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{eth__functions_8h_a1a60e853e8890b9ca5e89d668ddb8b1e}{ethernet\_config\_is\_dhcp\_enabled}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00145}00145\ esp\_err\_t\ \mbox{\hyperlink{eth__functions_8h_a2e4ac85f220239cd04d2f0d2b90de107}{ethernet\_config\_apply}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00146}00146\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00152}00152\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{eth__functions_8h_aba748ea94bbb415836127d41d5fdf4d4}{eth\_set\_shutting\_down}}(\textcolor{keywordtype}{bool}\ v);}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00153}00153\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00159}00159\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{eth__functions_8h_a9d1a52f95274d5e44af2951d99bb59c1}{eth\_is\_shutting\_down}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00160}00160\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00166}00166\ esp\_eth\_handle\_t\ \mbox{\hyperlink{eth__functions_8h_a2fcb11372e14fcede4741b6dd7b9dfc7}{eth\_get\_handle}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00167}00167\ }
+\DoxyCodeLine{\Hypertarget{eth__functions_8h_source_l00168}00168\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,175 @@
+\doxysection{MQTT\+\_\+config\+\_\+t Struct Reference}
+\hypertarget{structMQTT__config__t}{}\label{structMQTT__config__t}\index{MQTT\_config\_t@{MQTT\_config\_t}}
+
+
+MQTT connection and topic configuration persisted in JSON.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a5a34240d7fe2139510495ab58ec82674}{enable\+\_\+mqtt}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a6efc5dd45ec4e906567c01f54c005a1b}{mqtt\+\_\+server}} \mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a89bef572022b055b8749ad8c572b9ef2}{mqtt\+\_\+port}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_ab8293e970ead1da7a45fbcbffc7f8331}{mqtt\+\_\+base\+\_\+topic}} \mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a1b80fff5a550762e20136a5484a32371}{uri}} \mbox{[}\mbox{\hyperlink{globals_8h_a36a0e01899260bc7106c930758a8a311}{MLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_aed81f5f3fa0bcc77147122ead59e9b25}{username}} \mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_abc675cf1a8455712eec3715d5ab8842d}{password}} \mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structMQTT__config__t_a8732c11e087467d30646f0aed9946cff}{keepalive}}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a8bb12a6e95647b2c997f24c1b846e13b}{will\+\_\+topic}} \mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structMQTT__config__t_a5d4904ddc4bb5d3029b48c3c1ce804db}{will\+\_\+message}} \mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structMQTT__config__t_a3b0b0283f99ef64bca0425808796fa6f}{will\+\_\+qos}}
+\item 
+int \mbox{\hyperlink{structMQTT__config__t_ac10dd9b5a72471cf62238344f87c8df2}{will\+\_\+retain}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+MQTT connection and topic configuration persisted in JSON. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00260}{260}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structMQTT__config__t_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structMQTT__config__t_a5a34240d7fe2139510495ab58ec82674}\index{MQTT\_config\_t@{MQTT\_config\_t}!enable\_mqtt@{enable\_mqtt}}
+\index{enable\_mqtt@{enable\_mqtt}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{enable\_mqtt}{enable\_mqtt}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a5a34240d7fe2139510495ab58ec82674} 
+char MQTT\+\_\+config\+\_\+t\+::enable\+\_\+mqtt\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Enable/disable string for MQTT. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00262}{262}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a8732c11e087467d30646f0aed9946cff}\index{MQTT\_config\_t@{MQTT\_config\_t}!keepalive@{keepalive}}
+\index{keepalive@{keepalive}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{keepalive}{keepalive}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a8732c11e087467d30646f0aed9946cff} 
+int MQTT\+\_\+config\+\_\+t\+::keepalive}
+
+MQTT keepalive interval in seconds. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00269}{269}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_ab8293e970ead1da7a45fbcbffc7f8331}\index{MQTT\_config\_t@{MQTT\_config\_t}!mqtt\_base\_topic@{mqtt\_base\_topic}}
+\index{mqtt\_base\_topic@{mqtt\_base\_topic}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{mqtt\_base\_topic}{mqtt\_base\_topic}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_ab8293e970ead1da7a45fbcbffc7f8331} 
+char MQTT\+\_\+config\+\_\+t\+::mqtt\+\_\+base\+\_\+topic\mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Base topic prefix for published/subscribed messages. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00265}{265}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a89bef572022b055b8749ad8c572b9ef2}\index{MQTT\_config\_t@{MQTT\_config\_t}!mqtt\_port@{mqtt\_port}}
+\index{mqtt\_port@{mqtt\_port}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{mqtt\_port}{mqtt\_port}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a89bef572022b055b8749ad8c572b9ef2} 
+char MQTT\+\_\+config\+\_\+t\+::mqtt\+\_\+port\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+MQTT broker port as string. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00264}{264}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a6efc5dd45ec4e906567c01f54c005a1b}\index{MQTT\_config\_t@{MQTT\_config\_t}!mqtt\_server@{mqtt\_server}}
+\index{mqtt\_server@{mqtt\_server}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{mqtt\_server}{mqtt\_server}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a6efc5dd45ec4e906567c01f54c005a1b} 
+char MQTT\+\_\+config\+\_\+t\+::mqtt\+\_\+server\mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+MQTT broker hostname or IP. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00263}{263}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_abc675cf1a8455712eec3715d5ab8842d}\index{MQTT\_config\_t@{MQTT\_config\_t}!password@{password}}
+\index{password@{password}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{password}{password}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_abc675cf1a8455712eec3715d5ab8842d} 
+char MQTT\+\_\+config\+\_\+t\+::password\mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Password or token for MQTT authentication. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00268}{268}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a1b80fff5a550762e20136a5484a32371}\index{MQTT\_config\_t@{MQTT\_config\_t}!uri@{uri}}
+\index{uri@{uri}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{uri}{uri}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a1b80fff5a550762e20136a5484a32371} 
+char MQTT\+\_\+config\+\_\+t\+::uri\mbox{[}\mbox{\hyperlink{globals_8h_a36a0e01899260bc7106c930758a8a311}{MLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+MQTT URI, if used instead of host/port. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00266}{266}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_aed81f5f3fa0bcc77147122ead59e9b25}\index{MQTT\_config\_t@{MQTT\_config\_t}!username@{username}}
+\index{username@{username}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{username}{username}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_aed81f5f3fa0bcc77147122ead59e9b25} 
+char MQTT\+\_\+config\+\_\+t\+::username\mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Username for MQTT authentication. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00267}{267}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a5d4904ddc4bb5d3029b48c3c1ce804db}\index{MQTT\_config\_t@{MQTT\_config\_t}!will\_message@{will\_message}}
+\index{will\_message@{will\_message}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{will\_message}{will\_message}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a5d4904ddc4bb5d3029b48c3c1ce804db} 
+char MQTT\+\_\+config\+\_\+t\+::will\+\_\+message\mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Last will message payload. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00271}{271}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a3b0b0283f99ef64bca0425808796fa6f}\index{MQTT\_config\_t@{MQTT\_config\_t}!will\_qos@{will\_qos}}
+\index{will\_qos@{will\_qos}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{will\_qos}{will\_qos}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a3b0b0283f99ef64bca0425808796fa6f} 
+int MQTT\+\_\+config\+\_\+t\+::will\+\_\+qos}
+
+Last will QoS level. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00272}{272}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_ac10dd9b5a72471cf62238344f87c8df2}\index{MQTT\_config\_t@{MQTT\_config\_t}!will\_retain@{will\_retain}}
+\index{will\_retain@{will\_retain}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{will\_retain}{will\_retain}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_ac10dd9b5a72471cf62238344f87c8df2} 
+int MQTT\+\_\+config\+\_\+t\+::will\+\_\+retain}
+
+Last will retain flag. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00273}{273}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structMQTT__config__t_a8bb12a6e95647b2c997f24c1b846e13b}\index{MQTT\_config\_t@{MQTT\_config\_t}!will\_topic@{will\_topic}}
+\index{will\_topic@{will\_topic}!MQTT\_config\_t@{MQTT\_config\_t}}
+\doxysubsubsection{\texorpdfstring{will\_topic}{will\_topic}}
+{\footnotesize\ttfamily \label{structMQTT__config__t_a8bb12a6e95647b2c997f24c1b846e13b} 
+char MQTT\+\_\+config\+\_\+t\+::will\+\_\+topic\mbox{[}\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Last will topic. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00270}{270}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

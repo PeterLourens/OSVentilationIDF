@@ -1,0 +1,354 @@
+\doxysection{i2c\+\_\+ds3231.\+c}
+\hypertarget{i2c__ds3231_8c_source}{}\label{i2c__ds3231_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.c@{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.c}}
+\mbox{\hyperlink{i2c__ds3231_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{i2c__ds3231_8h}{i2c\_ds3231.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00014}00014\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}i2c\_DS3231"{}};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00019}\mbox{\hyperlink{i2c__ds3231_8c_a1d991a3ff0974823e6a7c6b8935a752a}{00019}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a1d991a3ff0974823e6a7c6b8935a752a}{i2c\_ds3231\_init}}(i2c\_master\_bus\_handle\_t\ bus\_handle,\ i2c\_master\_dev\_handle\_t\ *dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00020}00020\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00021}00021\ \ \ \ \ i2c\_device\_config\_t\ ds3231\_cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00022}00022\ \ \ \ \ \ \ \ \ .dev\_addr\_length\ =\ I2C\_ADDR\_BIT\_LEN\_7,}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00023}00023\ \ \ \ \ \ \ \ \ .device\_address\ =\ \mbox{\hyperlink{globals_8h_a180301d20436a62982bfba72292ca191}{DS3231\_I2C\_ADDR}},\ \textcolor{comment}{//\ 0x68}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00024}00024\ \ \ \ \ \ \ \ \ .scl\_speed\_hz\ =\ 100000,}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00025}00025\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00027}00027\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_bus\_add\_device(bus\_handle,\ \&ds3231\_cfg,\ dev\_handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00028}00028\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00029}00029\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00030}00030\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ add\ DS3231\ device:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00031}00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00032}00032\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00034}00034\ \ \ \ \ \textcolor{comment}{//\ Check\ if\ device\ responds\ by\ reading\ status\ register\ (0x0F)}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00035}00035\ \ \ \ \ uint8\_t\ reg\ =\ 0x0F;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00036}00036\ \ \ \ \ uint8\_t\ status\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00038}00038\ \ \ \ \ err\ =\ i2c\_master\_transmit\_receive(*dev\_handle,\ \&reg,\ 1,\ \&status,\ 1,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00039}00039\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00040}00040\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ status\ register:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00043}00043\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00045}00045\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}DS3231\ initialized\ successfully,\ status=0x\%02X"{}},\ status);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00046}00046\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00047}00047\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00052}\mbox{\hyperlink{i2c__ds3231_8c_ad6df71745ab454de9956c53bb3a79ef2}{00052}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8c_ad6df71745ab454de9956c53bb3a79ef2}{init\_system\_time\_from\_ds3231}}(i2c\_master\_dev\_handle\_t\ dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00053}00053\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00054}00054\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ rtc\_time;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00055}00055\ \ \ \ \ time\_t\ sys\_now;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00056}00056\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ sys\_time;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00058}00058\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__ds3231_8c_ae876375841446a81743414c9433dd235}{ds3231\_get\_time}}(dev\_handle,\ \&rtc\_time)\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00059}00059\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ time\_t\ rtc\_epoch\ =\ mktime(\&rtc\_time);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }timeval\ now\ =\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \ \ \ \ .tv\_sec\ =\ rtc\_epoch,}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ .tv\_usec\ =\ 0,}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00065}00065\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ settimeofday(\&now,\ NULL);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Print\ both\ RTC\ and\ system\ time}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ time(\&sys\_now);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ localtime\_r(\&sys\_now,\ \&sys\_time);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00071}00071\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00072}00072\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}RTC\ time\ read:\ \%s"{}},\ asctime(\&rtc\_time));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00073}00073\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}System\ time\ set:\ \%s"{}},\ asctime(\&sys\_time));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00074}00074\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00076}00076\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ DS3231\ at\ boot,\ system\ time\ starts\ at\ default\ (1970)"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00078}00078\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00079}00079\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00080}00080\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00084}00084\ \textcolor{keyword}{static}\ uint8\_t\ dec\_to\_bcd(\textcolor{keywordtype}{int}\ val)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00085}00085\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00086}00086\ \ \ \ \ \textcolor{keywordflow}{return}\ (uint8\_t)((val\ /\ 10\ *\ 16)\ +\ (val\ \%\ 10));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00087}00087\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00092}00092\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ bcd\_to\_dec(uint8\_t\ val)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00093}00093\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00094}00094\ \ \ \ \ \textcolor{keywordflow}{return}\ (val\ /\ 16\ *\ 10)\ +\ (val\ \%\ 16);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00095}00095\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00100}\mbox{\hyperlink{i2c__ds3231_8c_a3e73eab63f95c1a3d10d5b11783a813c}{00100}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a3e73eab63f95c1a3d10d5b11783a813c}{ds3231\_set\_time}}(i2c\_master\_dev\_handle\_t\ dev,\ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ tm\ *\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}})}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00101}00101\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00102}00102\ \ \ \ \ uint8\_t\ buf[8];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00103}00103\ \ \ \ \ buf[0]\ =\ 0x00;\ \textcolor{comment}{//\ start\ writing\ at\ register\ 0x00\ (seconds)}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00104}00104\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00105}00105\ \ \ \ \ buf[1]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_sec);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00106}00106\ \ \ \ \ buf[2]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_min);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00107}00107\ \ \ \ \ buf[3]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_hour);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00108}00108\ \ \ \ \ buf[4]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_wday\ ?\ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_wday\ :\ 7);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00109}00109\ \ \ \ \ buf[5]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_mday);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00110}00110\ \ \ \ \ buf[6]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_mon\ +\ 1);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00111}00111\ \ \ \ \ buf[7]\ =\ dec\_to\_bcd(\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_year\ \%\ 100);\ \textcolor{comment}{//\ 2000–2099}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00112}00112\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00113}00113\ \ \ \ \ \textcolor{keywordflow}{return}\ i2c\_master\_transmit(dev,\ buf,\ \textcolor{keyword}{sizeof}(buf),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00114}00114\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00115}00115\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00119}\mbox{\hyperlink{i2c__ds3231_8c_ae876375841446a81743414c9433dd235}{00119}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_ae876375841446a81743414c9433dd235}{ds3231\_get\_time}}(i2c\_master\_dev\_handle\_t\ dev,\ \textcolor{keyword}{struct}\ tm\ *\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}})}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00120}00120\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00121}00121\ \ \ \ \ uint8\_t\ reg\ =\ 0x00;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00122}00122\ \ \ \ \ uint8\_t\ buf[7];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00123}00123\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_transmit\_receive(dev,\ \&reg,\ 1,\ buf,\ \textcolor{keyword}{sizeof}(buf),\ -\/1);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00124}00124\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00126}00126\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00127}00127\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_sec\ =\ bcd\_to\_dec(buf[0]\ \&\ 0x7F);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00128}00128\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_min\ =\ bcd\_to\_dec(buf[1]\ \&\ 0x7F);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00129}00129\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_hour\ =\ bcd\_to\_dec(buf[2]\ \&\ 0x3F);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00130}00130\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_wday\ =\ bcd\_to\_dec(buf[3]\ \&\ 0x07);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00131}00131\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_mday\ =\ bcd\_to\_dec(buf[4]\ \&\ 0x3F);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00132}00132\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_mon\ =\ bcd\_to\_dec(buf[5]\ \&\ 0x1F)\ -\/\ 1;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00134}00134\ \ \ \ \ uint8\_t\ year\_bcd\ =\ buf[6]\ \&\ 0x7F;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00135}00135\ \ \ \ \ uint8\_t\ century\ =\ (buf[6]\ \&\ 0x80)\ ?\ 1\ :\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00136}00136\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00137}00137\ \ \ \ \ \textcolor{keywordtype}{int}\ year\ =\ bcd\_to\_dec(year\_bcd);\ \textcolor{comment}{//\ 0–99}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00139}00139\ \ \ \ \ \textcolor{keywordflow}{if}\ (century\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00140}00140\ \ \ \ \ \ \ \ \ year\ +=\ 2000;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00141}00141\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ year\ +=\ 2100;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00144}00144\ \ \ \ \ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}-\/>tm\_year\ =\ year\ -\/\ 1900;\ \textcolor{comment}{//\ struct\ tm\ format}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00145}00145\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00146}00146\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00147}00147\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00148}00148\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00152}\mbox{\hyperlink{i2c__ds3231_8c_ad0e351becf31f986c50269fbf9b18056}{00152}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_ad0e351becf31f986c50269fbf9b18056}{sync\_system\_and\_ds3231\_with\_ntp}}(i2c\_master\_dev\_handle\_t\ dev\_handle)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00153}00153\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00154}00154\ \ \ \ \ \textcolor{keywordtype}{char}\ ntp\_server[64];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00155}00155\ \ \ \ \ \textcolor{keywordtype}{char}\ timezone[64];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00157}00157\ \ \ \ \ \textcolor{comment}{//\ Read\ config\ under\ mutex}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00158}00158\ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_ae38b9d2a4a975d39bcd469da22010125}{time\_config\_mutex}},\ pdMS\_TO\_TICKS(20))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00159}00159\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00160}00160\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ time\_config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00161}00161\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00162}00162\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00163}00163\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00164}00164\ \ \ \ \ strncpy(ntp\_server,\ \mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.ntp\_server,\ \textcolor{keyword}{sizeof}(ntp\_server));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00165}00165\ \ \ \ \ ntp\_server[\textcolor{keyword}{sizeof}(ntp\_server)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00166}00166\ \ \ \ \ strncpy(timezone,\ \mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.timezone,\ \textcolor{keyword}{sizeof}(timezone));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00167}00167\ \ \ \ \ timezone[\textcolor{keyword}{sizeof}(timezone)\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00168}00168\ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_ae38b9d2a4a975d39bcd469da22010125}{time\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00169}00169\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00170}00170\ \ \ \ \ \textcolor{comment}{//\ Check\ network\ availability\ (Ethernet\ preferred,\ Wi-\/Fi\ fallback)}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00171}00171\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}())}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00172}00172\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}No\ network\ available,\ fallback\ to\ DS3231"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00174}00174\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }tm\ rtc\_time;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__ds3231_8c_ae876375841446a81743414c9433dd235}{ds3231\_get\_time}}(dev\_handle,\ \&rtc\_time)\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }timeval\ tv\ =\ \{.tv\_sec\ =\ mktime(\&rtc\_time),\ .tv\_usec\ =\ 0\};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ settimeofday(\&tv,\ NULL);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}System\ time\ set\ from\ DS3231"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00183}00183\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ DS3231"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00186}00186\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00187}00187\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00188}00188\ \ \ \ \ \textcolor{comment}{//\ Configure\ timezone}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00189}00189\ \ \ \ \ \textcolor{comment}{//\ Set\ at\ start,\ not\ here}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00190}00190\ \ \ \ \ \textcolor{comment}{//\ setenv("{}TZ"{},\ timezone,\ 1);}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00191}00191\ \ \ \ \ \textcolor{comment}{//\ tzset();}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00193}00193\ \ \ \ \ \textcolor{comment}{//\ Configure\ SNTP}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00194}00194\ \ \ \ \ esp\_sntp\_stop();}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00195}00195\ \ \ \ \ esp\_sntp\_setoperatingmode(ESP\_SNTP\_OPMODE\_POLL);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00196}00196\ \ \ \ \ esp\_sntp\_setservername(0,\ ntp\_server);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00197}00197\ \ \ \ \ esp\_sntp\_init();}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00198}00198\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00199}00199\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}SNTP\ started\ with\ server:\ \%s,\ TZ:\ \%s"{}},\ ntp\_server,\ timezone);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00200}00200\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00201}00201\ \ \ \ \ \textcolor{comment}{//\ Wait\ for\ sync}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00202}00202\ \ \ \ \ \textcolor{keywordtype}{int}\ retry\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00203}00203\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{int}\ retry\_count\ =\ 10;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00204}00204\ \ \ \ \ \textcolor{keywordflow}{while}\ (retry\ <\ retry\_count)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00205}00205\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ time\_t\ now\ =\ time(NULL);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00207}00207\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (now\ >\ 1600000000)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};\ \textcolor{comment}{//\ sanity\ check:\ year\ >\ 2020}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00209}00209\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Waiting\ for\ NTP\ time...\ (\%d/\%d)"{}},\ retry\ +\ 1,\ retry\_count);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00210}00210\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(2000));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ retry++;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00212}00212\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00213}00213\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00214}00214\ \ \ \ \ \textcolor{keywordflow}{if}\ (time(NULL)\ <\ 1600000000)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00215}00215\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}NTP\ sync\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00218}00218\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00219}00219\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00220}00220\ \ \ \ \ \textcolor{comment}{//\ Log\ current\ time}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00221}00221\ \ \ \ \ time\_t\ now;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00222}00222\ \ \ \ \ \textcolor{keyword}{struct\ }tm\ \mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00223}00223\ \ \ \ \ time(\&now);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00224}00224\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00225}00225\ \ \ \ \ \textcolor{comment}{//\ Write\ UTC\ to\ DS3231,\ not\ localtime}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00226}00226\ \ \ \ \ \textcolor{comment}{//\ localtime\_r(\&now,\ \&timeinfo);}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00227}00227\ \ \ \ \ gmtime\_r(\&now,\ \&\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00228}00228\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00229}00229\ \ \ \ \ \textcolor{keywordtype}{char}\ buf[64];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00230}00230\ \ \ \ \ strftime(buf,\ \textcolor{keyword}{sizeof}(buf),\ \textcolor{stringliteral}{"{}\%Y-\/\%m-\/\%d\ \%H:\%M:\%S"{}},\ \&\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00231}00231\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}System\ time\ synchronized\ (UTC):\ \%s"{}},\ buf);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00232}00232\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00233}00233\ \ \ \ \ \textcolor{comment}{//\ Update\ DS3231}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00234}00234\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{i2c__ds3231_8c_a3e73eab63f95c1a3d10d5b11783a813c}{ds3231\_set\_time}}(dev\_handle,\ \&\mbox{\hyperlink{globals_8c_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00235}00235\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00236}00236\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}DS3231\ updated\ successfully"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00238}00238\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00239}00239\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00240}00240\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ update\ DS3231:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00243}00243\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00244}00244\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00245}00245\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00246}00246\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00247}00247\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00248}00248\ \textcolor{comment}{//\ Low-\/level\ helpers}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00252}\mbox{\hyperlink{i2c__ds3231_8c_a9abdc3947bf6cee65f5cce7c438cbd28}{00252}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a9abdc3947bf6cee65f5cce7c438cbd28}{ds3231\_read\_reg}}(i2c\_master\_dev\_handle\_t\ dev,\ uint8\_t\ reg,\ uint8\_t\ *val)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00253}00253\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00254}00254\ \ \ \ \ \textcolor{keywordflow}{return}\ i2c\_master\_transmit\_receive(dev,\ \&reg,\ 1,\ val,\ 1,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00255}00255\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00256}00256\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00260}\mbox{\hyperlink{i2c__ds3231_8c_a6ee183dc0a17563c4c72d3a26fb79b55}{00260}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a6ee183dc0a17563c4c72d3a26fb79b55}{ds3231\_write\_reg}}(i2c\_master\_dev\_handle\_t\ dev,\ uint8\_t\ reg,\ uint8\_t\ val)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00261}00261\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00262}00262\ \ \ \ \ uint8\_t\ buf[2]\ =\ \{reg,\ val\};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00263}00263\ \ \ \ \ \textcolor{keywordflow}{return}\ i2c\_master\_transmit(dev,\ buf,\ 2,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00264}00264\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00265}00265\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00266}00266\ \textcolor{comment}{//\ Temperature}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00270}\mbox{\hyperlink{i2c__ds3231_8c_a25036ef493a8352b1750c1c7ec298bfa}{00270}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a25036ef493a8352b1750c1c7ec298bfa}{ds3231\_read\_temperature}}(i2c\_master\_dev\_handle\_t\ dev,\ \textcolor{keywordtype}{float}\ *temp\_c)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00271}00271\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00272}00272\ \ \ \ \ uint8\_t\ reg\ =\ \mbox{\hyperlink{i2c__ds3231_8h_aa03c8831a5b1e11abc00e730c23ecc55}{DS3231\_REG\_TEMP\_MSB}};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00273}00273\ \ \ \ \ uint8\_t\ buf[2];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00274}00274\ \ \ \ \ esp\_err\_t\ err\ =\ i2c\_master\_transmit\_receive(dev,\ \&reg,\ 1,\ buf,\ 2,\ pdMS\_TO\_TICKS(100));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00275}00275\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00276}00276\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00277}00277\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00278}00278\ \ \ \ \ int8\_t\ msb\ =\ buf[0];\ \ \ \ \ \ \ \textcolor{comment}{//\ signed}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00279}00279\ \ \ \ \ uint8\_t\ lsb\ =\ buf[1]\ >>\ 6;\ \textcolor{comment}{//\ upper\ 2\ bits}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00280}00280\ \ \ \ \ *temp\_c\ =\ msb\ +\ (lsb\ *\ 0.25f);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00281}00281\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00282}00282\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00284}00284\ \textcolor{comment}{//\ Status\ +\ health\ check}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00288}\mbox{\hyperlink{i2c__ds3231_8c_a88e7d8bd017eae59b90f60814a4431b8}{00288}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8c_a88e7d8bd017eae59b90f60814a4431b8}{ds3231\_check\_status}}(i2c\_master\_dev\_handle\_t\ dev,\ \textcolor{keywordtype}{char}\ *buf,\ \textcolor{keywordtype}{size\_t}\ bufsize)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00289}00289\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00290}00290\ \ \ \ \ uint8\_t\ status;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00291}00291\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{i2c__ds3231_8c_a9abdc3947bf6cee65f5cce7c438cbd28}{ds3231\_read\_reg}}(dev,\ \mbox{\hyperlink{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023}{DS3231\_REG\_STATUS}},\ \&status);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00292}00292\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00293}00293\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00294}00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ status:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00295}00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00296}00296\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00297}00297\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00298}00298\ \ \ \ \ \textcolor{keywordtype}{bool}\ osf\ =\ status\ \&\ 0x80;\ \ \textcolor{comment}{//\ Oscillator\ Stop\ Flag}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00299}00299\ \ \ \ \ \textcolor{keywordtype}{bool}\ busy\ =\ status\ \&\ 0x04;\ \textcolor{comment}{//\ Busy\ flag\ (temp\ conversion)}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00300}00300\ \ \ \ \ \textcolor{keywordtype}{bool}\ alarm1\ =\ status\ \&\ 0x01;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00301}00301\ \ \ \ \ \textcolor{keywordtype}{bool}\ alarm2\ =\ status\ \&\ 0x02;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00302}00302\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00303}00303\ \ \ \ \ \textcolor{keywordflow}{if}\ (osf)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00304}00304\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Oscillator\ Stop\ Flag\ set\ —\ RTC\ may\ have\ lost\ power!"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00306}00306\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__ds3231_8c_a6ee183dc0a17563c4c72d3a26fb79b55}{ds3231\_write\_reg}}(dev,\ \mbox{\hyperlink{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023}{DS3231\_REG\_STATUS}},\ status\ \&\ \string~0x80);\ \textcolor{comment}{//\ Clear\ OSF}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00307}00307\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00308}00308\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00309}00309\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00310}00310\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Oscillator\ running\ normally"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00311}00311\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00313}00313\ \ \ \ \ snprintf(buf,\ bufsize,\ \textcolor{stringliteral}{"{}OSF=\%d\ Busy=\%d\(\backslash\)nAl1=\%d\ Al2=\%d"{}},\ osf,\ busy,\ alarm1,\ alarm2);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00314}00314\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00315}00315\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Status\ bits:\ OSF=\%d,\ Busy=\%d,\ Alarm1=\%d,\ Alarm2=\%d"{}},\ osf,\ busy,\ alarm1,\ alarm2);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00316}00316\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00317}00317\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00318}00318\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00319}00319\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00323}\mbox{\hyperlink{i2c__ds3231_8c_a314cdf4ce4a471ece418bf23cc12953d}{00323}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8c_a314cdf4ce4a471ece418bf23cc12953d}{ds3231\_health\_monitor}}(i2c\_master\_dev\_handle\_t\ dev)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00324}00324\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00325}00325\ \ \ \ \ \textcolor{keywordtype}{float}\ temp\_c\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00326}00326\ \ \ \ \ \textcolor{keywordtype}{char}\ ds3231\_status[30];}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00327}00327\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00328}00328\ \ \ \ \ \mbox{\hyperlink{i2c__ds3231_8c_a88e7d8bd017eae59b90f60814a4431b8}{ds3231\_check\_status}}(dev,\ ds3231\_status,\ \textcolor{keyword}{sizeof}(ds3231\_status));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00329}00329\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00330}00330\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{i2c__ds3231_8c_a25036ef493a8352b1750c1c7ec298bfa}{ds3231\_read\_temperature}}(dev,\ \&temp\_c)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00331}00331\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00332}00332\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Unable\ to\ read\ temperature\ from\ DS3231"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00333}00333\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00334}00334\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00335}00335\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00339}\mbox{\hyperlink{i2c__ds3231_8c_a89ac0d55c41594375fa4bfc0e4fe8bce}{00339}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8c_a89ac0d55c41594375fa4bfc0e4fe8bce}{save\_ds3231\_diagnostics}}(\textcolor{keywordtype}{float}\ temp\_c)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00340}00340\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00341}00341\ \ \ \ \ nvs\_handle\_t\ handle;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00342}00342\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00343}00343\ \ \ \ \ esp\_err\_t\ err\ =\ nvs\_open(TAG,\ NVS\_READWRITE,\ \&handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00344}00344\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00345}00345\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00346}00346\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Error\ opening\ NVS:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00347}00347\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00348}00348\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00349}00349\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00350}00350\ \ \ \ \ nvs\_set\_i32(handle,\ \textcolor{stringliteral}{"{}temp\_c"{}},\ (int32\_t)(temp\_c\ *\ 100));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00351}00351\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00352}00352\ \ \ \ \ \textcolor{comment}{//\ Store\ current\ epoch\ time}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00353}00353\ \ \ \ \ time\_t\ now;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00354}00354\ \ \ \ \ time(\&now);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00355}00355\ \ \ \ \ nvs\_set\_i64(handle,\ \textcolor{stringliteral}{"{}last\_check"{}},\ (int64\_t)now);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00356}00356\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00357}00357\ \ \ \ \ nvs\_commit(handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00358}00358\ \ \ \ \ nvs\_close(handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00359}00359\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00360}00360\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Diagnostics\ saved:\ temp=\%.2f\ °C"{}},\ temp\_c);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00361}00361\ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00362}00362\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00366}\mbox{\hyperlink{i2c__ds3231_8c_ad055aa3e6e97867469362898154ddd01}{00366}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8c_ad055aa3e6e97867469362898154ddd01}{read\_ds3231\_diagnostics}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00367}00367\ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00368}00368\ \ \ \ \ nvs\_handle\_t\ handle;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00369}00369\ \ \ \ \ esp\_err\_t\ err\ =\ nvs\_open(TAG,\ NVS\_READONLY,\ \&handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00370}00370\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00371}00371\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00372}00372\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00373}00373\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}No\ diagnostics\ stored\ yet"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00374}00374\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00375}00375\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00376}00376\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00377}00377\ \ \ \ \ int32\_t\ temp100;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00378}00378\ \ \ \ \ int64\_t\ last\_check;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00379}00379\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00380}00380\ \ \ \ \ \textcolor{keywordflow}{if}\ (nvs\_get\_i32(handle,\ \textcolor{stringliteral}{"{}temp\_c"{}},\ \&temp100)\ ==\ ESP\_OK\ \&\&\ nvs\_get\_i64(handle,\ \textcolor{stringliteral}{"{}last\_check"{}},\ \&last\_check)\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00381}00381\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00382}00382\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }tm\ tm;}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00383}00383\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00384}00384\ \ \ \ \ \ \ \ \ localtime\_r((time\_t\ *)\&last\_check,\ \&tm);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00385}00385\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Last\ temp:\ \%.2f\ °C"{}},\ temp100\ /\ 100.0f);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00386}00386\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Last\ check:\ \%s"{}},\ asctime(\&tm));}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00387}00387\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00388}00388\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00389}00389\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00390}00390\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Diagnostics\ keys\ not\ found"{}});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00391}00391\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00392}00392\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00393}00393\ \ \ \ \ nvs\_close(handle);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8c_source_l00394}00394\ \}}
+
+\end{DoxyCode}

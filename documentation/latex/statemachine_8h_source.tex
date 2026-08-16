@@ -1,0 +1,58 @@
+\doxysection{statemachine.\+h}
+\hypertarget{statemachine_8h_source}{}\label{statemachine_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/statemachine.h@{/home/peter/Development/OSVentilationIDF/main/statemachine.h}}
+\mbox{\hyperlink{statemachine_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ STATEMACHINE\_H}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ STATEMACHINE\_H}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{statemachine__helper_8h}{statemachine\_helper.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{fancontrol_8h}{fancontrol.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{statemachine__states_8h}{statemachine\_states.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00020}00020\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a698cd211faae13ee7a85f1d740e1d5e0}{init\_statemachine}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00021}00021\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a0e57b192099637ff71dcf0df93d2c9cb}{run\_statemachine}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00022}00022\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_afbcb951eafe0c095eb8865f0066f7569}{init\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00023}00023\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_ac7817c714014d0321178c1f12525f62d}{stopped\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00024}00024\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a70e9a63327dc20eabea333778b0febb7}{day\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00025}00025\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_ad989b23a20167360aff86705466f34c3}{night\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00026}00026\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_ac8982f4a395dd06097567b94193407fa}{high\_co2\_day\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00027}00027\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_ab8e691c384e136f8891465748b74054f}{high\_co2\_night\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00028}00028\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a1aec138142e0672642fd887773a46698}{high\_rh\_day\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00029}00029\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a829bf2433ddd5bfcc53d4017b7646c94}{high\_rh\_night\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00030}00030\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_ac6c834acebafbafed3bf80728c5c27c2}{cooking\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00031}00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a4b822387382783a61b4138654781681d}{valve\_cycle\_day\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00032}00032\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a1064535029e730710fc47dacf68ed737}{valve\_cycle\_night\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00033}00033\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{statemachine_8h_a8940b8c0f871ea261398854e0216f053}{manual\_high\_speed\_transitions}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00035}00035\ \textcolor{comment}{//\ Sensor\ helpers\ exposed\ so\ other\ translation\ units\ can\ inspect\ selected\ sensors}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00036}\mbox{\hyperlink{structCO2__Sensors__t}{00036}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00037}00037\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00038}\mbox{\hyperlink{structCO2__Sensors__t_a64552bb050ecef9352358b8534a2d12d}{00038}}\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structCO2__Sensors__t_a64552bb050ecef9352358b8534a2d12d}{valve}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00039}\mbox{\hyperlink{structCO2__Sensors__t_add3812398a251dc26a6c7d0eacec80f1}{00039}}\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{structCO2__Sensors__t_add3812398a251dc26a6c7d0eacec80f1}{co2\_reading}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00040}00040\ \}\ \mbox{\hyperlink{structCO2__Sensors__t}{CO2\_Sensors\_t}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00042}\mbox{\hyperlink{structRH__Sensors__t}{00042}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00043}00043\ \{}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00044}\mbox{\hyperlink{structRH__Sensors__t_af020f4fbd03407d96d954b1084505834}{00044}}\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structRH__Sensors__t_af020f4fbd03407d96d954b1084505834}{valve}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00045}\mbox{\hyperlink{structRH__Sensors__t_a0cc04794e6ef4ada003b47785776cdbd}{00045}}\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{structRH__Sensors__t_a0cc04794e6ef4ada003b47785776cdbd}{rh\_reading}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00046}00046\ \}\ \mbox{\hyperlink{structRH__Sensors__t}{RH\_Sensors\_t}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00048}00048\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{structCO2__Sensors__t}{CO2\_Sensors\_t}}\ \mbox{\hyperlink{statemachine_8c_ad7d36e4a8606a2fda0ca640bc32422bc}{co2\_sensors}}[\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}}];}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00049}00049\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{structRH__Sensors__t}{RH\_Sensors\_t}}\ \mbox{\hyperlink{statemachine_8c_a588c4e51136b5a9fb020ad97a777ce4f}{rh\_sensors}}[\mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\_SENSORS}}];}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00051}00051\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine_8c_a1d68273baa3a7f4d8fa119934a76b314}{co2\_sensor\_counter}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00052}00052\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine_8c_a625b10d3484d91abd64e6186a2f1c413}{rh\_sensor\_counter}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00053}00053\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine_8h_a6ca29a532358b54356d5aaed6979dfe0}{co2\_sensors\_high}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00054}00054\ \textcolor{keyword}{extern}\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{statemachine_8h_a72319cef036fa6afe1acc923e6524102}{rh\_sensors\_high}};}
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{statemachine_8h_source_l00056}00056\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

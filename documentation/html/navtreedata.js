@@ -24,7 +24,7 @@
 */
 var NAVTREE =
 [
-  [ "OSVentilation", "index.html", [
+  [ "OSVentilationIDF", "index.html", [
     [ "Classes", "annotated.html", [
       [ "Class List", "annotated.html", "annotated_dup" ],
       [ "Class Index", "classes.html", null ],
@@ -50,13 +50,13 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"globals_8h.html#a07ba29234b9d405cfe548a14246c1783",
-"http__post__functions_8c.html#a06523c0de7c538199264df2caa71ab10",
-"mqtt_8c.html#a346a3921be1bcd18272370839faa3e18",
-"statemachine__states_8h.html#acfe98914c59461a5d0c84a772abb6de5ac028183b1bccfe65d742c3fbdf1468e3",
-"structtar__header__t.html#a4b61bab463342bcda086bc607c93b8b5"
+"globals_8c.html#afb48a597d7884b66e4a517a56cd7e94b",
+"http__helper_8c_source.html",
+"logging_8h.html#aa3aec4c78539b7d586900c6941ff8cb1",
+"statemachine__helper_8h.html#a42c970122ae370a12a8ec4b247066448",
+"structhw__caps__t.html#ad6a8adc742c452549af3e7c755b8c466"
 ];
 
-const SYNCONMSG = 'click to disable panel synchronization';
-const SYNCOFFMSG = 'click to enable panel synchronization';
-const LISTOFALLMEMBERS = 'List of all members';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';

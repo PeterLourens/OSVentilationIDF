@@ -1,0 +1,218 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/syslog.h File Reference}
+\hypertarget{syslog_8h}{}\label{syslog_8h}\index{/home/peter/Development/OSVentilationIDF/main/syslog.h@{/home/peter/Development/OSVentilationIDF/main/syslog.h}}
+
+
+Public syslog helper declarations and queue interfaces.  
+
+
+{\ttfamily \#include $<$esp\+\_\+netif.\+h$>$}\newline
+{\ttfamily \#include $<$sys/socket.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+functions.\+h"{}}\newline
+Include dependency graph for syslog.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{syslog_8h_a4b9dec5bbecb4815a13be81a5e61b8aa}{SYSLOG\+\_\+\+QUEUE\+\_\+\+LENGTH}}~64
+\item 
+\#define \mbox{\hyperlink{syslog_8h_a3789d56554454c39a416b368eeeb7a8b}{SYSLOG\+\_\+\+MAX\+\_\+\+LINE\+\_\+\+LEN}}~512
+\item 
+\#define \mbox{\hyperlink{syslog_8h_a8421db09bcdd1d2eda90421d2c3ccf85}{SYSLOG\+\_\+\+WORKER\+\_\+\+STACK}}~4096
+\item 
+\#define \mbox{\hyperlink{syslog_8h_ad6259844e69f7260a58b73da723fd88e}{SYSLOG\+\_\+\+WORKER\+\_\+\+PRIO}}~5
+\item 
+\#define \mbox{\hyperlink{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43}{SYSLOG\+\_\+\+SEND\+\_\+\+RETRIES}}~3
+\item 
+\#define \mbox{\hyperlink{syslog_8h_a3b0b077cbe385058f258ac051ff57182}{SYSLOG\+\_\+\+RETRY\+\_\+\+DELAY\+\_\+\+MS}}~500
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{syslog_8h_a0b21c9808e4dbe22abd008367a1eaeef}{syslog\+\_\+send\+\_\+line}} (const char \texorpdfstring{$\ast$}{*})
+\item 
+bool \mbox{\hyperlink{syslog_8h_a5875aa075f63dd7b535ced071f751caf}{network\+\_\+wait\+\_\+for\+\_\+ip}} (int, int, const char \texorpdfstring{$\ast$}{*})
+\item 
+void \mbox{\hyperlink{syslog_8h_a96ec32e39db6dfc4b42d875e8f1c0416}{syslog\+\_\+enable}} (void)
+\item 
+void \mbox{\hyperlink{syslog_8h_a75c8a90b6c205d3df4c8dc0cc4fc2152}{syslog\+\_\+disable}} (void)
+\item 
+void \mbox{\hyperlink{syslog_8h_ab1e54a15fcb1206c48c501c107880ccf}{syslog\+\_\+queue\+\_\+init}} (void)
+\item 
+void \mbox{\hyperlink{syslog_8h_a020c13fcbba60e55e063f099a00bea74}{syslog\+\_\+queue\+\_\+deinit}} (void)
+\item 
+void \mbox{\hyperlink{syslog_8h_a1687dfe7b28a75c0dc10fe5e4bd0eb26}{syslog\+\_\+enqueue\+\_\+line}} (const char \texorpdfstring{$\ast$}{*}line)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+volatile bool \mbox{\hyperlink{syslog_8h_a3ba8760c6d06f052277f059d6b2d2ab7}{g\+\_\+request\+\_\+syslog\+\_\+update}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public syslog helper declarations and queue interfaces. 
+
+
+
+Definition in file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{syslog_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{syslog_8h_a3789d56554454c39a416b368eeeb7a8b}\index{syslog.h@{syslog.h}!SYSLOG\_MAX\_LINE\_LEN@{SYSLOG\_MAX\_LINE\_LEN}}
+\index{SYSLOG\_MAX\_LINE\_LEN@{SYSLOG\_MAX\_LINE\_LEN}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_MAX\_LINE\_LEN}{SYSLOG\_MAX\_LINE\_LEN}}
+{\footnotesize\ttfamily \label{syslog_8h_a3789d56554454c39a416b368eeeb7a8b} 
+\#define SYSLOG\+\_\+\+MAX\+\_\+\+LINE\+\_\+\+LEN~512}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00025}{25}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+\Hypertarget{syslog_8h_a4b9dec5bbecb4815a13be81a5e61b8aa}\index{syslog.h@{syslog.h}!SYSLOG\_QUEUE\_LENGTH@{SYSLOG\_QUEUE\_LENGTH}}
+\index{SYSLOG\_QUEUE\_LENGTH@{SYSLOG\_QUEUE\_LENGTH}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_QUEUE\_LENGTH}{SYSLOG\_QUEUE\_LENGTH}}
+{\footnotesize\ttfamily \label{syslog_8h_a4b9dec5bbecb4815a13be81a5e61b8aa} 
+\#define SYSLOG\+\_\+\+QUEUE\+\_\+\+LENGTH~64}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00024}{24}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+\Hypertarget{syslog_8h_a3b0b077cbe385058f258ac051ff57182}\index{syslog.h@{syslog.h}!SYSLOG\_RETRY\_DELAY\_MS@{SYSLOG\_RETRY\_DELAY\_MS}}
+\index{SYSLOG\_RETRY\_DELAY\_MS@{SYSLOG\_RETRY\_DELAY\_MS}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_RETRY\_DELAY\_MS}{SYSLOG\_RETRY\_DELAY\_MS}}
+{\footnotesize\ttfamily \label{syslog_8h_a3b0b077cbe385058f258ac051ff57182} 
+\#define SYSLOG\+\_\+\+RETRY\+\_\+\+DELAY\+\_\+\+MS~500}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00029}{29}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+\Hypertarget{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43}\index{syslog.h@{syslog.h}!SYSLOG\_SEND\_RETRIES@{SYSLOG\_SEND\_RETRIES}}
+\index{SYSLOG\_SEND\_RETRIES@{SYSLOG\_SEND\_RETRIES}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_SEND\_RETRIES}{SYSLOG\_SEND\_RETRIES}}
+{\footnotesize\ttfamily \label{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43} 
+\#define SYSLOG\+\_\+\+SEND\+\_\+\+RETRIES~3}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00028}{28}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+\Hypertarget{syslog_8h_ad6259844e69f7260a58b73da723fd88e}\index{syslog.h@{syslog.h}!SYSLOG\_WORKER\_PRIO@{SYSLOG\_WORKER\_PRIO}}
+\index{SYSLOG\_WORKER\_PRIO@{SYSLOG\_WORKER\_PRIO}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_WORKER\_PRIO}{SYSLOG\_WORKER\_PRIO}}
+{\footnotesize\ttfamily \label{syslog_8h_ad6259844e69f7260a58b73da723fd88e} 
+\#define SYSLOG\+\_\+\+WORKER\+\_\+\+PRIO~5}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00027}{27}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+\Hypertarget{syslog_8h_a8421db09bcdd1d2eda90421d2c3ccf85}\index{syslog.h@{syslog.h}!SYSLOG\_WORKER\_STACK@{SYSLOG\_WORKER\_STACK}}
+\index{SYSLOG\_WORKER\_STACK@{SYSLOG\_WORKER\_STACK}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{SYSLOG\_WORKER\_STACK}{SYSLOG\_WORKER\_STACK}}
+{\footnotesize\ttfamily \label{syslog_8h_a8421db09bcdd1d2eda90421d2c3ccf85} 
+\#define SYSLOG\+\_\+\+WORKER\+\_\+\+STACK~4096}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8h_source_l00026}{26}} of file \mbox{\hyperlink{syslog_8h_source}{syslog.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{syslog_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{syslog_8h_a5875aa075f63dd7b535ced071f751caf}\index{syslog.h@{syslog.h}!network\_wait\_for\_ip@{network\_wait\_for\_ip}}
+\index{network\_wait\_for\_ip@{network\_wait\_for\_ip}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{network\_wait\_for\_ip()}{network\_wait\_for\_ip()}}
+{\footnotesize\ttfamily \label{syslog_8h_a5875aa075f63dd7b535ced071f751caf} 
+bool network\+\_\+wait\+\_\+for\+\_\+ip (\begin{DoxyParamCaption}\item[{int}]{max\+\_\+retries}{, }\item[{int}]{delay\+\_\+ms}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{netif\+\_\+key}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00499}{499}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_a75c8a90b6c205d3df4c8dc0cc4fc2152}\index{syslog.h@{syslog.h}!syslog\_disable@{syslog\_disable}}
+\index{syslog\_disable@{syslog\_disable}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_disable()}{syslog\_disable()}}
+{\footnotesize\ttfamily \label{syslog_8h_a75c8a90b6c205d3df4c8dc0cc4fc2152} 
+void syslog\+\_\+disable (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00540}{540}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_a96ec32e39db6dfc4b42d875e8f1c0416}\index{syslog.h@{syslog.h}!syslog\_enable@{syslog\_enable}}
+\index{syslog\_enable@{syslog\_enable}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_enable()}{syslog\_enable()}}
+{\footnotesize\ttfamily \label{syslog_8h_a96ec32e39db6dfc4b42d875e8f1c0416} 
+void syslog\+\_\+enable (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00535}{535}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_a1687dfe7b28a75c0dc10fe5e4bd0eb26}\index{syslog.h@{syslog.h}!syslog\_enqueue\_line@{syslog\_enqueue\_line}}
+\index{syslog\_enqueue\_line@{syslog\_enqueue\_line}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_enqueue\_line()}{syslog\_enqueue\_line()}}
+{\footnotesize\ttfamily \label{syslog_8h_a1687dfe7b28a75c0dc10fe5e4bd0eb26} 
+void syslog\+\_\+enqueue\+\_\+line (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{line}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00334}{334}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_a020c13fcbba60e55e063f099a00bea74}\index{syslog.h@{syslog.h}!syslog\_queue\_deinit@{syslog\_queue\_deinit}}
+\index{syslog\_queue\_deinit@{syslog\_queue\_deinit}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_queue\_deinit()}{syslog\_queue\_deinit()}}
+{\footnotesize\ttfamily \label{syslog_8h_a020c13fcbba60e55e063f099a00bea74} 
+void syslog\+\_\+queue\+\_\+deinit (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00313}{313}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_ab1e54a15fcb1206c48c501c107880ccf}\index{syslog.h@{syslog.h}!syslog\_queue\_init@{syslog\_queue\_init}}
+\index{syslog\_queue\_init@{syslog\_queue\_init}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_queue\_init()}{syslog\_queue\_init()}}
+{\footnotesize\ttfamily \label{syslog_8h_ab1e54a15fcb1206c48c501c107880ccf} 
+void syslog\+\_\+queue\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00286}{286}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+\Hypertarget{syslog_8h_a0b21c9808e4dbe22abd008367a1eaeef}\index{syslog.h@{syslog.h}!syslog\_send\_line@{syslog\_send\_line}}
+\index{syslog\_send\_line@{syslog\_send\_line}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_send\_line()}{syslog\_send\_line()}}
+{\footnotesize\ttfamily \label{syslog_8h_a0b21c9808e4dbe22abd008367a1eaeef} 
+void syslog\+\_\+send\+\_\+line (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{line}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00367}{367}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{syslog_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{syslog_8h_a3ba8760c6d06f052277f059d6b2d2ab7}\index{syslog.h@{syslog.h}!g\_request\_syslog\_update@{g\_request\_syslog\_update}}
+\index{g\_request\_syslog\_update@{g\_request\_syslog\_update}!syslog.h@{syslog.h}}
+\doxysubsubsection{\texorpdfstring{g\_request\_syslog\_update}{g\_request\_syslog\_update}}
+{\footnotesize\ttfamily \label{syslog_8h_a3ba8760c6d06f052277f059d6b2d2ab7} 
+volatile bool g\+\_\+request\+\_\+syslog\+\_\+update\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{syslog_8c_source_l00015}{15}} of file \mbox{\hyperlink{syslog_8c_source}{syslog.\+c}}.
+

@@ -1,0 +1,106 @@
+\doxysection{hardware\+\_\+caps.\+c}
+\hypertarget{hardware__caps_8c_source}{}\label{hardware__caps_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.c@{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.c}}
+\mbox{\hyperlink{hardware__caps_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{hardware__caps_8h}{hardware\_caps.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00017}00017\ \textcolor{comment}{//\ default:\ build\ for\ v3\ in\ this\ branch}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00018}\mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{00018}}\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\_version\_t}}\ \mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\_version}}\ =\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\_VERSION\_3}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00023}00023\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structhw__caps__t}{hw\_caps\_t}}\ hw\_v2\ =\ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00024}00024\ \ \ \ \ .has\_ethernet\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00025}00025\ \ \ \ \ .has\_wifi\_led\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00026}00026\ \ \ \ \ .has\_eth\_led\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00028}00028\ \ \ \ \ .pin\_wifi\_led\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00029}00029\ \ \ \ \ .pin\_eth\_led\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00031}00031\ \ \ \ \ .i2c\_master\_bus0\_sda\_io\ =\ 39,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00032}00032\ \ \ \ \ .i2c\_master\_bus0\_scl\_io\ =\ 38,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00033}00033\ \ \ \ \ .i2c\_master\_bus1\_sda\_io\ =\ 41,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00034}00034\ \ \ \ \ .i2c\_master\_bus1\_scl\_io\ =\ 40,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00036}00036\ \ \ \ \ .w5500\_miso\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00037}00037\ \ \ \ \ .w5500\_mosi\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00038}00038\ \ \ \ \ .w5500\_sclk\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00039}00039\ \ \ \ \ .w5500\_cs\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00040}00040\ \ \ \ \ .w5500\_int\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00041}00041\ \ \ \ \ .w5500\_rst\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00043}00043\ \ \ \ \ .uart0\_tx\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00044}00044\ \ \ \ \ .uart0\_rx\_gpio\ =\ -\/1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00046}00046\ \ \ \ \ .clockpin1\ =\ 11,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00047}00047\ \ \ \ \ .latchpin1\ =\ 12,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00048}00048\ \ \ \ \ .datapin1\ =\ 13,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00050}00050\ \ \ \ \ .clockpin2\ =\ 15,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00051}00051\ \ \ \ \ .latchpin2\ =\ 16,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00052}00052\ \ \ \ \ .datapin2\ =\ 14,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00054}00054\ \ \ \ \ .rgb\_led\_pin\ =\ 42,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00056}00056\ \ \ \ \ .switch1\_pin\ =\ 6,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00057}00057\ \ \ \ \ .switch2\_pin\ =\ 7,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00058}00058\ \};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00063}00063\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structhw__caps__t}{hw\_caps\_t}}\ hw\_v3\ =\ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00064}00064\ \ \ \ \ .has\_ethernet\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00065}00065\ \ \ \ \ .has\_wifi\_led\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00066}00066\ \ \ \ \ .has\_eth\_led\ =\ \textcolor{keyword}{true},}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00068}00068\ \ \ \ \ .pin\_wifi\_led\ =\ 45,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00069}00069\ \ \ \ \ .pin\_eth\_led\ =\ 46,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00071}00071\ \ \ \ \ .i2c\_master\_bus0\_sda\_io\ =\ 18,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00072}00072\ \ \ \ \ .i2c\_master\_bus0\_scl\_io\ =\ 17,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00073}00073\ \ \ \ \ .i2c\_master\_bus1\_sda\_io\ =\ 7,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00074}00074\ \ \ \ \ .i2c\_master\_bus1\_scl\_io\ =\ 6,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00076}00076\ \ \ \ \ .w5500\_miso\_gpio\ =\ 13,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00077}00077\ \ \ \ \ .w5500\_mosi\_gpio\ =\ 11,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00078}00078\ \ \ \ \ .w5500\_sclk\_gpio\ =\ 12,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00079}00079\ \ \ \ \ .w5500\_cs\_gpio\ =\ 10,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00080}00080\ \ \ \ \ .w5500\_int\_gpio\ =\ 9,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00081}00081\ \ \ \ \ .w5500\_rst\_gpio\ =\ 8,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00082}00082\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00083}00083\ \ \ \ \ .uart0\_tx\_gpio\ =\ 43,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00084}00084\ \ \ \ \ .uart0\_rx\_gpio\ =\ 44,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00085}00085\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00086}00086\ \ \ \ \ .clockpin1\ =\ 1,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00087}00087\ \ \ \ \ .latchpin1\ =\ 2,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00088}00088\ \ \ \ \ .datapin1\ =\ 3,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00090}00090\ \ \ \ \ .clockpin2\ =\ 15,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00091}00091\ \ \ \ \ .latchpin2\ =\ 16,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00092}00092\ \ \ \ \ .datapin2\ =\ 14,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00094}00094\ \ \ \ \ .rgb\_led\_pin\ =\ 47,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00095}00095\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00096}00096\ \ \ \ \ .switch1\_pin\ =\ 4,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00097}00097\ \ \ \ \ .switch2\_pin\ =\ 5,}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00098}00098\ \};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00099}\mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{00099}}\ \mbox{\hyperlink{structhw__caps__t}{hw\_caps\_t}}\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00100}00100\ }
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00107}\mbox{\hyperlink{hardware__caps_8c_ae58df14f30461cb37e8607aca5522846}{00107}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{hardware__caps_8c_ae58df14f30461cb37e8607aca5522846}{hw\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00108}00108\ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00109}00109\ \ \ \ \ \textcolor{keywordflow}{switch}\ (\mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\_version}})}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00110}00110\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00111}00111\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}{HW\_VERSION\_2}}:}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}\ =\ hw\_v2;}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00114}00114\ \ \ \ \ \textcolor{keywordflow}{case}\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\_VERSION\_3}}:}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00115}00115\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}\ =\ hw\_v3;}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00118}00118\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{hardware__caps_8c_source_l00119}00119\ \}}
+
+\end{DoxyCode}

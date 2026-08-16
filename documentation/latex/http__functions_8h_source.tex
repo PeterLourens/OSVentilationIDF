@@ -1,0 +1,45 @@
+\doxysection{http\+\_\+functions.\+h}
+\hypertarget{http__functions_8h_source}{}\label{http__functions_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/http\_functions.h@{/home/peter/Development/OSVentilationIDF/main/http\_functions.h}}
+\mbox{\hyperlink{http__functions_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ HTTP\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ HTTP\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <esp\_http\_server.h>}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{config__files_8h}{config\_files.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__helper_8h}{http\_helper.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__send__ws__data_8h}{http\_send\_ws\_data.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__post__functions_8h}{http\_post\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{valvecontrol_8h}{valvecontrol.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{i2c__sensors_8h}{i2c\_sensors.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{statemachine_8h}{statemachine.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__manager_8h}{network\_manager.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{stats__worker_8h}{stats\_worker.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sys__stats_8h}{sys\_stats.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__uart__sender_8h}{task\_uart\_sender.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00033}\mbox{\hyperlink{http__functions_8h_a1cc03b061f75b7874f0111f10c02d897}{00033}}\ \textcolor{preprocessor}{\#define\ LOG\_BUF\_SIZE\ 256}}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00044}00044\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__functions_8h_a98b3b9a15f61ddde482666cf2a899dac}{ws\_async\_send}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *buf,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00056}00056\ esp\_err\_t\ \mbox{\hyperlink{http__functions_8h_a9dd8efe54e059142817e14d63550cd7f}{http\_server\_start}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00066}00066\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{http__functions_8h_ae960cfbc7dba6d406e29b2e76655f913}{register\_http\_handlers}}(httpd\_handle\_t\ server);}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00078}00078\ esp\_err\_t\ \mbox{\hyperlink{http__functions_8h_a626ad843a2f9e2d959e4314a194af08e}{http\_server\_stop}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{http__functions_8h_source_l00080}00080\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

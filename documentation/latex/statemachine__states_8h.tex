@@ -1,0 +1,211 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/statemachine\+\_\+states.h File Reference}
+\hypertarget{statemachine__states_8h}{}\label{statemachine__states_8h}\index{/home/peter/Development/OSVentilationIDF/main/statemachine\_states.h@{/home/peter/Development/OSVentilationIDF/main/statemachine\_states.h}}
+
+
+State and fan speed enum definitions used by the OSVentilation state machine.  
+
+
+This graph shows which files directly or indirectly include this file\+:
+% FIG 0
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}} \{ \newline
+\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa0f898f8969df3d9c4e7d04e8c31e6ea}{STATE\+\_\+\+NR\+\_\+\+ERROR}} = 0
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5af0b0576112314b5708509ac8463d0b85}{STATE\+\_\+\+NR\+\_\+\+INIT}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac028183b1bccfe65d742c3fbdf1468e3}{STATE\+\_\+\+NR\+\_\+\+DAY}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0816d9267bff26951992bd92f30f49f9}{STATE\+\_\+\+NR\+\_\+\+NIGHT}}
+, \newline
+\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a82dee2c6aca2ccf57c0fc41ee989df4b}{STATE\+\_\+\+NR\+\_\+\+HIGHCO2\+DAY}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a1d0a28dca8cc1be6ae2a388d2c87d970}{STATE\+\_\+\+NR\+\_\+\+HIGHCO2\+NIGHT}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac08fa604f1a4e5269d74720d784620ee}{STATE\+\_\+\+NR\+\_\+\+HIGHRHDAY}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa36fd18728fb0552b4851b2f4e74d61e}{STATE\+\_\+\+NR\+\_\+\+HIGHRHNIGHT}}
+, \newline
+\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a363d12a4d007db05207f38f6bc091352}{STATE\+\_\+\+NR\+\_\+\+COOKING}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5abdb6fbe25b1f7495782b1aa4e3942ed8}{STATE\+\_\+\+NR\+\_\+\+CYCLINGDAY}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a745fe63e46560f5fb883c081cc3625d8}{STATE\+\_\+\+NR\+\_\+\+CYCLINGNIGHT}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a878e78d70af4ba5d67f9b4396ec8b548}{STATE\+\_\+\+NR\+\_\+\+MANUALHS}}
+, \newline
+\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0a0733b208a320f6feed777d19a06650}{STATE\+\_\+\+NR\+\_\+\+STOPPED}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a700b92da5320ed878359c09222b39b48}{STATE\+\_\+\+NR\+\_\+\+TEMP}}
+, \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ada801ee36c564344301ce6614d48b834}{STATE\+\_\+\+NR\+\_\+\+MAX}}
+ \}
+\item 
+enum \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}} \{ \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8af53ddbc471fa4c5866bb43f8d47b3b60}{FAN\+\_\+\+SPEED\+\_\+\+ERROR}} = 0
+, \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8aa0a1f75751da659353767a794eda027e}{FAN\+\_\+\+SPEED\+\_\+\+LOW}}
+, \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8a9ec9f618c86960215755dbb8fcbae2e3}{FAN\+\_\+\+SPEED\+\_\+\+MEDIUM}}
+, \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8ac561ee71fd9d9556b00cdfab3cc91a85}{FAN\+\_\+\+SPEED\+\_\+\+HIGH}}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{statemachine__states_8h_acae851b7d5bb3f90f1584d6ae457cc48}{state\+\_\+nr\+\_\+to\+\_\+str}} (\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}} state)
+\begin{DoxyCompactList}\small\item\em Convert a statemachine state enum to a human-\/readable string. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{statemachine__states_8h_acd9bcc7936989793ed3455e3992fdd22}{fan\+\_\+speed\+\_\+to\+\_\+str}} (\mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}} f)
+\begin{DoxyCompactList}\small\item\em Convert a fan speed enum to a human-\/readable string. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+State and fan speed enum definitions used by the OSVentilation state machine. 
+
+
+
+Definition in file \mbox{\hyperlink{statemachine__states_8h_source}{statemachine\+\_\+states.\+h}}.
+
+
+
+\label{doc-enum-members}
+\Hypertarget{statemachine__states_8h_doc-enum-members}
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}\index{statemachine\_states.h@{statemachine\_states.h}!fan\_speed\_t@{fan\_speed\_t}}
+\index{fan\_speed\_t@{fan\_speed\_t}!statemachine\_states.h@{statemachine\_states.h}}
+\doxysubsubsection{\texorpdfstring{fan\_speed\_t}{fan\_speed\_t}}
+{\footnotesize\ttfamily \label{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8} 
+enum \mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FAN\_SPEED\_ERROR@{FAN\_SPEED\_ERROR}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!FAN\_SPEED\_ERROR@{FAN\_SPEED\_ERROR}}}\Hypertarget{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8af53ddbc471fa4c5866bb43f8d47b3b60}\label{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8af53ddbc471fa4c5866bb43f8d47b3b60} 
+FAN\+\_\+\+SPEED\+\_\+\+ERROR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FAN\_SPEED\_LOW@{FAN\_SPEED\_LOW}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!FAN\_SPEED\_LOW@{FAN\_SPEED\_LOW}}}\Hypertarget{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8aa0a1f75751da659353767a794eda027e}\label{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8aa0a1f75751da659353767a794eda027e} 
+FAN\+\_\+\+SPEED\+\_\+\+LOW&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FAN\_SPEED\_MEDIUM@{FAN\_SPEED\_MEDIUM}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!FAN\_SPEED\_MEDIUM@{FAN\_SPEED\_MEDIUM}}}\Hypertarget{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8a9ec9f618c86960215755dbb8fcbae2e3}\label{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8a9ec9f618c86960215755dbb8fcbae2e3} 
+FAN\+\_\+\+SPEED\+\_\+\+MEDIUM&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FAN\_SPEED\_HIGH@{FAN\_SPEED\_HIGH}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!FAN\_SPEED\_HIGH@{FAN\_SPEED\_HIGH}}}\Hypertarget{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8ac561ee71fd9d9556b00cdfab3cc91a85}\label{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8ac561ee71fd9d9556b00cdfab3cc91a85} 
+FAN\+\_\+\+SPEED\+\_\+\+HIGH&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{statemachine__states_8h_source_l00035}{35}} of file \mbox{\hyperlink{statemachine__states_8h_source}{statemachine\+\_\+states.\+h}}.
+
+\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}\index{statemachine\_states.h@{statemachine\_states.h}!state\_nr\_t@{state\_nr\_t}}
+\index{state\_nr\_t@{state\_nr\_t}!statemachine\_states.h@{statemachine\_states.h}}
+\doxysubsubsection{\texorpdfstring{state\_nr\_t}{state\_nr\_t}}
+{\footnotesize\ttfamily \label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5} 
+enum \mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}}}
+
+\begin{DoxyEnumFields}[2]{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_ERROR@{STATE\_NR\_ERROR}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_ERROR@{STATE\_NR\_ERROR}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa0f898f8969df3d9c4e7d04e8c31e6ea}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa0f898f8969df3d9c4e7d04e8c31e6ea} 
+STATE\+\_\+\+NR\+\_\+\+ERROR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_INIT@{STATE\_NR\_INIT}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_INIT@{STATE\_NR\_INIT}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5af0b0576112314b5708509ac8463d0b85}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5af0b0576112314b5708509ac8463d0b85} 
+STATE\+\_\+\+NR\+\_\+\+INIT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_DAY@{STATE\_NR\_DAY}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_DAY@{STATE\_NR\_DAY}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac028183b1bccfe65d742c3fbdf1468e3}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac028183b1bccfe65d742c3fbdf1468e3} 
+STATE\+\_\+\+NR\+\_\+\+DAY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_NIGHT@{STATE\_NR\_NIGHT}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_NIGHT@{STATE\_NR\_NIGHT}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0816d9267bff26951992bd92f30f49f9}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0816d9267bff26951992bd92f30f49f9} 
+STATE\+\_\+\+NR\+\_\+\+NIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_HIGHCO2DAY@{STATE\_NR\_HIGHCO2DAY}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_HIGHCO2DAY@{STATE\_NR\_HIGHCO2DAY}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a82dee2c6aca2ccf57c0fc41ee989df4b}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a82dee2c6aca2ccf57c0fc41ee989df4b} 
+STATE\+\_\+\+NR\+\_\+\+HIGHCO2\+DAY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_HIGHCO2NIGHT@{STATE\_NR\_HIGHCO2NIGHT}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_HIGHCO2NIGHT@{STATE\_NR\_HIGHCO2NIGHT}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a1d0a28dca8cc1be6ae2a388d2c87d970}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a1d0a28dca8cc1be6ae2a388d2c87d970} 
+STATE\+\_\+\+NR\+\_\+\+HIGHCO2\+NIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_HIGHRHDAY@{STATE\_NR\_HIGHRHDAY}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_HIGHRHDAY@{STATE\_NR\_HIGHRHDAY}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac08fa604f1a4e5269d74720d784620ee}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ac08fa604f1a4e5269d74720d784620ee} 
+STATE\+\_\+\+NR\+\_\+\+HIGHRHDAY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_HIGHRHNIGHT@{STATE\_NR\_HIGHRHNIGHT}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_HIGHRHNIGHT@{STATE\_NR\_HIGHRHNIGHT}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa36fd18728fb0552b4851b2f4e74d61e}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5aa36fd18728fb0552b4851b2f4e74d61e} 
+STATE\+\_\+\+NR\+\_\+\+HIGHRHNIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_COOKING@{STATE\_NR\_COOKING}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_COOKING@{STATE\_NR\_COOKING}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a363d12a4d007db05207f38f6bc091352}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a363d12a4d007db05207f38f6bc091352} 
+STATE\+\_\+\+NR\+\_\+\+COOKING&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_CYCLINGDAY@{STATE\_NR\_CYCLINGDAY}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_CYCLINGDAY@{STATE\_NR\_CYCLINGDAY}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5abdb6fbe25b1f7495782b1aa4e3942ed8}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5abdb6fbe25b1f7495782b1aa4e3942ed8} 
+STATE\+\_\+\+NR\+\_\+\+CYCLINGDAY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_CYCLINGNIGHT@{STATE\_NR\_CYCLINGNIGHT}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_CYCLINGNIGHT@{STATE\_NR\_CYCLINGNIGHT}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a745fe63e46560f5fb883c081cc3625d8}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a745fe63e46560f5fb883c081cc3625d8} 
+STATE\+\_\+\+NR\+\_\+\+CYCLINGNIGHT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_MANUALHS@{STATE\_NR\_MANUALHS}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_MANUALHS@{STATE\_NR\_MANUALHS}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a878e78d70af4ba5d67f9b4396ec8b548}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a878e78d70af4ba5d67f9b4396ec8b548} 
+STATE\+\_\+\+NR\+\_\+\+MANUALHS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_STOPPED@{STATE\_NR\_STOPPED}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_STOPPED@{STATE\_NR\_STOPPED}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0a0733b208a320f6feed777d19a06650}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a0a0733b208a320f6feed777d19a06650} 
+STATE\+\_\+\+NR\+\_\+\+STOPPED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_TEMP@{STATE\_NR\_TEMP}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_TEMP@{STATE\_NR\_TEMP}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a700b92da5320ed878359c09222b39b48}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5a700b92da5320ed878359c09222b39b48} 
+STATE\+\_\+\+NR\+\_\+\+TEMP&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{STATE\_NR\_MAX@{STATE\_NR\_MAX}!statemachine\_states.h@{statemachine\_states.h}}\index{statemachine\_states.h@{statemachine\_states.h}!STATE\_NR\_MAX@{STATE\_NR\_MAX}}}\Hypertarget{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ada801ee36c564344301ce6614d48b834}\label{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5ada801ee36c564344301ce6614d48b834} 
+STATE\+\_\+\+NR\+\_\+\+MAX&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+Definition at line \mbox{\hyperlink{statemachine__states_8h_source_l00015}{15}} of file \mbox{\hyperlink{statemachine__states_8h_source}{statemachine\+\_\+states.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{statemachine__states_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{statemachine__states_8h_acd9bcc7936989793ed3455e3992fdd22}\index{statemachine\_states.h@{statemachine\_states.h}!fan\_speed\_to\_str@{fan\_speed\_to\_str}}
+\index{fan\_speed\_to\_str@{fan\_speed\_to\_str}!statemachine\_states.h@{statemachine\_states.h}}
+\doxysubsubsection{\texorpdfstring{fan\_speed\_to\_str()}{fan\_speed\_to\_str()}}
+{\footnotesize\ttfamily \label{statemachine__states_8h_acd9bcc7936989793ed3455e3992fdd22} 
+const char \texorpdfstring{$\ast$}{*} fan\+\_\+speed\+\_\+to\+\_\+str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{statemachine__states_8h_a813e52711d4450c7f3601357d1ea45c8}{fan\+\_\+speed\+\_\+t}}}]{f}{}\end{DoxyParamCaption})}
+
+
+
+Convert a fan speed enum to a human-\/readable string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em f} & The fan speed enumeration to convert. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Constant string label for the requested fan speed. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00068}{68}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+
+\Hypertarget{statemachine__states_8h_acae851b7d5bb3f90f1584d6ae457cc48}\index{statemachine\_states.h@{statemachine\_states.h}!state\_nr\_to\_str@{state\_nr\_to\_str}}
+\index{state\_nr\_to\_str@{state\_nr\_to\_str}!statemachine\_states.h@{statemachine\_states.h}}
+\doxysubsubsection{\texorpdfstring{state\_nr\_to\_str()}{state\_nr\_to\_str()}}
+{\footnotesize\ttfamily \label{statemachine__states_8h_acae851b7d5bb3f90f1584d6ae457cc48} 
+const char \texorpdfstring{$\ast$}{*} state\+\_\+nr\+\_\+to\+\_\+str (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{statemachine__states_8h_acfe98914c59461a5d0c84a772abb6de5}{state\+\_\+nr\+\_\+t}}}]{state}{}\end{DoxyParamCaption})}
+
+
+
+Convert a statemachine state enum to a human-\/readable string. 
+
+General utility declarations, ordered to match \doxylink{general_8c}{main/general.\+c}.
+
+
+\begin{DoxyParams}{Parameters}
+{\em state} & The state enumeration to convert. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Constant string label for the requested state. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{general_8c_source_l00025}{25}} of file \mbox{\hyperlink{general_8c_source}{general.\+c}}.
+

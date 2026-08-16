@@ -1,0 +1,74 @@
+\doxysection{task\+\_\+sys\+\_\+stats.\+c}
+\hypertarget{task__sys__stats_8c_source}{}\label{task__sys__stats_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_sys\_stats.c@{/home/peter/Development/OSVentilationIDF/main/task\_sys\_stats.c}}
+\mbox{\hyperlink{task__sys__stats_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__sys__stats_8h}{task\_sys\_stats.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}Sys\_stats"{}};}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00017}00017\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ sys\_stats\_stack[5120];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00018}00018\ \textcolor{keyword}{static}\ StaticTask\_t\ sys\_stats\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00019}00019\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ sys\_stats\_stack\_size\ =\ 5120;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 5120\ words\ =\ 20\ KB}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00020}00020\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00021}00021\ \textcolor{comment}{//\ Periodic\ task\ that\ refreshes\ sm\_actuals\ regularly.\ It\ calls\ sys\_stats\_update\_actuals()\ which\ already\ takes\ statemachine\_mutex\ internally.\ */}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00022}00022\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ task\_sys\_stats\_code(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00023}00023\ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00024}00024\ \ \ \ \ (void)pvParameters;}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00025}00025\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}sys\_stats\_task:\ starting,\ poll\ interval=\%d\ ms"{}},\ \mbox{\hyperlink{task__sys__stats_8h_ae82d8c368af34ca69fe29864ebf41d63}{SYS\_STATS\_POLL\_MS}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00027}00027\ \ \ \ \ \textcolor{keyword}{const}\ TickType\_t\ delay\_ticks\ =\ pdMS\_TO\_TICKS(\mbox{\hyperlink{task__sys__stats_8h_ae82d8c368af34ca69fe29864ebf41d63}{SYS\_STATS\_POLL\_MS}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00029}00029\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00030}00030\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00031}00031\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ live\ stats\ (heap,\ stack\ watermarks,\ wifi\ info,\ cpu\ temp,\ etc.)}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00032}00032\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{sys__stats_8c_afc309e85c1c8563f388841596970bc4a}{sys\_stats\_update\_actuals}}();}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00034}00034\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Optionally\ publish\ or\ trigger\ any\ dependent\ work\ here\ (e.g.,\ update\ web\ UI)}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00035}00035\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ws\_async\_notify\_stats\_changed();\ \ //\ if\ you\ have\ such\ a\ helper}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00037}00037\ \ \ \ \ \ \ \ \ vTaskDelay(delay\_ticks);}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00038}00038\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00040}00040\ \ \ \ \ \textcolor{comment}{//\ never\ reached}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00041}00041\ \ \ \ \ vTaskDelete(NULL);}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00042}00042\ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00044}00044\ \textcolor{comment}{//\ Call\ once\ at\ startup\ to\ create\ the\ task.\ Safe\ to\ call\ multiple\ times\ (idempotent).}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00045}\mbox{\hyperlink{task__sys__stats_8c_a48896c4649c5d1b03fdd74ca8671b4f6}{00045}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__sys__stats_8c_a48896c4649c5d1b03fdd74ca8671b4f6}{start\_task\_sys\_stats}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00046}00046\ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00047}00047\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}}\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00048}00048\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}sys\_stats\_start:\ already\ running\ (task=\%p)"{}},\ (\textcolor{keywordtype}{void}\ *)\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00050}00050\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00052}00052\ \ \ \ \ \mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}}\ =\ xTaskCreateStatic(task\_sys\_stats\_code,\ \textcolor{stringliteral}{"{}sys\_stats"{}},\ sys\_stats\_stack\_size,\ NULL,\ 8,\ sys\_stats\_stack,\ \&sys\_stats\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00054}00054\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00055}00055\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}sys\_stats\_start:\ failed\ to\ create\ task"{}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00058}00058\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00060}00060\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}sys\_stats\_start:\ started\ (task=\%p)"{}},\ (\textcolor{keywordtype}{void}\ *)\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00061}00061\ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00063}00063\ \textcolor{comment}{//\ Optional\ stop\ function}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00064}\mbox{\hyperlink{task__sys__stats_8c_abb3d1a795183c5d9c667c79e664273a4}{00064}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__sys__stats_8c_abb3d1a795183c5d9c667c79e664273a4}{sys\_stats\_stop}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00065}00065\ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00066}00066\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}})}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00067}00067\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ vTaskDelete(\mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a63a350f2118f26502dd048bac81dc629}{task\_sys\_stats}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}sys\_stats\_stop:\ stopped"{}});}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00071}00071\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__sys__stats_8c_source_l00072}00072\ \}}
+
+\end{DoxyCode}

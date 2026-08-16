@@ -1,0 +1,67 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/i2c\+\_\+functions.c File Reference}
+\hypertarget{i2c__functions_8c}{}\label{i2c__functions_8c}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_functions.c@{/home/peter/Development/OSVentilationIDF/main/i2c\_functions.c}}
+
+
+I2C master bus initialization helpers.  
+
+
+{\ttfamily \#include "{}i2c\+\_\+functions.\+h"{}}\newline
+Include dependency graph for i2c\+\_\+functions.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__functions_8c_a39e18db7ead510094d920f9acee77eac}{i2c\+\_\+init\+\_\+master0}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize I2C master bus 0 using configured GPIO pins and internal pull-\/ups. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{i2c__functions_8c_a9d3397255ea3cd0730517edd22a18beb}{i2c\+\_\+init\+\_\+master1}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize I2C master bus 1 using the configured SDA/\+SCL pins. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+I2C master bus initialization helpers. 
+
+This module initializes the configured I2C master buses and exposes public setup functions for the sensor subsystem. 
+
+Definition in file \mbox{\hyperlink{i2c__functions_8c_source}{i2c\+\_\+functions.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{i2c__functions_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{i2c__functions_8c_a39e18db7ead510094d920f9acee77eac}\index{i2c\_functions.c@{i2c\_functions.c}!i2c\_init\_master0@{i2c\_init\_master0}}
+\index{i2c\_init\_master0@{i2c\_init\_master0}!i2c\_functions.c@{i2c\_functions.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_init\_master0()}{i2c\_init\_master0()}}
+{\footnotesize\ttfamily \label{i2c__functions_8c_a39e18db7ead510094d920f9acee77eac} 
+esp\+\_\+err\+\_\+t i2c\+\_\+init\+\_\+master0 (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize I2C master bus 0 using configured GPIO pins and internal pull-\/ups. 
+
+Initialize I2C master bus 0 using the configured SDA/\+SCL pins.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK when bus initialization succeeds, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__functions_8c_source_l00024}{24}} of file \mbox{\hyperlink{i2c__functions_8c_source}{i2c\+\_\+functions.\+c}}.
+
+\Hypertarget{i2c__functions_8c_a9d3397255ea3cd0730517edd22a18beb}\index{i2c\_functions.c@{i2c\_functions.c}!i2c\_init\_master1@{i2c\_init\_master1}}
+\index{i2c\_init\_master1@{i2c\_init\_master1}!i2c\_functions.c@{i2c\_functions.c}}
+\doxysubsubsection{\texorpdfstring{i2c\_init\_master1()}{i2c\_init\_master1()}}
+{\footnotesize\ttfamily \label{i2c__functions_8c_a9d3397255ea3cd0730517edd22a18beb} 
+esp\+\_\+err\+\_\+t i2c\+\_\+init\+\_\+master1 (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize I2C master bus 1 using the configured SDA/\+SCL pins. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t error code on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{i2c__functions_8c_source_l00045}{45}} of file \mbox{\hyperlink{i2c__functions_8c_source}{i2c\+\_\+functions.\+c}}.
+

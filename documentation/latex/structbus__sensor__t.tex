@@ -1,0 +1,93 @@
+\doxysection{bus\+\_\+sensor\+\_\+t Struct Reference}
+\hypertarget{structbus__sensor__t}{}\label{structbus__sensor__t}\index{bus\_sensor\_t@{bus\_sensor\_t}}
+
+
+Sensor bus configuration for a single I2\+C-\/connected sensor.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+char \mbox{\hyperlink{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd}{type}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}} \mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structbus__sensor__t_adaaabb43c2c46189aca4e0f32670d85f}{location}} \mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+bool \mbox{\hyperlink{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974}{rh\+\_\+enabled}}
+\item 
+bool \mbox{\hyperlink{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba}{co2\+\_\+enabled}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Sensor bus configuration for a single I2\+C-\/connected sensor. 
+
+This structure stores the sensor type, the target valve mapping, displayable location text, and whether humidity / CO2 measurements are enabled for the sensor. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00208}{208}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structbus__sensor__t_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba}\index{bus\_sensor\_t@{bus\_sensor\_t}!co2\_enabled@{co2\_enabled}}
+\index{co2\_enabled@{co2\_enabled}!bus\_sensor\_t@{bus\_sensor\_t}}
+\doxysubsubsection{\texorpdfstring{co2\_enabled}{co2\_enabled}}
+{\footnotesize\ttfamily \label{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba} 
+bool bus\+\_\+sensor\+\_\+t\+::co2\+\_\+enabled}
+
+Enable CO2 measurement for this sensor. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00214}{214}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structbus__sensor__t_adaaabb43c2c46189aca4e0f32670d85f}\index{bus\_sensor\_t@{bus\_sensor\_t}!location@{location}}
+\index{location@{location}!bus\_sensor\_t@{bus\_sensor\_t}}
+\doxysubsubsection{\texorpdfstring{location}{location}}
+{\footnotesize\ttfamily \label{structbus__sensor__t_adaaabb43c2c46189aca4e0f32670d85f} 
+char bus\+\_\+sensor\+\_\+t\+::location\mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Human-\/readable location label for the sensor. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00212}{212}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974}\index{bus\_sensor\_t@{bus\_sensor\_t}!rh\_enabled@{rh\_enabled}}
+\index{rh\_enabled@{rh\_enabled}!bus\_sensor\_t@{bus\_sensor\_t}}
+\doxysubsubsection{\texorpdfstring{rh\_enabled}{rh\_enabled}}
+{\footnotesize\ttfamily \label{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974} 
+bool bus\+\_\+sensor\+\_\+t\+::rh\+\_\+enabled}
+
+Enable relative humidity measurement. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00213}{213}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd}\index{bus\_sensor\_t@{bus\_sensor\_t}!type@{type}}
+\index{type@{type}!bus\_sensor\_t@{bus\_sensor\_t}}
+\doxysubsubsection{\texorpdfstring{type}{type}}
+{\footnotesize\ttfamily \label{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd} 
+char bus\+\_\+sensor\+\_\+t\+::type\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Sensor type used for driver selection. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00210}{210}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}\index{bus\_sensor\_t@{bus\_sensor\_t}!valve@{valve}}
+\index{valve@{valve}!bus\_sensor\_t@{bus\_sensor\_t}}
+\doxysubsubsection{\texorpdfstring{valve}{valve}}
+{\footnotesize\ttfamily \label{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef} 
+char bus\+\_\+sensor\+\_\+t\+::valve\mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Valve identifier associated with this sensor. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00211}{211}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

@@ -1,0 +1,59 @@
+\doxysection{network\+\_\+functions.\+h}
+\hypertarget{network__functions_8h_source}{}\label{network__functions_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/network\_functions.h@{/home/peter/Development/OSVentilationIDF/main/network\_functions.h}}
+\mbox{\hyperlink{network__functions_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00007}00007\ \textcolor{preprocessor}{\#ifndef\ NETWORK\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00008}00008\ \textcolor{preprocessor}{\#define\ NETWORK\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00010}00010\ \textcolor{preprocessor}{\#include\ <esp\_netif.h>}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00011}00011\ \textcolor{preprocessor}{\#include\ <sys/socket.h>}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00012}00012\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{eth__functions_8h}{eth\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00020}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{00020}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00021}00021\ \{}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00022}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eafc0ca8cc6cbe215fd3f1ae6d40255b40}{00022}}\ \ \ \ \ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eafc0ca8cc6cbe215fd3f1ae6d40255b40}{LED\_OFF}},}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00023}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eab76a64cc969668afbf7acbf69fa92065}{00023}}\ \ \ \ \ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eab76a64cc969668afbf7acbf69fa92065}{LED\_SLOW\_BLINK}},}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00024}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7ead4788a1293d65074db242a23d7edaf60}{00024}}\ \ \ \ \ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7ead4788a1293d65074db242a23d7edaf60}{LED\_FAST\_BLINK}},}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00025}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eae2218fae2da3f5b4458f0f97b074bd1a}{00025}}\ \ \ \ \ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7eae2218fae2da3f5b4458f0f97b074bd1a}{LED\_DOUBLE\_BLINK}},}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00026}\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7ea854fa3eef83beadf94b289f5a357d2a4}{00026}}\ \ \ \ \ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7ea854fa3eef83beadf94b289f5a357d2a4}{LED\_SOLID}}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00027}00027\ \}\ \mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\_mode\_t}};}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00032}00032\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_aa4d5963a27d3b48cd75d02c723e52545}{update\_syslog\_state}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00040}00040\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__functions_8h_a5549be26936ce43844fd39fb808c2a8a}{is\_valid\_ip\_address}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *ip\_address);}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00041}00041\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00047}00047\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__functions_8h_a3c86fa85fdcf38cfc3374759fd73e8fa}{wifi\_has\_ip}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00054}00054\ esp\_netif\_t\ *\mbox{\hyperlink{network__functions_8h_a6b47beccae7fe1852e3f91ff0f692cd2}{get\_active\_netif}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00059}00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_a1fcdad688a838b7c6cbfb324a6117b95}{update\_hostname}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00066}00066\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__functions_8h_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00074}00074\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_a15e2bbdf882e4f4df3de788cfb276888}{on\_ping\_end}}(esp\_ping\_handle\_t\ hdl,\ \textcolor{keywordtype}{void}\ *args);}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00075}00075\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00081}00081\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__functions_8h_af959a495a2955a3e222bd900387a5acc}{ping\_gateway}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00082}00082\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00083}00083\ \textcolor{comment}{//\ LED\ helpers}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00087}00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_a214042b0b272f1be1f66187e42e85833}{update\_network\_led\_state}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00089}00089\ \textcolor{comment}{//\ control\ the\ Ethernet\ LED\ (GPIO45)\ to\ indicate\ link/activity}}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00093}00093\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_ae70ab30f0acb4945e7d624c6d01eb72f}{eth\_led\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00100}00100\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_ac6b806585e37b43729765a3f5565f2e4}{eth\_led\_set\_mode}}(\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\_mode\_t}}\ mode);}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00101}00101\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00107}00107\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_ac9b8a9ee069ee8702cdc869fb1d0033b}{wifi\_led\_set\_mode}}(\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\_mode\_t}}\ mode);}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00108}00108\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00112}00112\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__functions_8h_a342ff2c427cf4e86ee615c98db1499bd}{network\_manager\_health\_check}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00113}00113\ }
+\DoxyCodeLine{\Hypertarget{network__functions_8h_source_l00114}00114\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ NETWORK\_FUNCTIONS\_H}}
+
+\end{DoxyCode}

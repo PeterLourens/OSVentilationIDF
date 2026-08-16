@@ -1,0 +1,1562 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/globals.h File Reference}
+\hypertarget{globals_8h}{}\label{globals_8h}\index{/home/peter/Development/OSVentilationIDF/main/globals.h@{/home/peter/Development/OSVentilationIDF/main/globals.h}}
+
+
+Shared global declarations for runtime handles, queues, and configuration.  
+
+
+{\ttfamily \#include $<$driver/i2c\+\_\+master.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+http\+\_\+server.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+netif\+\_\+sntp.\+h$>$}\newline
+{\ttfamily \#include $<$led\+\_\+strip.\+h$>$}\newline
+{\ttfamily \#include "{}hardware\+\_\+caps.\+h"{}}\newline
+Include dependency graph for globals.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structbus__sensor__t}{bus\+\_\+sensor\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Sensor bus configuration for a single I2\+C-\/connected sensor. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structWifi__config__t}{Wifi\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Wi-\/\+Fi configuration persisted in runtime JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structEthernet__config__t}{Ethernet\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Ethernet configuration persisted in runtime JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structTime__config__t}{Time\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em NTP and timezone settings persisted in runtime JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em MQTT connection and topic configuration persisted in JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Influx\+DB connection settings persisted in JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structFan__config__t}{Fan\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Fan control integration settings persisted in JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structI2C__config__t}{I2\+C\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em I2C bus and peripheral enable/disable settings persisted in JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structSyslog__config__t}{Syslog\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Syslog target settings persisted in JSON. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structping__summary__t}{ping\+\_\+summary\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Summary statistics for ICMP ping health checks. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structStatemachine__gen__config__t}{Statemachine\+\_\+gen\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em General statemachine parameters loaded from configuration. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Individual statemachine state configuration. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}}
+\begin{DoxyCompactList}\small\item\em Runtime actuals and telemetry tracked by the statemachine. \end{DoxyCompactList}\item 
+struct \mbox{\hyperlink{structValve__control__data}{Valve\+\_\+control\+\_\+data}}
+\begin{DoxyCompactList}\small\item\em Shared valve control data passed between web handlers and the statemachine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{globals_8h_a5c22ca4de37a83a59014e48b0a0b043d}{I2\+C\+\_\+\+MASTER\+\_\+\+FREQ\+\_\+\+HZ}}~100000
+\item 
+\#define \mbox{\hyperlink{globals_8h_abfb34ac4c9680ad680f95f9420cc8610}{TCA9548\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x70
+\item 
+\#define \mbox{\hyperlink{globals_8h_abe5403d468bd30329b3f3aba9acaf1ad}{AHT20\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x38
+\item 
+\#define \mbox{\hyperlink{globals_8h_a5187929b30503b11456d6e28873be909}{DHT20\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x38
+\item 
+\#define \mbox{\hyperlink{globals_8h_a2ebd509cac3a17cea08322e44dc02e48}{SCD41\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x62
+\item 
+\#define \mbox{\hyperlink{globals_8h_ab36eafd487fa8b1af5c19bb55454cb13}{BME680\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x77
+\item 
+\#define \mbox{\hyperlink{globals_8h_a180301d20436a62982bfba72292ca191}{DS3231\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x68
+\item 
+\#define \mbox{\hyperlink{globals_8h_af679cf68e64fdb5d310a0d9944142c76}{LCD\+\_\+\+I2\+C\+\_\+\+ADDR}}~0x27
+\item 
+\#define \mbox{\hyperlink{globals_8h_aa0aec6e526d34bcfe24f3358063215b9}{W5500\+\_\+\+SPI\+\_\+\+HOST}}~SPI2\+\_\+\+HOST
+\item 
+\#define \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}~16
+\item 
+\#define \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}~32
+\item 
+\#define \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}~64
+\item 
+\#define \mbox{\hyperlink{globals_8h_a36a0e01899260bc7106c930758a8a311}{MLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}~256
+\item 
+\#define \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}~512
+\item 
+\#define \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}~1024
+\item 
+\#define \mbox{\hyperlink{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf}{XXXLARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}~2048
+\item 
+\#define \mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}}~2
+\item 
+\#define \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}~8
+\item 
+\#define \mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\+\_\+\+FIELDS}}~7
+\item 
+\#define \mbox{\hyperlink{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}{IDX\+\_\+\+TEMP}}~0
+\item 
+\#define \mbox{\hyperlink{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}{IDX\+\_\+\+HUMIDITY}}~1
+\item 
+\#define \mbox{\hyperlink{globals_8h_a1692416e947c17a412276c527757d563}{IDX\+\_\+\+CO2}}~2
+\item 
+\#define \mbox{\hyperlink{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}{IDX\+\_\+\+TIMESTAMP}}~3
+\item 
+\#define \mbox{\hyperlink{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}{IDX\+\_\+\+VALID}}~4
+\item 
+\#define \mbox{\hyperlink{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda}{IDX\+\_\+\+PRESSURE}}~5
+\item 
+\#define \mbox{\hyperlink{globals_8h_a4ddb89942b372644fe4c42a7a857ca93}{IDX\+\_\+\+GAS\+\_\+\+RES}}~6
+\item 
+\#define \mbox{\hyperlink{globals_8h_a70781c406c17458a408f41de8605edfd}{MAX\+\_\+\+FIFO\+\_\+\+SIZE}}~25
+\item 
+\#define \mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}~12
+\item 
+\#define \mbox{\hyperlink{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}{MAX\+\_\+\+SENSORS}}~16
+\item 
+\#define \mbox{\hyperlink{globals_8h_ad552e7688532cbbecd3967538ced06ac}{WIFI\+\_\+\+CONNECTED\+\_\+\+BIT}}~BIT0
+\item 
+\#define \mbox{\hyperlink{globals_8h_a7d013b55e50dfbda0904f5f933b63ec4}{WIFI\+\_\+\+FAIL\+\_\+\+BIT}}~BIT1
+\item 
+\#define \mbox{\hyperlink{globals_8h_a21622adf27c004ff26dc889ffe30278f}{AP\+\_\+\+STARTED\+\_\+\+BIT}}~BIT2
+\item 
+\#define \mbox{\hyperlink{globals_8h_a1a8595e03c12d84d4dfff508a56f1061}{MAINTENANCE\+\_\+\+AP\+\_\+\+TIMEOUT\+\_\+\+MS}}~(10 \texorpdfstring{$\ast$}{*} 60 \texorpdfstring{$\ast$}{*} 1000)
+\item 
+\#define \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\+\_\+\+NR\+\_\+\+STATES}}~15
+\item 
+\#define \mbox{\hyperlink{globals_8h_ae717896e234d26a8a45a46c36ebb4649}{MAX\+\_\+\+STATE\+\_\+\+CONFIG\+\_\+\+FILES}}~10
+\item 
+\#define \mbox{\hyperlink{globals_8h_a843379c74d2410604af6a9cebee2ad68}{FANSPEED\+\_\+\+ERROR}}~0
+\item 
+\#define \mbox{\hyperlink{globals_8h_a86a2e5fca3c5d3da26f4ef4ea06c6374}{FANSPEED\+\_\+\+LOW}}~1
+\item 
+\#define \mbox{\hyperlink{globals_8h_a97e0a780211c2ac4f07c896bf8738fe3}{FANSPEED\+\_\+\+MEDIUM}}~2
+\item 
+\#define \mbox{\hyperlink{globals_8h_a67134a19f0675ad2a78535ff79832b72}{FANSPEED\+\_\+\+HIGH}}~3
+\item 
+\#define \mbox{\hyperlink{globals_8h_a3c30ca29fe118f2f0aa11ac69ec5f71e}{SENSOR\+\_\+\+AVG\+\_\+\+SIZE}}~(\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}} \texorpdfstring{$\ast$}{*} 5)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{Indent}\textbf{ Runtime state labels}\par
+{\em Global string labels representing statemachine states. }\begin{DoxyCompactItemize}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a1f0db5c59d4c4f00f82ca73b9ab55cf8}{STATE\+\_\+\+ERROR}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a536b9359514df407fffea773dd4695ca}{STATE\+\_\+\+INIT}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a594f072cfd927160b01e311ec38147c0}{STATE\+\_\+\+DAY}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a800adb3dbf6b513f392b6f6883c9b4a5}{STATE\+\_\+\+NIGHT}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_adb273b19f9d1ca94c6cd18d7ede3f5c3}{STATE\+\_\+\+HIGHCO2\+DAY}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_aeab62a1af3e6431c7495c9ce77745004}{STATE\+\_\+\+HIGHCO2\+NIGHT}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_ad11b3e1272f6c9017932145a3fca5eca}{STATE\+\_\+\+HIGHRHDAY}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a7ac69985df41b6592cb05e8fd3c7a299}{STATE\+\_\+\+HIGHRHNIGHT}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a0b362ab28cb37bbd67729678b0a79d38}{STATE\+\_\+\+COOKING}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a771ce7a1bfdca26127eba54c62521197}{STATE\+\_\+\+CYCLINGDAY}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a1e67e976ab7e62536f8445ecd0427d4d}{STATE\+\_\+\+CYCLINGNIGHT}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_ab62ae2398bc7b1987beb334ba3b7a6ec}{STATE\+\_\+\+MANUALHS}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a224dabb3ee1aee269796fabeba8e4eea}{STATE\+\_\+\+STOPPED}}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_a5c547020f9c301b6ea6e7bfebce729d4}{STATE\+\_\+\+TEMP}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Sensor queue handles}\par
+{\em Shared Free\+RTOS queue handles used for sensor data. }\begin{DoxyCompactItemize}
+\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a8ef6c7739752ee9ab50848e42272f87c}{sensor\+\_\+queue}}
+\item 
+Queue\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a1a4f81be109547a57be381ed987d6f0d}{sensor\+\_\+avg\+\_\+queue}}
+\item 
+size\+\_\+t \mbox{\hyperlink{globals_8h_a9b57f84a6a017690d8f551533fd01c7f}{sensor\+\_\+avg\+\_\+item\+\_\+size}}
+\item 
+volatile bool \mbox{\hyperlink{globals_8h_a15aa079749cb4983f369adc523d1aa2e}{sensors\+\_\+queues\+\_\+ready}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ I2C device handles}\par
+{\em Handles for I2C buses and attached peripheral devices. }\begin{DoxyCompactItemize}
+\item 
+i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_aefb351ec52ac77546d12f5dd1332c8b8}{i2c\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a82c5c41e821bcf6357378e1c61702de0}{i2c\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_abf2db498ee5bfc50c210a73d702b61fc}{tca9548\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a064478940aa6735f7aa2c239c08f994c}{tca9548\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a550f51b3dcf51a5ffde2af751faa02d3}{aht20\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a13a932467f0ee219c2f0e8881b8cfc1f}{aht20\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a36f1dc94d96231ff1282910993bcddfd}{dht20\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_acf5e7b3328c1e3655b88389880317de1}{dht20\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a645f9f34935c608aa0b54350673a2490}{scd41\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_acfdc4cd71c935dc98d307399ab2d2306}{scd41\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a425074bc5173bc5e6be234bcf4f68391}{bme680\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a84d930779eeedad50be67ee0b0038d7a}{bme680\+\_\+bus1\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a6bb0d5e335c8d4a8358886c3c0579a2c}{ds3231\+\_\+bus0\+\_\+handle}}
+\item 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a45869fa29ca77bba6a3b5c45dbc991fd}{lcd\+\_\+bus1\+\_\+handle}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Task handles}\par
+{\em Free\+RTOS task handles for firmware services. }\begin{DoxyCompactItemize}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a2c4c07bdb3ef92721dbaf8c5943b0c4c}{task\+\_\+i2c\+\_\+sensors}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a65653581d86bd0cf06772d3a7a0ca530}{task\+\_\+i2c\+\_\+ds3231}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ac6b13e4a7ba9dc01f727854cd46e6384}{task\+\_\+wifi}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ac7984cbfb2bc90213b9b9daf5545b14d}{task\+\_\+ethernet}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a2b74b90cf673582acb7d43efa4aeda9c}{task\+\_\+i2c\+\_\+lcd}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a9ddebb40ab9ed98f51c84eca1a9d0cb2}{task\+\_\+rgb\+\_\+leds}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_afd3689588486e810744b2dadb571c24b}{task\+\_\+statemachine}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_af88447ad66fad4361c8e7651db834fdb}{task\+\_\+valvectrl}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_aaf4dde9c077de1c317695eb85bb91930}{task\+\_\+mqtt}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a67b57065f25bb01df7a68c9ca504bf63}{task\+\_\+influxdb}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a090e5e2e6c56964dd054d5845bb9f592}{network\+\_\+manager\+\_\+task\+\_\+handle}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ac594ae682806681934947dd150e87e79}{task\+\_\+pushbutton}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a63a350f2118f26502dd048bac81dc629}{task\+\_\+sys\+\_\+stats}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a60a1c219e198f3df704b40d2d6ec7d85}{task\+\_\+syslog}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ac19ade132a4bb3fc631f4266968345a0}{task\+\_\+uart\+\_\+sender}}
+\item 
+Task\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ae19bac532de4148fd0f7ed46c7e07362}{task\+\_\+uart\+\_\+tx\+\_\+sender}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Mutex handles}\par
+{\em Mutexes protecting shared runtime state and configuration. }\begin{DoxyCompactItemize}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_afd37c353e832630f059bf71f89375327}{network\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ae38b9d2a4a975d39bcd469da22010125}{time\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_aef743e87ffc8c06cc92ca09b329b9673}{mqtt\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a213caef177572131962a9872836b9381}{influxdb\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a41dc2276a278f39470c0abc22ac384e5}{fan\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_ac3f79c091f521df5fcd89eb3140dc361}{i2c\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a35517c7333006341422af36e1f38dacf}{syslog\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_acef4cbb7481d279d17259800d9c1072f}{g\+\_\+ping\+\_\+done\+\_\+sem}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a802c6a6a8ba765a65d14bf43ebaafd7a}{time\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a07ba29234b9d405cfe548a14246c1783}{lock\+\_\+valve\+\_\+move\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_aa8b32c6cf90002706fc0dab6856576c7}{sensor\+\_\+cfg\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\+\_\+config\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a021ac41598969aa8e3413e1550634803}{valve\+\_\+control\+\_\+data\+\_\+mutex}}
+\item 
+Semaphore\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a274d1c89ab9f6afd986c6afbe54a9330}{i2c\+\_\+bus\+\_\+mutex}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Event and server handles}\par
+{\em Global event group and HTTP server handles. }\begin{DoxyCompactItemize}
+\item 
+Event\+Group\+Handle\+\_\+t \mbox{\hyperlink{globals_8h_a6aaca350cca4b3d105d88a6f399cb381}{s\+\_\+wifi\+\_\+event\+\_\+group}}
+\item 
+httpd\+\_\+handle\+\_\+t \mbox{\hyperlink{globals_8h_a5030056dc8d84d954e30fce0f40944f8}{http\+\_\+server}}
+\end{DoxyCompactItemize}
+\end{Indent}
+\begin{Indent}\textbf{ Runtime configuration structures}\par
+{\em Global configuration and state structures loaded at runtime. }\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{structbus__sensor__t}{bus\+\_\+sensor\+\_\+t}} \mbox{\hyperlink{globals_8h_af0e9d3e368300fd4059ea6757701fa1b}{bus0\+\_\+sensor\+\_\+settings}} \mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}
+\item 
+\mbox{\hyperlink{structbus__sensor__t}{bus\+\_\+sensor\+\_\+t}} \mbox{\hyperlink{globals_8h_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\+\_\+sensor\+\_\+settings}} \mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}
+\item 
+\mbox{\hyperlink{structWifi__config__t}{Wifi\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_af215ca8ed06989e876de7f4d995be961}{wifi\+\_\+config}}
+\item 
+\mbox{\hyperlink{structEthernet__config__t}{Ethernet\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_a215b370c8fa4ae15bab7a372a62da798}{ethernet\+\_\+config}}
+\item 
+\mbox{\hyperlink{structTime__config__t}{Time\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_ac9af976d43252c0b284ed875b8117ec3}{time\+\_\+config}}
+\item 
+\mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_a744233890776cb13f086e09ecbafc30f}{mqtt\+\_\+config}}
+\item 
+\mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_abc0243267f54bd7625177694ebefd811}{influxdb\+\_\+config}}
+\item 
+\mbox{\hyperlink{structFan__config__t}{Fan\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\+\_\+config}}
+\item 
+\mbox{\hyperlink{structI2C__config__t}{I2\+C\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\+\_\+config}}
+\item 
+\mbox{\hyperlink{structSyslog__config__t}{Syslog\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\+\_\+config}}
+\item 
+\mbox{\hyperlink{structping__summary__t}{ping\+\_\+summary\+\_\+t}} \mbox{\hyperlink{globals_8h_a942308ba9563bb35faaa31c6da3eb02a}{g\+\_\+ping\+\_\+summary}}
+\item 
+\mbox{\hyperlink{structStatemachine__gen__config__t}{Statemachine\+\_\+gen\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\+\_\+gen\+\_\+config}}
+\item 
+\mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} \mbox{\hyperlink{globals_8h_a6b03f2a710c460dd57790cf38a568175}{statemachine\+\_\+config}} \mbox{[}\mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\+\_\+\+NR\+\_\+\+STATES}}\mbox{]}
+\item 
+\mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} \mbox{\hyperlink{globals_8h_a478f0c2c075116ec3f06b481bc02db0c}{sm\+\_\+actuals}}
+\item 
+\mbox{\hyperlink{structValve__control__data}{Valve\+\_\+control\+\_\+data}} \mbox{\hyperlink{globals_8h_abc791a3668cb84d233088fd4412b5f79}{valvecontroldata}}
+\item 
+struct tm \mbox{\hyperlink{globals_8h_a0fe23e6116ec3d23cb699f4c1b49579c}{timeinfo}}
+\item 
+int \mbox{\hyperlink{globals_8h_a4b52315012ab4ee45e0b02274d0dd5e0}{lock\+\_\+valve\+\_\+move}}
+\end{DoxyCompactItemize}
+\end{Indent}
+
+
+\doxysubsection{Detailed Description}
+Shared global declarations for runtime handles, queues, and configuration. 
+
+
+
+Definition in file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{globals_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{globals_8h_abe5403d468bd30329b3f3aba9acaf1ad}\index{globals.h@{globals.h}!AHT20\_I2C\_ADDR@{AHT20\_I2C\_ADDR}}
+\index{AHT20\_I2C\_ADDR@{AHT20\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{AHT20\_I2C\_ADDR}{AHT20\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_abe5403d468bd30329b3f3aba9acaf1ad} 
+\#define AHT20\+\_\+\+I2\+C\+\_\+\+ADDR~0x38}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00027}{27}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a21622adf27c004ff26dc889ffe30278f}\index{globals.h@{globals.h}!AP\_STARTED\_BIT@{AP\_STARTED\_BIT}}
+\index{AP\_STARTED\_BIT@{AP\_STARTED\_BIT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{AP\_STARTED\_BIT}{AP\_STARTED\_BIT}}
+{\footnotesize\ttfamily \label{globals_8h_a21622adf27c004ff26dc889ffe30278f} 
+\#define AP\+\_\+\+STARTED\+\_\+\+BIT~BIT2}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00065}{65}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_ab36eafd487fa8b1af5c19bb55454cb13}\index{globals.h@{globals.h}!BME680\_I2C\_ADDR@{BME680\_I2C\_ADDR}}
+\index{BME680\_I2C\_ADDR@{BME680\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{BME680\_I2C\_ADDR}{BME680\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_ab36eafd487fa8b1af5c19bb55454cb13} 
+\#define BME680\+\_\+\+I2\+C\+\_\+\+ADDR~0x77}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00030}{30}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}\index{globals.h@{globals.h}!CHANNELS\_PER\_BUS@{CHANNELS\_PER\_BUS}}
+\index{CHANNELS\_PER\_BUS@{CHANNELS\_PER\_BUS}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{CHANNELS\_PER\_BUS}{CHANNELS\_PER\_BUS}}
+{\footnotesize\ttfamily \label{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4} 
+\#define CHANNELS\+\_\+\+PER\+\_\+\+BUS~8}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00047}{47}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_ad8e29bc91318b22b12b6d8d215989728}\index{globals.h@{globals.h}!DATA\_FIELDS@{DATA\_FIELDS}}
+\index{DATA\_FIELDS@{DATA\_FIELDS}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{DATA\_FIELDS}{DATA\_FIELDS}}
+{\footnotesize\ttfamily \label{globals_8h_ad8e29bc91318b22b12b6d8d215989728} 
+\#define DATA\+\_\+\+FIELDS~7}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00048}{48}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a5187929b30503b11456d6e28873be909}\index{globals.h@{globals.h}!DHT20\_I2C\_ADDR@{DHT20\_I2C\_ADDR}}
+\index{DHT20\_I2C\_ADDR@{DHT20\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{DHT20\_I2C\_ADDR}{DHT20\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_a5187929b30503b11456d6e28873be909} 
+\#define DHT20\+\_\+\+I2\+C\+\_\+\+ADDR~0x38}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00028}{28}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a180301d20436a62982bfba72292ca191}\index{globals.h@{globals.h}!DS3231\_I2C\_ADDR@{DS3231\_I2C\_ADDR}}
+\index{DS3231\_I2C\_ADDR@{DS3231\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{DS3231\_I2C\_ADDR}{DS3231\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_a180301d20436a62982bfba72292ca191} 
+\#define DS3231\+\_\+\+I2\+C\+\_\+\+ADDR~0x68}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00031}{31}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a843379c74d2410604af6a9cebee2ad68}\index{globals.h@{globals.h}!FANSPEED\_ERROR@{FANSPEED\_ERROR}}
+\index{FANSPEED\_ERROR@{FANSPEED\_ERROR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{FANSPEED\_ERROR}{FANSPEED\_ERROR}}
+{\footnotesize\ttfamily \label{globals_8h_a843379c74d2410604af6a9cebee2ad68} 
+\#define FANSPEED\+\_\+\+ERROR~0}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00073}{73}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a67134a19f0675ad2a78535ff79832b72}\index{globals.h@{globals.h}!FANSPEED\_HIGH@{FANSPEED\_HIGH}}
+\index{FANSPEED\_HIGH@{FANSPEED\_HIGH}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{FANSPEED\_HIGH}{FANSPEED\_HIGH}}
+{\footnotesize\ttfamily \label{globals_8h_a67134a19f0675ad2a78535ff79832b72} 
+\#define FANSPEED\+\_\+\+HIGH~3}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00076}{76}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a86a2e5fca3c5d3da26f4ef4ea06c6374}\index{globals.h@{globals.h}!FANSPEED\_LOW@{FANSPEED\_LOW}}
+\index{FANSPEED\_LOW@{FANSPEED\_LOW}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{FANSPEED\_LOW}{FANSPEED\_LOW}}
+{\footnotesize\ttfamily \label{globals_8h_a86a2e5fca3c5d3da26f4ef4ea06c6374} 
+\#define FANSPEED\+\_\+\+LOW~1}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00074}{74}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a97e0a780211c2ac4f07c896bf8738fe3}\index{globals.h@{globals.h}!FANSPEED\_MEDIUM@{FANSPEED\_MEDIUM}}
+\index{FANSPEED\_MEDIUM@{FANSPEED\_MEDIUM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{FANSPEED\_MEDIUM}{FANSPEED\_MEDIUM}}
+{\footnotesize\ttfamily \label{globals_8h_a97e0a780211c2ac4f07c896bf8738fe3} 
+\#define FANSPEED\+\_\+\+MEDIUM~2}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00075}{75}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a5c22ca4de37a83a59014e48b0a0b043d}\index{globals.h@{globals.h}!I2C\_MASTER\_FREQ\_HZ@{I2C\_MASTER\_FREQ\_HZ}}
+\index{I2C\_MASTER\_FREQ\_HZ@{I2C\_MASTER\_FREQ\_HZ}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{I2C\_MASTER\_FREQ\_HZ}{I2C\_MASTER\_FREQ\_HZ}}
+{\footnotesize\ttfamily \label{globals_8h_a5c22ca4de37a83a59014e48b0a0b043d} 
+\#define I2\+C\+\_\+\+MASTER\+\_\+\+FREQ\+\_\+\+HZ~100000}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00023}{23}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a1692416e947c17a412276c527757d563}\index{globals.h@{globals.h}!IDX\_CO2@{IDX\_CO2}}
+\index{IDX\_CO2@{IDX\_CO2}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_CO2}{IDX\_CO2}}
+{\footnotesize\ttfamily \label{globals_8h_a1692416e947c17a412276c527757d563} 
+\#define IDX\+\_\+\+CO2~2}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00051}{51}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a4ddb89942b372644fe4c42a7a857ca93}\index{globals.h@{globals.h}!IDX\_GAS\_RES@{IDX\_GAS\_RES}}
+\index{IDX\_GAS\_RES@{IDX\_GAS\_RES}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_GAS\_RES}{IDX\_GAS\_RES}}
+{\footnotesize\ttfamily \label{globals_8h_a4ddb89942b372644fe4c42a7a857ca93} 
+\#define IDX\+\_\+\+GAS\+\_\+\+RES~6}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00055}{55}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64}\index{globals.h@{globals.h}!IDX\_HUMIDITY@{IDX\_HUMIDITY}}
+\index{IDX\_HUMIDITY@{IDX\_HUMIDITY}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_HUMIDITY}{IDX\_HUMIDITY}}
+{\footnotesize\ttfamily \label{globals_8h_af24b61a9183dc1daf257cbeb7d6f2c64} 
+\#define IDX\+\_\+\+HUMIDITY~1}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00050}{50}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda}\index{globals.h@{globals.h}!IDX\_PRESSURE@{IDX\_PRESSURE}}
+\index{IDX\_PRESSURE@{IDX\_PRESSURE}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_PRESSURE}{IDX\_PRESSURE}}
+{\footnotesize\ttfamily \label{globals_8h_a239f7502e3f494773fe2e5ed4f7a7dda} 
+\#define IDX\+\_\+\+PRESSURE~5}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00054}{54}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2}\index{globals.h@{globals.h}!IDX\_TEMP@{IDX\_TEMP}}
+\index{IDX\_TEMP@{IDX\_TEMP}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_TEMP}{IDX\_TEMP}}
+{\footnotesize\ttfamily \label{globals_8h_a4f9e5bf03d19afec32a15e8b5f4559d2} 
+\#define IDX\+\_\+\+TEMP~0}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00049}{49}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79}\index{globals.h@{globals.h}!IDX\_TIMESTAMP@{IDX\_TIMESTAMP}}
+\index{IDX\_TIMESTAMP@{IDX\_TIMESTAMP}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_TIMESTAMP}{IDX\_TIMESTAMP}}
+{\footnotesize\ttfamily \label{globals_8h_a25bb87b44fee48213fe1ebb3b4734d79} 
+\#define IDX\+\_\+\+TIMESTAMP~3}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00052}{52}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a3a1e13fb17680e31eb625ff42697bccd}\index{globals.h@{globals.h}!IDX\_VALID@{IDX\_VALID}}
+\index{IDX\_VALID@{IDX\_VALID}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{IDX\_VALID}{IDX\_VALID}}
+{\footnotesize\ttfamily \label{globals_8h_a3a1e13fb17680e31eb625ff42697bccd} 
+\#define IDX\+\_\+\+VALID~4}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00053}{53}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a9de60adef19eece5b6ae93d625381d04}\index{globals.h@{globals.h}!LARGE\_CONFIG\_ITEM@{LARGE\_CONFIG\_ITEM}}
+\index{LARGE\_CONFIG\_ITEM@{LARGE\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{LARGE\_CONFIG\_ITEM}{LARGE\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a9de60adef19eece5b6ae93d625381d04} 
+\#define LARGE\+\_\+\+CONFIG\+\_\+\+ITEM~64}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00039}{39}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_af679cf68e64fdb5d310a0d9944142c76}\index{globals.h@{globals.h}!LCD\_I2C\_ADDR@{LCD\_I2C\_ADDR}}
+\index{LCD\_I2C\_ADDR@{LCD\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{LCD\_I2C\_ADDR}{LCD\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_af679cf68e64fdb5d310a0d9944142c76} 
+\#define LCD\+\_\+\+I2\+C\+\_\+\+ADDR~0x27}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00032}{32}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a1a8595e03c12d84d4dfff508a56f1061}\index{globals.h@{globals.h}!MAINTENANCE\_AP\_TIMEOUT\_MS@{MAINTENANCE\_AP\_TIMEOUT\_MS}}
+\index{MAINTENANCE\_AP\_TIMEOUT\_MS@{MAINTENANCE\_AP\_TIMEOUT\_MS}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAINTENANCE\_AP\_TIMEOUT\_MS}{MAINTENANCE\_AP\_TIMEOUT\_MS}}
+{\footnotesize\ttfamily \label{globals_8h_a1a8595e03c12d84d4dfff508a56f1061} 
+\#define MAINTENANCE\+\_\+\+AP\+\_\+\+TIMEOUT\+\_\+\+MS~(10 \texorpdfstring{$\ast$}{*} 60 \texorpdfstring{$\ast$}{*} 1000)}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00066}{66}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a70781c406c17458a408f41de8605edfd}\index{globals.h@{globals.h}!MAX\_FIFO\_SIZE@{MAX\_FIFO\_SIZE}}
+\index{MAX\_FIFO\_SIZE@{MAX\_FIFO\_SIZE}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_FIFO\_SIZE}{MAX\_FIFO\_SIZE}}
+{\footnotesize\ttfamily \label{globals_8h_a70781c406c17458a408f41de8605edfd} 
+\#define MAX\+\_\+\+FIFO\+\_\+\+SIZE~25}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00056}{56}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_af89a7a4080a47aa10a5504291db285bf}\index{globals.h@{globals.h}!MAX\_I2C\_BUSES@{MAX\_I2C\_BUSES}}
+\index{MAX\_I2C\_BUSES@{MAX\_I2C\_BUSES}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_I2C\_BUSES}{MAX\_I2C\_BUSES}}
+{\footnotesize\ttfamily \label{globals_8h_af89a7a4080a47aa10a5504291db285bf} 
+\#define MAX\+\_\+\+I2\+C\+\_\+\+BUSES~2}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00046}{46}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}\index{globals.h@{globals.h}!MAX\_NR\_STATES@{MAX\_NR\_STATES}}
+\index{MAX\_NR\_STATES@{MAX\_NR\_STATES}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_NR\_STATES}{MAX\_NR\_STATES}}
+{\footnotesize\ttfamily \label{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335} 
+\#define MAX\+\_\+\+NR\+\_\+\+STATES~15}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00069}{69}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2}\index{globals.h@{globals.h}!MAX\_SENSORS@{MAX\_SENSORS}}
+\index{MAX\_SENSORS@{MAX\_SENSORS}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_SENSORS}{MAX\_SENSORS}}
+{\footnotesize\ttfamily \label{globals_8h_aa3d1fc2927eec213e6b5f9e854c392d2} 
+\#define MAX\+\_\+\+SENSORS~16}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00060}{60}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_ae717896e234d26a8a45a46c36ebb4649}\index{globals.h@{globals.h}!MAX\_STATE\_CONFIG\_FILES@{MAX\_STATE\_CONFIG\_FILES}}
+\index{MAX\_STATE\_CONFIG\_FILES@{MAX\_STATE\_CONFIG\_FILES}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_STATE\_CONFIG\_FILES}{MAX\_STATE\_CONFIG\_FILES}}
+{\footnotesize\ttfamily \label{globals_8h_ae717896e234d26a8a45a46c36ebb4649} 
+\#define MAX\+\_\+\+STATE\+\_\+\+CONFIG\+\_\+\+FILES~10}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00070}{70}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a11657f2f8377cb7742008cb437a33548}\index{globals.h@{globals.h}!MAX\_VALVE\_COUNT@{MAX\_VALVE\_COUNT}}
+\index{MAX\_VALVE\_COUNT@{MAX\_VALVE\_COUNT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_VALVE\_COUNT}{MAX\_VALVE\_COUNT}}
+{\footnotesize\ttfamily \label{globals_8h_a11657f2f8377cb7742008cb437a33548} 
+\#define MAX\+\_\+\+VALVE\+\_\+\+COUNT~12}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00059}{59}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}\index{globals.h@{globals.h}!MEDIUM\_CONFIG\_ITEM@{MEDIUM\_CONFIG\_ITEM}}
+\index{MEDIUM\_CONFIG\_ITEM@{MEDIUM\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MEDIUM\_CONFIG\_ITEM}{MEDIUM\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0} 
+\#define MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM~32}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00038}{38}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a36a0e01899260bc7106c930758a8a311}\index{globals.h@{globals.h}!MLARGE\_CONFIG\_ITEM@{MLARGE\_CONFIG\_ITEM}}
+\index{MLARGE\_CONFIG\_ITEM@{MLARGE\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{MLARGE\_CONFIG\_ITEM}{MLARGE\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a36a0e01899260bc7106c930758a8a311} 
+\#define MLARGE\+\_\+\+CONFIG\+\_\+\+ITEM~256}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00040}{40}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a2ebd509cac3a17cea08322e44dc02e48}\index{globals.h@{globals.h}!SCD41\_I2C\_ADDR@{SCD41\_I2C\_ADDR}}
+\index{SCD41\_I2C\_ADDR@{SCD41\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{SCD41\_I2C\_ADDR}{SCD41\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_a2ebd509cac3a17cea08322e44dc02e48} 
+\#define SCD41\+\_\+\+I2\+C\+\_\+\+ADDR~0x62}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00029}{29}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a3c30ca29fe118f2f0aa11ac69ec5f71e}\index{globals.h@{globals.h}!SENSOR\_AVG\_SIZE@{SENSOR\_AVG\_SIZE}}
+\index{SENSOR\_AVG\_SIZE@{SENSOR\_AVG\_SIZE}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{SENSOR\_AVG\_SIZE}{SENSOR\_AVG\_SIZE}}
+{\footnotesize\ttfamily \label{globals_8h_a3c30ca29fe118f2f0aa11ac69ec5f71e} 
+\#define SENSOR\+\_\+\+AVG\+\_\+\+SIZE~(\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\+\_\+\+I2\+C\+\_\+\+BUSES}} \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}} \texorpdfstring{$\ast$}{*} 5)}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00079}{79}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a47aa813e8607babb85e3d34700d65d61}\index{globals.h@{globals.h}!SMALL\_CONFIG\_ITEM@{SMALL\_CONFIG\_ITEM}}
+\index{SMALL\_CONFIG\_ITEM@{SMALL\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{SMALL\_CONFIG\_ITEM}{SMALL\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a47aa813e8607babb85e3d34700d65d61} 
+\#define SMALL\+\_\+\+CONFIG\+\_\+\+ITEM~16}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00037}{37}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_abfb34ac4c9680ad680f95f9420cc8610}\index{globals.h@{globals.h}!TCA9548\_I2C\_ADDR@{TCA9548\_I2C\_ADDR}}
+\index{TCA9548\_I2C\_ADDR@{TCA9548\_I2C\_ADDR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{TCA9548\_I2C\_ADDR}{TCA9548\_I2C\_ADDR}}
+{\footnotesize\ttfamily \label{globals_8h_abfb34ac4c9680ad680f95f9420cc8610} 
+\#define TCA9548\+\_\+\+I2\+C\+\_\+\+ADDR~0x70}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00026}{26}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_aa0aec6e526d34bcfe24f3358063215b9}\index{globals.h@{globals.h}!W5500\_SPI\_HOST@{W5500\_SPI\_HOST}}
+\index{W5500\_SPI\_HOST@{W5500\_SPI\_HOST}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{W5500\_SPI\_HOST}{W5500\_SPI\_HOST}}
+{\footnotesize\ttfamily \label{globals_8h_aa0aec6e526d34bcfe24f3358063215b9} 
+\#define W5500\+\_\+\+SPI\+\_\+\+HOST~SPI2\+\_\+\+HOST}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00035}{35}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_ad552e7688532cbbecd3967538ced06ac}\index{globals.h@{globals.h}!WIFI\_CONNECTED\_BIT@{WIFI\_CONNECTED\_BIT}}
+\index{WIFI\_CONNECTED\_BIT@{WIFI\_CONNECTED\_BIT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{WIFI\_CONNECTED\_BIT}{WIFI\_CONNECTED\_BIT}}
+{\footnotesize\ttfamily \label{globals_8h_ad552e7688532cbbecd3967538ced06ac} 
+\#define WIFI\+\_\+\+CONNECTED\+\_\+\+BIT~BIT0}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00063}{63}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a7d013b55e50dfbda0904f5f933b63ec4}\index{globals.h@{globals.h}!WIFI\_FAIL\_BIT@{WIFI\_FAIL\_BIT}}
+\index{WIFI\_FAIL\_BIT@{WIFI\_FAIL\_BIT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{WIFI\_FAIL\_BIT}{WIFI\_FAIL\_BIT}}
+{\footnotesize\ttfamily \label{globals_8h_a7d013b55e50dfbda0904f5f933b63ec4} 
+\#define WIFI\+\_\+\+FAIL\+\_\+\+BIT~BIT1}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00064}{64}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a18d85c20262da85b8e4071a8a6277553}\index{globals.h@{globals.h}!XLARGE\_CONFIG\_ITEM@{XLARGE\_CONFIG\_ITEM}}
+\index{XLARGE\_CONFIG\_ITEM@{XLARGE\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{XLARGE\_CONFIG\_ITEM}{XLARGE\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a18d85c20262da85b8e4071a8a6277553} 
+\#define XLARGE\+\_\+\+CONFIG\+\_\+\+ITEM~512}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00041}{41}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}\index{globals.h@{globals.h}!XXLARGE\_CONFIG\_ITEM@{XXLARGE\_CONFIG\_ITEM}}
+\index{XXLARGE\_CONFIG\_ITEM@{XXLARGE\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{XXLARGE\_CONFIG\_ITEM}{XXLARGE\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88} 
+\#define XXLARGE\+\_\+\+CONFIG\+\_\+\+ITEM~1024}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00042}{42}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf}\index{globals.h@{globals.h}!XXXLARGE\_CONFIG\_ITEM@{XXXLARGE\_CONFIG\_ITEM}}
+\index{XXXLARGE\_CONFIG\_ITEM@{XXXLARGE\_CONFIG\_ITEM}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{XXXLARGE\_CONFIG\_ITEM}{XXXLARGE\_CONFIG\_ITEM}}
+{\footnotesize\ttfamily \label{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf} 
+\#define XXXLARGE\+\_\+\+CONFIG\+\_\+\+ITEM~2048}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00043}{43}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{globals_8h_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{globals_8h_a550f51b3dcf51a5ffde2af751faa02d3}\index{globals.h@{globals.h}!aht20\_bus0\_handle@{aht20\_bus0\_handle}}
+\index{aht20\_bus0\_handle@{aht20\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{aht20\_bus0\_handle}{aht20\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a550f51b3dcf51a5ffde2af751faa02d3} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t aht20\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00043}{43}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a13a932467f0ee219c2f0e8881b8cfc1f}\index{globals.h@{globals.h}!aht20\_bus1\_handle@{aht20\_bus1\_handle}}
+\index{aht20\_bus1\_handle@{aht20\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{aht20\_bus1\_handle}{aht20\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a13a932467f0ee219c2f0e8881b8cfc1f} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t aht20\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00044}{44}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a425074bc5173bc5e6be234bcf4f68391}\index{globals.h@{globals.h}!bme680\_bus0\_handle@{bme680\_bus0\_handle}}
+\index{bme680\_bus0\_handle@{bme680\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{bme680\_bus0\_handle}{bme680\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a425074bc5173bc5e6be234bcf4f68391} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t bme680\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00049}{49}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a84d930779eeedad50be67ee0b0038d7a}\index{globals.h@{globals.h}!bme680\_bus1\_handle@{bme680\_bus1\_handle}}
+\index{bme680\_bus1\_handle@{bme680\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{bme680\_bus1\_handle}{bme680\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a84d930779eeedad50be67ee0b0038d7a} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t bme680\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00050}{50}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_af0e9d3e368300fd4059ea6757701fa1b}\index{globals.h@{globals.h}!bus0\_sensor\_settings@{bus0\_sensor\_settings}}
+\index{bus0\_sensor\_settings@{bus0\_sensor\_settings}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{bus0\_sensor\_settings}{bus0\_sensor\_settings}}
+{\footnotesize\ttfamily \label{globals_8h_af0e9d3e368300fd4059ea6757701fa1b} 
+\mbox{\hyperlink{structbus__sensor__t}{bus\+\_\+sensor\+\_\+t}} bus0\+\_\+sensor\+\_\+settings\mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00093}{93}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a75ec66fa7e5da489f7dcaae8ba5926f3}\index{globals.h@{globals.h}!bus1\_sensor\_settings@{bus1\_sensor\_settings}}
+\index{bus1\_sensor\_settings@{bus1\_sensor\_settings}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{bus1\_sensor\_settings}{bus1\_sensor\_settings}}
+{\footnotesize\ttfamily \label{globals_8h_a75ec66fa7e5da489f7dcaae8ba5926f3} 
+\mbox{\hyperlink{structbus__sensor__t}{bus\+\_\+sensor\+\_\+t}} bus1\+\_\+sensor\+\_\+settings\mbox{[}\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\+\_\+\+PER\+\_\+\+BUS}}\mbox{]}\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00094}{94}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a36f1dc94d96231ff1282910993bcddfd}\index{globals.h@{globals.h}!dht20\_bus0\_handle@{dht20\_bus0\_handle}}
+\index{dht20\_bus0\_handle@{dht20\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{dht20\_bus0\_handle}{dht20\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a36f1dc94d96231ff1282910993bcddfd} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t dht20\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00045}{45}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_acf5e7b3328c1e3655b88389880317de1}\index{globals.h@{globals.h}!dht20\_bus1\_handle@{dht20\_bus1\_handle}}
+\index{dht20\_bus1\_handle@{dht20\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{dht20\_bus1\_handle}{dht20\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_acf5e7b3328c1e3655b88389880317de1} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t dht20\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00046}{46}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a6bb0d5e335c8d4a8358886c3c0579a2c}\index{globals.h@{globals.h}!ds3231\_bus0\_handle@{ds3231\_bus0\_handle}}
+\index{ds3231\_bus0\_handle@{ds3231\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{ds3231\_bus0\_handle}{ds3231\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a6bb0d5e335c8d4a8358886c3c0579a2c} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t ds3231\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00051}{51}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a215b370c8fa4ae15bab7a372a62da798}\index{globals.h@{globals.h}!ethernet\_config@{ethernet\_config}}
+\index{ethernet\_config@{ethernet\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{ethernet\_config}{ethernet\_config}}
+{\footnotesize\ttfamily \label{globals_8h_a215b370c8fa4ae15bab7a372a62da798} 
+\mbox{\hyperlink{structEthernet__config__t}{Ethernet\+\_\+config\+\_\+t}} ethernet\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00104}{104}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a70f39d0a5e08101ce16cc7612b92b0c3}\index{globals.h@{globals.h}!fan\_config@{fan\_config}}
+\index{fan\_config@{fan\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{fan\_config}{fan\_config}}
+{\footnotesize\ttfamily \label{globals_8h_a70f39d0a5e08101ce16cc7612b92b0c3} 
+\mbox{\hyperlink{structFan__config__t}{Fan\+\_\+config\+\_\+t}} fan\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00108}{108}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a41dc2276a278f39470c0abc22ac384e5}\index{globals.h@{globals.h}!fan\_config\_mutex@{fan\_config\_mutex}}
+\index{fan\_config\_mutex@{fan\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{fan\_config\_mutex}{fan\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a41dc2276a278f39470c0abc22ac384e5} 
+Semaphore\+Handle\+\_\+t fan\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00077}{77}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_acef4cbb7481d279d17259800d9c1072f}\index{globals.h@{globals.h}!g\_ping\_done\_sem@{g\_ping\_done\_sem}}
+\index{g\_ping\_done\_sem@{g\_ping\_done\_sem}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{g\_ping\_done\_sem}{g\_ping\_done\_sem}}
+{\footnotesize\ttfamily \label{globals_8h_acef4cbb7481d279d17259800d9c1072f} 
+Semaphore\+Handle\+\_\+t g\+\_\+ping\+\_\+done\+\_\+sem\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00080}{80}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a942308ba9563bb35faaa31c6da3eb02a}\index{globals.h@{globals.h}!g\_ping\_summary@{g\_ping\_summary}}
+\index{g\_ping\_summary@{g\_ping\_summary}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{g\_ping\_summary}{g\_ping\_summary}}
+{\footnotesize\ttfamily \label{globals_8h_a942308ba9563bb35faaa31c6da3eb02a} 
+\mbox{\hyperlink{structping__summary__t}{ping\+\_\+summary\+\_\+t}} g\+\_\+ping\+\_\+summary\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00111}{111}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a5030056dc8d84d954e30fce0f40944f8}\index{globals.h@{globals.h}!http\_server@{http\_server}}
+\index{http\_server@{http\_server}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{http\_server}{http\_server}}
+{\footnotesize\ttfamily \label{globals_8h_a5030056dc8d84d954e30fce0f40944f8} 
+httpd\+\_\+handle\+\_\+t http\+\_\+server\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00097}{97}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_aefb351ec52ac77546d12f5dd1332c8b8}\index{globals.h@{globals.h}!i2c\_bus0\_handle@{i2c\_bus0\_handle}}
+\index{i2c\_bus0\_handle@{i2c\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_bus0\_handle}{i2c\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_aefb351ec52ac77546d12f5dd1332c8b8} 
+i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t i2c\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00039}{39}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a82c5c41e821bcf6357378e1c61702de0}\index{globals.h@{globals.h}!i2c\_bus1\_handle@{i2c\_bus1\_handle}}
+\index{i2c\_bus1\_handle@{i2c\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_bus1\_handle}{i2c\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a82c5c41e821bcf6357378e1c61702de0} 
+i2c\+\_\+master\+\_\+bus\+\_\+handle\+\_\+t i2c\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00040}{40}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a274d1c89ab9f6afd986c6afbe54a9330}\index{globals.h@{globals.h}!i2c\_bus\_mutex@{i2c\_bus\_mutex}}
+\index{i2c\_bus\_mutex@{i2c\_bus\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_bus\_mutex}{i2c\_bus\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a274d1c89ab9f6afd986c6afbe54a9330} 
+Semaphore\+Handle\+\_\+t i2c\+\_\+bus\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00087}{87}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ae9aeaadad2ab3c550e111b2619162c5a}\index{globals.h@{globals.h}!i2c\_config@{i2c\_config}}
+\index{i2c\_config@{i2c\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_config}{i2c\_config}}
+{\footnotesize\ttfamily \label{globals_8h_ae9aeaadad2ab3c550e111b2619162c5a} 
+\mbox{\hyperlink{structI2C__config__t}{I2\+C\+\_\+config\+\_\+t}} i2c\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00109}{109}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac3f79c091f521df5fcd89eb3140dc361}\index{globals.h@{globals.h}!i2c\_config\_mutex@{i2c\_config\_mutex}}
+\index{i2c\_config\_mutex@{i2c\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{i2c\_config\_mutex}{i2c\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_ac3f79c091f521df5fcd89eb3140dc361} 
+Semaphore\+Handle\+\_\+t i2c\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00078}{78}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_abc0243267f54bd7625177694ebefd811}\index{globals.h@{globals.h}!influxdb\_config@{influxdb\_config}}
+\index{influxdb\_config@{influxdb\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{influxdb\_config}{influxdb\_config}}
+{\footnotesize\ttfamily \label{globals_8h_abc0243267f54bd7625177694ebefd811} 
+\mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\+\_\+config\+\_\+t}} influxdb\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00107}{107}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a213caef177572131962a9872836b9381}\index{globals.h@{globals.h}!influxdb\_config\_mutex@{influxdb\_config\_mutex}}
+\index{influxdb\_config\_mutex@{influxdb\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{influxdb\_config\_mutex}{influxdb\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a213caef177572131962a9872836b9381} 
+Semaphore\+Handle\+\_\+t influxdb\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00076}{76}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a45869fa29ca77bba6a3b5c45dbc991fd}\index{globals.h@{globals.h}!lcd\_bus1\_handle@{lcd\_bus1\_handle}}
+\index{lcd\_bus1\_handle@{lcd\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_bus1\_handle}{lcd\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a45869fa29ca77bba6a3b5c45dbc991fd} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t lcd\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00052}{52}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a4b52315012ab4ee45e0b02274d0dd5e0}\index{globals.h@{globals.h}!lock\_valve\_move@{lock\_valve\_move}}
+\index{lock\_valve\_move@{lock\_valve\_move}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{lock\_valve\_move}{lock\_valve\_move}}
+{\footnotesize\ttfamily \label{globals_8h_a4b52315012ab4ee45e0b02274d0dd5e0} 
+int lock\+\_\+valve\+\_\+move\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00122}{122}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a07ba29234b9d405cfe548a14246c1783}\index{globals.h@{globals.h}!lock\_valve\_move\_mutex@{lock\_valve\_move\_mutex}}
+\index{lock\_valve\_move\_mutex@{lock\_valve\_move\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{lock\_valve\_move\_mutex}{lock\_valve\_move\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a07ba29234b9d405cfe548a14246c1783} 
+Semaphore\+Handle\+\_\+t lock\+\_\+valve\+\_\+move\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00082}{82}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a744233890776cb13f086e09ecbafc30f}\index{globals.h@{globals.h}!mqtt\_config@{mqtt\_config}}
+\index{mqtt\_config@{mqtt\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{mqtt\_config}{mqtt\_config}}
+{\footnotesize\ttfamily \label{globals_8h_a744233890776cb13f086e09ecbafc30f} 
+\mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} mqtt\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00106}{106}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_aef743e87ffc8c06cc92ca09b329b9673}\index{globals.h@{globals.h}!mqtt\_config\_mutex@{mqtt\_config\_mutex}}
+\index{mqtt\_config\_mutex@{mqtt\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{mqtt\_config\_mutex}{mqtt\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_aef743e87ffc8c06cc92ca09b329b9673} 
+Semaphore\+Handle\+\_\+t mqtt\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00075}{75}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_afd37c353e832630f059bf71f89375327}\index{globals.h@{globals.h}!network\_config\_mutex@{network\_config\_mutex}}
+\index{network\_config\_mutex@{network\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{network\_config\_mutex}{network\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_afd37c353e832630f059bf71f89375327} 
+Semaphore\+Handle\+\_\+t network\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00073}{73}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a090e5e2e6c56964dd054d5845bb9f592}\index{globals.h@{globals.h}!network\_manager\_task\_handle@{network\_manager\_task\_handle}}
+\index{network\_manager\_task\_handle@{network\_manager\_task\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_task\_handle}{network\_manager\_task\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a090e5e2e6c56964dd054d5845bb9f592} 
+Task\+Handle\+\_\+t network\+\_\+manager\+\_\+task\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00065}{65}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a6aaca350cca4b3d105d88a6f399cb381}\index{globals.h@{globals.h}!s\_wifi\_event\_group@{s\_wifi\_event\_group}}
+\index{s\_wifi\_event\_group@{s\_wifi\_event\_group}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{s\_wifi\_event\_group}{s\_wifi\_event\_group}}
+{\footnotesize\ttfamily \label{globals_8h_a6aaca350cca4b3d105d88a6f399cb381} 
+Event\+Group\+Handle\+\_\+t s\+\_\+wifi\+\_\+event\+\_\+group\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00090}{90}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a645f9f34935c608aa0b54350673a2490}\index{globals.h@{globals.h}!scd41\_bus0\_handle@{scd41\_bus0\_handle}}
+\index{scd41\_bus0\_handle@{scd41\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{scd41\_bus0\_handle}{scd41\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a645f9f34935c608aa0b54350673a2490} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t scd41\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00047}{47}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_acfdc4cd71c935dc98d307399ab2d2306}\index{globals.h@{globals.h}!scd41\_bus1\_handle@{scd41\_bus1\_handle}}
+\index{scd41\_bus1\_handle@{scd41\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{scd41\_bus1\_handle}{scd41\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_acfdc4cd71c935dc98d307399ab2d2306} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t scd41\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00048}{48}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a9b57f84a6a017690d8f551533fd01c7f}\index{globals.h@{globals.h}!sensor\_avg\_item\_size@{sensor\_avg\_item\_size}}
+\index{sensor\_avg\_item\_size@{sensor\_avg\_item\_size}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_avg\_item\_size}{sensor\_avg\_item\_size}}
+{\footnotesize\ttfamily \label{globals_8h_a9b57f84a6a017690d8f551533fd01c7f} 
+size\+\_\+t sensor\+\_\+avg\+\_\+item\+\_\+size\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00035}{35}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a1a4f81be109547a57be381ed987d6f0d}\index{globals.h@{globals.h}!sensor\_avg\_queue@{sensor\_avg\_queue}}
+\index{sensor\_avg\_queue@{sensor\_avg\_queue}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_avg\_queue}{sensor\_avg\_queue}}
+{\footnotesize\ttfamily \label{globals_8h_a1a4f81be109547a57be381ed987d6f0d} 
+Queue\+Handle\+\_\+t sensor\+\_\+avg\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00034}{34}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_aa8b32c6cf90002706fc0dab6856576c7}\index{globals.h@{globals.h}!sensor\_cfg\_mutex@{sensor\_cfg\_mutex}}
+\index{sensor\_cfg\_mutex@{sensor\_cfg\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_cfg\_mutex}{sensor\_cfg\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_aa8b32c6cf90002706fc0dab6856576c7} 
+Semaphore\+Handle\+\_\+t sensor\+\_\+cfg\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00083}{83}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a8ef6c7739752ee9ab50848e42272f87c}\index{globals.h@{globals.h}!sensor\_queue@{sensor\_queue}}
+\index{sensor\_queue@{sensor\_queue}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sensor\_queue}{sensor\_queue}}
+{\footnotesize\ttfamily \label{globals_8h_a8ef6c7739752ee9ab50848e42272f87c} 
+Queue\+Handle\+\_\+t sensor\+\_\+queue\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00033}{33}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a15aa079749cb4983f369adc523d1aa2e}\index{globals.h@{globals.h}!sensors\_queues\_ready@{sensors\_queues\_ready}}
+\index{sensors\_queues\_ready@{sensors\_queues\_ready}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sensors\_queues\_ready}{sensors\_queues\_ready}}
+{\footnotesize\ttfamily \label{globals_8h_a15aa079749cb4983f369adc523d1aa2e} 
+volatile bool sensors\+\_\+queues\+\_\+ready\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00036}{36}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a478f0c2c075116ec3f06b481bc02db0c}\index{globals.h@{globals.h}!sm\_actuals@{sm\_actuals}}
+\index{sm\_actuals@{sm\_actuals}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{sm\_actuals}{sm\_actuals}}
+{\footnotesize\ttfamily \label{globals_8h_a478f0c2c075116ec3f06b481bc02db0c} 
+\mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\+\_\+actuals\+\_\+t}} sm\+\_\+actuals\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00116}{116}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a1e0c2cc5f0a60231e65ddd2a67cd54de}\index{globals.h@{globals.h}!state\_config\_mutex@{state\_config\_mutex}}
+\index{state\_config\_mutex@{state\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{state\_config\_mutex}{state\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a1e0c2cc5f0a60231e65ddd2a67cd54de} 
+Semaphore\+Handle\+\_\+t state\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00084}{84}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a0b362ab28cb37bbd67729678b0a79d38}\index{globals.h@{globals.h}!STATE\_COOKING@{STATE\_COOKING}}
+\index{STATE\_COOKING@{STATE\_COOKING}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_COOKING}{STATE\_COOKING}}
+{\footnotesize\ttfamily \label{globals_8h_a0b362ab28cb37bbd67729678b0a79d38} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+COOKING\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00025}{25}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a771ce7a1bfdca26127eba54c62521197}\index{globals.h@{globals.h}!STATE\_CYCLINGDAY@{STATE\_CYCLINGDAY}}
+\index{STATE\_CYCLINGDAY@{STATE\_CYCLINGDAY}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_CYCLINGDAY}{STATE\_CYCLINGDAY}}
+{\footnotesize\ttfamily \label{globals_8h_a771ce7a1bfdca26127eba54c62521197} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+CYCLINGDAY\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00026}{26}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a1e67e976ab7e62536f8445ecd0427d4d}\index{globals.h@{globals.h}!STATE\_CYCLINGNIGHT@{STATE\_CYCLINGNIGHT}}
+\index{STATE\_CYCLINGNIGHT@{STATE\_CYCLINGNIGHT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_CYCLINGNIGHT}{STATE\_CYCLINGNIGHT}}
+{\footnotesize\ttfamily \label{globals_8h_a1e67e976ab7e62536f8445ecd0427d4d} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+CYCLINGNIGHT\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00027}{27}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a594f072cfd927160b01e311ec38147c0}\index{globals.h@{globals.h}!STATE\_DAY@{STATE\_DAY}}
+\index{STATE\_DAY@{STATE\_DAY}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_DAY}{STATE\_DAY}}
+{\footnotesize\ttfamily \label{globals_8h_a594f072cfd927160b01e311ec38147c0} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+DAY\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00019}{19}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a1f0db5c59d4c4f00f82ca73b9ab55cf8}\index{globals.h@{globals.h}!STATE\_ERROR@{STATE\_ERROR}}
+\index{STATE\_ERROR@{STATE\_ERROR}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_ERROR}{STATE\_ERROR}}
+{\footnotesize\ttfamily \label{globals_8h_a1f0db5c59d4c4f00f82ca73b9ab55cf8} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+ERROR\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00017}{17}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_adb273b19f9d1ca94c6cd18d7ede3f5c3}\index{globals.h@{globals.h}!STATE\_HIGHCO2DAY@{STATE\_HIGHCO2DAY}}
+\index{STATE\_HIGHCO2DAY@{STATE\_HIGHCO2DAY}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_HIGHCO2DAY}{STATE\_HIGHCO2DAY}}
+{\footnotesize\ttfamily \label{globals_8h_adb273b19f9d1ca94c6cd18d7ede3f5c3} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+HIGHCO2\+DAY\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00021}{21}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_aeab62a1af3e6431c7495c9ce77745004}\index{globals.h@{globals.h}!STATE\_HIGHCO2NIGHT@{STATE\_HIGHCO2NIGHT}}
+\index{STATE\_HIGHCO2NIGHT@{STATE\_HIGHCO2NIGHT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_HIGHCO2NIGHT}{STATE\_HIGHCO2NIGHT}}
+{\footnotesize\ttfamily \label{globals_8h_aeab62a1af3e6431c7495c9ce77745004} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+HIGHCO2\+NIGHT\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00022}{22}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ad11b3e1272f6c9017932145a3fca5eca}\index{globals.h@{globals.h}!STATE\_HIGHRHDAY@{STATE\_HIGHRHDAY}}
+\index{STATE\_HIGHRHDAY@{STATE\_HIGHRHDAY}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_HIGHRHDAY}{STATE\_HIGHRHDAY}}
+{\footnotesize\ttfamily \label{globals_8h_ad11b3e1272f6c9017932145a3fca5eca} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+HIGHRHDAY\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00023}{23}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a7ac69985df41b6592cb05e8fd3c7a299}\index{globals.h@{globals.h}!STATE\_HIGHRHNIGHT@{STATE\_HIGHRHNIGHT}}
+\index{STATE\_HIGHRHNIGHT@{STATE\_HIGHRHNIGHT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_HIGHRHNIGHT}{STATE\_HIGHRHNIGHT}}
+{\footnotesize\ttfamily \label{globals_8h_a7ac69985df41b6592cb05e8fd3c7a299} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+HIGHRHNIGHT\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00024}{24}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a536b9359514df407fffea773dd4695ca}\index{globals.h@{globals.h}!STATE\_INIT@{STATE\_INIT}}
+\index{STATE\_INIT@{STATE\_INIT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_INIT}{STATE\_INIT}}
+{\footnotesize\ttfamily \label{globals_8h_a536b9359514df407fffea773dd4695ca} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+INIT\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00018}{18}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ab62ae2398bc7b1987beb334ba3b7a6ec}\index{globals.h@{globals.h}!STATE\_MANUALHS@{STATE\_MANUALHS}}
+\index{STATE\_MANUALHS@{STATE\_MANUALHS}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_MANUALHS}{STATE\_MANUALHS}}
+{\footnotesize\ttfamily \label{globals_8h_ab62ae2398bc7b1987beb334ba3b7a6ec} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+MANUALHS\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00028}{28}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a800adb3dbf6b513f392b6f6883c9b4a5}\index{globals.h@{globals.h}!STATE\_NIGHT@{STATE\_NIGHT}}
+\index{STATE\_NIGHT@{STATE\_NIGHT}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_NIGHT}{STATE\_NIGHT}}
+{\footnotesize\ttfamily \label{globals_8h_a800adb3dbf6b513f392b6f6883c9b4a5} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+NIGHT\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00020}{20}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a224dabb3ee1aee269796fabeba8e4eea}\index{globals.h@{globals.h}!STATE\_STOPPED@{STATE\_STOPPED}}
+\index{STATE\_STOPPED@{STATE\_STOPPED}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_STOPPED}{STATE\_STOPPED}}
+{\footnotesize\ttfamily \label{globals_8h_a224dabb3ee1aee269796fabeba8e4eea} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+STOPPED\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00029}{29}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a5c547020f9c301b6ea6e7bfebce729d4}\index{globals.h@{globals.h}!STATE\_TEMP@{STATE\_TEMP}}
+\index{STATE\_TEMP@{STATE\_TEMP}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{STATE\_TEMP}{STATE\_TEMP}}
+{\footnotesize\ttfamily \label{globals_8h_a5c547020f9c301b6ea6e7bfebce729d4} 
+const char\texorpdfstring{$\ast$}{*} STATE\+\_\+\+TEMP\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00030}{30}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a6b03f2a710c460dd57790cf38a568175}\index{globals.h@{globals.h}!statemachine\_config@{statemachine\_config}}
+\index{statemachine\_config@{statemachine\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{statemachine\_config}{statemachine\_config}}
+{\footnotesize\ttfamily \label{globals_8h_a6b03f2a710c460dd57790cf38a568175} 
+\mbox{\hyperlink{structStatemachine__config__t}{Statemachine\+\_\+config\+\_\+t}} statemachine\+\_\+config\mbox{[}\mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\+\_\+\+NR\+\_\+\+STATES}}\mbox{]}\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00115}{115}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac2de10cdf8f5e01c010f5965a3f889fa}\index{globals.h@{globals.h}!statemachine\_gen\_config@{statemachine\_gen\_config}}
+\index{statemachine\_gen\_config@{statemachine\_gen\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{statemachine\_gen\_config}{statemachine\_gen\_config}}
+{\footnotesize\ttfamily \label{globals_8h_ac2de10cdf8f5e01c010f5965a3f889fa} 
+\mbox{\hyperlink{structStatemachine__gen__config__t}{Statemachine\+\_\+gen\+\_\+config\+\_\+t}} statemachine\+\_\+gen\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00114}{114}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_afb48a597d7884b66e4a517a56cd7e94b}\index{globals.h@{globals.h}!statemachine\_mutex@{statemachine\_mutex}}
+\index{statemachine\_mutex@{statemachine\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{statemachine\_mutex}{statemachine\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_afb48a597d7884b66e4a517a56cd7e94b} 
+Semaphore\+Handle\+\_\+t statemachine\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00085}{85}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_afa8f7b2b05ee6ceb77d85f5382303170}\index{globals.h@{globals.h}!syslog\_config@{syslog\_config}}
+\index{syslog\_config@{syslog\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_config}{syslog\_config}}
+{\footnotesize\ttfamily \label{globals_8h_afa8f7b2b05ee6ceb77d85f5382303170} 
+\mbox{\hyperlink{structSyslog__config__t}{Syslog\+\_\+config\+\_\+t}} syslog\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00110}{110}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a35517c7333006341422af36e1f38dacf}\index{globals.h@{globals.h}!syslog\_config\_mutex@{syslog\_config\_mutex}}
+\index{syslog\_config\_mutex@{syslog\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{syslog\_config\_mutex}{syslog\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a35517c7333006341422af36e1f38dacf} 
+Semaphore\+Handle\+\_\+t syslog\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00079}{79}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac7984cbfb2bc90213b9b9daf5545b14d}\index{globals.h@{globals.h}!task\_ethernet@{task\_ethernet}}
+\index{task\_ethernet@{task\_ethernet}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_ethernet}{task\_ethernet}}
+{\footnotesize\ttfamily \label{globals_8h_ac7984cbfb2bc90213b9b9daf5545b14d} 
+Task\+Handle\+\_\+t task\+\_\+ethernet\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00058}{58}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a65653581d86bd0cf06772d3a7a0ca530}\index{globals.h@{globals.h}!task\_i2c\_ds3231@{task\_i2c\_ds3231}}
+\index{task\_i2c\_ds3231@{task\_i2c\_ds3231}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_i2c\_ds3231}{task\_i2c\_ds3231}}
+{\footnotesize\ttfamily \label{globals_8h_a65653581d86bd0cf06772d3a7a0ca530} 
+Task\+Handle\+\_\+t task\+\_\+i2c\+\_\+ds3231\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00056}{56}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a2b74b90cf673582acb7d43efa4aeda9c}\index{globals.h@{globals.h}!task\_i2c\_lcd@{task\_i2c\_lcd}}
+\index{task\_i2c\_lcd@{task\_i2c\_lcd}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_i2c\_lcd}{task\_i2c\_lcd}}
+{\footnotesize\ttfamily \label{globals_8h_a2b74b90cf673582acb7d43efa4aeda9c} 
+Task\+Handle\+\_\+t task\+\_\+i2c\+\_\+lcd\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00059}{59}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a2c4c07bdb3ef92721dbaf8c5943b0c4c}\index{globals.h@{globals.h}!task\_i2c\_sensors@{task\_i2c\_sensors}}
+\index{task\_i2c\_sensors@{task\_i2c\_sensors}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_i2c\_sensors}{task\_i2c\_sensors}}
+{\footnotesize\ttfamily \label{globals_8h_a2c4c07bdb3ef92721dbaf8c5943b0c4c} 
+Task\+Handle\+\_\+t task\+\_\+i2c\+\_\+sensors\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00055}{55}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a67b57065f25bb01df7a68c9ca504bf63}\index{globals.h@{globals.h}!task\_influxdb@{task\_influxdb}}
+\index{task\_influxdb@{task\_influxdb}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_influxdb}{task\_influxdb}}
+{\footnotesize\ttfamily \label{globals_8h_a67b57065f25bb01df7a68c9ca504bf63} 
+Task\+Handle\+\_\+t task\+\_\+influxdb\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00064}{64}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_aaf4dde9c077de1c317695eb85bb91930}\index{globals.h@{globals.h}!task\_mqtt@{task\_mqtt}}
+\index{task\_mqtt@{task\_mqtt}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_mqtt}{task\_mqtt}}
+{\footnotesize\ttfamily \label{globals_8h_aaf4dde9c077de1c317695eb85bb91930} 
+Task\+Handle\+\_\+t task\+\_\+mqtt\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00063}{63}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac594ae682806681934947dd150e87e79}\index{globals.h@{globals.h}!task\_pushbutton@{task\_pushbutton}}
+\index{task\_pushbutton@{task\_pushbutton}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_pushbutton}{task\_pushbutton}}
+{\footnotesize\ttfamily \label{globals_8h_ac594ae682806681934947dd150e87e79} 
+Task\+Handle\+\_\+t task\+\_\+pushbutton\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00066}{66}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a9ddebb40ab9ed98f51c84eca1a9d0cb2}\index{globals.h@{globals.h}!task\_rgb\_leds@{task\_rgb\_leds}}
+\index{task\_rgb\_leds@{task\_rgb\_leds}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_rgb\_leds}{task\_rgb\_leds}}
+{\footnotesize\ttfamily \label{globals_8h_a9ddebb40ab9ed98f51c84eca1a9d0cb2} 
+Task\+Handle\+\_\+t task\+\_\+rgb\+\_\+leds\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00060}{60}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_afd3689588486e810744b2dadb571c24b}\index{globals.h@{globals.h}!task\_statemachine@{task\_statemachine}}
+\index{task\_statemachine@{task\_statemachine}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_statemachine}{task\_statemachine}}
+{\footnotesize\ttfamily \label{globals_8h_afd3689588486e810744b2dadb571c24b} 
+Task\+Handle\+\_\+t task\+\_\+statemachine\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00061}{61}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a63a350f2118f26502dd048bac81dc629}\index{globals.h@{globals.h}!task\_sys\_stats@{task\_sys\_stats}}
+\index{task\_sys\_stats@{task\_sys\_stats}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_sys\_stats}{task\_sys\_stats}}
+{\footnotesize\ttfamily \label{globals_8h_a63a350f2118f26502dd048bac81dc629} 
+Task\+Handle\+\_\+t task\+\_\+sys\+\_\+stats\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00067}{67}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a60a1c219e198f3df704b40d2d6ec7d85}\index{globals.h@{globals.h}!task\_syslog@{task\_syslog}}
+\index{task\_syslog@{task\_syslog}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_syslog}{task\_syslog}}
+{\footnotesize\ttfamily \label{globals_8h_a60a1c219e198f3df704b40d2d6ec7d85} 
+Task\+Handle\+\_\+t task\+\_\+syslog\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00068}{68}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac19ade132a4bb3fc631f4266968345a0}\index{globals.h@{globals.h}!task\_uart\_sender@{task\_uart\_sender}}
+\index{task\_uart\_sender@{task\_uart\_sender}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_uart\_sender}{task\_uart\_sender}}
+{\footnotesize\ttfamily \label{globals_8h_ac19ade132a4bb3fc631f4266968345a0} 
+Task\+Handle\+\_\+t task\+\_\+uart\+\_\+sender\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00069}{69}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ae19bac532de4148fd0f7ed46c7e07362}\index{globals.h@{globals.h}!task\_uart\_tx\_sender@{task\_uart\_tx\_sender}}
+\index{task\_uart\_tx\_sender@{task\_uart\_tx\_sender}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_uart\_tx\_sender}{task\_uart\_tx\_sender}}
+{\footnotesize\ttfamily \label{globals_8h_ae19bac532de4148fd0f7ed46c7e07362} 
+Task\+Handle\+\_\+t task\+\_\+uart\+\_\+tx\+\_\+sender\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00070}{70}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_af88447ad66fad4361c8e7651db834fdb}\index{globals.h@{globals.h}!task\_valvectrl@{task\_valvectrl}}
+\index{task\_valvectrl@{task\_valvectrl}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_valvectrl}{task\_valvectrl}}
+{\footnotesize\ttfamily \label{globals_8h_af88447ad66fad4361c8e7651db834fdb} 
+Task\+Handle\+\_\+t task\+\_\+valvectrl\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00062}{62}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac6b13e4a7ba9dc01f727854cd46e6384}\index{globals.h@{globals.h}!task\_wifi@{task\_wifi}}
+\index{task\_wifi@{task\_wifi}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{task\_wifi}{task\_wifi}}
+{\footnotesize\ttfamily \label{globals_8h_ac6b13e4a7ba9dc01f727854cd46e6384} 
+Task\+Handle\+\_\+t task\+\_\+wifi\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00057}{57}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_abf2db498ee5bfc50c210a73d702b61fc}\index{globals.h@{globals.h}!tca9548\_bus0\_handle@{tca9548\_bus0\_handle}}
+\index{tca9548\_bus0\_handle@{tca9548\_bus0\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{tca9548\_bus0\_handle}{tca9548\_bus0\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_abf2db498ee5bfc50c210a73d702b61fc} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t tca9548\+\_\+bus0\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00041}{41}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a064478940aa6735f7aa2c239c08f994c}\index{globals.h@{globals.h}!tca9548\_bus1\_handle@{tca9548\_bus1\_handle}}
+\index{tca9548\_bus1\_handle@{tca9548\_bus1\_handle}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{tca9548\_bus1\_handle}{tca9548\_bus1\_handle}}
+{\footnotesize\ttfamily \label{globals_8h_a064478940aa6735f7aa2c239c08f994c} 
+i2c\+\_\+master\+\_\+dev\+\_\+handle\+\_\+t tca9548\+\_\+bus1\+\_\+handle\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00042}{42}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ac9af976d43252c0b284ed875b8117ec3}\index{globals.h@{globals.h}!time\_config@{time\_config}}
+\index{time\_config@{time\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{time\_config}{time\_config}}
+{\footnotesize\ttfamily \label{globals_8h_ac9af976d43252c0b284ed875b8117ec3} 
+\mbox{\hyperlink{structTime__config__t}{Time\+\_\+config\+\_\+t}} time\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00105}{105}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_ae38b9d2a4a975d39bcd469da22010125}\index{globals.h@{globals.h}!time\_config\_mutex@{time\_config\_mutex}}
+\index{time\_config\_mutex@{time\_config\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{time\_config\_mutex}{time\_config\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_ae38b9d2a4a975d39bcd469da22010125} 
+Semaphore\+Handle\+\_\+t time\+\_\+config\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00074}{74}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a802c6a6a8ba765a65d14bf43ebaafd7a}\index{globals.h@{globals.h}!time\_mutex@{time\_mutex}}
+\index{time\_mutex@{time\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{time\_mutex}{time\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a802c6a6a8ba765a65d14bf43ebaafd7a} 
+Semaphore\+Handle\+\_\+t time\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00081}{81}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a0fe23e6116ec3d23cb699f4c1b49579c}\index{globals.h@{globals.h}!timeinfo@{timeinfo}}
+\index{timeinfo@{timeinfo}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{timeinfo}{timeinfo}}
+{\footnotesize\ttfamily \label{globals_8h_a0fe23e6116ec3d23cb699f4c1b49579c} 
+struct tm timeinfo\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00100}{100}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_a021ac41598969aa8e3413e1550634803}\index{globals.h@{globals.h}!valve\_control\_data\_mutex@{valve\_control\_data\_mutex}}
+\index{valve\_control\_data\_mutex@{valve\_control\_data\_mutex}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{valve\_control\_data\_mutex}{valve\_control\_data\_mutex}}
+{\footnotesize\ttfamily \label{globals_8h_a021ac41598969aa8e3413e1550634803} 
+Semaphore\+Handle\+\_\+t valve\+\_\+control\+\_\+data\+\_\+mutex\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00086}{86}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_abc791a3668cb84d233088fd4412b5f79}\index{globals.h@{globals.h}!valvecontroldata@{valvecontroldata}}
+\index{valvecontroldata@{valvecontroldata}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{valvecontroldata}{valvecontroldata}}
+{\footnotesize\ttfamily \label{globals_8h_abc791a3668cb84d233088fd4412b5f79} 
+\mbox{\hyperlink{structValve__control__data}{Valve\+\_\+control\+\_\+data}} valvecontroldata\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00119}{119}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+
+\Hypertarget{globals_8h_af215ca8ed06989e876de7f4d995be961}\index{globals.h@{globals.h}!wifi\_config@{wifi\_config}}
+\index{wifi\_config@{wifi\_config}!globals.h@{globals.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_config}{wifi\_config}}
+{\footnotesize\ttfamily \label{globals_8h_af215ca8ed06989e876de7f4d995be961} 
+\mbox{\hyperlink{structWifi__config__t}{Wifi\+\_\+config\+\_\+t}} wifi\+\_\+config\hspace{0.3cm}{\ttfamily [extern]}}
+
+
+
+Definition at line \mbox{\hyperlink{globals_8c_source_l00103}{103}} of file \mbox{\hyperlink{globals_8c_source}{globals.\+c}}.
+

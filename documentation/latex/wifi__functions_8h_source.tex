@@ -1,0 +1,42 @@
+\doxysection{wifi\+\_\+functions.\+h}
+\hypertarget{wifi__functions_8h_source}{}\label{wifi__functions_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/wifi\_functions.h@{/home/peter/Development/OSVentilationIDF/main/wifi\_functions.h}}
+\mbox{\hyperlink{wifi__functions_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ WIFI\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ WIFI\_FUNCTIONS\_H}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <esp\_mac.h>}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <esp\_wifi.h>}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ <sys/socket.h>}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__functions_8h}{network\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00023}\mbox{\hyperlink{wifi__functions_8h_a6330dabd312ef47a687684360ff00df6}{00023}}\ \textcolor{preprocessor}{\#define\ MAXIMUM\_RETRY\ 5}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00025}\mbox{\hyperlink{wifi__functions_8h_a6fb78111921a2867076323642667469b}{00025}}\ \textcolor{preprocessor}{\#define\ ESP\_AP\_SSID\ "{}OSVentilation"{}}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00026}\mbox{\hyperlink{wifi__functions_8h_a50b7d483bdc526242fb5add16ea17b6b}{00026}}\ \textcolor{preprocessor}{\#define\ ESP\_AP\_PASS\ "{}"{}\ }\textcolor{comment}{//\ Empty\ for\ open\ AP}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00027}\mbox{\hyperlink{wifi__functions_8h_afb51cd86ddaf4a31d1b3067c49d4820e}{00027}}\ \textcolor{preprocessor}{\#define\ ESP\_AP\_CHANNEL\ 1}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00028}\mbox{\hyperlink{wifi__functions_8h_a1245f5fc85ac476df5e7612424768047}{00028}}\ \textcolor{preprocessor}{\#define\ ESP\_AP\_MAX\_CONN\ 4}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00030}00030\ \textcolor{comment}{//\ Function\ declarations}}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00031}00031\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{wifi__functions_8h_a6d05278d521f934bbb31a51df5458660}{wifi\_manager\_stop}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00032}00032\ esp\_err\_t\ \mbox{\hyperlink{wifi__functions_8h_a8bb10642077dfc7f53bd09e690143c68}{wifi\_manager\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00033}00033\ esp\_err\_t\ \mbox{\hyperlink{wifi__functions_8h_a788e4e68407d160951962ee98feb1d52}{select\_wifi\_mode}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00034}\mbox{\hyperlink{wifi__functions_8h_a550030b54ca10bd78d5816ddefad2470}{00034}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{wifi__functions_8h_a550030b54ca10bd78d5816ddefad2470}{wifi\_event\_handler}}(\textcolor{keywordtype}{void}\ *,\ esp\_event\_base\_t,\ int32\_t,\ \textcolor{keywordtype}{void}\ *);}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00035}00035\ esp\_err\_t\ \mbox{\hyperlink{wifi__functions_8h_ab591dd58e11d30a8ab028afac2f26496}{wifi\_manager\_connect}}(\mbox{\hyperlink{structWifi__config__t}{Wifi\_config\_t}}\ *);}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00036}00036\ esp\_err\_t\ \mbox{\hyperlink{wifi__functions_8h_ad93d43cebaa3a445427587bbc750a33a}{wifi\_manager\_start\_ap}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00037}\mbox{\hyperlink{wifi__functions_8h_a4a623cea6c0aa29b3664d4d0629d38e5}{00037}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{wifi__functions_8h_a4a623cea6c0aa29b3664d4d0629d38e5}{wifi\_manager\_is\_connected}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00038}00038\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{wifi__functions_8h_a376b744611ad2cde77aad5d6dffc0c00}{wifi\_config\_is\_dhcp\_enabled}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{wifi__functions_8h_source_l00040}00040\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

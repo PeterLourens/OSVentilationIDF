@@ -1,0 +1,272 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/network\+\_\+functions.c File Reference}
+\hypertarget{network__functions_8c}{}\label{network__functions_8c}\index{/home/peter/Development/OSVentilationIDF/main/network\_functions.c@{/home/peter/Development/OSVentilationIDF/main/network\_functions.c}}
+
+
+Network helper functions for IP state, interface selection, and LED status updates.  
+
+
+{\ttfamily \#include "{}network\+\_\+functions.\+h"{}}\newline
+Include dependency graph for network\+\_\+functions.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{network__functions_8c_aa4d5963a27d3b48cd75d02c723e52545}{update\+\_\+syslog\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Request a syslog state update based on current network conditions. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{network__functions_8c_a5549be26936ce43844fd39fb808c2a8a}{is\+\_\+valid\+\_\+ip\+\_\+address}} (const char \texorpdfstring{$\ast$}{*}ip\+\_\+address)
+\begin{DoxyCompactList}\small\item\em Validate an IPv4 address string. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{network__functions_8c_a3c86fa85fdcf38cfc3374759fd73e8fa}{wifi\+\_\+has\+\_\+ip}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether the Wi-\/\+Fi STA interface has an IPv4 address. \end{DoxyCompactList}\item 
+esp\+\_\+netif\+\_\+t \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{network__functions_8c_a6b47beccae7fe1852e3f91ff0f692cd2}{get\+\_\+active\+\_\+netif}} (void)
+\begin{DoxyCompactList}\small\item\em Get the currently active network interface. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\+\_\+has\+\_\+ip}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether any active network interface currently has an IP. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_a214042b0b272f1be1f66187e42e85833}{update\+\_\+network\+\_\+led\+\_\+state}} (void)
+\begin{DoxyCompactList}\small\item\em Update status LEDs for network connectivity. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_a1fcdad688a838b7c6cbfb324a6117b95}{update\+\_\+hostname}} (void)
+\begin{DoxyCompactList}\small\item\em Update the hostname field in runtime status from the active interface. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_a15e2bbdf882e4f4df3de788cfb276888}{on\+\_\+ping\+\_\+end}} (esp\+\_\+ping\+\_\+handle\+\_\+t hdl, void \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Handle the end of an ICMP ping measurement. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{network__functions_8c_af959a495a2955a3e222bd900387a5acc}{ping\+\_\+gateway}} (void)
+\begin{DoxyCompactList}\small\item\em Probe the gateway to verify network reachability. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_ae70ab30f0acb4945e7d624c6d01eb72f}{eth\+\_\+led\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize Ethernet LED control. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_ac6b806585e37b43729765a3f5565f2e4}{eth\+\_\+led\+\_\+set\+\_\+mode}} (\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\+\_\+mode\+\_\+t}} mode)
+\begin{DoxyCompactList}\small\item\em Set the Ethernet LED mode. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_ac9b8a9ee069ee8702cdc869fb1d0033b}{wifi\+\_\+led\+\_\+set\+\_\+mode}} (\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\+\_\+mode\+\_\+t}} mode)
+\begin{DoxyCompactList}\small\item\em Set the Wi-\/\+Fi LED mode. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{network__functions_8c_a342ff2c427cf4e86ee615c98db1499bd}{network\+\_\+manager\+\_\+health\+\_\+check}} (void)
+\begin{DoxyCompactList}\small\item\em Perform a periodic health check of network and Ethernet state. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Network helper functions for IP state, interface selection, and LED status updates. 
+
+
+
+Definition in file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{network__functions_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{network__functions_8c_ae70ab30f0acb4945e7d624c6d01eb72f}\index{network\_functions.c@{network\_functions.c}!eth\_led\_init@{eth\_led\_init}}
+\index{eth\_led\_init@{eth\_led\_init}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{eth\_led\_init()}{eth\_led\_init()}}
+{\footnotesize\ttfamily \label{network__functions_8c_ae70ab30f0acb4945e7d624c6d01eb72f} 
+void eth\+\_\+led\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize Ethernet LED control. 
+
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00310}{310}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_ac6b806585e37b43729765a3f5565f2e4}\index{network\_functions.c@{network\_functions.c}!eth\_led\_set\_mode@{eth\_led\_set\_mode}}
+\index{eth\_led\_set\_mode@{eth\_led\_set\_mode}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{eth\_led\_set\_mode()}{eth\_led\_set\_mode()}}
+{\footnotesize\ttfamily \label{network__functions_8c_ac6b806585e37b43729765a3f5565f2e4} 
+void eth\+\_\+led\+\_\+set\+\_\+mode (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\+\_\+mode\+\_\+t}}}]{mode}{}\end{DoxyParamCaption})}
+
+
+
+Set the Ethernet LED mode. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mode} & Desired LED mode. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00440}{440}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a6b47beccae7fe1852e3f91ff0f692cd2}\index{network\_functions.c@{network\_functions.c}!get\_active\_netif@{get\_active\_netif}}
+\index{get\_active\_netif@{get\_active\_netif}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{get\_active\_netif()}{get\_active\_netif()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a6b47beccae7fe1852e3f91ff0f692cd2} 
+esp\+\_\+netif\+\_\+t \texorpdfstring{$\ast$}{*} get\+\_\+active\+\_\+netif (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Get the currently active network interface. 
+
+\begin{DoxyReturn}{Returns}
+Active ESP network interface handle, or NULL if none. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00094}{94}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a5549be26936ce43844fd39fb808c2a8a}\index{network\_functions.c@{network\_functions.c}!is\_valid\_ip\_address@{is\_valid\_ip\_address}}
+\index{is\_valid\_ip\_address@{is\_valid\_ip\_address}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{is\_valid\_ip\_address()}{is\_valid\_ip\_address()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a5549be26936ce43844fd39fb808c2a8a} 
+bool is\+\_\+valid\+\_\+ip\+\_\+address (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{ip\+\_\+address}{}\end{DoxyParamCaption})}
+
+
+
+Validate an IPv4 address string. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{in}}  & {\em ip\+\_\+address} & IPv4 address string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the string contains a valid IPv4 address. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00065}{65}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}\index{network\_functions.c@{network\_functions.c}!network\_has\_ip@{network\_has\_ip}}
+\index{network\_has\_ip@{network\_has\_ip}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{network\_has\_ip()}{network\_has\_ip()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87} 
+bool network\+\_\+has\+\_\+ip (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether any active network interface currently has an IP. 
+
+\begin{DoxyReturn}{Returns}
+true if the system has an active IP address. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00129}{129}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a342ff2c427cf4e86ee615c98db1499bd}\index{network\_functions.c@{network\_functions.c}!network\_manager\_health\_check@{network\_manager\_health\_check}}
+\index{network\_manager\_health\_check@{network\_manager\_health\_check}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{network\_manager\_health\_check()}{network\_manager\_health\_check()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a342ff2c427cf4e86ee615c98db1499bd} 
+void network\+\_\+manager\+\_\+health\+\_\+check (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Perform a periodic health check of network and Ethernet state. 
+
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00457}{457}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a15e2bbdf882e4f4df3de788cfb276888}\index{network\_functions.c@{network\_functions.c}!on\_ping\_end@{on\_ping\_end}}
+\index{on\_ping\_end@{on\_ping\_end}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{on\_ping\_end()}{on\_ping\_end()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a15e2bbdf882e4f4df3de788cfb276888} 
+void on\+\_\+ping\+\_\+end (\begin{DoxyParamCaption}\item[{esp\+\_\+ping\+\_\+handle\+\_\+t}]{hdl}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Handle the end of an ICMP ping measurement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em hdl} & Ping handle. \\
+\hline
+{\em args} & User-\/provided argument pointer. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00176}{176}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_af959a495a2955a3e222bd900387a5acc}\index{network\_functions.c@{network\_functions.c}!ping\_gateway@{ping\_gateway}}
+\index{ping\_gateway@{ping\_gateway}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{ping\_gateway()}{ping\_gateway()}}
+{\footnotesize\ttfamily \label{network__functions_8c_af959a495a2955a3e222bd900387a5acc} 
+bool ping\+\_\+gateway (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Probe the gateway to verify network reachability. 
+
+\begin{DoxyReturn}{Returns}
+true if the gateway is reachable. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00218}{218}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a1fcdad688a838b7c6cbfb324a6117b95}\index{network\_functions.c@{network\_functions.c}!update\_hostname@{update\_hostname}}
+\index{update\_hostname@{update\_hostname}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{update\_hostname()}{update\_hostname()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a1fcdad688a838b7c6cbfb324a6117b95} 
+void update\+\_\+hostname (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Update the hostname field in runtime status from the active interface. 
+
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00153}{153}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a214042b0b272f1be1f66187e42e85833}\index{network\_functions.c@{network\_functions.c}!update\_network\_led\_state@{update\_network\_led\_state}}
+\index{update\_network\_led\_state@{update\_network\_led\_state}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{update\_network\_led\_state()}{update\_network\_led\_state()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a214042b0b272f1be1f66187e42e85833} 
+void update\+\_\+network\+\_\+led\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Update status LEDs for network connectivity. 
+
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00135}{135}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_aa4d5963a27d3b48cd75d02c723e52545}\index{network\_functions.c@{network\_functions.c}!update\_syslog\_state@{update\_syslog\_state}}
+\index{update\_syslog\_state@{update\_syslog\_state}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{update\_syslog\_state()}{update\_syslog\_state()}}
+{\footnotesize\ttfamily \label{network__functions_8c_aa4d5963a27d3b48cd75d02c723e52545} 
+void update\+\_\+syslog\+\_\+state (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Request a syslog state update based on current network conditions. 
+
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00058}{58}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_a3c86fa85fdcf38cfc3374759fd73e8fa}\index{network\_functions.c@{network\_functions.c}!wifi\_has\_ip@{wifi\_has\_ip}}
+\index{wifi\_has\_ip@{wifi\_has\_ip}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{wifi\_has\_ip()}{wifi\_has\_ip()}}
+{\footnotesize\ttfamily \label{network__functions_8c_a3c86fa85fdcf38cfc3374759fd73e8fa} 
+bool wifi\+\_\+has\+\_\+ip (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether the Wi-\/\+Fi STA interface has an IPv4 address. 
+
+\begin{DoxyReturn}{Returns}
+true if Wi-\/\+Fi STA has a valid IP. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00076}{76}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+
+\Hypertarget{network__functions_8c_ac9b8a9ee069ee8702cdc869fb1d0033b}\index{network\_functions.c@{network\_functions.c}!wifi\_led\_set\_mode@{wifi\_led\_set\_mode}}
+\index{wifi\_led\_set\_mode@{wifi\_led\_set\_mode}!network\_functions.c@{network\_functions.c}}
+\doxysubsubsection{\texorpdfstring{wifi\_led\_set\_mode()}{wifi\_led\_set\_mode()}}
+{\footnotesize\ttfamily \label{network__functions_8c_ac9b8a9ee069ee8702cdc869fb1d0033b} 
+void wifi\+\_\+led\+\_\+set\+\_\+mode (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{network__functions_8h_a6ad21e6046b97022390d7b38aa87ca7e}{led\+\_\+mode\+\_\+t}}}]{mode}{}\end{DoxyParamCaption})}
+
+
+
+Set the Wi-\/\+Fi LED mode. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em mode} & Desired LED mode. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{network__functions_8c_source_l00448}{448}} of file \mbox{\hyperlink{network__functions_8c_source}{network\+\_\+functions.\+c}}.
+

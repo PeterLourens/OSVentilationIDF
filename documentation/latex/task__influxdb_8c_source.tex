@@ -1,0 +1,112 @@
+\doxysection{task\+\_\+influxdb.\+c}
+\hypertarget{task__influxdb_8c_source}{}\label{task__influxdb_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_influxdb.c@{/home/peter/Development/OSVentilationIDF/main/task\_influxdb.c}}
+\mbox{\hyperlink{task__influxdb_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__influxdb_8h}{task\_influxdb.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_influxdb"{}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ influxdb\_stack[8192];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ influxdb\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ influxdb\_stack\_size\ =\ 8192;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 8192\ words\ =\ 32768\ KB}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00020}\mbox{\hyperlink{task__influxdb_8c_a72dd9501ebdf8224549e68ec03a555b5}{00020}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__influxdb_8c_a72dd9501ebdf8224549e68ec03a555b5}{start\_task\_influxdb}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00021}00021\ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00022}00022\ \ \ \ \ \textcolor{comment}{//\ Create\ influxdb\ task}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00023}00023\ \ \ \ \ \mbox{\hyperlink{globals_8c_a67b57065f25bb01df7a68c9ca504bf63}{task\_influxdb}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__influxdb_8c_a826aed32dc5c4180d194202385e3736a}{task\_influxdb\_code}},\ \textcolor{stringliteral}{"{}influxdb"{}},\ influxdb\_stack\_size,\ NULL,\ 6,\ influxdb\_stack,\ \&influxdb\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00025}00025\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a67b57065f25bb01df7a68c9ca504bf63}{task\_influxdb}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00026}00026\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00027}00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}InfluxDB\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00028}00028\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00029}00029\ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00031}\mbox{\hyperlink{task__influxdb_8c_a826aed32dc5c4180d194202385e3736a}{00031}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__influxdb_8c_a826aed32dc5c4180d194202385e3736a}{task\_influxdb\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00032}00032\ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00033}00033\ \ \ \ \ (void)pvParameters;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00035}00035\ \ \ \ \ \textcolor{comment}{//\ initial\ startup\ delay}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00036}00036\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00038}00038\ \ \ \ \ \textcolor{keywordflow}{while}\ (!\mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}())}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00039}00039\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00040}00040\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}InfluxDB:\ Waiting\ for\ network..."{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(2000));}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00042}00042\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00044}00044\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}InfluxDB:\ Network\ ready"{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00046}00046\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{influxdb_8c_a4e1b30e5a34a97bd12df076a8df11b75}{influxdb\_wait\_ready}}(pdMS\_TO\_TICKS(2000)))}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00047}00047\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Influx\ sender\ not\ ready\ after\ wait;\ enqueues\ will\ be\ skipped\ until\ ready"{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00049}00049\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00050}00050\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00051}00051\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Influx\ sender\ ready\ (queue=\%p)"{}},\ (\textcolor{keywordtype}{void}\ *)\mbox{\hyperlink{influxdb_8c_abec6c02fe6593891d0ef639bfc1e7740}{influx\_queue}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00053}00053\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00055}00055\ \ \ \ \ \textcolor{comment}{//\ Use\ local\ copies\ of\ intervals\ so\ reads\ are\ atomic-\/ish}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00056}00056\ \ \ \ \ uint32\_t\ influx\_interval\_ms\ =\ \mbox{\hyperlink{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a}{g\_influx\_task\_interval\_ms}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00057}00057\ \ \ \ \ uint32\_t\ monitor\_interval\_ms\ =\ \mbox{\hyperlink{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41}{g\_dma\_monitor\_interval\_ms}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00058}00058\ \ \ \ \ uint32\_t\ tick\_resolution\_ms\ =\ \mbox{\hyperlink{influxdb_8c_a4ba1d83558fc20bed62b45d8ee519492}{g\_monitor\_tick\_resolution\_ms}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00059}00059\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00060}00060\ \ \ \ \ \textcolor{comment}{//\ Track\ elapsed\ time\ (ms)}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00061}00061\ \ \ \ \ uint32\_t\ elapsed\_influx\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00062}00062\ \ \ \ \ uint32\_t\ elapsed\_monitor\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00064}00064\ \ \ \ \ \textcolor{comment}{//\ Ensure\ resolution\ is\ sane}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00065}00065\ \ \ \ \ \textcolor{keywordflow}{if}\ (tick\_resolution\_ms\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ tick\_resolution\_ms\ =\ 1000;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00067}00067\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00068}00068\ \ \ \ \ \textcolor{comment}{//\ Run\ once\ immediately\ (optional)}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00069}00069\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Update\ InfluxDB\ (initial)..."{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00070}00070\ \ \ \ \ \mbox{\hyperlink{influxdb_8c_aa4004dc89e2d65499b5ee5af1720122d}{influxdb\_process}}(\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}},\ \mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00071}00071\ \ \ \ \ \textcolor{comment}{//\ After\ initial\ publish,\ reset\ counters}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00072}00072\ \ \ \ \ elapsed\_influx\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00073}00073\ \ \ \ \ elapsed\_monitor\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00074}00074\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00076}00076\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sleep\ for\ the\ resolution\ slice}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(tick\_resolution\_ms));}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00079}00079\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ intervals\ in\ case\ they\ were\ changed\ at\ runtime}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ influx\_interval\_ms\ =\ \mbox{\hyperlink{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a}{g\_influx\_task\_interval\_ms}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ monitor\_interval\_ms\ =\ \mbox{\hyperlink{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41}{g\_dma\_monitor\_interval\_ms}};}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Increment\ elapsed\ counters}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ elapsed\_influx\_ms\ +=\ tick\_resolution\_ms;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ elapsed\_monitor\_ms\ +=\ tick\_resolution\_ms;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00087}00087\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ monitor\ interval\ reached,\ enqueue\ DMA\ metric}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (elapsed\_monitor\_ms\ >=\ monitor\_interval\_ms)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Enqueue\ DMA\ metrics\ (non-\/blocking\ inside)}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{influxdb_8c_aeb5b2c9a35f6411ff800bebc2247f893}{influxdb\_enqueue\_dma\_metrics}}(\textcolor{stringliteral}{"{}osvent"{}}))}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}influxdb:\ dma\ monitor\ enqueue\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ reset\ monitor\ counter\ but\ keep\ any\ overshoot}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ elapsed\_monitor\_ms\ =\ elapsed\_monitor\_ms\ \%\ monitor\_interval\_ms;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ If\ influx\ interval\ reached,\ run\ the\ full\ Influx\ process}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (elapsed\_influx\_ms\ >=\ influx\_interval\_ms)}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Update\ InfluxDB..."{}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{influxdb_8c_aa4004dc89e2d65499b5ee5af1720122d}{influxdb\_process}}(\mbox{\hyperlink{globals_8c_a8ef6c7739752ee9ab50848e42272f87c}{sensor\_queue}},\ \mbox{\hyperlink{globals_8c_a1a4f81be109547a57be381ed987d6f0d}{sensor\_avg\_queue}});}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00105}00105\ }
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Reset\ influx\ counter\ but\ keep\ overshoot}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ elapsed\_influx\_ms\ =\ elapsed\_influx\_ms\ \%\ influx\_interval\_ms;}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00109}00109\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__influxdb_8c_source_l00110}00110\ \}}
+
+\end{DoxyCode}

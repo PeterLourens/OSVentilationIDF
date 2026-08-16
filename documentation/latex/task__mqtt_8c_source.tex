@@ -1,0 +1,65 @@
+\doxysection{task\+\_\+mqtt.\+c}
+\hypertarget{task__mqtt_8c_source}{}\label{task__mqtt_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_mqtt.c@{/home/peter/Development/OSVentilationIDF/main/task\_mqtt.c}}
+\mbox{\hyperlink{task__mqtt_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__mqtt_8h}{task\_mqtt.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_mqtt"{}};}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ mqtt\_stack[8192];}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ mqtt\_tcb;}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ mqtt\_stack\_size\ =\ 8192;\ \textcolor{comment}{//\ 8192\ words\ =\ 32768\ KB}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00020}\mbox{\hyperlink{task__mqtt_8c_aa0c26154f5b12a4990adc5a61088f410}{00020}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__mqtt_8c_aa0c26154f5b12a4990adc5a61088f410}{start\_task\_mqtt}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00021}00021\ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00022}00022\ \ \ \ \ \mbox{\hyperlink{globals_8c_aaf4dde9c077de1c317695eb85bb91930}{task\_mqtt}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__mqtt_8c_a6f4aa30845d9fd1b629abc54545ee7c5}{task\_mqtt\_code}},\ \textcolor{stringliteral}{"{}mqtt"{}},\ mqtt\_stack\_size,\ NULL,\ 9,\ mqtt\_stack,\ \&mqtt\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00023}00023\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00024}00024\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aaf4dde9c077de1c317695eb85bb91930}{task\_mqtt}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00025}00025\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00026}00026\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}MQTT\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00027}00027\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00028}00028\ \}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00030}\mbox{\hyperlink{task__mqtt_8c_a6f4aa30845d9fd1b629abc54545ee7c5}{00030}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__mqtt_8c_a6f4aa30845d9fd1b629abc54545ee7c5}{task\_mqtt\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00031}00031\ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00032}00032\ \ \ \ \ (void)pvParameters;}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00034}00034\ \ \ \ \ \textcolor{comment}{//\ Give\ network\_manager\ time\ to\ bring\ up\ interfaces\ and\ start\ MQTT}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00035}00035\ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3000));}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00037}00037\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}MQTT\ task\ starting..."{}});}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00039}00039\ \ \ \ \ \textcolor{keywordflow}{while}\ (\textcolor{keyword}{true})}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00040}00040\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}MQTT:\ publish\ cycle"{}});}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{mqtt_8c_a14a4eb1d82363ee8fb9bf053b48fc4a2}{mqtt\_is\_connected}}())}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}MQTT:\ not\ connected,\ skipping\ publish"{}});}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Handle\ deferred\ HA\ discovery\ here\ (MQTT\ task\ context)}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{mqtt_8c_a2d00277af8dc8d584239b7fe3b2aec00}{mqtt\_discovery\_requested}}()\ \&\&\ \mbox{\hyperlink{mqtt_8c_a346a3921be1bcd18272370839faa3e18}{sensors\_ready}}())}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_ac86d692abbf87dddca455da656942725}{mqtt\_clear\_discovery\_request}}();}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_a7aead4cf162396fd72a1f77f0102ba8c}{mqtt\_publish\_homeassistant\_discovery}}();}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_a19e6b3f9b4ad16bd172c6d282c384937}{mqtt\_publish\_sensor\_values}}();}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00058}00058\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_adae8be92f55c6be049cf04593242a763}{mqtt\_publish\_valve\_positions}}();}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00059}00059\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{mqtt_8c_a711bf2614cc96edc05eab71d9741835a}{mqtt\_publish\_state\_and\_fanspeed}}();}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(20000));}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00062}00062\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__mqtt_8c_source_l00063}00063\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,112 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/task\+\_\+uart\+\_\+sender.c File Reference}
+\hypertarget{task__uart__sender_8c}{}\label{task__uart__sender_8c}\index{/home/peter/Development/OSVentilationIDF/main/task\_uart\_sender.c@{/home/peter/Development/OSVentilationIDF/main/task\_uart\_sender.c}}
+
+
+UART sender task implementation and buffer pool management.  
+
+
+{\ttfamily \#include $<$esp\+\_\+attr.\+h$>$}\newline
+{\ttfamily \#include "{}task\+\_\+uart\+\_\+sender.\+h"{}}\newline
+Include dependency graph for task\+\_\+uart\+\_\+sender.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+size\+\_\+t \mbox{\hyperlink{task__uart__sender_8c_a0a6dd7ab5230f1b64947fbf47855995a}{uart\+\_\+sender\+\_\+get\+\_\+dropped\+\_\+count}} (void)
+\item 
+size\+\_\+t \mbox{\hyperlink{task__uart__sender_8c_aa6ef74f376eeadcd849426c8d101b4b9}{uart\+\_\+sender\+\_\+get\+\_\+pool\+\_\+exhaust\+\_\+count}} (void)
+\item 
+int \mbox{\hyperlink{task__uart__sender_8c_ad27761c252a5dd886332658b5a010fd5}{uart\+\_\+log\+\_\+vprintf}} (const char \texorpdfstring{$\ast$}{*}fmt, va\+\_\+list args)
+\item 
+void \mbox{\hyperlink{task__uart__sender_8c_a62235eef5f17424537d5c3024a141a48}{uart\+\_\+sender\+\_\+sendf}} (const char \texorpdfstring{$\ast$}{*}fmt,...)
+\item 
+void \mbox{\hyperlink{task__uart__sender_8c_a4a6dc8a92426ec4ce3b1d20def8fe428}{task\+\_\+uart\+\_\+sender\+\_\+code}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\item 
+void \mbox{\hyperlink{task__uart__sender_8c_a344d6c6da7d42dc307e6a78848139f9b}{start\+\_\+task\+\_\+uart\+\_\+sender}} (void)
+\item 
+void \mbox{\hyperlink{task__uart__sender_8c_a6efb470e28a8dcc7e4a2f9db2c50c4c4}{stop\+\_\+task\+\_\+uart\+\_\+sender}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+UART sender task implementation and buffer pool management. 
+
+
+
+Definition in file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{task__uart__sender_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{task__uart__sender_8c_a344d6c6da7d42dc307e6a78848139f9b}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!start\_task\_uart\_sender@{start\_task\_uart\_sender}}
+\index{start\_task\_uart\_sender@{start\_task\_uart\_sender}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{start\_task\_uart\_sender()}{start\_task\_uart\_sender()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_a344d6c6da7d42dc307e6a78848139f9b} 
+void start\+\_\+task\+\_\+uart\+\_\+sender (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00463}{463}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_a6efb470e28a8dcc7e4a2f9db2c50c4c4}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!stop\_task\_uart\_sender@{stop\_task\_uart\_sender}}
+\index{stop\_task\_uart\_sender@{stop\_task\_uart\_sender}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{stop\_task\_uart\_sender()}{stop\_task\_uart\_sender()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_a6efb470e28a8dcc7e4a2f9db2c50c4c4} 
+void stop\+\_\+task\+\_\+uart\+\_\+sender (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00531}{531}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_a4a6dc8a92426ec4ce3b1d20def8fe428}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!task\_uart\_sender\_code@{task\_uart\_sender\_code}}
+\index{task\_uart\_sender\_code@{task\_uart\_sender\_code}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{task\_uart\_sender\_code()}{task\_uart\_sender\_code()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_a4a6dc8a92426ec4ce3b1d20def8fe428} 
+void task\+\_\+uart\+\_\+sender\+\_\+code (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00448}{448}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_ad27761c252a5dd886332658b5a010fd5}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!uart\_log\_vprintf@{uart\_log\_vprintf}}
+\index{uart\_log\_vprintf@{uart\_log\_vprintf}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{uart\_log\_vprintf()}{uart\_log\_vprintf()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_ad27761c252a5dd886332658b5a010fd5} 
+int uart\+\_\+log\+\_\+vprintf (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{fmt}{, }\item[{va\+\_\+list}]{args}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00132}{132}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_a0a6dd7ab5230f1b64947fbf47855995a}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!uart\_sender\_get\_dropped\_count@{uart\_sender\_get\_dropped\_count}}
+\index{uart\_sender\_get\_dropped\_count@{uart\_sender\_get\_dropped\_count}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{uart\_sender\_get\_dropped\_count()}{uart\_sender\_get\_dropped\_count()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_a0a6dd7ab5230f1b64947fbf47855995a} 
+size\+\_\+t uart\+\_\+sender\+\_\+get\+\_\+dropped\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00044}{44}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_aa6ef74f376eeadcd849426c8d101b4b9}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!uart\_sender\_get\_pool\_exhaust\_count@{uart\_sender\_get\_pool\_exhaust\_count}}
+\index{uart\_sender\_get\_pool\_exhaust\_count@{uart\_sender\_get\_pool\_exhaust\_count}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{uart\_sender\_get\_pool\_exhaust\_count()}{uart\_sender\_get\_pool\_exhaust\_count()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_aa6ef74f376eeadcd849426c8d101b4b9} 
+size\+\_\+t uart\+\_\+sender\+\_\+get\+\_\+pool\+\_\+exhaust\+\_\+count (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00049}{49}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+
+\Hypertarget{task__uart__sender_8c_a62235eef5f17424537d5c3024a141a48}\index{task\_uart\_sender.c@{task\_uart\_sender.c}!uart\_sender\_sendf@{uart\_sender\_sendf}}
+\index{uart\_sender\_sendf@{uart\_sender\_sendf}!task\_uart\_sender.c@{task\_uart\_sender.c}}
+\doxysubsubsection{\texorpdfstring{uart\_sender\_sendf()}{uart\_sender\_sendf()}}
+{\footnotesize\ttfamily \label{task__uart__sender_8c_a62235eef5f17424537d5c3024a141a48} 
+void uart\+\_\+sender\+\_\+sendf (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{fmt}{, }\item[{}]{...}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__uart__sender_8c_source_l00325}{325}} of file \mbox{\hyperlink{task__uart__sender_8c_source}{task\+\_\+uart\+\_\+sender.\+c}}.
+

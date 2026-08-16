@@ -1,0 +1,33 @@
+\doxysection{stats\+\_\+worker.\+h}
+\hypertarget{stats__worker_8h_source}{}\label{stats__worker_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/stats\_worker.h@{/home/peter/Development/OSVentilationIDF/main/stats\_worker.h}}
+\mbox{\hyperlink{stats__worker_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ STATS\_WORKER\_H}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ STATS\_WORKER\_H}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{stats__worker_8h}{stats\_worker.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{sys__stats_8h}{sys\_stats.h}}"{}}\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ sys\_stats\_build\_json()}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{http__send__ws__data_8h}{http\_send\_ws\_data.h}}"{}}\ \textcolor{comment}{//\ if\ you\ have\ existing\ send\_*\ helpers}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ "{}cJSON.h"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ "{}freertos/FreeRTOS.h"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ "{}freertos/task.h"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ "{}freertos/queue.h"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}esp\_log.h"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00027}00027\ \textcolor{comment}{//\ Function\ declarations}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00028}00028\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{stats__worker_8h_ac0a1577cfaebd5f03932cd0eb3acb629}{stats\_worker\_init}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00029}00029\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{stats__worker_8h_ab954397048020baafd42e0b595962bd2}{stats\_worker\_request}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *cmd);\ \textcolor{comment}{//\ "{}stats"{},\ "{}statemachine"{},\ "{}index"{},\ etc.}}
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{stats__worker_8h_source_l00031}00031\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

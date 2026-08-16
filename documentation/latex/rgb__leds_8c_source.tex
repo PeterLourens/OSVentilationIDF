@@ -1,0 +1,273 @@
+\doxysection{rgb\+\_\+leds.\+c}
+\hypertarget{rgb__leds_8c_source}{}\label{rgb__leds_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.c@{/home/peter/Development/OSVentilationIDF/main/rgb\_leds.c}}
+\mbox{\hyperlink{rgb__leds_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{rgb__leds_8h}{rgb\_leds.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00014}00014\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}rgb\_leds"{}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00016}00016\ \textcolor{comment}{//\ RGB\ LED\ handle}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00017}\mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{00017}}\ led\_strip\_handle\_t\ \mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00019}00019\ \textcolor{keyword}{static}\ uint8\_t\ led\_brightness\ =\ 16;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00020}00020\ \textcolor{keyword}{static}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ sm\_snap;\ \textcolor{comment}{//\ Local\ snapshot\ (copied\ by\ LED\ task)}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00021}00021\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ blink0\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00023}\mbox{\hyperlink{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}{00023}}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structColor__t}{Color\_t}}\ \mbox{\hyperlink{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}{COLORS}}[]\ =\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00024}00024\ \ \ \ \ \{255,\ 0,\ 0\},\ \ \ \ \ \textcolor{comment}{//\ RED}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00025}00025\ \ \ \ \ \{0,\ 255,\ 0\},\ \ \ \ \ \textcolor{comment}{//\ GREEN}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00026}00026\ \ \ \ \ \{0,\ 0,\ 255\},\ \ \ \ \ \textcolor{comment}{//\ BLUE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00027}00027\ \ \ \ \ \{255,\ 255,\ 0\},\ \ \ \textcolor{comment}{//\ YELLOW}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00028}00028\ \ \ \ \ \{255,\ 0,\ 255\},\ \ \ \textcolor{comment}{//\ MAGENTA}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00029}00029\ \ \ \ \ \{0,\ 255,\ 255\},\ \ \ \textcolor{comment}{//\ CYAN}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00030}00030\ \ \ \ \ \{255,\ 255,\ 255\},\ \textcolor{comment}{//\ WHITE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00031}00031\ \ \ \ \ \{255,\ 128,\ 0\},\ \ \ \textcolor{comment}{//\ ORANGE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00032}00032\ \ \ \ \ \{128,\ 0,\ 128\},\ \ \ \textcolor{comment}{//\ PURPLE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00034}00034\ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ Expanded\ palette\ -\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00035}00035\ \ \ \ \ \{255,\ 64,\ 0\},\ \ \ \ \textcolor{comment}{//\ DEEP\ ORANGE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00036}00036\ \ \ \ \ \{255,\ 165,\ 0\},\ \ \ \textcolor{comment}{//\ AMBER}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00037}00037\ \ \ \ \ \{255,\ 215,\ 0\},\ \ \ \textcolor{comment}{//\ GOLD}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00038}00038\ \ \ \ \ \{255,\ 105,\ 180\},\ \textcolor{comment}{//\ HOT\ PINK}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00039}00039\ \ \ \ \ \{255,\ 20,\ 147\},\ \ \textcolor{comment}{//\ DEEP\ PINK}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00040}00040\ \ \ \ \ \{135,\ 206,\ 235\},\ \textcolor{comment}{//\ SKY\ BLUE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00041}00041\ \ \ \ \ \{0,\ 128,\ 128\},\ \ \ \textcolor{comment}{//\ TEAL}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00042}00042\ \ \ \ \ \{0,\ 100,\ 0\},\ \ \ \ \ \textcolor{comment}{//\ DARK\ GREEN}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00043}00043\ \ \ \ \ \{75,\ 0,\ 130\},\ \ \ \ \textcolor{comment}{//\ INDIGO}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00044}00044\ \ \ \ \ \{173,\ 216,\ 230\},\ \textcolor{comment}{//\ LIGHT\ BLUE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00045}00045\ \ \ \ \ \{152,\ 255,\ 152\},\ \textcolor{comment}{//\ MINT}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00046}00046\ \ \ \ \ \{210,\ 105,\ 30\},\ \ \textcolor{comment}{//\ CHOCOLATE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00047}00047\ \ \ \ \ \{46,\ 139,\ 87\},\ \ \ \textcolor{comment}{//\ SEA\ GREEN}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00048}00048\ \ \ \ \ \{0,\ 191,\ 255\},\ \ \ \textcolor{comment}{//\ DEEP\ SKY\ BLUE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00049}00049\ \ \ \ \ \{123,\ 104,\ 238\},\ \textcolor{comment}{//\ MEDIUM\ SLATE\ BLUE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00050}00050\ \ \ \ \ \{240,\ 128,\ 128\},\ \textcolor{comment}{//\ LIGHT\ CORAL}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00051}00051\ \};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00053}\mbox{\hyperlink{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}{00053}}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ \mbox{\hyperlink{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}{state\_to\_color}}(\textcolor{keywordtype}{int}\ state)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00054}00054\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00055}00055\ \ \ \ \ \textcolor{keywordflow}{switch}\ (state)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00056}00056\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00057}00057\ \ \ \ \ \textcolor{keywordflow}{case}\ 0:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00058}00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}};\ \textcolor{comment}{//\ Error}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00059}00059\ \ \ \ \ \textcolor{keywordflow}{case}\ 1:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}{COLOR\_GREEN}};\ \textcolor{comment}{//\ Init}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00061}00061\ \ \ \ \ \textcolor{keywordflow}{case}\ 2:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}{COLOR\_YELLOW}};\ \textcolor{comment}{//\ Day}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00063}00063\ \ \ \ \ \textcolor{keywordflow}{case}\ 3:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}{COLOR\_BLUE}};\ \textcolor{comment}{//\ Night}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00065}00065\ \ \ \ \ \textcolor{keywordflow}{case}\ 4:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}{COLOR\_DEEP\_SKY\_BLUE}};\ \textcolor{comment}{//\ High\ CO2\ day}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00067}00067\ \ \ \ \ \textcolor{keywordflow}{case}\ 5:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba7cb7b1f16de8f6c70406cd653b1422dd}{COLOR\_SEA\_GREEN}};\ \textcolor{comment}{//\ High\ CO2\ night}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00069}00069\ \ \ \ \ \textcolor{keywordflow}{case}\ 6:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baa3889e2a422b783db5b44a9f91a198c0}{COLOR\_DEEP\_SKY\_BLUE}};\ \textcolor{comment}{//\ High\ RH\ day}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00071}00071\ \ \ \ \ \textcolor{keywordflow}{case}\ 7:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00072}00072\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bac26f52c6f1ac12fbf0f173dbb84e267d}{COLOR\_CHOCOLATE}};\ \textcolor{comment}{//\ High\ RH\ night}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00073}00073\ \ \ \ \ \textcolor{keywordflow}{case}\ 8:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baaaf632a4fab208fc7b15e225a6dcb0c6}{COLOR\_GOLD}};\ \textcolor{comment}{//\ Cooking}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00075}00075\ \ \ \ \ \textcolor{keywordflow}{case}\ 9:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00076}00076\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}{COLOR\_DEEP\_ORANGE}};\ \textcolor{comment}{//\ Cycling\ day}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00077}00077\ \ \ \ \ \textcolor{keywordflow}{case}\ 10:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457baf082ff998956a554a438fabe04cdb2eb}{COLOR\_HOT\_PINK}};\ \textcolor{comment}{//\ Cycling\ night}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00079}00079\ \ \ \ \ \textcolor{keywordflow}{case}\ 11:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba8a55cdce177a8139a3653e7b5c308b0c}{COLOR\_INDIGO}};\ \textcolor{comment}{//\ Manual\ fan\ high\ speed}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00081}00081\ \ \ \ \ \textcolor{keywordflow}{case}\ 12:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bae364c1a2513cbccfd53c54113d6abcd2}{COLOR\_MEDIUM\_SLATE\_BLUE}};\ \textcolor{comment}{//\ Stopped}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{case}\ 13:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bad47b4c240a0109970bb2a7fe3a07d3ec}{COLOR\_WHITE}};\ \textcolor{comment}{//\ Temp}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00085}00085\ \ \ \ \ \textcolor{keywordflow}{case}\ 14:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba37a016bbfc22720dae7f82c15b19615a}{COLOR\_TEAL}};\ \textcolor{comment}{//\ Not\ used}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00087}00087\ \ \ \ \ \textcolor{keywordflow}{case}\ 15:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba543701a16830d494b0e460cccf0f9b37}{COLOR\_MAGENTA}};\ \textcolor{comment}{//\ Not\ used}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00089}00089\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba278276a8155620ed5e155c80d35316cc}{COLOR\_PURPLE}};\ \textcolor{comment}{//\ fallback}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00091}00091\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00092}00092\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00094}\mbox{\hyperlink{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}{00094}}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ \mbox{\hyperlink{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}{fan\_to\_color}}(\textcolor{keywordtype}{int}\ fanspeed)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00095}00095\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00096}00096\ \ \ \ \ \textcolor{keywordflow}{switch}\ (fanspeed)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00097}00097\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00098}00098\ \ \ \ \ \textcolor{keywordflow}{case}\ 0:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00099}00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}};\ \textcolor{comment}{//\ Error}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00100}00100\ \ \ \ \ \textcolor{keywordflow}{case}\ 1:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bacfa9d8bbffc418447ed826f286abca02}{COLOR\_GREEN}};\ \textcolor{comment}{//\ Low}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00102}00102\ \ \ \ \ \textcolor{keywordflow}{case}\ 2:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457bab03862907066c68204ee9df1ee04aa29}{COLOR\_YELLOW}};\ \textcolor{comment}{//\ Medium}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00104}00104\ \ \ \ \ \textcolor{keywordflow}{case}\ 3:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba2ce14dab8c490c0b2e6eef9ec74271c4}{COLOR\_DEEP\_ORANGE}};\ \textcolor{comment}{//\ High}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00106}00106\ \ \ \ \ \textcolor{keywordflow}{default}:}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}};\ \textcolor{comment}{//\ invalid}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00108}00108\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00109}00109\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00110}00110\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00111}\mbox{\hyperlink{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42}{00111}}\ esp\_err\_t\ \mbox{\hyperlink{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42}{init\_rgb\_led}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00112}00112\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00113}00113\ \ \ \ \ led\_strip\_config\_t\ cfg\ =\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ .strip\_gpio\_num\ =\ \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.rgb\_led\_pin,}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ .max\_leds\ =\ \mbox{\hyperlink{rgb__leds_8h_a8a6bd7a49ceea22233fb2313ef2060cd}{RGB\_LED\_NUM}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ .led\_model\ =\ LED\_MODEL\_WS2812,}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ .flags.invert\_out\ =\ \textcolor{keyword}{false},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00118}00118\ \ \ \ \ \};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00119}00119\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00120}00120\ \ \ \ \ led\_strip\_rmt\_config\_t\ rmt\ =\ \{.resolution\_hz\ =\ 10\ *\ 1000\ *\ 1000\};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00121}00121\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00122}00122\ \ \ \ \ esp\_err\_t\ err\ =\ led\_strip\_new\_rmt\_device(\&cfg,\ \&rmt,\ \&\mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00123}00123\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}LED\ strip\ initialized"{}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00124}00124\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00125}00125\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00126}00126\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00127}00127\ \textcolor{comment}{//\ BRIGHTNESS\ HELPERS}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00128}00128\ \textcolor{keyword}{static}\ uint8\_t\ apply\_brightness(uint8\_t\ c,\ uint8\_t\ b)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00129}00129\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00130}00130\ \ \ \ \ \textcolor{keywordflow}{return}\ (c\ *\ b)\ /\ 255;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00131}00131\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00132}00132\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00133}\mbox{\hyperlink{rgb__leds_8c_a09ab352305e903741db7201c43f0e66e}{00133}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a09ab352305e903741db7201c43f0e66e}{leds\_set\_brightness}}(uint8\_t\ b)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00134}00134\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00135}00135\ \ \ \ \ led\_brightness\ =\ b;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00136}00136\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00137}00137\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00138}00138\ \textcolor{comment}{//\ BASIC\ LED\ SET}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00139}\mbox{\hyperlink{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}{00139}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}{set\_led\_brightness}}(\textcolor{keywordtype}{int}\ led,\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ color,\ uint8\_t\ brightness)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00140}00140\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00141}00141\ \ \ \ \ \textcolor{keyword}{const}\ \mbox{\hyperlink{structColor__t}{Color\_t}}\ *c\ =\ \&\mbox{\hyperlink{rgb__leds_8c_a1cf65b2abbff0d0705e8e87f8eb9b0ac}{COLORS}}[color];}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00142}00142\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00143}00143\ \ \ \ \ led\_strip\_set\_pixel(}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}},}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ led,}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ apply\_brightness(c-\/>\mbox{\hyperlink{structColor__t_a48c78ec6afac399fb7263f20cd46bf82}{r}},\ brightness),}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ apply\_brightness(c-\/>\mbox{\hyperlink{structColor__t_a653fcbd2b14ba615686e4599b12f480b}{g}},\ brightness),}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ apply\_brightness(c-\/>\mbox{\hyperlink{structColor__t_a2656ce3f60e822ca183a9dd9f11ae450}{b}},\ brightness));}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00149}00149\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00150}00150\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00151}\mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{00151}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(\textcolor{keywordtype}{int}\ led,\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ color)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00152}00152\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00153}00153\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}{set\_led\_brightness}}(led,\ color,\ led\_brightness);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00154}00154\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00155}00155\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00156}\mbox{\hyperlink{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}{00156}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}{set\_off}}(\textcolor{keywordtype}{int}\ led)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00157}00157\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00158}00158\ \ \ \ \ led\_strip\_set\_pixel(\mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}},\ led,\ 0,\ 0,\ 0);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00159}00159\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00160}00160\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00161}00161\ \textcolor{comment}{//\ BLINK\ TOGGLE\ STATE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00162}\mbox{\hyperlink{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}{00162}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}{toggle\_led}}(\textcolor{keywordtype}{int}\ led,\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ color,\ \textcolor{keywordtype}{bool}\ *state)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00163}00163\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00164}00164\ \ \ \ \ *state\ =\ !*state;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00165}00165\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00166}00166\ \ \ \ \ \textcolor{keywordflow}{if}\ (*state)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00167}00167\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a47b741602a8db9cfbe7daf12b54e4b3f}{set\_led\_brightness}}(led,\ color,\ led\_brightness);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00168}00168\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00169}00169\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}{set\_off}}(led);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00170}00170\ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00171}00171\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00172}00172\ \textcolor{comment}{//\ MAIN\ LED\ UPDATE\ (called\ by\ LED\ task)}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00173}\mbox{\hyperlink{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d}{00173}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d}{leds\_update}}(\textcolor{keyword}{const}\ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ *sm)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00174}00174\ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00175}00175\ \ \ \ \ \textcolor{comment}{//\ Copy\ snapshot}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00176}00176\ \ \ \ \ sm\_snap\ =\ *sm;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00177}00177\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00178}00178\ \ \ \ \ \textcolor{comment}{//\ LED0:\ STATE}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00179}00179\ \ \ \ \ \textcolor{keywordflow}{if}\ (sm\_snap.state\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00180}00180\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}{toggle\_led}}(0,\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}},\ \&blink0);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00182}00182\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00183}00183\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (sm\_snap.valve\_lock)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00184}00184\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a3df25b66553f44d46ff48baad432cc57}{toggle\_led}}(0,\ \mbox{\hyperlink{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}{state\_to\_color}}(sm\_snap.state),\ \&blink0);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00186}00186\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00187}00187\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00188}00188\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ blink0\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(0,\ \mbox{\hyperlink{rgb__leds_8c_a5ab6a1fcd2c56901680bdbc17922387f}{state\_to\_color}}(sm\_snap.state));}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00191}00191\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00192}00192\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00193}00193\ \ \ \ \ \textcolor{comment}{//\ LED1:\ Network\ status\ at\ startup,\ fanspeed\ with\ periodic\ blink\ when\ running}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00194}00194\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ startup\_mode\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00195}00195\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ blink\_override\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00196}00196\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00197}00197\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ startup\_counter\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00198}00198\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00199}00199\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ blink\_start\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00200}00200\ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_blink\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00201}00201\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00202}00202\ \ \ \ \ \textcolor{comment}{//\ Detect\ end\ of\ startup:\ after\ 5\ seconds\ or\ both\ network\ interfaces\ checked}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00203}00203\ \ \ \ \ \textcolor{keywordflow}{if}\ (startup\_mode)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00204}00204\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00205}00205\ \ \ \ \ \ \ \ \ startup\_counter++;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (startup\_counter\ >\ 25)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00207}00207\ \ \ \ \ \ \ \ \ \{\ \textcolor{comment}{//\ \string~5s\ if\ leds\_update\ called\ every\ 200ms}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00208}00208\ \ \ \ \ \ \ \ \ \ \ \ \ startup\_mode\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00209}00209\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00210}00210\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00211}00211\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00212}00212\ \ \ \ \ uint32\_t\ now\ =\ (uint32\_t)(esp\_timer\_get\_time()\ /\ 1000);\ \textcolor{comment}{//\ ms}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00213}00213\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00214}00214\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ use\_wifi\_blink\ =\ (\mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\_version}}\ ==\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907da64aa6e41e2832f5a178c69c0bd9d96ee}{HW\_VERSION\_2}}\ \&\&\ sm\_snap.wifi\_connected);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00215}00215\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{bool}\ skip\_network\_blink\ =\ (\mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\_version}}\ ==\ \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\_VERSION\_3}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00216}00216\ \ \ \ \ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457b}{ColorName\_t}}\ net\_color\ =\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00217}00217\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00218}00218\ \ \ \ \ \textcolor{keywordflow}{if}\ (use\_wifi\_blink)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00219}00219\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00220}00220\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Blink\ blue\ (WIFI:\ \%s)"{}},\ sm\_snap.wifi\_connected\ ?\ \textcolor{stringliteral}{"{}connected"{}}\ :\ \textcolor{stringliteral}{"{}disconnected"{}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ net\_color\ =\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba1340428efccb140dcbdb71aa6176f696}{COLOR\_BLUE}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00222}00222\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00223}00223\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00224}00224\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00225}00225\ \ \ \ \ \ \ \ \ net\_color\ =\ \mbox{\hyperlink{rgb__leds_8h_afef4bd7776f8376ccf1db17dd64f457ba592503b9434c1e751a92f3fc536d7950}{COLOR\_RED}};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00226}00226\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00227}00227\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00228}00228\ \ \ \ \ \textcolor{keywordflow}{if}\ (skip\_network\_blink)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00229}00229\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00230}00230\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(1,\ \mbox{\hyperlink{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}{fan\_to\_color}}(sm\_snap.fanspeed));}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00231}00231\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00232}00232\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (startup\_mode)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00233}00233\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00234}00234\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Blink\ network\ status\ on\ LED1}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00235}00235\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ blink\_on\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ uint32\_t\ last\_toggle\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (now\ -\/\ last\_toggle\ >\ 300)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ \{\ \textcolor{comment}{//\ 300ms\ period}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \ \ \ \ blink\_on\ =\ !blink\_on;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00240}00240\ \ \ \ \ \ \ \ \ \ \ \ \ last\_toggle\ =\ now;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (blink\_on)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(1,\ net\_color);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a30660306061cfb1268696c10f3fa7342}{set\_off}}(1);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00246}00246\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00247}00247\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00248}00248\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Normal:\ fanspeed\ color,\ but\ blink\ network\ status\ every\ 30s}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!blink\_override\ \&\&\ (now\ -\/\ last\_blink\_ms\ >\ 30000))}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00251}00251\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \ \ \ \ blink\_override\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \ \ \ \ blink\_start\_ms\ =\ now;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \ \ \ \ last\_blink\_ms\ =\ now;}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00255}00255\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00256}00256\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (blink\_override)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00257}00257\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(1,\ net\_color);}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00259}00259\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (now\ -\/\ blink\_start\_ms\ >\ 120)}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00260}00260\ \ \ \ \ \ \ \ \ \ \ \ \ \{\ \textcolor{comment}{//\ 120ms\ blink}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00261}00261\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ blink\_override\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00262}00262\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00263}00263\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00264}00264\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00265}00265\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a0fa5627faeeda83a1b37d89c89ac87a5}{set\_led}}(1,\ \mbox{\hyperlink{rgb__leds_8c_a3bae5a46c516ed6872078d8826820890}{fan\_to\_color}}(sm\_snap.fanspeed));}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00268}00268\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00269}00269\ }
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00270}00270\ \ \ \ \ led\_strip\_refresh(\mbox{\hyperlink{rgb__leds_8c_aab876d664d358a7a94bbda3cc8899479}{rgb\_leds}});}
+\DoxyCodeLine{\Hypertarget{rgb__leds_8c_source_l00271}00271\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,63 @@
+\doxysection{network\+\_\+manager.\+h}
+\hypertarget{network__manager_8h_source}{}\label{network__manager_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/network\_manager.h@{/home/peter/Development/OSVentilationIDF/main/network\_manager.h}}
+\mbox{\hyperlink{network__manager_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ NETWORK\_MANAGER\_H}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ NETWORK\_MANAGER\_H}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00015}\mbox{\hyperlink{network__manager_8h_af05b0aca947186225cbd1b2a07a3efe7}{00015}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_PERIOD\_MS\ 5000\ \ \ \ \ \ \ \ \ \ \ \ \ }\textcolor{comment}{//\ watchdog\ tick\ interval}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00016}\mbox{\hyperlink{network__manager_8h_aade9d80752a4255ffe875ee5f5cebaf6}{00016}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_NO\_IP\_TIMEOUT\_MS\ 60000\ \ \ \ \ }\textcolor{comment}{//\ link\ up\ but\ no\ IP\ (increased:\ DHCP\ needs\ time\ after\ restart)}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00017}\mbox{\hyperlink{network__manager_8h_a7c0866d2a956142933bd18a6aa96d99a}{00017}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_GATEWAY\_FAILS\_MAX\ 6\ \ \ \ \ \ \ \ }\textcolor{comment}{//\ 6\ ×\ 5s\ =\ 30s}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00018}\mbox{\hyperlink{network__manager_8h_aa81d0e0a76140c1f14832ee55756fb1b}{00018}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_FORCE\_RESTART\_DELAY\_MS\ 500\ }\textcolor{comment}{//\ delay\ between\ stop/start\ (increased\ from\ 50ms)}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00020}00020\ \textcolor{comment}{//\ Thresholds}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00021}\mbox{\hyperlink{network__manager_8h_a1d7d9a1706b276487e2ca4a2d27c8051}{00021}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_NO\_ACTIVITY\_TIMEOUT\_MS\ 45000\ }\textcolor{comment}{//\ 45s\ without\ any\ successful\ activity\ -\/>\ restart\ (increased\ from\ 30s)}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00022}\mbox{\hyperlink{network__manager_8h_af6f401a3bc52c6482d7ae2e009503a72}{00022}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_ACTIVITY\_GRACE\_MS\ 5000\ \ \ \ \ \ \ }\textcolor{comment}{//\ 5s\ grace\ after\ events\ before\ considering\ stale}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00023}\mbox{\hyperlink{network__manager_8h_aa0bfe98bfc5e7c4deb6d5259512197d3}{00023}}\ \textcolor{preprocessor}{\#define\ ETH\_WD\_RESTART\_GRACE\_MS\ 120000\ \ \ \ \ \ }\textcolor{comment}{//\ 120s\ grace\ period\ after\ restart\ before\ aggressive\ timeouts\ (new)}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00025}\mbox{\hyperlink{network__manager_8h_a707c25869542a5516b6c6a096e88bdb5}{00025}}\ \textcolor{preprocessor}{\#define\ SOFTWARE\_RESTART\_MAX\_ATTEMPTS\ 5}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00026}\mbox{\hyperlink{network__manager_8h_aabf3cca265d22f0d7af997d8d8f86801}{00026}}\ \textcolor{preprocessor}{\#define\ SOFTWARE\_RESTART\_DECAY\_MS\ (60\ *\ 1000)\ }\textcolor{comment}{/*\ optional:\ decay\ counter\ after\ 60s\ */}\textcolor{preprocessor}{}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00027}00027\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00028}00028\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00029}00029\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00030}00030\ \textcolor{preprocessor}{\#include\ <esp\_err.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00031}00031\ \textcolor{preprocessor}{\#include\ <freertos/FreeRTOS.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00032}00032\ \textcolor{preprocessor}{\#include\ <freertos/task.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00033}00033\ \textcolor{preprocessor}{\#include\ <esp\_event.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00034}00034\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00035}00035\ \textcolor{preprocessor}{\#include\ <esp\_wifi.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00036}00036\ \textcolor{preprocessor}{\#include\ <esp\_eth.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00037}00037\ \textcolor{preprocessor}{\#include\ <string.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00038}00038\ \textcolor{preprocessor}{\#include\ <mqtt\_client.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00039}00039\ \textcolor{preprocessor}{\#include\ <mqtt5\_client.h>}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00041}00041\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00042}00042\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{network__functions_8h}{network\_functions.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00043}00043\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{mqtt_8h}{mqtt.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00044}00044\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00045}00045\ \textcolor{comment}{//\ Request\ Home\ Assistant\ discovery\ to\ be\ performed\ (non-\/blocking;\ schedules\ discovery\ in\ MQTT\ task\ context).}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00046}00046\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__manager_8h_a3d9cbf984c4b06c097494e54d485f25f}{mqtt\_request\_homeassistant\_discovery}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00048}00048\ \textcolor{comment}{//\ Start\ the\ network\ manager\ task\ (call\ once\ at\ startup).}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00049}00049\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__manager_8h_a529112e8f5aa464cf92ea14eb23b6740}{network\_manager\_start}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00050}00050\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00051}00051\ \textcolor{comment}{//\ Notify\ the\ manager\ that\ network\ configuration\ changed\ (safe\ to\ call\ from\ ISR/context).}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00052}00052\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__manager_8h_a5a75f5aa08d8026a465143e5eae86616}{network\_manager\_notify\_config\_change}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00054}00054\ \textcolor{comment}{//\ Request\ a\ synchronous\ refresh\ of\ network\ actuals\ (non-\/blocking;\ schedules\ update).}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00055}00055\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__manager_8h_a37c2555a31427a21faeddfdd9c47a63a}{network\_manager\_request\_actuals\_update}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00057}00057\ \textcolor{comment}{//\ Query\ whether\ manager\ is\ running}}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00058}00058\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{network__manager_8h_ac62516a02963d1d0e4d64c23aa471fe6}{network\_manager\_is\_running}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00059}00059\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{network__manager_8h_acdee73edd1c128e1b024f5b1132038ea}{net\_mgr\_notify\_eth\_activity}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00060}00060\ }
+\DoxyCodeLine{\Hypertarget{network__manager_8h_source_l00061}00061\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//\ NETWORK\_MANAGER\_H}}
+
+\end{DoxyCode}

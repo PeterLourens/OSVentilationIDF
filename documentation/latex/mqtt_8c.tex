@@ -1,0 +1,395 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/mqtt.c File Reference}
+\hypertarget{mqtt_8c}{}\label{mqtt_8c}\index{/home/peter/Development/OSVentilationIDF/main/mqtt.c@{/home/peter/Development/OSVentilationIDF/main/mqtt.c}}
+
+
+MQTT client implementation and Home Assistant discovery publishing logic.  
+
+
+{\ttfamily \#include "{}mqtt.\+h"{}}\newline
+Include dependency graph for mqtt.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{mqtt_8c_a3d9cbf984c4b06c097494e54d485f25f}{mqtt\+\_\+request\+\_\+homeassistant\+\_\+discovery}} (void)
+\begin{DoxyCompactList}\small\item\em Request MQTT Home Assistant discovery to be published. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{mqtt_8c_a2d00277af8dc8d584239b7fe3b2aec00}{mqtt\+\_\+discovery\+\_\+requested}} (void)
+\begin{DoxyCompactList}\small\item\em Query whether an MQTT discovery request is pending. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_ac86d692abbf87dddca455da656942725}{mqtt\+\_\+clear\+\_\+discovery\+\_\+request}} (void)
+\begin{DoxyCompactList}\small\item\em Clear any pending MQTT discovery request. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a5ca7df3740a5d2a1db5231b4c5369a4b}{mqtt\+\_\+set\+\_\+connected}} (bool state)
+\begin{DoxyCompactList}\small\item\em Set the MQTT connection state. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{mqtt_8c_a14a4eb1d82363ee8fb9bf053b48fc4a2}{mqtt\+\_\+is\+\_\+connected}} (void)
+\begin{DoxyCompactList}\small\item\em Query whether MQTT is currently connected. \end{DoxyCompactList}\item 
+esp\+\_\+mqtt\+\_\+client\+\_\+handle\+\_\+t \mbox{\hyperlink{mqtt_8c_a72eb23a5dd92a6b89d56af15ec7374da}{mqtt\+\_\+get\+\_\+client}} (void)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{mqtt_8c_ab8fa71bd6e32c818199cc74d4651f609}{mqtt\+\_\+start}} (const \mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}cfg)
+\begin{DoxyCompactList}\small\item\em Start the MQTT client using the provided configuration. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{mqtt_8c_a39ced0e918e274dde370b7da0138c0ec}{mqtt\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Stop the MQTT client and cleanup resources. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{mqtt_8c_aa0a53930f39f34a02df89ff10398d4a4}{mqtt\+\_\+publish}} (const char \texorpdfstring{$\ast$}{*}topic, const char \texorpdfstring{$\ast$}{*}data, int len, int qos, int retain)
+\item 
+int \mbox{\hyperlink{mqtt_8c_aa8bdba922b755e433832847311d934da}{mqtt\+\_\+subscribe}} (const char \texorpdfstring{$\ast$}{*}topic, int qos)
+\item 
+void \mbox{\hyperlink{mqtt_8c_afe173dc5ef66bf3aa0f89db100b572f0}{mqtt\+\_\+event\+\_\+forwarder}} (void \texorpdfstring{$\ast$}{*}handler\+\_\+args, esp\+\_\+event\+\_\+base\+\_\+t base, int32\+\_\+t event\+\_\+id, void \texorpdfstring{$\ast$}{*}event\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Forward an MQTT event to the application event loop. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_ae6653452f6ed168ee81cb05e82409373}{mqtt\+\_\+get\+\_\+config\+\_\+snapshot}} (\mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}out)
+\begin{DoxyCompactList}\small\item\em Copy the current MQTT configuration into the output snapshot. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a1b7ed315c11d6726b5c6ae8eb7174d84}{statemachine\+\_\+set\+\_\+speed}} (const char \texorpdfstring{$\ast$}{*}payload, size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Set the state machine speed based on MQTT payload. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a1be0d359120794eac2d4a597be76ca94}{normalize\+\_\+base\+\_\+topic}} (const char \texorpdfstring{$\ast$}{*}in, char \texorpdfstring{$\ast$}{*}out, size\+\_\+t out\+\_\+size)
+\begin{DoxyCompactList}\small\item\em Normalize the MQTT base topic into a safe string. \end{DoxyCompactList}\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{mqtt_8c_afb971ca81a572e06658b42d91946dce2}{mqtt\+\_\+get\+\_\+node\+\_\+id}} (void)
+\begin{DoxyCompactList}\small\item\em Retrieve the cached MQTT node identifier. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a19e6b3f9b4ad16bd172c6d282c384937}{mqtt\+\_\+publish\+\_\+sensor\+\_\+values}} (void)
+\begin{DoxyCompactList}\small\item\em Publish current sensor values over MQTT. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_adae8be92f55c6be049cf04593242a763}{mqtt\+\_\+publish\+\_\+valve\+\_\+positions}} (void)
+\begin{DoxyCompactList}\small\item\em Publish current valve positions over MQTT. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a711bf2614cc96edc05eab71d9741835a}{mqtt\+\_\+publish\+\_\+state\+\_\+and\+\_\+fanspeed}} (void)
+\begin{DoxyCompactList}\small\item\em Publish current state and fan speed over MQTT. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{mqtt_8c_a346a3921be1bcd18272370839faa3e18}{sensors\+\_\+ready}} (void)
+\begin{DoxyCompactList}\small\item\em Check whether sensor data is ready for MQTT publication. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{mqtt_8c_a7aead4cf162396fd72a1f77f0102ba8c}{mqtt\+\_\+publish\+\_\+homeassistant\+\_\+discovery}} (void)
+\begin{DoxyCompactList}\small\item\em Publish MQTT Home Assistant discovery payloads. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+MQTT client implementation and Home Assistant discovery publishing logic. 
+
+
+
+Definition in file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{mqtt_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{mqtt_8c_ac86d692abbf87dddca455da656942725}\index{mqtt.c@{mqtt.c}!mqtt\_clear\_discovery\_request@{mqtt\_clear\_discovery\_request}}
+\index{mqtt\_clear\_discovery\_request@{mqtt\_clear\_discovery\_request}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_clear\_discovery\_request()}{mqtt\_clear\_discovery\_request()}}
+{\footnotesize\ttfamily \label{mqtt_8c_ac86d692abbf87dddca455da656942725} 
+void mqtt\+\_\+clear\+\_\+discovery\+\_\+request (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Clear any pending MQTT discovery request. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00461}{461}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a2d00277af8dc8d584239b7fe3b2aec00}\index{mqtt.c@{mqtt.c}!mqtt\_discovery\_requested@{mqtt\_discovery\_requested}}
+\index{mqtt\_discovery\_requested@{mqtt\_discovery\_requested}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_discovery\_requested()}{mqtt\_discovery\_requested()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a2d00277af8dc8d584239b7fe3b2aec00} 
+bool mqtt\+\_\+discovery\+\_\+requested (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Query whether an MQTT discovery request is pending. 
+
+\begin{DoxyReturn}{Returns}
+true if discovery has been requested. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00456}{456}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_afe173dc5ef66bf3aa0f89db100b572f0}\index{mqtt.c@{mqtt.c}!mqtt\_event\_forwarder@{mqtt\_event\_forwarder}}
+\index{mqtt\_event\_forwarder@{mqtt\_event\_forwarder}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_event\_forwarder()}{mqtt\_event\_forwarder()}}
+{\footnotesize\ttfamily \label{mqtt_8c_afe173dc5ef66bf3aa0f89db100b572f0} 
+void mqtt\+\_\+event\+\_\+forwarder (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{handler\+\_\+args}{, }\item[{esp\+\_\+event\+\_\+base\+\_\+t}]{base}{, }\item[{int32\+\_\+t}]{event\+\_\+id}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{event\+\_\+data}{}\end{DoxyParamCaption})}
+
+
+
+Forward an MQTT event to the application event loop. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em arg} & User-\/provided argument. \\
+\hline
+{\em event\+\_\+base} & Event base identifier. \\
+\hline
+{\em event\+\_\+id} & Event identifier. \\
+\hline
+{\em event\+\_\+data} & Event-\/specific data pointer. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00625}{625}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a72eb23a5dd92a6b89d56af15ec7374da}\index{mqtt.c@{mqtt.c}!mqtt\_get\_client@{mqtt\_get\_client}}
+\index{mqtt\_get\_client@{mqtt\_get\_client}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_get\_client()}{mqtt\_get\_client()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a72eb23a5dd92a6b89d56af15ec7374da} 
+esp\+\_\+mqtt\+\_\+client\+\_\+handle\+\_\+t mqtt\+\_\+get\+\_\+client (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00476}{476}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_ae6653452f6ed168ee81cb05e82409373}\index{mqtt.c@{mqtt.c}!mqtt\_get\_config\_snapshot@{mqtt\_get\_config\_snapshot}}
+\index{mqtt\_get\_config\_snapshot@{mqtt\_get\_config\_snapshot}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_get\_config\_snapshot()}{mqtt\_get\_config\_snapshot()}}
+{\footnotesize\ttfamily \label{mqtt_8c_ae6653452f6ed168ee81cb05e82409373} 
+void mqtt\+\_\+get\+\_\+config\+\_\+snapshot (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{out}{}\end{DoxyParamCaption})}
+
+
+
+Copy the current MQTT configuration into the output snapshot. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{out}}  & {\em out} & Destination configuration structure. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00646}{646}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_afb971ca81a572e06658b42d91946dce2}\index{mqtt.c@{mqtt.c}!mqtt\_get\_node\_id@{mqtt\_get\_node\_id}}
+\index{mqtt\_get\_node\_id@{mqtt\_get\_node\_id}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_get\_node\_id()}{mqtt\_get\_node\_id()}}
+{\footnotesize\ttfamily \label{mqtt_8c_afb971ca81a572e06658b42d91946dce2} 
+const char \texorpdfstring{$\ast$}{*} mqtt\+\_\+get\+\_\+node\+\_\+id (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Retrieve the cached MQTT node identifier. 
+
+\begin{DoxyReturn}{Returns}
+Null-\/terminated node ID string. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00734}{734}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a14a4eb1d82363ee8fb9bf053b48fc4a2}\index{mqtt.c@{mqtt.c}!mqtt\_is\_connected@{mqtt\_is\_connected}}
+\index{mqtt\_is\_connected@{mqtt\_is\_connected}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_is\_connected()}{mqtt\_is\_connected()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a14a4eb1d82363ee8fb9bf053b48fc4a2} 
+bool mqtt\+\_\+is\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Query whether MQTT is currently connected. 
+
+\begin{DoxyReturn}{Returns}
+true if connected. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00471}{471}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_aa0a53930f39f34a02df89ff10398d4a4}\index{mqtt.c@{mqtt.c}!mqtt\_publish@{mqtt\_publish}}
+\index{mqtt\_publish@{mqtt\_publish}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_publish()}{mqtt\_publish()}}
+{\footnotesize\ttfamily \label{mqtt_8c_aa0a53930f39f34a02df89ff10398d4a4} 
+int mqtt\+\_\+publish (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{topic}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{data}{, }\item[{int}]{len}{, }\item[{int}]{qos}{, }\item[{int}]{retain}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00604}{604}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a7aead4cf162396fd72a1f77f0102ba8c}\index{mqtt.c@{mqtt.c}!mqtt\_publish\_homeassistant\_discovery@{mqtt\_publish\_homeassistant\_discovery}}
+\index{mqtt\_publish\_homeassistant\_discovery@{mqtt\_publish\_homeassistant\_discovery}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_publish\_homeassistant\_discovery()}{mqtt\_publish\_homeassistant\_discovery()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a7aead4cf162396fd72a1f77f0102ba8c} 
+void mqtt\+\_\+publish\+\_\+homeassistant\+\_\+discovery (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Publish MQTT Home Assistant discovery payloads. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00989}{989}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a19e6b3f9b4ad16bd172c6d282c384937}\index{mqtt.c@{mqtt.c}!mqtt\_publish\_sensor\_values@{mqtt\_publish\_sensor\_values}}
+\index{mqtt\_publish\_sensor\_values@{mqtt\_publish\_sensor\_values}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_publish\_sensor\_values()}{mqtt\_publish\_sensor\_values()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a19e6b3f9b4ad16bd172c6d282c384937} 
+void mqtt\+\_\+publish\+\_\+sensor\+\_\+values (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Publish current sensor values over MQTT. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00791}{791}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a711bf2614cc96edc05eab71d9741835a}\index{mqtt.c@{mqtt.c}!mqtt\_publish\_state\_and\_fanspeed@{mqtt\_publish\_state\_and\_fanspeed}}
+\index{mqtt\_publish\_state\_and\_fanspeed@{mqtt\_publish\_state\_and\_fanspeed}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_publish\_state\_and\_fanspeed()}{mqtt\_publish\_state\_and\_fanspeed()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a711bf2614cc96edc05eab71d9741835a} 
+void mqtt\+\_\+publish\+\_\+state\+\_\+and\+\_\+fanspeed (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Publish current state and fan speed over MQTT. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00899}{899}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_adae8be92f55c6be049cf04593242a763}\index{mqtt.c@{mqtt.c}!mqtt\_publish\_valve\_positions@{mqtt\_publish\_valve\_positions}}
+\index{mqtt\_publish\_valve\_positions@{mqtt\_publish\_valve\_positions}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_publish\_valve\_positions()}{mqtt\_publish\_valve\_positions()}}
+{\footnotesize\ttfamily \label{mqtt_8c_adae8be92f55c6be049cf04593242a763} 
+void mqtt\+\_\+publish\+\_\+valve\+\_\+positions (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Publish current valve positions over MQTT. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00875}{875}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a3d9cbf984c4b06c097494e54d485f25f}\index{mqtt.c@{mqtt.c}!mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}}
+\index{mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_request\_homeassistant\_discovery()}{mqtt\_request\_homeassistant\_discovery()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a3d9cbf984c4b06c097494e54d485f25f} 
+void mqtt\+\_\+request\+\_\+homeassistant\+\_\+discovery (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Request MQTT Home Assistant discovery to be published. 
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00451}{451}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a5ca7df3740a5d2a1db5231b4c5369a4b}\index{mqtt.c@{mqtt.c}!mqtt\_set\_connected@{mqtt\_set\_connected}}
+\index{mqtt\_set\_connected@{mqtt\_set\_connected}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_set\_connected()}{mqtt\_set\_connected()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a5ca7df3740a5d2a1db5231b4c5369a4b} 
+void mqtt\+\_\+set\+\_\+connected (\begin{DoxyParamCaption}\item[{bool}]{state}{}\end{DoxyParamCaption})}
+
+
+
+Set the MQTT connection state. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em state} & true if connected. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00466}{466}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_ab8fa71bd6e32c818199cc74d4651f609}\index{mqtt.c@{mqtt.c}!mqtt\_start@{mqtt\_start}}
+\index{mqtt\_start@{mqtt\_start}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_start()}{mqtt\_start()}}
+{\footnotesize\ttfamily \label{mqtt_8c_ab8fa71bd6e32c818199cc74d4651f609} 
+esp\+\_\+err\+\_\+t mqtt\+\_\+start (\begin{DoxyParamCaption}\item[{const \mbox{\hyperlink{structMQTT__config__t}{MQTT\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{cfg}{}\end{DoxyParamCaption})}
+
+
+
+Start the MQTT client using the provided configuration. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em cfg} & Pointer to MQTT configuration data. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00481}{481}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a39ced0e918e274dde370b7da0138c0ec}\index{mqtt.c@{mqtt.c}!mqtt\_stop@{mqtt\_stop}}
+\index{mqtt\_stop@{mqtt\_stop}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_stop()}{mqtt\_stop()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a39ced0e918e274dde370b7da0138c0ec} 
+esp\+\_\+err\+\_\+t mqtt\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Stop the MQTT client and cleanup resources. 
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00575}{575}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_aa8bdba922b755e433832847311d934da}\index{mqtt.c@{mqtt.c}!mqtt\_subscribe@{mqtt\_subscribe}}
+\index{mqtt\_subscribe@{mqtt\_subscribe}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{mqtt\_subscribe()}{mqtt\_subscribe()}}
+{\footnotesize\ttfamily \label{mqtt_8c_aa8bdba922b755e433832847311d934da} 
+int mqtt\+\_\+subscribe (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{topic}{, }\item[{int}]{qos}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00614}{614}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a1be0d359120794eac2d4a597be76ca94}\index{mqtt.c@{mqtt.c}!normalize\_base\_topic@{normalize\_base\_topic}}
+\index{normalize\_base\_topic@{normalize\_base\_topic}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{normalize\_base\_topic()}{normalize\_base\_topic()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a1be0d359120794eac2d4a597be76ca94} 
+void normalize\+\_\+base\+\_\+topic (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{in}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{out\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Normalize the MQTT base topic into a safe string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em in} & Input base topic. \\
+\hline
+{\em out} & Output buffer. \\
+\hline
+{\em out\+\_\+size} & Output buffer size. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00702}{702}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a346a3921be1bcd18272370839faa3e18}\index{mqtt.c@{mqtt.c}!sensors\_ready@{sensors\_ready}}
+\index{sensors\_ready@{sensors\_ready}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{sensors\_ready()}{sensors\_ready()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a346a3921be1bcd18272370839faa3e18} 
+bool sensors\+\_\+ready (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Check whether sensor data is ready for MQTT publication. 
+
+\begin{DoxyReturn}{Returns}
+true if sensor snapshots are available. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00952}{952}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+
+\Hypertarget{mqtt_8c_a1b7ed315c11d6726b5c6ae8eb7174d84}\index{mqtt.c@{mqtt.c}!statemachine\_set\_speed@{statemachine\_set\_speed}}
+\index{statemachine\_set\_speed@{statemachine\_set\_speed}!mqtt.c@{mqtt.c}}
+\doxysubsubsection{\texorpdfstring{statemachine\_set\_speed()}{statemachine\_set\_speed()}}
+{\footnotesize\ttfamily \label{mqtt_8c_a1b7ed315c11d6726b5c6ae8eb7174d84} 
+void statemachine\+\_\+set\+\_\+speed (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{payload}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Set the state machine speed based on MQTT payload. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em payload} & Payload containing the requested speed. \\
+\hline
+{\em len} & Payload length in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt_8c_source_l00663}{663}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
+

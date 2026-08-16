@@ -1,0 +1,188 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/http\+\_\+functions.h File Reference}
+\hypertarget{http__functions_8h}{}\label{http__functions_8h}\index{/home/peter/Development/OSVentilationIDF/main/http\_functions.h@{/home/peter/Development/OSVentilationIDF/main/http\_functions.h}}
+
+
+Public interface for the embedded HTTP and Web\+Socket server.  
+
+
+{\ttfamily \#include $<$esp\+\_\+http\+\_\+server.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}config\+\_\+files.\+h"{}}\newline
+{\ttfamily \#include "{}http\+\_\+helper.\+h"{}}\newline
+{\ttfamily \#include "{}http\+\_\+send\+\_\+ws\+\_\+data.\+h"{}}\newline
+{\ttfamily \#include "{}http\+\_\+post\+\_\+functions.\+h"{}}\newline
+{\ttfamily \#include "{}valvecontrol.\+h"{}}\newline
+{\ttfamily \#include "{}i2c\+\_\+sensors.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}statemachine.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+manager.\+h"{}}\newline
+{\ttfamily \#include "{}stats\+\_\+worker.\+h"{}}\newline
+{\ttfamily \#include "{}sys\+\_\+stats.\+h"{}}\newline
+{\ttfamily \#include "{}task\+\_\+uart\+\_\+sender.\+h"{}}\newline
+Include dependency graph for http\+\_\+functions.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{http__functions_8h_a1cc03b061f75b7874f0111f10c02d897}{LOG\+\_\+\+BUF\+\_\+\+SIZE}}~256
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{http__functions_8h_a98b3b9a15f61ddde482666cf2a899dac}{ws\+\_\+async\+\_\+send}} (const char \texorpdfstring{$\ast$}{*}buf, size\+\_\+t len)
+\begin{DoxyCompactList}\small\item\em Send raw text to all connected Web\+Socket clients. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{http__functions_8h_a9dd8efe54e059142817e14d63550cd7f}{http\+\_\+server\+\_\+start}} (void)
+\begin{DoxyCompactList}\small\item\em Start the embedded HTTP server and bind handlers. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__functions_8h_ae960cfbc7dba6d406e29b2e76655f913}{register\+\_\+http\+\_\+handlers}} (httpd\+\_\+handle\+\_\+t server)
+\begin{DoxyCompactList}\small\item\em Register HTTP URI handlers on an active server. \end{DoxyCompactList}\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{http__functions_8h_a626ad843a2f9e2d959e4314a194af08e}{http\+\_\+server\+\_\+stop}} (void)
+\begin{DoxyCompactList}\small\item\em Stop the embedded HTTP server and release resources. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public interface for the embedded HTTP and Web\+Socket server. 
+
+
+
+Definition in file \mbox{\hyperlink{http__functions_8h_source}{http\+\_\+functions.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{http__functions_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{http__functions_8h_a1cc03b061f75b7874f0111f10c02d897}\index{http\_functions.h@{http\_functions.h}!LOG\_BUF\_SIZE@{LOG\_BUF\_SIZE}}
+\index{LOG\_BUF\_SIZE@{LOG\_BUF\_SIZE}!http\_functions.h@{http\_functions.h}}
+\doxysubsubsection{\texorpdfstring{LOG\_BUF\_SIZE}{LOG\_BUF\_SIZE}}
+{\footnotesize\ttfamily \label{http__functions_8h_a1cc03b061f75b7874f0111f10c02d897} 
+\#define LOG\+\_\+\+BUF\+\_\+\+SIZE~256}
+
+
+
+Definition at line \mbox{\hyperlink{http__functions_8h_source_l00033}{33}} of file \mbox{\hyperlink{http__functions_8h_source}{http\+\_\+functions.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{http__functions_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{http__functions_8h_a9dd8efe54e059142817e14d63550cd7f}\index{http\_functions.h@{http\_functions.h}!http\_server\_start@{http\_server\_start}}
+\index{http\_server\_start@{http\_server\_start}!http\_functions.h@{http\_functions.h}}
+\doxysubsubsection{\texorpdfstring{http\_server\_start()}{http\_server\_start()}}
+{\footnotesize\ttfamily \label{http__functions_8h_a9dd8efe54e059142817e14d63550cd7f} 
+esp\+\_\+err\+\_\+t http\+\_\+server\+\_\+start (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Start the embedded HTTP server and bind handlers. 
+
+This function starts the HTTP server on port 80 and registers the web UI, Web\+Socket, and configuration endpoints.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK if the server started successfully. 
+
+ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+STATE if the active network interface has no IP. 
+
+other esp\+\_\+err\+\_\+t values on HTTP server startup failure.
+\end{DoxyReturn}
+Start the embedded HTTP server and bind handlers.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01478}{1478}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8h_a626ad843a2f9e2d959e4314a194af08e}\index{http\_functions.h@{http\_functions.h}!http\_server\_stop@{http\_server\_stop}}
+\index{http\_server\_stop@{http\_server\_stop}!http\_functions.h@{http\_functions.h}}
+\doxysubsubsection{\texorpdfstring{http\_server\_stop()}{http\_server\_stop()}}
+{\footnotesize\ttfamily \label{http__functions_8h_a626ad843a2f9e2d959e4314a194af08e} 
+esp\+\_\+err\+\_\+t http\+\_\+server\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Stop the embedded HTTP server and release resources. 
+
+This function stops the HTTP server instance and clears the global server handle so the server can be restarted later if needed.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK if the server was stopped successfully. 
+
+ESP\+\_\+\+ERR\+\_\+\+INVALID\+\_\+\+ARG if the server handle was not valid. 
+
+other esp\+\_\+err\+\_\+t values on shutdown failure.
+\end{DoxyReturn}
+Stop the embedded HTTP server and release resources.
+
+\begin{DoxyReturn}{Returns}
+ESP\+\_\+\+OK on success or an esp\+\_\+err\+\_\+t on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01865}{1865}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8h_ae960cfbc7dba6d406e29b2e76655f913}\index{http\_functions.h@{http\_functions.h}!register\_http\_handlers@{register\_http\_handlers}}
+\index{register\_http\_handlers@{register\_http\_handlers}!http\_functions.h@{http\_functions.h}}
+\doxysubsubsection{\texorpdfstring{register\_http\_handlers()}{register\_http\_handlers()}}
+{\footnotesize\ttfamily \label{http__functions_8h_ae960cfbc7dba6d406e29b2e76655f913} 
+void register\+\_\+http\+\_\+handlers (\begin{DoxyParamCaption}\item[{httpd\+\_\+handle\+\_\+t}]{server}{}\end{DoxyParamCaption})}
+
+
+
+Register HTTP URI handlers on an active server. 
+
+Call this after the HTTP server has been started to bind all embedded resource handlers and POST endpoints used by the web UI.
+
+
+\begin{DoxyParams}{Parameters}
+{\em server} & The server handle returned by esp\+\_\+http\+\_\+server\+\_\+start.\\
+\hline
+\end{DoxyParams}
+Register HTTP URI handlers on an active server.
+
+
+\begin{DoxyParams}{Parameters}
+{\em server} & A running HTTP server handle. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01526}{1526}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+
+\Hypertarget{http__functions_8h_a98b3b9a15f61ddde482666cf2a899dac}\index{http\_functions.h@{http\_functions.h}!ws\_async\_send@{ws\_async\_send}}
+\index{ws\_async\_send@{ws\_async\_send}!http\_functions.h@{http\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ws\_async\_send()}{ws\_async\_send()}}
+{\footnotesize\ttfamily \label{http__functions_8h_a98b3b9a15f61ddde482666cf2a899dac} 
+void ws\+\_\+async\+\_\+send (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{buf}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Send raw text to all connected Web\+Socket clients. 
+
+This helper broadcasts a UTF-\/8 payload to every active Web\+Socket client registered on the embedded HTTP server.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Pointer to the data buffer to send. \\
+\hline
+{\em len} & Number of bytes in the buffer.\\
+\hline
+\end{DoxyParams}
+Send raw text to all connected Web\+Socket clients.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buf} & Pointer to the data buffer. \\
+\hline
+{\em len} & Length of the buffer in bytes. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__functions_8c_source_l01424}{1424}} of file \mbox{\hyperlink{http__functions_8c_source}{http\+\_\+functions.\+c}}.
+

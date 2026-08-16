@@ -1,0 +1,151 @@
+\doxysection{Statemachine\+\_\+config\+\_\+t Struct Reference}
+\hypertarget{structStatemachine__config__t}{}\label{structStatemachine__config__t}\index{Statemachine\_config\_t@{Statemachine\_config\_t}}
+
+
+Individual statemachine state configuration.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{structStatemachine__config__t_a0c347b0daad6a08caca0edf33351a61f}{enable\+\_\+state}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_acd704656ed190a1e197c6209c0f32a8d}{fanspeed}}
+\item 
+char \mbox{\hyperlink{structStatemachine__config__t_ac94208e7c3c98b2a86ab1ae4165206a5}{state\+\_\+name}} \mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_aaf755395533e315e0009c094d0c8e7bf}{state\+\_\+start\+\_\+hour}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_a0fd48dc5d42b3e5e37546027283514bb}{state\+\_\+start\+\_\+minute}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_a9108a9834b8e6221dc47d011cc8197ce}{state\+\_\+end\+\_\+hour}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_abe88aa91ab6fa0bdb7e5e93a4708c472}{state\+\_\+end\+\_\+minute}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_a54dbaa07df702106740522884a06290e}{duration\+\_\+minutes}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_a03672861c1e06e3a436e4ac149d0deaf}{cycling\+\_\+interval\+\_\+min}}
+\item 
+int \mbox{\hyperlink{structStatemachine__config__t_a1e6c589c5a8b9965ec712af68312cb5b}{valve\+\_\+position}} \mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Individual statemachine state configuration. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00369}{369}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structStatemachine__config__t_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structStatemachine__config__t_a03672861c1e06e3a436e4ac149d0deaf}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!cycling\_interval\_min@{cycling\_interval\_min}}
+\index{cycling\_interval\_min@{cycling\_interval\_min}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{cycling\_interval\_min}{cycling\_interval\_min}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a03672861c1e06e3a436e4ac149d0deaf} 
+int Statemachine\+\_\+config\+\_\+t\+::cycling\+\_\+interval\+\_\+min}
+
+Valve cycling interval in minutes for cycling states. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00379}{379}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_a54dbaa07df702106740522884a06290e}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!duration\_minutes@{duration\_minutes}}
+\index{duration\_minutes@{duration\_minutes}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{duration\_minutes}{duration\_minutes}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a54dbaa07df702106740522884a06290e} 
+int Statemachine\+\_\+config\+\_\+t\+::duration\+\_\+minutes}
+
+Minimum duration to remain in this state. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00378}{378}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_a0c347b0daad6a08caca0edf33351a61f}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!enable\_state@{enable\_state}}
+\index{enable\_state@{enable\_state}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{enable\_state}{enable\_state}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a0c347b0daad6a08caca0edf33351a61f} 
+bool Statemachine\+\_\+config\+\_\+t\+::enable\+\_\+state}
+
+Whether this state is active in the runtime schedule. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00371}{371}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_acd704656ed190a1e197c6209c0f32a8d}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!fanspeed@{fanspeed}}
+\index{fanspeed@{fanspeed}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{fanspeed}{fanspeed}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_acd704656ed190a1e197c6209c0f32a8d} 
+int Statemachine\+\_\+config\+\_\+t\+::fanspeed}
+
+Fan speed for this state\+: 0=low, 1=medium, 2=high. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00372}{372}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_a9108a9834b8e6221dc47d011cc8197ce}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!state\_end\_hour@{state\_end\_hour}}
+\index{state\_end\_hour@{state\_end\_hour}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{state\_end\_hour}{state\_end\_hour}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a9108a9834b8e6221dc47d011cc8197ce} 
+int Statemachine\+\_\+config\+\_\+t\+::state\+\_\+end\+\_\+hour}
+
+State end hour (0-\/23). 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00376}{376}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_abe88aa91ab6fa0bdb7e5e93a4708c472}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!state\_end\_minute@{state\_end\_minute}}
+\index{state\_end\_minute@{state\_end\_minute}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{state\_end\_minute}{state\_end\_minute}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_abe88aa91ab6fa0bdb7e5e93a4708c472} 
+int Statemachine\+\_\+config\+\_\+t\+::state\+\_\+end\+\_\+minute}
+
+State end minute (0-\/59). 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00377}{377}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_ac94208e7c3c98b2a86ab1ae4165206a5}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!state\_name@{state\_name}}
+\index{state\_name@{state\_name}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{state\_name}{state\_name}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_ac94208e7c3c98b2a86ab1ae4165206a5} 
+char Statemachine\+\_\+config\+\_\+t\+::state\+\_\+name\mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Name of the state, used in UI and logs. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00373}{373}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_aaf755395533e315e0009c094d0c8e7bf}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!state\_start\_hour@{state\_start\_hour}}
+\index{state\_start\_hour@{state\_start\_hour}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{state\_start\_hour}{state\_start\_hour}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_aaf755395533e315e0009c094d0c8e7bf} 
+int Statemachine\+\_\+config\+\_\+t\+::state\+\_\+start\+\_\+hour}
+
+State start hour (0-\/23). 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00374}{374}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_a0fd48dc5d42b3e5e37546027283514bb}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!state\_start\_minute@{state\_start\_minute}}
+\index{state\_start\_minute@{state\_start\_minute}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{state\_start\_minute}{state\_start\_minute}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a0fd48dc5d42b3e5e37546027283514bb} 
+int Statemachine\+\_\+config\+\_\+t\+::state\+\_\+start\+\_\+minute}
+
+State start minute (0-\/59). 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00375}{375}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__config__t_a1e6c589c5a8b9965ec712af68312cb5b}\index{Statemachine\_config\_t@{Statemachine\_config\_t}!valve\_position@{valve\_position}}
+\index{valve\_position@{valve\_position}!Statemachine\_config\_t@{Statemachine\_config\_t}}
+\doxysubsubsection{\texorpdfstring{valve\_position}{valve\_position}}
+{\footnotesize\ttfamily \label{structStatemachine__config__t_a1e6c589c5a8b9965ec712af68312cb5b} 
+int Statemachine\+\_\+config\+\_\+t\+::valve\+\_\+position\mbox{[}\mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\+\_\+\+VALVE\+\_\+\+COUNT}}\mbox{]}}
+
+Valve positions for each supported valve. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00380}{380}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

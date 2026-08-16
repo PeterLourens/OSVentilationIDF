@@ -1,0 +1,69 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/main.c File Reference}
+\hypertarget{main_8c}{}\label{main_8c}\index{/home/peter/Development/OSVentilationIDF/main/main.c@{/home/peter/Development/OSVentilationIDF/main/main.c}}
+
+
+Firmware startup and runtime initialization for the OSVentilation system.  
+
+
+{\ttfamily \#include "{}main.\+h"{}}\newline
+{\ttfamily \#include "{}c\+JSON.\+h"{}}\newline
+Include dependency graph for main.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8c_a54b14b665d04a631991869b21065bf90}{v\+Application\+Stack\+Overflow\+Hook}} (Task\+Handle\+\_\+t x\+Task, char \texorpdfstring{$\ast$}{*}pc\+Task\+Name)
+\begin{DoxyCompactList}\small\item\em Free\+RTOS stack overflow hook implementation. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}{app\+\_\+main}} (void)
+\begin{DoxyCompactList}\small\item\em Main application entry point. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Firmware startup and runtime initialization for the OSVentilation system. 
+
+
+
+Definition in file \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{main_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70}\index{main.c@{main.c}!app\_main@{app\_main}}
+\index{app\_main@{app\_main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{app\_main()}{app\_main()}}
+{\footnotesize\ttfamily \label{main_8c_a630544a7f0a2cc40d8a7fefab7e2fe70} 
+void app\+\_\+main (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Main application entry point. 
+
+Performs hardware initialization, loads configuration, and starts runtime tasks. 
+
+Definition at line \mbox{\hyperlink{main_8c_source_l00093}{93}} of file \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+
+\Hypertarget{main_8c_a54b14b665d04a631991869b21065bf90}\index{main.c@{main.c}!vApplicationStackOverflowHook@{vApplicationStackOverflowHook}}
+\index{vApplicationStackOverflowHook@{vApplicationStackOverflowHook}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{vApplicationStackOverflowHook()}{vApplicationStackOverflowHook()}}
+{\footnotesize\ttfamily \label{main_8c_a54b14b665d04a631991869b21065bf90} 
+void v\+Application\+Stack\+Overflow\+Hook (\begin{DoxyParamCaption}\item[{Task\+Handle\+\_\+t}]{x\+Task}{, }\item[{char \texorpdfstring{$\ast$}{*}}]{pc\+Task\+Name}{}\end{DoxyParamCaption})}
+
+
+
+Free\+RTOS stack overflow hook implementation. 
+
+Logs the offending task and then halts to preserve a stack trace.
+
+
+\begin{DoxyParams}{Parameters}
+{\em x\+Task} & Handle of the task that overflowed. \\
+\hline
+{\em pc\+Task\+Name} & Name of the task that overflowed. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{main_8c_source_l00078}{78}} of file \mbox{\hyperlink{main_8c_source}{main.\+c}}.
+

@@ -12,5 +12,6 @@ var syslog_8h =
     [ "syslog_enqueue_line", "syslog_8h.html#a1687dfe7b28a75c0dc10fe5e4bd0eb26", null ],
     [ "syslog_queue_deinit", "syslog_8h.html#a020c13fcbba60e55e063f099a00bea74", null ],
     [ "syslog_queue_init", "syslog_8h.html#ab1e54a15fcb1206c48c501c107880ccf", null ],
-    [ "syslog_send_line", "syslog_8h.html#a0b21c9808e4dbe22abd008367a1eaeef", null ]
+    [ "syslog_send_line", "syslog_8h.html#a0b21c9808e4dbe22abd008367a1eaeef", null ],
+    [ "g_request_syslog_update", "syslog_8h.html#a3ba8760c6d06f052277f059d6b2d2ab7", null ]
 ];

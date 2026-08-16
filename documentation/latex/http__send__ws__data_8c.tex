@@ -1,0 +1,149 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/http\+\_\+send\+\_\+ws\+\_\+data.c File Reference}
+\hypertarget{http__send__ws__data_8c}{}\label{http__send__ws__data_8c}\index{/home/peter/Development/OSVentilationIDF/main/http\_send\_ws\_data.c@{/home/peter/Development/OSVentilationIDF/main/http\_send\_ws\_data.c}}
+
+
+Web\+Socket helpers for sending JSON payloads and system statistics.  
+
+
+{\ttfamily \#include "{}http\+\_\+send\+\_\+ws\+\_\+data.\+h"{}}\newline
+{\ttfamily \#include "{}statemachine\+\_\+states.\+h"{}}\newline
+Include dependency graph for http\+\_\+send\+\_\+ws\+\_\+data.\+c\+:
+% FIG 0
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{http__send__ws__data_8c_a262da13e9ec9c2275cca323650da513f}{CJSON\+\_\+\+WS\+\_\+\+OUTPUT\+\_\+\+SZ}}~8192
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+float \mbox{\hyperlink{http__send__ws__data_8c_acf8b5514eac8b9d835426b147a78ff25}{get\+\_\+cpu\+\_\+temp\+\_\+c}} (void)
+\begin{DoxyCompactList}\small\item\em Return the latest CPU temperature sampled by the sys\+\_\+stats task. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__send__ws__data_8c_af425c96b333925214c1cd7c33f7afcb8}{send\+\_\+index\+\_\+html\+\_\+ws}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req)
+\begin{DoxyCompactList}\small\item\em Send index page data and current runtime state to a Web\+Socket client. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__send__ws__data_8c_a7c51d727a5094ab8fd36467659197887}{send\+\_\+sensor\+\_\+config\+\_\+json\+\_\+ws}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req)
+\begin{DoxyCompactList}\small\item\em Send the current sensor configuration as JSON to a Web\+Socket client. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__send__ws__data_8c_a5d78a80e24293843bed21badd1705eb5}{send\+\_\+config\+\_\+json\+\_\+ws}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req)
+\begin{DoxyCompactList}\small\item\em Send the current configuration settings as JSON to a Web\+Socket client. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__send__ws__data_8c_ae6c1bdb69807d479e461d402eeef70c4}{send\+\_\+statemachine\+\_\+config\+\_\+json\+\_\+ws}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req)
+\begin{DoxyCompactList}\small\item\em Send the state machine configuration and current state as JSON over Web\+Socket. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__send__ws__data_8c_a1c43e7e23b509639add460b20512314e}{send\+\_\+stats\+\_\+json\+\_\+ws}} (httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}req)
+\begin{DoxyCompactList}\small\item\em Send collected system statistics as JSON over Web\+Socket. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Web\+Socket helpers for sending JSON payloads and system statistics. 
+
+
+
+Definition in file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{http__send__ws__data_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{http__send__ws__data_8c_a262da13e9ec9c2275cca323650da513f}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!CJSON\_WS\_OUTPUT\_SZ@{CJSON\_WS\_OUTPUT\_SZ}}
+\index{CJSON\_WS\_OUTPUT\_SZ@{CJSON\_WS\_OUTPUT\_SZ}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{CJSON\_WS\_OUTPUT\_SZ}{CJSON\_WS\_OUTPUT\_SZ}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_a262da13e9ec9c2275cca323650da513f} 
+\#define CJSON\+\_\+\+WS\+\_\+\+OUTPUT\+\_\+\+SZ~8192}
+
+
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00017}{17}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{http__send__ws__data_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{http__send__ws__data_8c_acf8b5514eac8b9d835426b147a78ff25}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!get\_cpu\_temp\_c@{get\_cpu\_temp\_c}}
+\index{get\_cpu\_temp\_c@{get\_cpu\_temp\_c}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{get\_cpu\_temp\_c()}{get\_cpu\_temp\_c()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_acf8b5514eac8b9d835426b147a78ff25} 
+float get\+\_\+cpu\+\_\+temp\+\_\+c (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Return the latest CPU temperature sampled by the sys\+\_\+stats task. 
+
+Get the latest CPU temperature sampled by the sys\+\_\+stats task.
+
+\begin{DoxyReturn}{Returns}
+float CPU temperature in degrees Celsius, or 0.\+0 if unavailable. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00096}{96}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+\Hypertarget{http__send__ws__data_8c_a5d78a80e24293843bed21badd1705eb5}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!send\_config\_json\_ws@{send\_config\_json\_ws}}
+\index{send\_config\_json\_ws@{send\_config\_json\_ws}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{send\_config\_json\_ws()}{send\_config\_json\_ws()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_a5d78a80e24293843bed21badd1705eb5} 
+void send\+\_\+config\+\_\+json\+\_\+ws (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{}\end{DoxyParamCaption})}
+
+
+
+Send the current configuration settings as JSON to a Web\+Socket client. 
+
+Send current runtime configuration as JSON over Web\+Socket. 
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00306}{306}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+\Hypertarget{http__send__ws__data_8c_af425c96b333925214c1cd7c33f7afcb8}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!send\_index\_html\_ws@{send\_index\_html\_ws}}
+\index{send\_index\_html\_ws@{send\_index\_html\_ws}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{send\_index\_html\_ws()}{send\_index\_html\_ws()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_af425c96b333925214c1cd7c33f7afcb8} 
+void send\+\_\+index\+\_\+html\+\_\+ws (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{}\end{DoxyParamCaption})}
+
+
+
+Send index page data and current runtime state to a Web\+Socket client. 
+
+Send the main index page data over Web\+Socket to a requesting client. 
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00106}{106}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+\Hypertarget{http__send__ws__data_8c_a7c51d727a5094ab8fd36467659197887}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!send\_sensor\_config\_json\_ws@{send\_sensor\_config\_json\_ws}}
+\index{send\_sensor\_config\_json\_ws@{send\_sensor\_config\_json\_ws}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{send\_sensor\_config\_json\_ws()}{send\_sensor\_config\_json\_ws()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_a7c51d727a5094ab8fd36467659197887} 
+void send\+\_\+sensor\+\_\+config\+\_\+json\+\_\+ws (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{}\end{DoxyParamCaption})}
+
+
+
+Send the current sensor configuration as JSON to a Web\+Socket client. 
+
+Send current sensor configuration as JSON over Web\+Socket. 
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00255}{255}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+\Hypertarget{http__send__ws__data_8c_ae6c1bdb69807d479e461d402eeef70c4}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!send\_statemachine\_config\_json\_ws@{send\_statemachine\_config\_json\_ws}}
+\index{send\_statemachine\_config\_json\_ws@{send\_statemachine\_config\_json\_ws}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{send\_statemachine\_config\_json\_ws()}{send\_statemachine\_config\_json\_ws()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_ae6c1bdb69807d479e461d402eeef70c4} 
+void send\+\_\+statemachine\+\_\+config\+\_\+json\+\_\+ws (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{}\end{DoxyParamCaption})}
+
+
+
+Send the state machine configuration and current state as JSON over Web\+Socket. 
+
+Send current statemachine state and settings as JSON over Web\+Socket. 
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00438}{438}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+
+\Hypertarget{http__send__ws__data_8c_a1c43e7e23b509639add460b20512314e}\index{http\_send\_ws\_data.c@{http\_send\_ws\_data.c}!send\_stats\_json\_ws@{send\_stats\_json\_ws}}
+\index{send\_stats\_json\_ws@{send\_stats\_json\_ws}!http\_send\_ws\_data.c@{http\_send\_ws\_data.c}}
+\doxysubsubsection{\texorpdfstring{send\_stats\_json\_ws()}{send\_stats\_json\_ws()}}
+{\footnotesize\ttfamily \label{http__send__ws__data_8c_a1c43e7e23b509639add460b20512314e} 
+void send\+\_\+stats\+\_\+json\+\_\+ws (\begin{DoxyParamCaption}\item[{httpd\+\_\+req\+\_\+t \texorpdfstring{$\ast$}{*}}]{req}{}\end{DoxyParamCaption})}
+
+
+
+Send collected system statistics as JSON over Web\+Socket. 
+
+
+
+Definition at line \mbox{\hyperlink{http__send__ws__data_8c_source_l00571}{571}} of file \mbox{\hyperlink{http__send__ws__data_8c_source}{http\+\_\+send\+\_\+ws\+\_\+data.\+c}}.
+

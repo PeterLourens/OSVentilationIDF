@@ -1,0 +1,143 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/sys\+\_\+stats.h File Reference}
+\hypertarget{sys__stats_8h}{}\label{sys__stats_8h}\index{/home/peter/Development/OSVentilationIDF/main/sys\_stats.h@{/home/peter/Development/OSVentilationIDF/main/sys\_stats.h}}
+
+
+Public interface for system statistics and task status helpers.  
+
+
+{\ttfamily \#include $<$driver/temperature\+\_\+sensor.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+heap\+\_\+caps.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}http\+\_\+functions.\+h"{}}\newline
+{\ttfamily \#include "{}wifi\+\_\+functions.\+h"{}}\newline
+Include dependency graph for sys\+\_\+stats.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{sys__stats_8h_a58a35f80db4a889f697e67bb2a546cac}{state\+\_\+char\+\_\+from\+\_\+enum}} (e\+Task\+State)
+\item 
+const char \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{sys__stats_8h_a4cb9527077ed0103c978128b1d857e22}{reset\+\_\+reason\+\_\+str}} (esp\+\_\+reset\+\_\+reason\+\_\+t)
+\item 
+void \mbox{\hyperlink{sys__stats_8h_a216ae6dedc0151d1c60ba6eda113d768}{show\+\_\+system\+\_\+and\+\_\+task\+\_\+stats}} (void)
+\item 
+void \mbox{\hyperlink{sys__stats_8h_afc309e85c1c8563f388841596970bc4a}{sys\+\_\+stats\+\_\+update\+\_\+actuals}} (void)
+\item 
+size\+\_\+t \mbox{\hyperlink{sys__stats_8h_a8fd914e6c2b8b61978713adbedcaabe7}{append\+\_\+heap\+\_\+stats}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t used, size\+\_\+t buf\+\_\+size)
+\item 
+size\+\_\+t \mbox{\hyperlink{sys__stats_8h_a93311b41ea7763d6499eb33c328cadd6}{append\+\_\+system\+\_\+stats}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t used, size\+\_\+t buf\+\_\+size)
+\item 
+size\+\_\+t \mbox{\hyperlink{sys__stats_8h_af438d41ab15936dabdee47712c26be03}{append\+\_\+task\+\_\+table}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t used, size\+\_\+t buf\+\_\+size)
+\item 
+size\+\_\+t \mbox{\hyperlink{sys__stats_8h_aef621e600baaecd9d056247c385db804}{append\+\_\+header}} (char \texorpdfstring{$\ast$}{*}out, size\+\_\+t used, size\+\_\+t buf\+\_\+size)
+\item 
+int \mbox{\hyperlink{sys__stats_8h_a7119a08e5b0bf50cb9e430ed35a1f82e}{compare\+\_\+tasks}} (const void \texorpdfstring{$\ast$}{*}a, const void \texorpdfstring{$\ast$}{*}b)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public interface for system statistics and task status helpers. 
+
+
+
+Definition in file \mbox{\hyperlink{sys__stats_8h_source}{sys\+\_\+stats.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{sys__stats_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{sys__stats_8h_aef621e600baaecd9d056247c385db804}\index{sys\_stats.h@{sys\_stats.h}!append\_header@{append\_header}}
+\index{append\_header@{append\_header}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{append\_header()}{append\_header()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_aef621e600baaecd9d056247c385db804} 
+size\+\_\+t append\+\_\+header (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{used}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00312}{312}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a8fd914e6c2b8b61978713adbedcaabe7}\index{sys\_stats.h@{sys\_stats.h}!append\_heap\_stats@{append\_heap\_stats}}
+\index{append\_heap\_stats@{append\_heap\_stats}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{append\_heap\_stats()}{append\_heap\_stats()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a8fd914e6c2b8b61978713adbedcaabe7} 
+size\+\_\+t append\+\_\+heap\+\_\+stats (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{used}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00362}{362}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a93311b41ea7763d6499eb33c328cadd6}\index{sys\_stats.h@{sys\_stats.h}!append\_system\_stats@{append\_system\_stats}}
+\index{append\_system\_stats@{append\_system\_stats}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{append\_system\_stats()}{append\_system\_stats()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a93311b41ea7763d6499eb33c328cadd6} 
+size\+\_\+t append\+\_\+system\+\_\+stats (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{used}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00375}{375}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_af438d41ab15936dabdee47712c26be03}\index{sys\_stats.h@{sys\_stats.h}!append\_task\_table@{append\_task\_table}}
+\index{append\_task\_table@{append\_task\_table}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{append\_task\_table()}{append\_task\_table()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_af438d41ab15936dabdee47712c26be03} 
+size\+\_\+t append\+\_\+task\+\_\+table (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{out}{, }\item[{size\+\_\+t}]{used}{, }\item[{size\+\_\+t}]{buf\+\_\+size}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00326}{326}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a7119a08e5b0bf50cb9e430ed35a1f82e}\index{sys\_stats.h@{sys\_stats.h}!compare\_tasks@{compare\_tasks}}
+\index{compare\_tasks@{compare\_tasks}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{compare\_tasks()}{compare\_tasks()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a7119a08e5b0bf50cb9e430ed35a1f82e} 
+int compare\+\_\+tasks (\begin{DoxyParamCaption}\item[{const void \texorpdfstring{$\ast$}{*}}]{a}{, }\item[{const void \texorpdfstring{$\ast$}{*}}]{b}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00072}{72}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a4cb9527077ed0103c978128b1d857e22}\index{sys\_stats.h@{sys\_stats.h}!reset\_reason\_str@{reset\_reason\_str}}
+\index{reset\_reason\_str@{reset\_reason\_str}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{reset\_reason\_str()}{reset\_reason\_str()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a4cb9527077ed0103c978128b1d857e22} 
+const char \texorpdfstring{$\ast$}{*} reset\+\_\+reason\+\_\+str (\begin{DoxyParamCaption}\item[{esp\+\_\+reset\+\_\+reason\+\_\+t}]{reason}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00100}{100}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a216ae6dedc0151d1c60ba6eda113d768}\index{sys\_stats.h@{sys\_stats.h}!show\_system\_and\_task\_stats@{show\_system\_and\_task\_stats}}
+\index{show\_system\_and\_task\_stats@{show\_system\_and\_task\_stats}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{show\_system\_and\_task\_stats()}{show\_system\_and\_task\_stats()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a216ae6dedc0151d1c60ba6eda113d768} 
+void show\+\_\+system\+\_\+and\+\_\+task\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00428}{428}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_a58a35f80db4a889f697e67bb2a546cac}\index{sys\_stats.h@{sys\_stats.h}!state\_char\_from\_enum@{state\_char\_from\_enum}}
+\index{state\_char\_from\_enum@{state\_char\_from\_enum}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{state\_char\_from\_enum()}{state\_char\_from\_enum()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_a58a35f80db4a889f697e67bb2a546cac} 
+const char \texorpdfstring{$\ast$}{*} state\+\_\+char\+\_\+from\+\_\+enum (\begin{DoxyParamCaption}\item[{e\+Task\+State}]{s}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00080}{80}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+
+\Hypertarget{sys__stats_8h_afc309e85c1c8563f388841596970bc4a}\index{sys\_stats.h@{sys\_stats.h}!sys\_stats\_update\_actuals@{sys\_stats\_update\_actuals}}
+\index{sys\_stats\_update\_actuals@{sys\_stats\_update\_actuals}!sys\_stats.h@{sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{sys\_stats\_update\_actuals()}{sys\_stats\_update\_actuals()}}
+{\footnotesize\ttfamily \label{sys__stats_8h_afc309e85c1c8563f388841596970bc4a} 
+void sys\+\_\+stats\+\_\+update\+\_\+actuals (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{sys__stats_8c_source_l00276}{276}} of file \mbox{\hyperlink{sys__stats_8c_source}{sys\+\_\+stats.\+c}}.
+

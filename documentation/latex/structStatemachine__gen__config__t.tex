@@ -1,0 +1,201 @@
+\doxysection{Statemachine\+\_\+gen\+\_\+config\+\_\+t Struct Reference}
+\hypertarget{structStatemachine__gen__config__t}{}\label{structStatemachine__gen__config__t}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+
+
+General statemachine parameters loaded from configuration.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a0bfe0e25d1e7f5b70319c7ea4cb9612c}{wday\+\_\+d\+\_\+h\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a6531ee93fae41e9b1b2f4ca325612915}{wday\+\_\+d\+\_\+m\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a95ad1951d3736b61feaed2b3d089f1f2}{wday\+\_\+n\+\_\+h\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a5ad58933cd4f6398cee47efd7df91bcf}{wday\+\_\+n\+\_\+m\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_af8f601fb54762c004858c5c7d88110c9}{wkend\+\_\+d\+\_\+h\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_ac12a67aec67506546eedd21746956640}{wkend\+\_\+d\+\_\+m\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_afcc4b6563cfdfab06f4d33df4d1f0522}{wkend\+\_\+n\+\_\+h\+\_\+start}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_ae7242d7eb7f473ee82e5a4cc511a5b6c}{wkend\+\_\+n\+\_\+m\+\_\+start}}
+\item 
+char \mbox{\hyperlink{structStatemachine__gen__config__t_a2e7e4665d5897bd3221f323e9a12e35a}{wkend\+\_\+d1}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__gen__config__t_a3e4968be5fc65683290ea235cf6941ee}{wkend\+\_\+d2}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a6815aefb221dda1c9a2de8ff0cee390a}{rh\+\_\+low\+\_\+level}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_ad92f858b3ca826a78531aebc224e6cc9}{rh\+\_\+high\+\_\+level}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a6d4fe1adaa8029a4af62390869509974}{co2\+\_\+low\+\_\+level}}
+\item 
+int \mbox{\hyperlink{structStatemachine__gen__config__t_a844bb3b0a85bd9221569a9b0909fae87}{co2\+\_\+high\+\_\+level}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+General statemachine parameters loaded from configuration. 
+
+This struct contains schedule masks for weekday and weekend day/night boundaries, weekend day labels, and global RH/\+CO2 threshold levels used by the statemachine decision logic. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00347}{347}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structStatemachine__gen__config__t_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structStatemachine__gen__config__t_a844bb3b0a85bd9221569a9b0909fae87}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!co2\_high\_level@{co2\_high\_level}}
+\index{co2\_high\_level@{co2\_high\_level}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{co2\_high\_level}{co2\_high\_level}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a844bb3b0a85bd9221569a9b0909fae87} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::co2\+\_\+high\+\_\+level}
+
+Upper CO2 threshold for control decisions. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00362}{362}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a6d4fe1adaa8029a4af62390869509974}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!co2\_low\_level@{co2\_low\_level}}
+\index{co2\_low\_level@{co2\_low\_level}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{co2\_low\_level}{co2\_low\_level}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a6d4fe1adaa8029a4af62390869509974} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::co2\+\_\+low\+\_\+level}
+
+Lower CO2 threshold for control decisions. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00361}{361}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_ad92f858b3ca826a78531aebc224e6cc9}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!rh\_high\_level@{rh\_high\_level}}
+\index{rh\_high\_level@{rh\_high\_level}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{rh\_high\_level}{rh\_high\_level}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_ad92f858b3ca826a78531aebc224e6cc9} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::rh\+\_\+high\+\_\+level}
+
+Upper relative humidity threshold. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00360}{360}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a6815aefb221dda1c9a2de8ff0cee390a}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!rh\_low\_level@{rh\_low\_level}}
+\index{rh\_low\_level@{rh\_low\_level}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{rh\_low\_level}{rh\_low\_level}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a6815aefb221dda1c9a2de8ff0cee390a} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::rh\+\_\+low\+\_\+level}
+
+Lower relative humidity threshold. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00359}{359}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a0bfe0e25d1e7f5b70319c7ea4cb9612c}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wday\_d\_h\_start@{wday\_d\_h\_start}}
+\index{wday\_d\_h\_start@{wday\_d\_h\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wday\_d\_h\_start}{wday\_d\_h\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a0bfe0e25d1e7f5b70319c7ea4cb9612c} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wday\+\_\+d\+\_\+h\+\_\+start}
+
+Weekday day-\/start hour bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00349}{349}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a6531ee93fae41e9b1b2f4ca325612915}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wday\_d\_m\_start@{wday\_d\_m\_start}}
+\index{wday\_d\_m\_start@{wday\_d\_m\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wday\_d\_m\_start}{wday\_d\_m\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a6531ee93fae41e9b1b2f4ca325612915} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wday\+\_\+d\+\_\+m\+\_\+start}
+
+Weekday day-\/start minute bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00350}{350}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a95ad1951d3736b61feaed2b3d089f1f2}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wday\_n\_h\_start@{wday\_n\_h\_start}}
+\index{wday\_n\_h\_start@{wday\_n\_h\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wday\_n\_h\_start}{wday\_n\_h\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a95ad1951d3736b61feaed2b3d089f1f2} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wday\+\_\+n\+\_\+h\+\_\+start}
+
+Weekday night-\/start hour bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00351}{351}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a5ad58933cd4f6398cee47efd7df91bcf}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wday\_n\_m\_start@{wday\_n\_m\_start}}
+\index{wday\_n\_m\_start@{wday\_n\_m\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wday\_n\_m\_start}{wday\_n\_m\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a5ad58933cd4f6398cee47efd7df91bcf} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wday\+\_\+n\+\_\+m\+\_\+start}
+
+Weekday night-\/start minute bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00352}{352}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a2e7e4665d5897bd3221f323e9a12e35a}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_d1@{wkend\_d1}}
+\index{wkend\_d1@{wkend\_d1}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_d1}{wkend\_d1}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a2e7e4665d5897bd3221f323e9a12e35a} 
+char Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+d1\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+First weekend day label. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00357}{357}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_a3e4968be5fc65683290ea235cf6941ee}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_d2@{wkend\_d2}}
+\index{wkend\_d2@{wkend\_d2}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_d2}{wkend\_d2}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_a3e4968be5fc65683290ea235cf6941ee} 
+char Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+d2\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Second weekend day label. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00358}{358}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_af8f601fb54762c004858c5c7d88110c9}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_d\_h\_start@{wkend\_d\_h\_start}}
+\index{wkend\_d\_h\_start@{wkend\_d\_h\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_d\_h\_start}{wkend\_d\_h\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_af8f601fb54762c004858c5c7d88110c9} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+d\+\_\+h\+\_\+start}
+
+Weekend day-\/start hour bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00353}{353}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_ac12a67aec67506546eedd21746956640}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_d\_m\_start@{wkend\_d\_m\_start}}
+\index{wkend\_d\_m\_start@{wkend\_d\_m\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_d\_m\_start}{wkend\_d\_m\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_ac12a67aec67506546eedd21746956640} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+d\+\_\+m\+\_\+start}
+
+Weekend day-\/start minute bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00354}{354}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_afcc4b6563cfdfab06f4d33df4d1f0522}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_n\_h\_start@{wkend\_n\_h\_start}}
+\index{wkend\_n\_h\_start@{wkend\_n\_h\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_n\_h\_start}{wkend\_n\_h\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_afcc4b6563cfdfab06f4d33df4d1f0522} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+n\+\_\+h\+\_\+start}
+
+Weekend night-\/start hour bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00355}{355}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__gen__config__t_ae7242d7eb7f473ee82e5a4cc511a5b6c}\index{Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}!wkend\_n\_m\_start@{wkend\_n\_m\_start}}
+\index{wkend\_n\_m\_start@{wkend\_n\_m\_start}!Statemachine\_gen\_config\_t@{Statemachine\_gen\_config\_t}}
+\doxysubsubsection{\texorpdfstring{wkend\_n\_m\_start}{wkend\_n\_m\_start}}
+{\footnotesize\ttfamily \label{structStatemachine__gen__config__t_ae7242d7eb7f473ee82e5a4cc511a5b6c} 
+int Statemachine\+\_\+gen\+\_\+config\+\_\+t\+::wkend\+\_\+n\+\_\+m\+\_\+start}
+
+Weekend night-\/start minute bitmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00356}{356}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

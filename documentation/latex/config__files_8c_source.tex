@@ -1,0 +1,1244 @@
+\doxysection{config\+\_\+files.\+c}
+\hypertarget{config__files_8c_source}{}\label{config__files_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/config\_files.c@{/home/peter/Development/OSVentilationIDF/main/config\_files.c}}
+\mbox{\hyperlink{config__files_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00015}00015\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00016}00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{config__files_8h}{config\_files.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00017}00017\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}config"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00029}\mbox{\hyperlink{config__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac}{00029}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a3a20f8fb43fa88ab898ae3032ba57aac}{load\_sensor\_config}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *config\_name)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00030}00030\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00031}00031\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf}{XXXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00034}00034\ \ \ \ \ \textcolor{keywordflow}{if}\ (!config\_name\ ||\ strlen(config\_name)\ >\ 48)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00035}00035\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00036}00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ config\ name"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00037}00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00038}00038\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00040}00040\ \ \ \ \ snprintf(path,\ \textcolor{keyword}{sizeof}(path),\ \textcolor{stringliteral}{"{}/data/json/\%s.json"{}},\ config\_name);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00041}00041\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00043}00043\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00044}00044\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00045}00045\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00048}00048\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00049}00049\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00050}00050\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00051}00051\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00052}00052\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00056}00056\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00058}00058\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00059}00059\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00060}00060\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00065}00065\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00067}00067\ \ \ \ \ \textcolor{comment}{//\ Determine\ bus\ index\ from\ config\_name}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00068}00068\ \ \ \ \ \textcolor{keywordtype}{int}\ bus\_index\ =\ -\/1;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00069}00069\ \ \ \ \ \textcolor{keywordflow}{if}\ (strncmp(config\_name,\ \textcolor{stringliteral}{"{}bus0"{}},\ 4)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00070}00070\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ bus\_index\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00072}00072\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00073}00073\ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (strncmp(config\_name,\ \textcolor{stringliteral}{"{}bus1"{}},\ 4)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00074}00074\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00075}00075\ \ \ \ \ \ \ \ \ bus\_index\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00076}00076\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00077}00077\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00078}00078\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Unknown\ bus\ prefix\ in\ config\ name:\ \%s"{}},\ config\_name);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00083}00083\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00085}00085\ \ \ \ \ \textcolor{comment}{//\ Acquire\ sensor\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00086}00086\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00087}00087\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00088}00088\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ sensor\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00096}00096\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00097}00097\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00098}00098\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00099}00099\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}sensor\_cfg\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00101}00101\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00103}00103\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}};\ i++)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00104}00104\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ key\_type[32],\ key\_valve[32],\ key\_location[32],\ key\_rh[32],\ key\_co2[32];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ snprintf(key\_type,\ \textcolor{keyword}{sizeof}(key\_type),\ \textcolor{stringliteral}{"{}b\%d\_s\%d\_type"{}},\ bus\_index,\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ snprintf(key\_valve,\ \textcolor{keyword}{sizeof}(key\_valve),\ \textcolor{stringliteral}{"{}b\%d\_s\%d\_valve"{}},\ bus\_index,\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ snprintf(key\_location,\ \textcolor{keyword}{sizeof}(key\_location),\ \textcolor{stringliteral}{"{}b\%d\_s\%d\_location"{}},\ bus\_index,\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ snprintf(key\_rh,\ \textcolor{keyword}{sizeof}(key\_rh),\ \textcolor{stringliteral}{"{}b\%d\_s\%d\_rh"{}},\ bus\_index,\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ snprintf(key\_co2,\ \textcolor{keyword}{sizeof}(key\_co2),\ \textcolor{stringliteral}{"{}b\%d\_s\%d\_co2"{}},\ bus\_index,\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ cJSON\ *type\ =\ cJSON\_GetObjectItem(json,\ key\_type);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ cJSON\ *valve\ =\ cJSON\_GetObjectItem(json,\ key\_valve);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ cJSON\ *location\ =\ cJSON\_GetObjectItem(json,\ key\_location);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ cJSON\ *rh\ =\ cJSON\_GetObjectItem(json,\ key\_rh);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ cJSON\ *co2\ =\ cJSON\_GetObjectItem(json,\ key\_co2);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00117}00117\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00118}00118\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!type)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Missing\ key:\ \%s"{}},\ key\_type);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!valve)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Missing\ key:\ \%s"{}},\ key\_valve);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!location)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Missing\ key:\ \%s"{}},\ key\_location);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!rh)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Missing\ key:\ \%s"{}},\ key\_rh);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!co2)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Missing\ key:\ \%s"{}},\ key\_co2);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00128}00128\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structbus__sensor__t}{bus\_sensor\_t}}\ *settings\ =\ (bus\_index\ ==\ 0)\ ?\ \&\mbox{\hyperlink{globals_8c_af0e9d3e368300fd4059ea6757701fa1b}{bus0\_sensor\_settings}}[i]\ :\ \&\mbox{\hyperlink{globals_8c_a75ec66fa7e5da489f7dcaae8ba5926f3}{bus1\_sensor\_settings}}[i];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00131}00131\ \ \ \ \ \ \ \ \ strncpy(settings-\/>\mbox{\hyperlink{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd}{type}},\ cJSON\_IsString(type)\ ?\ type-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00132}00132\ \ \ \ \ \ \ \ \ settings-\/>\mbox{\hyperlink{structbus__sensor__t_a4be419002dec0bcd414ccc042dc712dd}{type}}[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00133}00133\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00134}00134\ \ \ \ \ \ \ \ \ strncpy(settings-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}},\ cJSON\_IsString(valve)\ ?\ valve-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00135}00135\ \ \ \ \ \ \ \ \ settings-\/>\mbox{\hyperlink{structbus__sensor__t_a7542d6a9ca436d7c2f17869ac6415fef}{valve}}[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00136}00136\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00137}00137\ \ \ \ \ \ \ \ \ strncpy(settings-\/>\mbox{\hyperlink{structbus__sensor__t_adaaabb43c2c46189aca4e0f32670d85f}{location}},\ cJSON\_IsString(location)\ ?\ location-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00138}00138\ \ \ \ \ \ \ \ \ settings-\/>\mbox{\hyperlink{structbus__sensor__t_adaaabb43c2c46189aca4e0f32670d85f}{location}}[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00140}00140\ \ \ \ \ \ \ \ \ settings-\/>\mbox{\hyperlink{structbus__sensor__t_a8b75d148c06d4f777dcd8481e929b974}{rh\_enabled}}\ =\ cJSON\_IsString(rh)\ \&\&\ strcmp(rh-\/>valuestring,\ \textcolor{stringliteral}{"{}On"{}})\ ==\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00141}00141\ \ \ \ \ \ \ \ \ settings-\/>\mbox{\hyperlink{structbus__sensor__t_a6363e6f9914bbb8a0d07aaf5832556ba}{co2\_enabled}}\ =\ cJSON\_IsString(co2)\ \&\&\ strcmp(co2-\/>valuestring,\ \textcolor{stringliteral}{"{}On"{}})\ ==\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00142}00142\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00143}00143\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00144}00144\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00145}00145\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00146}00146\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aa8b32c6cf90002706fc0dab6856576c7}{sensor\_cfg\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00148}00148\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00150}00150\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00151}00151\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00152}00152\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00153}00153\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Bus\%d\ sensor\ config\ loaded\ from\ \%s"{}},\ bus\_index,\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00154}00154\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00155}00155\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00156}00156\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00165}\mbox{\hyperlink{config__files_8c_a81d6b78e8d3fb9e78619a90cff215a51}{00165}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a81d6b78e8d3fb9e78619a90cff215a51}{load\_wifi\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00166}00166\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00167}00167\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/wifi\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00168}00168\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf}{XXXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00169}00169\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00170}00170\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ network\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00171}00171\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00172}00172\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00173}00173\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00174}00174\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00177}00177\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00178}00178\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00179}00179\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00180}00180\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00181}00181\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00185}00185\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00186}00186\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00187}00187\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00188}00188\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00189}00189\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00191}00191\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00192}00192\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00193}00193\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00194}00194\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00195}00195\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00196}00196\ \ \ \ \ cJSON\ *enable\_wifi\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_wifi"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00197}00197\ \ \ \ \ cJSON\ *enable\_dhcp\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_dhcp"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00198}00198\ \ \ \ \ cJSON\ *\mbox{\hyperlink{wifi__functions_8c_a343e1b1ebcfc402e7531aa5934877879}{hostname}}\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}hostname"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00199}00199\ \ \ \ \ cJSON\ *ssid\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}ssid"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00200}00200\ \ \ \ \ cJSON\ *wifi\_password\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wifi\_password"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00201}00201\ \ \ \ \ cJSON\ *ip\_address\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}ip\_address"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00202}00202\ \ \ \ \ cJSON\ *subnet\_mask\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}subnet\_mask"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00203}00203\ \ \ \ \ cJSON\ *gateway\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}gateway"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00204}00204\ \ \ \ \ cJSON\ *primary\_dns\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}primary\_dns"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00205}00205\ \ \ \ \ cJSON\ *secondary\_dns\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}secondary\_dns"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00206}00206\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00207}00207\ \ \ \ \ \textcolor{comment}{//\ Acquire\ network\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00208}00208\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00209}00209\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00210}00210\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ sensor\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00218}00218\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00219}00219\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00220}00220\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00221}00221\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00222}00222\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}network\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00223}00223\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00224}00224\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00225}00225\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.enable\_wifi,\ cJSON\_IsString(enable\_wifi)\ ?\ enable\_wifi-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00226}00226\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.enable\_wifi[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00227}00227\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00228}00228\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.enable\_dhcp,\ cJSON\_IsString(enable\_dhcp)\ ?\ enable\_dhcp-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00229}00229\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.enable\_dhcp[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00230}00230\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00231}00231\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.hostname,\ cJSON\_IsString(\mbox{\hyperlink{wifi__functions_8c_a343e1b1ebcfc402e7531aa5934877879}{hostname}})\ ?\ \mbox{\hyperlink{wifi__functions_8c_a343e1b1ebcfc402e7531aa5934877879}{hostname}}-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00232}00232\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.hostname[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00233}00233\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00234}00234\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.ssid,\ cJSON\_IsString(ssid)\ ?\ ssid-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00235}00235\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.ssid[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00236}00236\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00237}00237\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.wifi\_password,\ cJSON\_IsString(wifi\_password)\ ?\ wifi\_password-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00238}00238\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.wifi\_password[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00239}00239\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00240}00240\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.ip\_address,\ cJSON\_IsString(ip\_address)\ ?\ ip\_address-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00241}00241\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.ip\_address[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00242}00242\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00243}00243\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.subnet\_mask,\ cJSON\_IsString(subnet\_mask)\ ?\ subnet\_mask-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00244}00244\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.subnet\_mask[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00245}00245\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00246}00246\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.gateway,\ cJSON\_IsString(gateway)\ ?\ gateway-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00247}00247\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.gateway[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00248}00248\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00249}00249\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.primary\_dns,\ cJSON\_IsString(primary\_dns)\ ?\ primary\_dns-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00250}00250\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.primary\_dns[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00251}00251\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00252}00252\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.secondary\_dns,\ cJSON\_IsString(secondary\_dns)\ ?\ secondary\_dns-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00253}00253\ \ \ \ \ \mbox{\hyperlink{globals_8c_af215ca8ed06989e876de7f4d995be961}{wifi\_config}}.secondary\_dns[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00254}00254\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00255}00255\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00256}00256\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00257}00257\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00258}00258\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00259}00259\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00260}00260\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00261}00261\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00262}00262\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00263}00263\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00264}00264\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Wifi\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00265}00265\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00266}00266\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00267}00267\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00268}00268\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00277}\mbox{\hyperlink{config__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8}{00277}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a7f3d1d42aa5dc3771878489c1c3da9c8}{load\_ethernet\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00278}00278\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00279}00279\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/ethernet\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00280}00280\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a4ff659d3a6e5c85139d74a4df6b99ddf}{XXXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00281}00281\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00282}00282\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ network\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00283}00283\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00284}00284\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00285}00285\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00286}00286\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00287}00287\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00288}00288\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00289}00289\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00290}00290\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00291}00291\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00292}00292\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00293}00293\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00294}00294\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00295}00295\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00296}00296\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00297}00297\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00298}00298\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00299}00299\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00300}00300\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00301}00301\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00302}00302\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00303}00303\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00304}00304\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00306}00306\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00307}00307\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00308}00308\ \ \ \ \ cJSON\ *enable\_ethernet\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_ethernet"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00309}00309\ \ \ \ \ cJSON\ *enable\_dhcp\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_dhcp"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00310}00310\ \ \ \ \ cJSON\ *ip\_address\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}ip\_address"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00311}00311\ \ \ \ \ cJSON\ *subnet\_mask\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}subnet\_mask"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00312}00312\ \ \ \ \ cJSON\ *gateway\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}gateway"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00313}00313\ \ \ \ \ cJSON\ *primary\_dns\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}primary\_dns"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00314}00314\ \ \ \ \ cJSON\ *secondary\_dns\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}secondary\_dns"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00315}00315\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00316}00316\ \ \ \ \ \textcolor{comment}{//\ Acquire\ network\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00317}00317\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00318}00318\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00319}00319\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00320}00320\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00321}00321\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00322}00322\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ sensor\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00323}00323\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00324}00324\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00325}00325\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00326}00326\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00327}00327\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00328}00328\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00329}00329\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00330}00330\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00331}00331\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}network\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00332}00332\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00333}00333\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00334}00334\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_ethernet,\ cJSON\_IsString(enable\_ethernet)\ ?\ enable\_ethernet-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00335}00335\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_ethernet[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00336}00336\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00337}00337\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_dhcp,\ cJSON\_IsString(enable\_dhcp)\ ?\ enable\_dhcp-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00338}00338\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_dhcp[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00339}00339\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00340}00340\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.ip\_address,\ cJSON\_IsString(ip\_address)\ ?\ ip\_address-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00341}00341\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.ip\_address[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00342}00342\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00343}00343\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.subnet\_mask,\ cJSON\_IsString(subnet\_mask)\ ?\ subnet\_mask-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00344}00344\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.subnet\_mask[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00345}00345\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00346}00346\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.gateway,\ cJSON\_IsString(gateway)\ ?\ gateway-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00347}00347\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.gateway[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00348}00348\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00349}00349\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.primary\_dns,\ cJSON\_IsString(primary\_dns)\ ?\ primary\_dns-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00350}00350\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.primary\_dns[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00351}00351\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00352}00352\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.secondary\_dns,\ cJSON\_IsString(secondary\_dns)\ ?\ secondary\_dns-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00353}00353\ \ \ \ \ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.secondary\_dns[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00354}00354\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00355}00355\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00356}00356\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00357}00357\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00358}00358\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00359}00359\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00360}00360\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00361}00361\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00362}00362\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00363}00363\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00364}00364\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Ethernet\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00365}00365\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00366}00366\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00367}00367\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00368}00368\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}enable\_ethernet:\ \%s,\ enable\_dhcp:\ \%s"{}},\ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_ethernet,\ \mbox{\hyperlink{globals_8c_a215b370c8fa4ae15bab7a372a62da798}{ethernet\_config}}.enable\_dhcp);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00369}00369\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_afd37c353e832630f059bf71f89375327}{network\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00370}00370\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00371}00371\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00372}00372\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00373}00373\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00374}00374\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00383}\mbox{\hyperlink{config__files_8c_a81037411e2e8b66c67cba34bae474f1a}{00383}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a81037411e2e8b66c67cba34bae474f1a}{load\_time\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00384}00384\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00385}00385\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/time\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00386}00386\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00387}00387\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00388}00388\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ time\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00389}00389\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00390}00390\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00391}00391\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00392}00392\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00393}00393\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00394}00394\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00395}00395\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00396}00396\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00397}00397\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00398}00398\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00399}00399\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00400}00400\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00401}00401\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00402}00402\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00403}00403\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00404}00404\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00405}00405\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00406}00406\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00407}00407\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00408}00408\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00409}00409\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00410}00410\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00411}00411\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00412}00412\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00413}00413\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00414}00414\ \ \ \ \ cJSON\ *ntp\_server\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}ntp\_server"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00415}00415\ \ \ \ \ cJSON\ *timezone\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}timezone"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00416}00416\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00417}00417\ \ \ \ \ \textcolor{comment}{//\ Acquire\ time\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00418}00418\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00419}00419\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_ae38b9d2a4a975d39bcd469da22010125}{time\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00420}00420\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00421}00421\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_ae38b9d2a4a975d39bcd469da22010125}{time\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00422}00422\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00423}00423\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ time\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00424}00424\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00425}00425\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00426}00426\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00427}00427\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00428}00428\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00429}00429\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00430}00430\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00431}00431\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00432}00432\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}time\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00433}00433\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00434}00434\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00435}00435\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.ntp\_server,\ cJSON\_IsString(ntp\_server)\ ?\ ntp\_server-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00436}00436\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.ntp\_server[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00437}00437\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00438}00438\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.timezone,\ cJSON\_IsString(timezone)\ ?\ timezone-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00439}00439\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac9af976d43252c0b284ed875b8117ec3}{time\_config}}.timezone[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00440}00440\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00441}00441\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00442}00442\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00443}00443\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00444}00444\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_ae38b9d2a4a975d39bcd469da22010125}{time\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00445}00445\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00446}00446\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00447}00447\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00448}00448\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00449}00449\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00450}00450\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Time\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00451}00451\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00452}00452\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00453}00453\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00454}00454\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00462}\mbox{\hyperlink{config__files_8c_acadc0b7b0d1a65b322c9806c4db6a323}{00462}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_acadc0b7b0d1a65b322c9806c4db6a323}{load\_mqtt\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00463}00463\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00464}00464\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/mqtt\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00465}00465\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00466}00466\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00467}00467\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ MQTT\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00468}00468\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00469}00469\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00470}00470\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00471}00471\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00472}00472\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00473}00473\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00474}00474\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00475}00475\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00476}00476\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00477}00477\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00478}00478\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00479}00479\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00480}00480\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00481}00481\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00482}00482\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00483}00483\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00484}00484\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00485}00485\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00486}00486\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00487}00487\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00488}00488\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00489}00489\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00490}00490\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00491}00491\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00492}00492\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00493}00493\ \ \ \ \ cJSON\ *enable\_mqtt\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_mqtt"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00494}00494\ \ \ \ \ cJSON\ *mqtt\_server\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}mqtt\_server"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00495}00495\ \ \ \ \ cJSON\ *mqtt\_port\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}mqtt\_port"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00496}00496\ \ \ \ \ cJSON\ *mqtt\_base\_topic\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}mqtt\_base\_topic"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00497}00497\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00498}00498\ \ \ \ \ \textcolor{comment}{//\ Acquire\ mqtt\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00499}00499\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00500}00500\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_aef743e87ffc8c06cc92ca09b329b9673}{mqtt\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00501}00501\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00502}00502\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_aef743e87ffc8c06cc92ca09b329b9673}{mqtt\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00503}00503\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00504}00504\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ MQTT\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00505}00505\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00507}00507\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00508}00508\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00509}00509\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00510}00510\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00511}00511\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00512}00512\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00513}00513\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}mqtt\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00514}00514\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00515}00515\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00516}00516\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.enable\_mqtt,\ cJSON\_IsString(enable\_mqtt)\ ?\ enable\_mqtt-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00517}00517\ \ \ \ \ \mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.enable\_mqtt[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00518}00518\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00519}00519\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_server,\ cJSON\_IsString(mqtt\_server)\ ?\ mqtt\_server-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00520}00520\ \ \ \ \ \mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_server[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00521}00521\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00522}00522\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_port,\ cJSON\_IsString(mqtt\_port)\ ?\ mqtt\_port-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00523}00523\ \ \ \ \ \mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_port[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00524}00524\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00525}00525\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_base\_topic,\ cJSON\_IsString(mqtt\_base\_topic)\ ?\ mqtt\_base\_topic-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00526}00526\ \ \ \ \ \mbox{\hyperlink{globals_8c_a744233890776cb13f086e09ecbafc30f}{mqtt\_config}}.mqtt\_base\_topic[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00527}00527\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00528}00528\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00529}00529\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00530}00530\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00531}00531\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_aef743e87ffc8c06cc92ca09b329b9673}{mqtt\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00532}00532\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00533}00533\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00534}00534\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00535}00535\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00536}00536\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00537}00537\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}MQTT\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00538}00538\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00539}00539\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00540}00540\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00541}00541\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00549}\mbox{\hyperlink{config__files_8c_a7c0f40001838665e86d0ace66ceadf4a}{00549}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a7c0f40001838665e86d0ace66ceadf4a}{load\_influxdb\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00550}00550\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00551}00551\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/influxdb\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00552}00552\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00553}00553\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00554}00554\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ InfluxDB\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00555}00555\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00556}00556\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00557}00557\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00558}00558\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00559}00559\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00560}00560\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00561}00561\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00562}00562\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00563}00563\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00564}00564\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00565}00565\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00566}00566\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ InfluxDB\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00567}00567\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00568}00568\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00569}00569\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00570}00570\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00571}00571\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00572}00572\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00573}00573\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00574}00574\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00575}00575\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00576}00576\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00577}00577\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00578}00578\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00579}00579\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00580}00580\ \ \ \ \ cJSON\ *enable\_influxdb\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_influxdb"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00581}00581\ \ \ \ \ cJSON\ *influxdb\_url\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}influxdb\_url"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00582}00582\ \ \ \ \ cJSON\ *influxdb\_org\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}influxdb\_org"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00583}00583\ \ \ \ \ cJSON\ *influxdb\_bucket\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}influxdb\_bucket"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00584}00584\ \ \ \ \ cJSON\ *influxdb\_token\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}influxdb\_token"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00585}00585\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00586}00586\ \ \ \ \ \textcolor{comment}{//\ Acquire\ mqtt\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00587}00587\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00588}00588\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a213caef177572131962a9872836b9381}{influxdb\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00589}00589\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00590}00590\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_a213caef177572131962a9872836b9381}{influxdb\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00591}00591\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00592}00592\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ MQTT\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00593}00593\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00594}00594\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00595}00595\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00596}00596\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00597}00597\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00598}00598\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00599}00599\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00600}00600\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00601}00601\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}influxdb\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00602}00602\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00603}00603\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00604}00604\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.enable\_influxdb,\ cJSON\_IsString(enable\_influxdb)\ ?\ enable\_influxdb-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00605}00605\ \ \ \ \ \mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.enable\_influxdb[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00606}00606\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00607}00607\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_url,\ cJSON\_IsString(influxdb\_url)\ ?\ influxdb\_url-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00608}00608\ \ \ \ \ \mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_url[\mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00609}00609\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00610}00610\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_org,\ cJSON\_IsString(influxdb\_org)\ ?\ influxdb\_org-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00611}00611\ \ \ \ \ \mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_org[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00612}00612\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00613}00613\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_bucket,\ cJSON\_IsString(influxdb\_bucket)\ ?\ influxdb\_bucket-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00614}00614\ \ \ \ \ \mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_bucket[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00615}00615\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00616}00616\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_token,\ cJSON\_IsString(influxdb\_token)\ ?\ influxdb\_token-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00617}00617\ \ \ \ \ \mbox{\hyperlink{globals_8c_abc0243267f54bd7625177694ebefd811}{influxdb\_config}}.influxdb\_token[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00618}00618\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00619}00619\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00620}00620\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00621}00621\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a213caef177572131962a9872836b9381}{influxdb\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00622}00622\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00623}00623\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00624}00624\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00625}00625\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00626}00626\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00627}00627\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}InfluxDB\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00628}00628\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00629}00629\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00630}00630\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00631}00631\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00639}\mbox{\hyperlink{config__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d}{00639}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_ae84752d3b8313299cbaf2e8bffa6dd6d}{load\_fan\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00640}00640\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00641}00641\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/fan\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00642}00642\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00643}00643\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00644}00644\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ fan\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00645}00645\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00646}00646\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00647}00647\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00648}00648\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00649}00649\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00650}00650\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00651}00651\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00652}00652\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00653}00653\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00654}00654\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00655}00655\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00656}00656\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ fan\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00657}00657\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00658}00658\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00659}00659\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00660}00660\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00661}00661\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00662}00662\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00663}00663\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00664}00664\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00665}00665\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00666}00666\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00667}00667\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00668}00668\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00669}00669\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00670}00670\ \ \ \ \ cJSON\ *fan\_control\_mode\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_mode"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00671}00671\ \ \ \ \ cJSON\ *fan\_control\_mqtt\_server\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_mqtt\_server"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00672}00672\ \ \ \ \ cJSON\ *fan\_control\_mqtt\_port\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_mqtt\_port"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00673}00673\ \ \ \ \ cJSON\ *fan\_control\_mqtt\_topic\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_mqtt\_topic"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00674}00674\ \ \ \ \ cJSON\ *fan\_control\_url\_hs\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_url\_hs"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00675}00675\ \ \ \ \ cJSON\ *fan\_control\_url\_ms\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_url\_ms"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00676}00676\ \ \ \ \ cJSON\ *fan\_control\_url\_ls\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}fan\_control\_url\_ls"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00677}00677\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00678}00678\ \ \ \ \ \textcolor{comment}{//\ Acquire\ fan\ control\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00679}00679\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00680}00680\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a41dc2276a278f39470c0abc22ac384e5}{fan\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00681}00681\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00682}00682\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_a41dc2276a278f39470c0abc22ac384e5}{fan\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00683}00683\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00684}00684\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ MQTT\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00685}00685\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00686}00686\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00687}00687\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00688}00688\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00689}00689\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00690}00690\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00691}00691\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00692}00692\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00693}00693\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}fan\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00694}00694\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00695}00695\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00696}00696\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mode,\ cJSON\_IsString(fan\_control\_mode)\ ?\ fan\_control\_mode-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00697}00697\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mode[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00698}00698\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00699}00699\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_server,\ cJSON\_IsString(fan\_control\_mqtt\_server)\ ?\ fan\_control\_mqtt\_server-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00700}00700\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_server[\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00701}00701\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00702}00702\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_port,\ cJSON\_IsString(fan\_control\_mqtt\_port)\ ?\ fan\_control\_mqtt\_port-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00703}00703\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_port[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00704}00704\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00705}00705\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_topic,\ cJSON\_IsString(fan\_control\_mqtt\_topic)\ ?\ fan\_control\_mqtt\_topic-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00706}00706\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_mqtt\_topic[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00707}00707\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00708}00708\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_hs,\ cJSON\_IsString(fan\_control\_url\_hs)\ ?\ fan\_control\_url\_hs-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00709}00709\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_hs[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00710}00710\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00711}00711\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_ms,\ cJSON\_IsString(fan\_control\_url\_ms)\ ?\ fan\_control\_url\_ms-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00712}00712\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_ms[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00713}00713\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00714}00714\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_ls,\ cJSON\_IsString(fan\_control\_url\_ls)\ ?\ fan\_control\_url\_ls-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00715}00715\ \ \ \ \ \mbox{\hyperlink{globals_8c_a70f39d0a5e08101ce16cc7612b92b0c3}{fan\_config}}.fan\_control\_url\_ls[\mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00716}00716\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00717}00717\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00718}00718\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00719}00719\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a41dc2276a278f39470c0abc22ac384e5}{fan\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00720}00720\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00721}00721\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00722}00722\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00723}00723\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00724}00724\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00725}00725\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Fan\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00726}00726\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00727}00727\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00728}00728\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00729}00729\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00737}\mbox{\hyperlink{config__files_8c_afab78ae80b0c3741ecde847cab78b358}{00737}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_afab78ae80b0c3741ecde847cab78b358}{load\_i2c\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00738}00738\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00739}00739\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/i2c\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00740}00740\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a6f19f67b545ae3b982b3dc920e5eba88}{XXLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00741}00741\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00742}00742\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ i2c\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00743}00743\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00744}00744\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00745}00745\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00746}00746\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00747}00747\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00748}00748\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00749}00749\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00750}00750\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00751}00751\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00752}00752\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00753}00753\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00754}00754\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ i2c\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00755}00755\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00756}00756\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00757}00757\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00758}00758\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00759}00759\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00760}00760\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00761}00761\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00762}00762\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00763}00763\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00764}00764\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00765}00765\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00766}00766\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00767}00767\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00768}00768\ \ \ \ \ cJSON\ *bus0\_multiplexer\_address\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}bus0\_multiplexer\_address"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00769}00769\ \ \ \ \ cJSON\ *bus1\_multiplexer\_address\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}bus1\_multiplexer\_address"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00770}00770\ \ \ \ \ cJSON\ *enable\_lcd\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_lcd"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00771}00771\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00772}00772\ \ \ \ \ \textcolor{comment}{//\ Acquire\ mqtt\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00773}00773\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00774}00774\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00775}00775\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00776}00776\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00777}00777\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00778}00778\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ I2C\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00779}00779\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00780}00780\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00781}00781\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00782}00782\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00783}00783\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00784}00784\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00785}00785\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00786}00786\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00787}00787\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}i2c\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00788}00788\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00789}00789\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00790}00790\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.bus0\_multiplexer\_address,\ cJSON\_IsString(bus0\_multiplexer\_address)\ ?\ bus0\_multiplexer\_address-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00791}00791\ \ \ \ \ \mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.bus0\_multiplexer\_address[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00792}00792\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00793}00793\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.bus1\_multiplexer\_address,\ cJSON\_IsString(bus1\_multiplexer\_address)\ ?\ bus1\_multiplexer\_address-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00794}00794\ \ \ \ \ \mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.bus1\_multiplexer\_address[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00795}00795\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00796}00796\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.enable\_lcd,\ cJSON\_IsString(enable\_lcd)\ ?\ enable\_lcd-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00797}00797\ \ \ \ \ \mbox{\hyperlink{globals_8c_ae9aeaadad2ab3c550e111b2619162c5a}{i2c\_config}}.enable\_lcd[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00798}00798\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00799}00799\ \ \ \ \ \textcolor{comment}{//\ strncpy(i2c\_config.lcd\_i2c\_address,\ cJSON\_IsString(lcd\_i2c\_address)\ ?\ lcd\_i2c\_address-\/>valuestring\ :\ "{}"{},\ SMALL\_CONFIG\_ITEM\ -\/\ 1);}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00800}00800\ \ \ \ \ \textcolor{comment}{//\ i2c\_config.lcd\_i2c\_address[SMALL\_CONFIG\_ITEM\ -\/\ 1]\ =\ '\(\backslash\)0';}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00801}00801\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00802}00802\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00803}00803\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00804}00804\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_ac3f79c091f521df5fcd89eb3140dc361}{i2c\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00805}00805\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00806}00806\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00807}00807\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00808}00808\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00809}00809\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00810}00810\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}I2C\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00811}00811\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00812}00812\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00813}00813\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00814}00814\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00822}\mbox{\hyperlink{config__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f}{00822}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a9473b8a9a74298ec11bc3d40fb177b2f}{load\_syslog\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00823}00823\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00824}00824\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/syslog\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00825}00825\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00826}00826\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00827}00827\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ syslog\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00828}00828\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00829}00829\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00830}00830\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00831}00831\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00832}00832\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00833}00833\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00834}00834\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00835}00835\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00836}00836\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00837}00837\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00838}00838\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00839}00839\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ syslog\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00840}00840\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00841}00841\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00842}00842\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00843}00843\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00844}00844\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00845}00845\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00846}00846\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00847}00847\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00848}00848\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00849}00849\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00850}00850\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00851}00851\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00852}00852\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00853}00853\ \ \ \ \ cJSON\ *enable\_syslog\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_syslog"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00854}00854\ \ \ \ \ cJSON\ *enable\_uart\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}enable\_uart"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00855}00855\ \ \ \ \ cJSON\ *syslog\_ip\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}syslog\_ip"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00856}00856\ \ \ \ \ cJSON\ *syslog\_port\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}syslog\_port"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00857}00857\ \ \ \ \ cJSON\ *syslog\_hostname\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}syslog\_hostname"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00858}00858\ \ \ \ \ cJSON\ *syslog\_appname\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}syslog\_appname"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00859}00859\ \ \ \ \ cJSON\ *syslog\_device\_id\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}syslog\_device\_id"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00860}00860\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00861}00861\ \ \ \ \ \textcolor{comment}{//\ Acquire\ mqtt\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00862}00862\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00863}00863\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00864}00864\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00865}00865\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00866}00866\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00867}00867\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ syslog\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00868}00868\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00869}00869\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00870}00870\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00871}00871\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00872}00872\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00873}00873\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00874}00874\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00875}00875\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00876}00876\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}syslog\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00877}00877\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00878}00878\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00879}00879\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_syslog,\ cJSON\_IsString(enable\_syslog)\ ?\ enable\_syslog-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00880}00880\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_syslog[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00881}00881\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00882}00882\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_uart,\ cJSON\_IsString(enable\_uart)\ ?\ enable\_uart-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00883}00883\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_uart[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00884}00884\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00885}00885\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_ip,\ cJSON\_IsString(syslog\_ip)\ ?\ syslog\_ip-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00886}00886\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_ip[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00887}00887\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00888}00888\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_port,\ cJSON\_IsString(syslog\_port)\ ?\ syslog\_port-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00889}00889\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_port[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00890}00890\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00891}00891\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_hostname,\ cJSON\_IsString(syslog\_hostname)\ ?\ syslog\_hostname-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00892}00892\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_hostname[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00893}00893\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00894}00894\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_appname,\ cJSON\_IsString(syslog\_appname)\ ?\ syslog\_appname-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00895}00895\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_appname[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00896}00896\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00897}00897\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_device\_id,\ cJSON\_IsString(syslog\_device\_id)\ ?\ syslog\_device\_id-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00898}00898\ \ \ \ \ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_device\_id[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00899}00899\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00900}00900\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00901}00901\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00902}00902\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00903}00903\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00904}00904\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00905}00905\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00906}00906\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00907}00907\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00908}00908\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Syslog\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00909}00909\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00910}00910\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00911}00911\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00912}00912\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00921}\mbox{\hyperlink{config__files_8c_ac72d6ed07c44365d3ac9607b0a546778}{00921}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_ac72d6ed07c44365d3ac9607b0a546778}{load\_statemachine\_general\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00922}00922\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00923}00923\ \ \ \ \ \textcolor{keywordtype}{char}\ path[128]\ =\ \textcolor{stringliteral}{"{}/data/json/sm\_general\_config.json"{}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00924}00924\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ bufferSize\ =\ \mbox{\hyperlink{globals_8h_a18d85c20262da85b8e4071a8a6277553}{XLARGE\_CONFIG\_ITEM}};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00925}00925\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00926}00926\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Attempting\ to\ read\ general\ statemachine\ config:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00927}00927\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00928}00928\ \ \ \ \ \textcolor{keywordtype}{char}\ *buffer\ =\ heap\_caps\_malloc(bufferSize,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00929}00929\ \ \ \ \ \textcolor{keywordflow}{if}\ (!buffer)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00930}00930\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00931}00931\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ allocate\ buffer"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00932}00932\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00933}00933\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00934}00934\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00935}00935\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{general_8c_a8424f992f15f195b9f82211a7399f59d}{read\_file}}(path,\ buffer,\ bufferSize);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00936}00936\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00937}00937\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00938}00938\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ read\ statemachine\ general\ config\ file:\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00939}00939\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00940}00940\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00941}00941\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00942}00942\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00943}00943\ \ \ \ \ cJSON\ *json\ =\ cJSON\_Parse(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00944}00944\ \ \ \ \ \textcolor{keywordflow}{if}\ (!json)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00945}00945\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00946}00946\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ JSON\ format\ in\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00947}00947\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Raw\ content:\ \%s"{}},\ buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00948}00948\ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00949}00949\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_RESPONSE;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00950}00950\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00951}00951\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00952}00952\ \ \ \ \ cJSON\ *wday\_d\_h\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wday\_d\_h\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00953}00953\ \ \ \ \ cJSON\ *wday\_d\_m\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wday\_d\_m\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00954}00954\ \ \ \ \ cJSON\ *wday\_n\_h\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wday\_n\_h\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00955}00955\ \ \ \ \ cJSON\ *wday\_n\_m\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wday\_n\_m\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00956}00956\ \ \ \ \ cJSON\ *wkend\_d\_h\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_d\_h\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00957}00957\ \ \ \ \ cJSON\ *wkend\_d\_m\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_d\_m\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00958}00958\ \ \ \ \ cJSON\ *wkend\_n\_h\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_n\_h\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00959}00959\ \ \ \ \ cJSON\ *wkend\_n\_m\_start\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_n\_m\_start"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00960}00960\ \ \ \ \ cJSON\ *wkend\_d1\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_d1"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00961}00961\ \ \ \ \ cJSON\ *wkend\_d2\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}wkend\_d2"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00962}00962\ \ \ \ \ cJSON\ *rh\_l\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}rh\_low\_level"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00963}00963\ \ \ \ \ cJSON\ *rh\_h\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}rh\_high\_level"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00964}00964\ \ \ \ \ cJSON\ *co2\_l\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}co2\_low\_level"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00965}00965\ \ \ \ \ cJSON\ *co2\_h\ =\ cJSON\_GetObjectItem(json,\ \textcolor{stringliteral}{"{}co2\_high\_level"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00966}00966\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00967}00967\ \ \ \ \ \textcolor{comment}{//\ Acquire\ time\ config\ mutex\ before\ updating\ global\ settings}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00968}00968\ \ \ \ \ \textcolor{keywordtype}{bool}\ taken\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00969}00969\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00970}00970\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00971}00971\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ pdMS\_TO\_TICKS(100))\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00972}00972\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00973}00973\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ acquire\ statemachine\ config\ mutex"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00974}00974\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00975}00975\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00976}00976\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_TIMEOUT;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00977}00977\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00978}00978\ \ \ \ \ \ \ \ \ taken\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00979}00979\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00980}00980\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00981}00981\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00982}00982\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}statemachine\_config\_mutex\ not\ initialized;\ proceeding\ without\ mutex\ (unsafe)"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00983}00983\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00984}00984\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00985}00985\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wday\_d\_h\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00986}00986\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_h\_start\ =\ wday\_d\_h\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00987}00987\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wday\_d\_m\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00988}00988\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_d\_m\_start\ =\ wday\_d\_m\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00989}00989\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wday\_n\_h\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00990}00990\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_h\_start\ =\ wday\_n\_h\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00991}00991\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wday\_n\_m\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00992}00992\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wday\_n\_m\_start\ =\ wday\_n\_m\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00993}00993\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wkend\_d\_h\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00994}00994\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_h\_start\ =\ wkend\_d\_h\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00995}00995\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wkend\_d\_m\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00996}00996\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d\_m\_start\ =\ wkend\_d\_m\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00997}00997\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wkend\_n\_h\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00998}00998\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_h\_start\ =\ wkend\_n\_h\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l00999}00999\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(wkend\_n\_m\_start))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01000}01000\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_n\_m\_start\ =\ wkend\_n\_m\_start-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01001}01001\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(rh\_l))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01002}01002\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.rh\_low\_level\ =\ rh\_l-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01003}01003\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(rh\_h))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01004}01004\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.rh\_high\_level\ =\ rh\_h-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01005}01005\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(co2\_l))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01006}01006\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.co2\_low\_level\ =\ co2\_l-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01007}01007\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(co2\_h))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01008}01008\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.co2\_high\_level\ =\ co2\_h-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01009}01009\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01010}01010\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d1,\ cJSON\_IsString(wkend\_d1)\ ?\ wkend\_d1-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01011}01011\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d1[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01012}01012\ \ \ \ \ strncpy(\mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d2,\ cJSON\_IsString(wkend\_d2)\ ?\ wkend\_d2-\/>valuestring\ :\ \textcolor{stringliteral}{"{}"{}},\ \mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01013}01013\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac2de10cdf8f5e01c010f5965a3f889fa}{statemachine\_gen\_config}}.wkend\_d2[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01014}01014\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01015}01015\ \ \ \ \ \textcolor{comment}{//\ Release\ sensor\ config\ mutex\ after\ updates}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01016}01016\ \ \ \ \ \textcolor{keywordflow}{if}\ (taken)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01017}01017\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01018}01018\ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01019}01019\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01020}01020\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01021}01021\ \ \ \ \ cJSON\_Delete(json);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01022}01022\ \ \ \ \ heap\_caps\_free(buffer);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01023}01023\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01024}01024\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Statemachine\ general\ config\ loaded\ from\ \%s"{}},\ path);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01025}01025\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01026}01026\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01027}01027\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01028}01028\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01038}\mbox{\hyperlink{config__files_8c_a885a82f60036503777c85ae3738c37b9}{01038}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8c_a885a82f60036503777c85ae3738c37b9}{match\_pattern}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *name,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *pattern)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01039}01039\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01040}01040\ \ \ \ \ \textcolor{comment}{//\ wildcard\ '*'\ and\ single-\/char\ '?'}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01041}01041\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *p\ =\ pattern;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01042}01042\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *n\ =\ name;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01043}01043\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *star\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01044}01044\ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *star\_match\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01045}01045\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01046}01046\ \ \ \ \ \textcolor{keywordflow}{while}\ (*n)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01047}01047\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01048}01048\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*p\ ==\ \textcolor{charliteral}{'?'}\ ||\ *p\ ==\ *n)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01049}01049\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01050}01050\ \ \ \ \ \ \ \ \ \ \ \ \ p++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01051}01051\ \ \ \ \ \ \ \ \ \ \ \ \ n++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01052}01052\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01053}01053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (*p\ ==\ \textcolor{charliteral}{'*'})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01054}01054\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01055}01055\ \ \ \ \ \ \ \ \ \ \ \ \ star\ =\ p++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01056}01056\ \ \ \ \ \ \ \ \ \ \ \ \ star\_match\ =\ n;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01057}01057\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01058}01058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (star)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01059}01059\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01060}01060\ \ \ \ \ \ \ \ \ \ \ \ \ p\ =\ star\ +\ 1;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01061}01061\ \ \ \ \ \ \ \ \ \ \ \ \ n\ =\ ++star\_match;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01062}01062\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01063}01063\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01064}01064\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01065}01065\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01066}01066\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01067}01067\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01068}01068\ \ \ \ \ \textcolor{keywordflow}{while}\ (*p\ ==\ \textcolor{charliteral}{'*'})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01069}01069\ \ \ \ \ \ \ \ \ p++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01070}01070\ \ \ \ \ \textcolor{keywordflow}{return}\ *p\ ==\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01071}01071\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01072}01072\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01082}\mbox{\hyperlink{config__files_8c_aaf3ddf1afe92b86354c0ab79267d0484}{01082}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8c_aaf3ddf1afe92b86354c0ab79267d0484}{parse\_bool\_flexible}}(\textcolor{keyword}{const}\ cJSON\ *item,\ \textcolor{keywordtype}{bool}\ *out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01083}01083\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01084}01084\ \ \ \ \ \textcolor{keywordflow}{if}\ (!item\ ||\ !out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01085}01085\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01086}01086\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01087}01087\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsBool(item))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01088}01088\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01089}01089\ \ \ \ \ \ \ \ \ *out\ =\ cJSON\_IsTrue(item);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01090}01090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01091}01091\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01092}01092\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(item))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01093}01093\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01094}01094\ \ \ \ \ \ \ \ \ *out\ =\ (item-\/>valuedouble\ !=\ 0.0);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01095}01095\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01096}01096\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01097}01097\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsString(item)\ \&\&\ item-\/>valuestring)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01098}01098\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01099}01099\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *s\ =\ item-\/>valuestring;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01100}01100\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ trim\ spaces,\ case-\/insensitive}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01101}01101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (isspace((\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char})*s))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01102}01102\ \ \ \ \ \ \ \ \ \ \ \ \ s++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01103}01103\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ buf[16];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01104}01104\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ L\ =\ strnlen(s,\ \textcolor{keyword}{sizeof}(buf)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01105}01105\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{size\_t}\ i\ =\ 0;\ i\ <\ L;\ ++i)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01106}01106\ \ \ \ \ \ \ \ \ \ \ \ \ buf[i]\ =\ (\textcolor{keywordtype}{char})tolower((\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{char})s[i]);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01107}01107\ \ \ \ \ \ \ \ \ buf[L]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01108}01108\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01109}01109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!strcmp(buf,\ \textcolor{stringliteral}{"{}on"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}true"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}enabled"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}1"{}}))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01110}01110\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01111}01111\ \ \ \ \ \ \ \ \ \ \ \ \ *out\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01112}01112\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01113}01113\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01114}01114\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!strcmp(buf,\ \textcolor{stringliteral}{"{}off"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}false"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}disabled"{}})\ ||\ !strcmp(buf,\ \textcolor{stringliteral}{"{}0"{}}))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01115}01115\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01116}01116\ \ \ \ \ \ \ \ \ \ \ \ \ *out\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01117}01117\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01118}01118\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01119}01119\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01120}01120\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01121}01121\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01122}01122\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01131}\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{01131}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(\textcolor{keyword}{const}\ cJSON\ *item,\ \textcolor{keywordtype}{int}\ *out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01132}01132\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01133}01133\ \ \ \ \ \textcolor{keywordflow}{if}\ (!item\ ||\ !out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01134}01134\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01135}01135\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsNumber(item))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01136}01136\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01137}01137\ \ \ \ \ \ \ \ \ *out\ =\ item-\/>valueint;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01138}01138\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01139}01139\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01140}01140\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsString(item)\ \&\&\ item-\/>valuestring)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01141}01141\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01142}01142\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *end\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01143}01143\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ v\ =\ strtol(item-\/>valuestring,\ \&end,\ 10);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01144}01144\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (end\ \&\&\ *end\ ==\ \textcolor{charliteral}{'\(\backslash\)0'})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01145}01145\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01146}01146\ \ \ \ \ \ \ \ \ \ \ \ \ *out\ =\ (int)v;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01147}01147\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01148}01148\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01149}01149\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01150}01150\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01151}01151\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01152}01152\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01162}\mbox{\hyperlink{config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d}{01162}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d}{parse\_state\_object}}(\textcolor{keyword}{const}\ cJSON\ *obj,\ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ *out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01163}01163\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01164}01164\ \ \ \ \ \textcolor{keywordflow}{if}\ (!cJSON\_IsObject(obj)\ ||\ !out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01165}01165\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01166}01166\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01167}01167\ \ \ \ \ memset(out,\ 0,\ \textcolor{keyword}{sizeof}(*out));}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01168}01168\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01169}01169\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_aaf3ddf1afe92b86354c0ab79267d0484}{parse\_bool\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}enable\_state"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_a0c347b0daad6a08caca0edf33351a61f}{enable\_state}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01170}01170\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}fanspeed"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_acd704656ed190a1e197c6209c0f32a8d}{fanspeed}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01171}01171\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01172}01172\ \ \ \ \ cJSON\ *nm\ =\ cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}state\_name"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01173}01173\ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsString(nm)\ \&\&\ nm-\/>valuestring)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01174}01174\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01175}01175\ \ \ \ \ \ \ \ \ strncpy(out-\/>\mbox{\hyperlink{structStatemachine__config__t_ac94208e7c3c98b2a86ab1ae4165206a5}{state\_name}},\ nm-\/>valuestring,\ \mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01176}01176\ \ \ \ \ \ \ \ \ out-\/>\mbox{\hyperlink{structStatemachine__config__t_ac94208e7c3c98b2a86ab1ae4165206a5}{state\_name}}[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}\ -\/\ 1]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01177}01177\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01178}01178\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01179}01179\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}state\_start\_hour"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_aaf755395533e315e0009c094d0c8e7bf}{state\_start\_hour}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01180}01180\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}state\_start\_minute"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_a0fd48dc5d42b3e5e37546027283514bb}{state\_start\_minute}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01181}01181\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}state\_end\_hour"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_a9108a9834b8e6221dc47d011cc8197ce}{state\_end\_hour}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01182}01182\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}state\_end\_minute"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_abe88aa91ab6fa0bdb7e5e93a4708c472}{state\_end\_minute}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01183}01183\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}duration\_minutes"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_a54dbaa07df702106740522884a06290e}{duration\_minutes}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01184}01184\ \ \ \ \ (void)\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(cJSON\_GetObjectItemCaseSensitive(obj,\ \textcolor{stringliteral}{"{}cycling\_interval\_min"{}}),\ \&out-\/>\mbox{\hyperlink{structStatemachine__config__t_a03672861c1e06e3a436e4ac149d0deaf}{cycling\_interval\_min}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01185}01185\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01186}01186\ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ \mbox{\hyperlink{globals_8h_a11657f2f8377cb7742008cb437a33548}{MAX\_VALVE\_COUNT}};\ ++i)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01187}01187\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01188}01188\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ key[32];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01189}01189\ \ \ \ \ \ \ \ \ snprintf(key,\ \textcolor{keyword}{sizeof}(key),\ \textcolor{stringliteral}{"{}valve\%d\_pos"{}},\ i);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01190}01190\ \ \ \ \ \ \ \ \ cJSON\ *vp\ =\ cJSON\_GetObjectItemCaseSensitive(obj,\ key);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01191}01191\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ val\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01192}01192\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{config__files_8c_a19e33fe1ec0a9a43967e1f1033c208c1}{parse\_int\_flexible}}(vp,\ \&val))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01193}01193\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01194}01194\ \ \ \ \ \ \ \ \ \ \ \ \ out-\/>\mbox{\hyperlink{structStatemachine__config__t_a1e6c589c5a8b9965ec712af68312cb5b}{valve\_position}}[i]\ =\ val;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01195}01195\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01196}01196\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01197}01197\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01198}01198\ \ \ \ \ \ \ \ \ \ \ \ \ out-\/>\mbox{\hyperlink{structStatemachine__config__t_a1e6c589c5a8b9965ec712af68312cb5b}{valve\_position}}[i]\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01199}01199\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01200}01200\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01201}01201\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01202}01202\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01203}01203\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01204}01204\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01214}\mbox{\hyperlink{config__files_8c_ad2c734db232b77a5cbd5132930558dc7}{01214}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{config__files_8c_ad2c734db232b77a5cbd5132930558dc7}{get\_state\_config}}(\textcolor{keywordtype}{size\_t}\ index,\ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ *out)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01215}01215\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01216}01216\ \ \ \ \ \textcolor{keywordflow}{if}\ (!out\ ||\ index\ >=\ \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\_NR\_STATES}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01217}01217\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01218}01218\ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01219}01219\ \ \ \ \ *out\ =\ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[index];\ \textcolor{comment}{//\ copy\ snapshot}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01220}01220\ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01221}01221\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01222}01222\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01248}\mbox{\hyperlink{config__files_8c_ab006392deaea973fe053d5ce12250be4}{01248}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_ab006392deaea973fe053d5ce12250be4}{read\_state\_configs\_from\_json}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *mount\_point,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *pattern,\ \textcolor{keywordtype}{int}\ max\_files,\ \textcolor{keywordtype}{size\_t}\ *out\_states)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01249}01249\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01250}01250\ \ \ \ \ \textcolor{keywordflow}{if}\ (!mount\_point\ ||\ !pattern\ ||\ !out\_states)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01251}01251\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_INVALID\_ARG;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01252}01252\ \ \ \ \ *out\_states\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01253}01253\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01254}01254\ \ \ \ \ \textcolor{comment}{//\ Zero\ array\ under\ mutex}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01255}01255\ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01256}01256\ \ \ \ \ memset(\mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}},\ 0,\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}));}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01257}01257\ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01258}01258\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01259}01259\ \ \ \ \ DIR\ *dir\ =\ opendir(mount\_point);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01260}01260\ \ \ \ \ \textcolor{keywordflow}{if}\ (!dir)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01261}01261\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01262}01262\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ open\ directory:\ \%s"{}},\ mount\_point);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01263}01263\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_FAIL;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01264}01264\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01265}01265\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01266}01266\ \ \ \ \ \textcolor{keyword}{struct\ }dirent\ *entry;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01267}01267\ \ \ \ \ \textcolor{keywordtype}{int}\ files\_processed\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01268}01268\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01269}01269\ \ \ \ \ \textcolor{keywordflow}{while}\ ((entry\ =\ readdir(dir))\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01270}01270\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01271}01271\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (strcmp(entry-\/>d\_name,\ \textcolor{stringliteral}{"{}."{}})\ ==\ 0\ ||\ strcmp(entry-\/>d\_name,\ \textcolor{stringliteral}{"{}.."{}})\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01272}01272\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01273}01273\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{config__files_8c_a885a82f60036503777c85ae3738c37b9}{match\_pattern}}(entry-\/>d\_name,\ pattern))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01274}01274\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01275}01275\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01276}01276\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ full\_path[256];}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01277}01277\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ n\ =\ snprintf(full\_path,\ \textcolor{keyword}{sizeof}(full\_path),\ \textcolor{stringliteral}{"{}\%s/\%s"{}},\ mount\_point,\ entry-\/>d\_name);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01278}01278\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\ <=\ 0\ ||\ n\ >=\ (\textcolor{keywordtype}{int})\textcolor{keyword}{sizeof}(full\_path))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01279}01279\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01280}01280\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01281}01281\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }stat\ st;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01282}01282\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (stat(full\_path,\ \&st)\ !=\ 0\ ||\ !S\_ISREG(st.st\_mode))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01283}01283\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01284}01284\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01285}01285\ \ \ \ \ \ \ \ \ FILE\ *f\ =\ fopen(full\_path,\ \textcolor{stringliteral}{"{}rb"{}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01286}01286\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!f)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01287}01287\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01288}01288\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (fseek(f,\ 0,\ SEEK\_END)\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01289}01289\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01290}01290\ \ \ \ \ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01291}01291\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01292}01292\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01293}01293\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{long}\ sz\ =\ ftell(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01294}01294\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sz\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01295}01295\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01296}01296\ \ \ \ \ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01297}01297\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01298}01298\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01299}01299\ \ \ \ \ \ \ \ \ rewind(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01300}01300\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01301}01301\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *buf\ =\ (\textcolor{keywordtype}{char}\ *)heap\_caps\_malloc((\textcolor{keywordtype}{size\_t})sz\ +\ 1,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01302}01302\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!buf)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01303}01303\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01304}01304\ \ \ \ \ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01305}01305\ \ \ \ \ \ \ \ \ \ \ \ \ closedir(dir);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01306}01306\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_ERR\_NO\_MEM;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01307}01307\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01308}01308\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{size\_t}\ got\ =\ fread(buf,\ 1,\ (\textcolor{keywordtype}{size\_t})sz,\ f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01309}01309\ \ \ \ \ \ \ \ \ fclose(f);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01310}01310\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (got\ !=\ (\textcolor{keywordtype}{size\_t})sz)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01311}01311\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01312}01312\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(buf);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01313}01313\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01314}01314\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01315}01315\ \ \ \ \ \ \ \ \ buf[sz]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01316}01316\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01317}01317\ \ \ \ \ \ \ \ \ cJSON\ *root\ =\ cJSON\_Parse(buf);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01318}01318\ \ \ \ \ \ \ \ \ heap\_caps\_free(buf);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01319}01319\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!root)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01320}01320\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01321}01321\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01322}01322\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsObject(root))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01323}01323\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01324}01324\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*out\_states\ <\ \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\_NR\_STATES}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01325}01325\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01326}01326\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ tmp;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01327}01327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d}{parse\_state\_object}}(root,\ \&tmp))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01328}01328\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01329}01329\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01330}01330\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[*out\_states]\ =\ tmp;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01331}01331\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01332}01332\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*out\_states)++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01333}01333\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01334}01334\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01335}01335\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01336}01336\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (cJSON\_IsArray(root))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01337}01337\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01338}01338\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ cJSON\ *item\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01339}01339\ \ \ \ \ \ \ \ \ \ \ \ \ cJSON\_ArrayForEach(item,\ root)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01340}01340\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01341}01341\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*out\_states\ >=\ \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\_NR\_STATES}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01342}01342\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01343}01343\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (cJSON\_IsObject(item))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01344}01344\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01345}01345\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ tmp;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01346}01346\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{config__files_8c_a760bd6bd8a3a5a3427e30d3b161fc78d}{parse\_state\_object}}(item,\ \&tmp))}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01347}01347\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01348}01348\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01349}01349\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a6b03f2a710c460dd57790cf38a568175}{statemachine\_config}}[*out\_states]\ =\ tmp;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01350}01350\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a1e0c2cc5f0a60231e65ddd2a67cd54de}{state\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01351}01351\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ (*out\_states)++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01352}01352\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01353}01353\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01354}01354\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01355}01355\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01356}01356\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01357}01357\ \ \ \ \ \ \ \ \ cJSON\_Delete(root);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01358}01358\ \ \ \ \ \ \ \ \ files\_processed++;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01359}01359\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01360}01360\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (max\_files\ >\ 0\ \&\&\ files\_processed\ >=\ max\_files)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01361}01361\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01362}01362\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (*out\_states\ >=\ \mbox{\hyperlink{globals_8h_a7b065f09b06ff6d8a1ea3bec2a804335}{MAX\_NR\_STATES}})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01363}01363\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01364}01364\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01365}01365\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01366}01366\ \ \ \ \ closedir(dir);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01367}01367\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01368}01368\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Processed\ \%d\ file(s),\ loaded\ \%u\ state(s)."{}},}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01369}01369\ \ \ \ \ \ \ \ \ \ files\_processed,\ (\textcolor{keywordtype}{unsigned})(*out\_states));}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01370}01370\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01371}01371\ \ \ \ \ \textcolor{keywordflow}{return}\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01372}01372\ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01373}01373\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01381}\mbox{\hyperlink{config__files_8c_a541442023da9f2da977a4be0d2d1eeef}{01381}}\ esp\_err\_t\ \mbox{\hyperlink{config__files_8c_a541442023da9f2da977a4be0d2d1eeef}{load\_state\_config}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01382}01382\ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01383}01383\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ states\_loaded\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01384}01384\ \ \ \ \ esp\_err\_t\ err\ =\ ESP\_OK;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01385}01385\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01386}01386\ \ \ \ \ \textcolor{comment}{//\ Example\ patterns:\ "{}state\_*.json"{},\ "{}*.json"{},\ "{}config\_??.json"{}}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01387}01387\ \ \ \ \ err\ =\ \mbox{\hyperlink{config__files_8c_ab006392deaea973fe053d5ce12250be4}{read\_state\_configs\_from\_json}}(\textcolor{stringliteral}{"{}/data/json"{}},\ \textcolor{stringliteral}{"{}state*\_config.json"{}},\ 10,\ \&states\_loaded);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01388}01388\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01389}01389\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01390}01390\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01391}01391\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ load\ state\ configs:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01392}01392\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01393}01393\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01394}01394\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01395}01395\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}States\ loaded:\ \%u"{}},\ (\textcolor{keywordtype}{unsigned})states\_loaded);}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01396}01396\ }
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01397}01397\ \ \ \ \ \textcolor{keywordflow}{return}\ err;}
+\DoxyCodeLine{\Hypertarget{config__files_8c_source_l01398}01398\ \}}
+
+\end{DoxyCode}

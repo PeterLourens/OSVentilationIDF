@@ -1,0 +1,62 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/mqtt\+\_\+handlers.h File Reference}
+\hypertarget{mqtt__handlers_8h}{}\label{mqtt__handlers_8h}\index{/home/peter/Development/OSVentilationIDF/main/mqtt\_handlers.h@{/home/peter/Development/OSVentilationIDF/main/mqtt\_handlers.h}}
+
+
+Callback declarations for incoming MQTT message handling.  
+
+
+{\ttfamily \#include $<$mqtt\+\_\+client.\+h$>$}\newline
+{\ttfamily \#include "{}mqtt.\+h"{}}\newline
+{\ttfamily \#include "{}statemachine.\+h"{}}\newline
+{\ttfamily \#include "{}esp\+\_\+log.\+h"{}}\newline
+Include dependency graph for mqtt\+\_\+handlers.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{mqtt__handlers_8h_a9e385175a1a9854600abcb8ef12abc56}{mqtt\+\_\+handle\+\_\+incoming}} (esp\+\_\+mqtt\+\_\+event\+\_\+handle\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Handle incoming MQTT events and dispatch commands to the state machine. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Callback declarations for incoming MQTT message handling. 
+
+
+
+Definition in file \mbox{\hyperlink{mqtt__handlers_8h_source}{mqtt\+\_\+handlers.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{mqtt__handlers_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{mqtt__handlers_8h_a9e385175a1a9854600abcb8ef12abc56}\index{mqtt\_handlers.h@{mqtt\_handlers.h}!mqtt\_handle\_incoming@{mqtt\_handle\_incoming}}
+\index{mqtt\_handle\_incoming@{mqtt\_handle\_incoming}!mqtt\_handlers.h@{mqtt\_handlers.h}}
+\doxysubsubsection{\texorpdfstring{mqtt\_handle\_incoming()}{mqtt\_handle\_incoming()}}
+{\footnotesize\ttfamily \label{mqtt__handlers_8h_a9e385175a1a9854600abcb8ef12abc56} 
+void mqtt\+\_\+handle\+\_\+incoming (\begin{DoxyParamCaption}\item[{esp\+\_\+mqtt\+\_\+event\+\_\+handle\+\_\+t}]{event}{}\end{DoxyParamCaption})}
+
+
+
+Handle incoming MQTT events and dispatch commands to the state machine. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em event} & MQTT event structure.\\
+\hline
+\end{DoxyParams}
+Handle incoming MQTT events and dispatch commands to the state machine.
+
+Handle an incoming MQTT message event.
+
+
+\begin{DoxyParams}{Parameters}
+{\em event} & MQTT event containing topic and payload data. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{mqtt__handlers_8c_source_l00021}{21}} of file \mbox{\hyperlink{mqtt__handlers_8c_source}{mqtt\+\_\+handlers.\+c}}.
+

@@ -1,0 +1,304 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/http\+\_\+post\+\_\+functions.h File Reference}
+\hypertarget{http__post__functions_8h}{}\label{http__post__functions_8h}\index{/home/peter/Development/OSVentilationIDF/main/http\_post\_functions.h@{/home/peter/Development/OSVentilationIDF/main/http\_post\_functions.h}}
+
+
+Builders for form-\/encoded POST bodies and I2\+C/\+LCD configuration helpers.  
+
+
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}general.\+h"{}}\newline
+{\ttfamily \#include "{}c\+JSON.\+h"{}}\newline
+{\ttfamily \#include "{}driver/i2c\+\_\+master.\+h"{}}\newline
+{\ttfamily \#include "{}task\+\_\+i2c\+\_\+lcd.\+h"{}}\newline
+Include dependency graph for http\+\_\+post\+\_\+functions.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{http__post__functions_8h_a1cc03b061f75b7874f0111f10c02d897}{LOG\+\_\+\+BUF\+\_\+\+SIZE}}~256
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a74fe13465e2732416136e18a040a3b8d}{build\+\_\+bus\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t, const char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Build a bus sensor JSON object from URL-\/encoded POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_aac5c2f8f190c24f1789fd005ee2ebce1}{build\+\_\+wifi\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build Wi-\/\+Fi configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a06a62a54204ff8c55f0b57416ce996b9}{build\+\_\+ethernet\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build Ethernet configuration JSON from form POST data. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__post__functions_8h_af12146017cf8658f4b314a3a534f0886}{lcd\+\_\+apply\+\_\+config\+\_\+change}} (void)
+\begin{DoxyCompactList}\small\item\em Apply LCD configuration changes and start/stop the LCD task. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a6cefd98e6074863253d5cf2c56213dfc}{build\+\_\+i2c\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build I2C configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a0c896fd2c2ddd427537844d92c1d1896}{build\+\_\+mqtt\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build MQTT configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a6b04602d9dc0d6a8e7d2061cd679c204}{build\+\_\+influxdb\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build Influx\+DB configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a221c54635087c32197ce70c1f2c6ddb4}{build\+\_\+fan\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build fan control configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a275daacc78e1baf0e68d7455fc32b065}{build\+\_\+syslog\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build syslog configuration JSON from form POST data. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{http__post__functions_8h_a31b251c5d005fb098f56e2438ee91b59}{url\+\_\+decode\+\_\+inplace}} (char \texorpdfstring{$\ast$}{*})
+\begin{DoxyCompactList}\small\item\em Decode URL-\/encoded data in place. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a1fcb2f8862e2263bc4656a1c7cb73490}{build\+\_\+time\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build NTP/timezone configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_afbc317a568fa97fe4bb989751910b648}{build\+\_\+state\+\_\+gen\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t)
+\begin{DoxyCompactList}\small\item\em Build generated state timing configuration JSON from form POST data. \end{DoxyCompactList}\item 
+c\+JSON \texorpdfstring{$\ast$}{*} \mbox{\hyperlink{http__post__functions_8h_a84ba8753c2f9bdf9f5bfc0ba4aa3a4bf}{build\+\_\+state\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded}} (const char \texorpdfstring{$\ast$}{*}, size\+\_\+t, int)
+\begin{DoxyCompactList}\small\item\em Build a single state configuration JSON object from form POST data. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Builders for form-\/encoded POST bodies and I2\+C/\+LCD configuration helpers. 
+
+
+
+Definition in file \mbox{\hyperlink{http__post__functions_8h_source}{http\+\_\+post\+\_\+functions.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{http__post__functions_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{http__post__functions_8h_a1cc03b061f75b7874f0111f10c02d897}\index{http\_post\_functions.h@{http\_post\_functions.h}!LOG\_BUF\_SIZE@{LOG\_BUF\_SIZE}}
+\index{LOG\_BUF\_SIZE@{LOG\_BUF\_SIZE}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{LOG\_BUF\_SIZE}{LOG\_BUF\_SIZE}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a1cc03b061f75b7874f0111f10c02d897} 
+\#define LOG\+\_\+\+BUF\+\_\+\+SIZE~256}
+
+
+
+Definition at line \mbox{\hyperlink{http__post__functions_8h_source_l00022}{22}} of file \mbox{\hyperlink{http__post__functions_8h_source}{http\+\_\+post\+\_\+functions.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{http__post__functions_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{http__post__functions_8h_a74fe13465e2732416136e18a040a3b8d}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_bus\_config\_from\_body\_urlencoded@{build\_bus\_config\_from\_body\_urlencoded}}
+\index{build\_bus\_config\_from\_body\_urlencoded@{build\_bus\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_bus\_config\_from\_body\_urlencoded()}{build\_bus\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a74fe13465e2732416136e18a040a3b8d} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+bus\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{bus\+\_\+prefix}{}\end{DoxyParamCaption})}
+
+
+
+Build a bus sensor JSON object from URL-\/encoded POST data. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em body} & URL-\/encoded request body. \\
+\hline
+{\em len} & Length of the body in bytes. \\
+\hline
+{\em bus\+\_\+prefix} & Prefix for sensor field names (e.\+g. "{}b0\+\_\+s"{}). \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+c\+JSON\texorpdfstring{$\ast$}{*} New JSON object on success, NULL on failure.
+\end{DoxyReturn}
+Build a bus sensor JSON object from URL-\/encoded POST data.
+
+
+\begin{DoxyParams}{Parameters}
+{\em body} & URL-\/encoded request body. \\
+\hline
+{\em len} & Length of the body in bytes. \\
+\hline
+{\em bus\+\_\+prefix} & Prefix for sensor field names, such as "{}b0\+\_\+"{}. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+c\+JSON\texorpdfstring{$\ast$}{*} New JSON object on success, NULL on failure. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00022}{22}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a06a62a54204ff8c55f0b57416ce996b9}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_ethernet\_config\_from\_body\_urlencoded@{build\_ethernet\_config\_from\_body\_urlencoded}}
+\index{build\_ethernet\_config\_from\_body\_urlencoded@{build\_ethernet\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_ethernet\_config\_from\_body\_urlencoded()}{build\_ethernet\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a06a62a54204ff8c55f0b57416ce996b9} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+ethernet\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build Ethernet configuration JSON from form POST data. 
+
+Build Ethernet configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00154}{154}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a221c54635087c32197ce70c1f2c6ddb4}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_fan\_config\_from\_body\_urlencoded@{build\_fan\_config\_from\_body\_urlencoded}}
+\index{build\_fan\_config\_from\_body\_urlencoded@{build\_fan\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_fan\_config\_from\_body\_urlencoded()}{build\_fan\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a221c54635087c32197ce70c1f2c6ddb4} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+fan\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build fan control configuration JSON from form POST data. 
+
+Build fan control configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00381}{381}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a6cefd98e6074863253d5cf2c56213dfc}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_i2c\_config\_from\_body\_urlencoded@{build\_i2c\_config\_from\_body\_urlencoded}}
+\index{build\_i2c\_config\_from\_body\_urlencoded@{build\_i2c\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_i2c\_config\_from\_body\_urlencoded()}{build\_i2c\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a6cefd98e6074863253d5cf2c56213dfc} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+i2c\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build I2C configuration JSON from form POST data. 
+
+Build I2C configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00246}{246}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a6b04602d9dc0d6a8e7d2061cd679c204}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_influxdb\_config\_from\_body\_urlencoded@{build\_influxdb\_config\_from\_body\_urlencoded}}
+\index{build\_influxdb\_config\_from\_body\_urlencoded@{build\_influxdb\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_influxdb\_config\_from\_body\_urlencoded()}{build\_influxdb\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a6b04602d9dc0d6a8e7d2061cd679c204} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+influxdb\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build Influx\+DB configuration JSON from form POST data. 
+
+Build Influx\+DB configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00322}{322}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a0c896fd2c2ddd427537844d92c1d1896}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_mqtt\_config\_from\_body\_urlencoded@{build\_mqtt\_config\_from\_body\_urlencoded}}
+\index{build\_mqtt\_config\_from\_body\_urlencoded@{build\_mqtt\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_mqtt\_config\_from\_body\_urlencoded()}{build\_mqtt\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a0c896fd2c2ddd427537844d92c1d1896} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+mqtt\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build MQTT configuration JSON from form POST data. 
+
+Build MQTT configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00281}{281}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a84ba8753c2f9bdf9f5bfc0ba4aa3a4bf}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_state\_config\_from\_body\_urlencoded@{build\_state\_config\_from\_body\_urlencoded}}
+\index{build\_state\_config\_from\_body\_urlencoded@{build\_state\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_state\_config\_from\_body\_urlencoded()}{build\_state\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a84ba8753c2f9bdf9f5bfc0ba4aa3a4bf} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+state\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{, }\item[{int}]{state\+\_\+number}{}\end{DoxyParamCaption})}
+
+
+
+Build a single state configuration JSON object from form POST data. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em state\+\_\+number} & Numeric state identifier. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00692}{692}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_afbc317a568fa97fe4bb989751910b648}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_state\_gen\_config\_from\_body\_urlencoded@{build\_state\_gen\_config\_from\_body\_urlencoded}}
+\index{build\_state\_gen\_config\_from\_body\_urlencoded@{build\_state\_gen\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_state\_gen\_config\_from\_body\_urlencoded()}{build\_state\_gen\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_afbc317a568fa97fe4bb989751910b648} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+state\+\_\+gen\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build generated state timing configuration JSON from form POST data. 
+
+Build generated state timing configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00557}{557}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a275daacc78e1baf0e68d7455fc32b065}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_syslog\_config\_from\_body\_urlencoded@{build\_syslog\_config\_from\_body\_urlencoded}}
+\index{build\_syslog\_config\_from\_body\_urlencoded@{build\_syslog\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_syslog\_config\_from\_body\_urlencoded()}{build\_syslog\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a275daacc78e1baf0e68d7455fc32b065} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+syslog\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build syslog configuration JSON from form POST data. 
+
+Build syslog configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00440}{440}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a1fcb2f8862e2263bc4656a1c7cb73490}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_time\_config\_from\_body\_urlencoded@{build\_time\_config\_from\_body\_urlencoded}}
+\index{build\_time\_config\_from\_body\_urlencoded@{build\_time\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_time\_config\_from\_body\_urlencoded()}{build\_time\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a1fcb2f8862e2263bc4656a1c7cb73490} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+time\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build NTP/timezone configuration JSON from form POST data. 
+
+Build NTP/timezone configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00528}{528}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_aac5c2f8f190c24f1789fd005ee2ebce1}\index{http\_post\_functions.h@{http\_post\_functions.h}!build\_wifi\_config\_from\_body\_urlencoded@{build\_wifi\_config\_from\_body\_urlencoded}}
+\index{build\_wifi\_config\_from\_body\_urlencoded@{build\_wifi\_config\_from\_body\_urlencoded}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{build\_wifi\_config\_from\_body\_urlencoded()}{build\_wifi\_config\_from\_body\_urlencoded()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_aac5c2f8f190c24f1789fd005ee2ebce1} 
+c\+JSON \texorpdfstring{$\ast$}{*} build\+\_\+wifi\+\_\+config\+\_\+from\+\_\+body\+\_\+urlencoded (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{body}{, }\item[{size\+\_\+t}]{len}{}\end{DoxyParamCaption})}
+
+
+
+Build Wi-\/\+Fi configuration JSON from form POST data. 
+
+Build Wi-\/\+Fi configuration JSON from form POST data. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00077}{77}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_af12146017cf8658f4b314a3a534f0886}\index{http\_post\_functions.h@{http\_post\_functions.h}!lcd\_apply\_config\_change@{lcd\_apply\_config\_change}}
+\index{lcd\_apply\_config\_change@{lcd\_apply\_config\_change}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{lcd\_apply\_config\_change()}{lcd\_apply\_config\_change()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_af12146017cf8658f4b314a3a534f0886} 
+void lcd\+\_\+apply\+\_\+config\+\_\+change (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Apply LCD configuration changes and start/stop the LCD task. 
+
+Apply LCD configuration changes and start/stop the LCD task. 
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00213}{213}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+
+\Hypertarget{http__post__functions_8h_a31b251c5d005fb098f56e2438ee91b59}\index{http\_post\_functions.h@{http\_post\_functions.h}!url\_decode\_inplace@{url\_decode\_inplace}}
+\index{url\_decode\_inplace@{url\_decode\_inplace}!http\_post\_functions.h@{http\_post\_functions.h}}
+\doxysubsubsection{\texorpdfstring{url\_decode\_inplace()}{url\_decode\_inplace()}}
+{\footnotesize\ttfamily \label{http__post__functions_8h_a31b251c5d005fb098f56e2438ee91b59} 
+void url\+\_\+decode\+\_\+inplace (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{str}{}\end{DoxyParamCaption})}
+
+
+
+Decode URL-\/encoded data in place. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str} & String containing URL-\/encoded content.\\
+\hline
+\end{DoxyParams}
+Decode URL-\/encoded data in place.
+
+
+\begin{DoxyParams}{Parameters}
+{\em str} & String to decode. \\
+\hline
+\end{DoxyParams}
+
+
+Definition at line \mbox{\hyperlink{http__post__functions_8c_source_l00501}{501}} of file \mbox{\hyperlink{http__post__functions_8c_source}{http\+\_\+post\+\_\+functions.\+c}}.
+

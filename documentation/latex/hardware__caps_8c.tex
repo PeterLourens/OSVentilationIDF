@@ -1,0 +1,85 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/hardware\+\_\+caps.c File Reference}
+\hypertarget{hardware__caps_8c}{}\label{hardware__caps_8c}\index{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.c@{/home/peter/Development/OSVentilationIDF/main/hardware\_caps.c}}
+
+
+Board capability profiles and hardware initialization.  
+
+
+{\ttfamily \#include "{}hardware\+\_\+caps.\+h"{}}\newline
+Include dependency graph for hardware\+\_\+caps.\+c\+:
+% FIG 0
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{hardware__caps_8c_ae58df14f30461cb37e8607aca5522846}{hw\+\_\+init}} (void)
+\begin{DoxyCompactList}\small\item\em Initialize the active hardware capability table. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}} \mbox{\hyperlink{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}{hw\+\_\+version}} = \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\+\_\+\+VERSION\+\_\+3}}
+\begin{DoxyCompactList}\small\item\em Selected hardware revision at startup. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{structhw__caps__t}{hw\+\_\+caps\+\_\+t}} \mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}
+\begin{DoxyCompactList}\small\item\em Active hardware capability configuration. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Board capability profiles and hardware initialization. 
+
+This module defines the supported hardware capability sets for board revisions and selects the active configuration at startup. 
+
+Definition in file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{hardware__caps_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{hardware__caps_8c_ae58df14f30461cb37e8607aca5522846}\index{hardware\_caps.c@{hardware\_caps.c}!hw\_init@{hw\_init}}
+\index{hw\_init@{hw\_init}!hardware\_caps.c@{hardware\_caps.c}}
+\doxysubsubsection{\texorpdfstring{hw\_init()}{hw\_init()}}
+{\footnotesize\ttfamily \label{hardware__caps_8c_ae58df14f30461cb37e8607aca5522846} 
+void hw\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Initialize the active hardware capability table. 
+
+Initialize the active hardware capability configuration.
+
+This function selects the appropriate board profile based on {\ttfamily hw\+\_\+version} and copies it into the runtime {\ttfamily hw} structure. 
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00107}{107}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+
+
+
+\label{doc-var-members}
+\Hypertarget{hardware__caps_8c_doc-var-members}
+\doxysubsection{Variable Documentation}
+\Hypertarget{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}\index{hardware\_caps.c@{hardware\_caps.c}!hw@{hw}}
+\index{hw@{hw}!hardware\_caps.c@{hardware\_caps.c}}
+\doxysubsubsection{\texorpdfstring{hw}{hw}}
+{\footnotesize\ttfamily \label{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825} 
+\mbox{\hyperlink{structhw__caps__t}{hw\+\_\+caps\+\_\+t}} hw}
+
+
+
+Active hardware capability configuration. 
+
+
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00099}{99}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+
+\Hypertarget{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6}\index{hardware\_caps.c@{hardware\_caps.c}!hw\_version@{hw\_version}}
+\index{hw\_version@{hw\_version}!hardware\_caps.c@{hardware\_caps.c}}
+\doxysubsubsection{\texorpdfstring{hw\_version}{hw\_version}}
+{\footnotesize\ttfamily \label{hardware__caps_8c_a26f3f42a1a636dc31e58df7331408ba6} 
+\mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907d}{hardware\+\_\+version\+\_\+t}} hw\+\_\+version = \mbox{\hyperlink{hardware__caps_8h_aaa2c23e1aecfb4df74d2f92aec53907dacb7f6961c4314a4c8e7d58d901f64e85}{HW\+\_\+\+VERSION\+\_\+3}}}
+
+
+
+Selected hardware revision at startup. 
+
+
+
+Definition at line \mbox{\hyperlink{hardware__caps_8c_source_l00018}{18}} of file \mbox{\hyperlink{hardware__caps_8c_source}{hardware\+\_\+caps.\+c}}.
+

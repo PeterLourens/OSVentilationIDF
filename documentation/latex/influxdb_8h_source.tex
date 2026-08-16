@@ -1,0 +1,72 @@
+\doxysection{influxdb.\+h}
+\hypertarget{influxdb_8h_source}{}\label{influxdb_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/influxdb.h@{/home/peter/Development/OSVentilationIDF/main/influxdb.h}}
+\mbox{\hyperlink{influxdb_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00007}00007\ \textcolor{preprocessor}{\#ifndef\ INFLUXDB\_H}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00008}00008\ \textcolor{preprocessor}{\#define\ INFLUXDB\_H}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00010}\mbox{\hyperlink{influxdb_8h_a9946d2e810d4c5afcee65e9180abeee6}{00010}}\ \textcolor{preprocessor}{\#define\ DMA\_MONITOR\_PAYLOAD\_SZ\ 256}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <time.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00013}00013\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00014}00014\ \textcolor{preprocessor}{\#include\ <esp\_http\_client.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00015}00015\ \textcolor{preprocessor}{\#include\ <stdbool.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00016}00016\ \textcolor{preprocessor}{\#include\ <stddef.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00017}00017\ \textcolor{preprocessor}{\#include\ <stdint.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00018}00018\ \textcolor{preprocessor}{\#include\ <freertos/FreeRTOS.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00019}00019\ \textcolor{preprocessor}{\#include\ <freertos/queue.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{i2c__ds3231_8h}{i2c\_ds3231.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00030}00030\ \textcolor{keyword}{extern}\ QueueHandle\_t\ \mbox{\hyperlink{influxdb_8c_abec6c02fe6593891d0ef639bfc1e7740}{influx\_queue}};}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00031}00031\ \textcolor{keyword}{extern}\ TaskHandle\_t\ \mbox{\hyperlink{influxdb_8c_a7f339c669404cffe83a04d98e067a0fa}{influx\_sender\_task\_handle}};}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00033}00033\ \textcolor{comment}{//\ Expose\ monitor\ API\ and\ runtime-\/configurable\ intervals}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00034}00034\ \textcolor{keyword}{extern}\ uint32\_t\ \mbox{\hyperlink{influxdb_8c_af30198e12b4fe26f3d67b97a590a6b8a}{g\_influx\_task\_interval\_ms}};\ \ \ \ \textcolor{comment}{//\ base\ Influx\ task\ interval\ (ms)}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00035}00035\ \textcolor{keyword}{extern}\ uint32\_t\ \mbox{\hyperlink{influxdb_8c_ad75cae0e3c1cd38c638e77df95313c41}{g\_dma\_monitor\_interval\_ms}};\ \ \ \ \textcolor{comment}{//\ DMA\ monitor\ interval\ (ms)}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00036}00036\ \textcolor{keyword}{extern}\ uint32\_t\ \mbox{\hyperlink{influxdb_8c_a4ba1d83558fc20bed62b45d8ee519492}{g\_monitor\_tick\_resolution\_ms}};\ \textcolor{comment}{//\ resolution\ used\ by\ integrated\ loop\ (ms)}}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00047}00047\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{influxdb_8h_af3060cb403db557b5f420714f342ea39}{influxdb\_enqueue\_sensor\_line}}(\textcolor{keywordtype}{int}\ bus,\ \textcolor{keywordtype}{int}\ ch,\ \textcolor{keywordtype}{float}\ sensor\_val[\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}],\ \textcolor{keywordtype}{float}\ avg\_val[\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}]);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00055}00055\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{influxdb_8h_a470e41614b29c13dc5c3bef30fae7be5}{influxdb\_wait\_ready}}(TickType\_t);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00056}00056\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00062}00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_a70c63b42621bf284740d93f6ab5332b5}{influxdb\_set\_dma\_monitor\_interval\_ms}}(uint32\_t\ ms);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00069}00069\ uint32\_t\ \mbox{\hyperlink{influxdb_8h_aeef096a7ab4920979f1636b5301ea358}{influxdb\_get\_dma\_monitor\_interval\_ms}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00076}00076\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_a9bb92ac35b6fae6e167acfd39524f089}{influxdb\_set\_influx\_task\_interval\_ms}}(uint32\_t\ ms);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00077}00077\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00083}00083\ uint32\_t\ \mbox{\hyperlink{influxdb_8h_a0f1f299cd84267d18ae0ad6facb77b02}{influxdb\_get\_influx\_task\_interval\_ms}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00091}00091\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{influxdb_8h_aeb5b2c9a35f6411ff800bebc2247f893}{influxdb\_enqueue\_dma\_metrics}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *host\_tag);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00092}00092\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00098}00098\ int64\_t\ \mbox{\hyperlink{influxdb_8h_adea0e95512c2cde7de19c5422a069bf4}{influxdb\_get\_timestamp}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00105}00105\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{influxdb_8h_a242305ca91997b8696597fadf6a803b4}{influxdb\_init\_sender}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00114}00114\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{influxdb_8h_a83b53a96c830013ff30b2d1c42f45010}{influxdb\_enqueue\_payload}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *payload,\ \textcolor{keywordtype}{size\_t}\ len);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00115}00115\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00122}00122\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_aa4004dc89e2d65499b5ee5af1720122d}{influxdb\_process}}(QueueHandle\_t\ sensor\_q,\ QueueHandle\_t\ avg\_q);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00123}00123\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00129}00129\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_a7a77d1c59401bf176ee1716e1628a0d7}{influxdb\_get\_config\_snapshot}}(\mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\_config\_t}}\ *out);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00130}00130\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00138}00138\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_adf2ee6d8e970914753039c6e7703498e}{influxdb\_build\_url}}(\textcolor{keywordtype}{char}\ *out,\ \textcolor{keywordtype}{size\_t}\ out\_size,\ \textcolor{keyword}{const}\ \mbox{\hyperlink{structInfluxdb__config__t}{Influxdb\_config\_t}}\ *cfg);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00139}00139\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00146}00146\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_aaae5bae1bd60e16228202cd970e85513}{influxdb\_build\_payload\_actuals}}(\textcolor{keywordtype}{char}\ *out,\ \textcolor{keywordtype}{size\_t}\ out\_size);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00147}00147\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00154}00154\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_ac4d1b2673c9d495fc11ff79f57a02263}{influxdb\_build\_payload\_valves}}(\textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00155}00155\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00165}00165\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{influxdb_8h_ace66ca39bc5c5ed246dbb9ef47180c7e}{influxdb\_build\_payload\_sensors\_for\_bus}}(\textcolor{keywordtype}{char}\ *out,\ \textcolor{keywordtype}{size\_t}\ out\_size,\ \textcolor{keywordtype}{float}\ sensor[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}],\ \textcolor{keywordtype}{float}\ avg[\mbox{\hyperlink{globals_8h_af89a7a4080a47aa10a5504291db285bf}{MAX\_I2C\_BUSES}}][\mbox{\hyperlink{globals_8h_acdb150de40e738582f7fb6cc7a1cb1a4}{CHANNELS\_PER\_BUS}}][\mbox{\hyperlink{globals_8h_ad8e29bc91318b22b12b6d8d215989728}{DATA\_FIELDS}}],\ \textcolor{keywordtype}{int}\ bus);}
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00166}00166\ }
+\DoxyCodeLine{\Hypertarget{influxdb_8h_source_l00167}00167\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

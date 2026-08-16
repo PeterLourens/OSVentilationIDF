@@ -1,0 +1,59 @@
+\doxysection{i2c\+\_\+ds3231.\+h}
+\hypertarget{i2c__ds3231_8h_source}{}\label{i2c__ds3231_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.h@{/home/peter/Development/OSVentilationIDF/main/i2c\_ds3231.h}}
+\mbox{\hyperlink{i2c__ds3231_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00012}00012\ \textcolor{preprocessor}{\#ifndef\ I2C\_DS3231\_H}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00013}00013\ \textcolor{preprocessor}{\#define\ I2C\_DS3231\_H}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00015}\mbox{\hyperlink{i2c__ds3231_8h_a142b529b95a279f6a821b94773b53ffe}{00015}}\ \textcolor{preprocessor}{\#define\ DS3231\_REG\_TIME\ 0x00}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00016}\mbox{\hyperlink{i2c__ds3231_8h_aeee46891f279544efa92a99e15e8d023}{00016}}\ \textcolor{preprocessor}{\#define\ DS3231\_REG\_STATUS\ 0x0F}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00017}\mbox{\hyperlink{i2c__ds3231_8h_aa03c8831a5b1e11abc00e730c23ecc55}{00017}}\ \textcolor{preprocessor}{\#define\ DS3231\_REG\_TEMP\_MSB\ 0x11}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00018}\mbox{\hyperlink{i2c__ds3231_8h_a35ddcaf5258fc941f90f8428c2032fa1}{00018}}\ \textcolor{preprocessor}{\#define\ DS3231\_REG\_TEMP\_LSB\ 0x12}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <driver/i2c\_master.h>}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ <esp\_sntp.h>}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <esp\_wifi.h>}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00024}00024\ \textcolor{preprocessor}{\#include\ <nvs\_flash.h>}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00032}00032\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a74583bba190992e3b2b111a78ea66791}{i2c\_ds3231\_init}}(i2c\_master\_bus\_handle\_t,\ i2c\_master\_dev\_handle\_t\ *);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00033}00033\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00037}00037\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8h_a0cdf1a0427f32558c94350fed383932e}{init\_system\_time\_from\_ds3231}}(i2c\_master\_dev\_handle\_t);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00038}00038\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00042}\mbox{\hyperlink{i2c__ds3231_8h_a884468d4d19b9be0073a42e1eaec2ee5}{00042}}\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a884468d4d19b9be0073a42e1eaec2ee5}{update\_ds3231\_from\_system\_time}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00043}00043\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00047}00047\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a7dbb19d34c3ee28172c5496f72ff8fd6}{sync\_system\_and\_ds3231\_with\_ntp}}(i2c\_master\_dev\_handle\_t);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00048}00048\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00052}\mbox{\hyperlink{i2c__ds3231_8h_aa6879968bcc8ed5b8932cef930ba8faf}{00052}}\ uint8\_t\ \mbox{\hyperlink{i2c__ds3231_8h_aa6879968bcc8ed5b8932cef930ba8faf}{bin2bcd}}(uint8\_t);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00053}00053\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00057}00057\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a9b64f3c3717b4e10c09b215130f96418}{ds3231\_set\_time}}(i2c\_master\_dev\_handle\_t,\ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ tm\ *);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00062}00062\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_adcdb907cb756fe88f03bd62f25d1df55}{ds3231\_get\_time}}(i2c\_master\_dev\_handle\_t,\ \textcolor{keyword}{struct}\ tm\ *);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00067}00067\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a1dc21998091081f723ac254b9f120d70}{ds3231\_read\_reg}}(i2c\_master\_dev\_handle\_t,\ uint8\_t,\ uint8\_t\ *);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00072}00072\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a7b0931ec316272da10e2ef8272b3764a}{ds3231\_write\_reg}}(i2c\_master\_dev\_handle\_t,\ uint8\_t,\ uint8\_t);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00077}00077\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a0e87f22bb6e871d1abc4e9d00e9d83ae}{ds3231\_read\_temperature}}(i2c\_master\_dev\_handle\_t,\ \textcolor{keywordtype}{float}\ *);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00082}00082\ esp\_err\_t\ \mbox{\hyperlink{i2c__ds3231_8h_a645a44c2ae1091818a9a0b4bd1345f30}{ds3231\_check\_status}}(i2c\_master\_dev\_handle\_t,\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00083}00083\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00087}00087\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8h_a2f80be22d383809524d6bbf5cecdcbce}{ds3231\_health\_monitor}}(i2c\_master\_dev\_handle\_t);}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00088}00088\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00092}00092\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8h_a1ff2c723fbf6b26c2e2af3b4380f085b}{save\_ds3231\_diagnostics}}(\textcolor{keywordtype}{float});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00093}00093\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00097}00097\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{i2c__ds3231_8h_ad055aa3e6e97867469362898154ddd01}{read\_ds3231\_diagnostics}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00098}00098\ }
+\DoxyCodeLine{\Hypertarget{i2c__ds3231_8h_source_l00099}00099\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

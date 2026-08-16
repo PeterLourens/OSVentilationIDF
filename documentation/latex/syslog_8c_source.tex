@@ -1,0 +1,544 @@
+\doxysection{syslog.\+c}
+\hypertarget{syslog_8c_source}{}\label{syslog_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/syslog.c@{/home/peter/Development/OSVentilationIDF/main/syslog.c}}
+\mbox{\hyperlink{syslog_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{syslog_8h}{syslog.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00013}00013\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00014}\mbox{\hyperlink{syslog_8c_a5a85b9c772bbeb480b209a3e6ea92b4c}{00014}}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}syslog"{}};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00015}\mbox{\hyperlink{syslog_8c_a3ba8760c6d06f052277f059d6b2d2ab7}{00015}}\ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{syslog_8c_a3ba8760c6d06f052277f059d6b2d2ab7}{g\_request\_syslog\_update}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00017}\mbox{\hyperlink{structsyslog__queue__item__t}{00017}}\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00018}00018\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00019}\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{00019}}\ \ \ \ \ \textcolor{keywordtype}{char}\ *\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}};\ \textcolor{comment}{//\ heap-\/allocated}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00020}\mbox{\hyperlink{structsyslog__queue__item__t_ac03f92e6389d404fe5fce78d4e5c3c2b}{00020}}\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ \mbox{\hyperlink{structsyslog__queue__item__t_ac03f92e6389d404fe5fce78d4e5c3c2b}{len}};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00021}00021\ \}\ \mbox{\hyperlink{structsyslog__queue__item__t}{syslog\_queue\_item\_t}};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00022}00022\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00023}00023\ \textcolor{comment}{//\ Static\ state}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00024}00024\ \textcolor{keyword}{static}\ QueueHandle\_t\ s\_syslog\_queue\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00025}00025\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00027}00027\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ syslog\_worker\_task(\textcolor{keywordtype}{void}\ *pvParameters);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00028}00028\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ bind\_socket\_to\_active\_interface(\textcolor{keywordtype}{int}\ sock);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00029}00029\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00030}00030\ \textcolor{comment}{//\ Enable\ syslog\ when\ wifi\ network\ is\ connected}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00031}\mbox{\hyperlink{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}{00031}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}{syslog\_enabled}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00032}00032\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00033}00033\ \textcolor{comment}{//\ Diagnostic/backoff\ state\ for\ syslog\ sends.\ We\ keep\ a\ single\ backoff\ timestamp\ to\ avoid\ tight\ retry\ loops\ when\ the\ network\ or\ remote\ syslog\ server\ is\ unreachable.\ */}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00034}00034\ \textcolor{keyword}{static}\ int64\_t\ s\_last\_syslog\_fail\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00035}\mbox{\hyperlink{syslog_8c_ad80329aa16ea201ab1dc2389a1961c4e}{00035}}\ \textcolor{preprocessor}{\#define\ SYSLOG\_RETRY\_BACKOFF\_MS\ 5000}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00036}00036\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00037}00037\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{int}\ bind\_socket\_to\_active\_interface(\textcolor{keywordtype}{int}\ sock)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00038}00038\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00039}00039\ \ \ \ \ esp\_netif\_t\ *netif\ =\ \mbox{\hyperlink{network__functions_8c_a6b47beccae7fe1852e3f91ff0f692cd2}{get\_active\_netif}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00040}00040\ \ \ \ \ \textcolor{keywordflow}{if}\ (!netif)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00041}00041\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}bind\_socket\_to\_active\_interface:\ no\ active\ network\ interface\ available"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00044}00044\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00046}00046\ \ \ \ \ esp\_netif\_ip\_info\_t\ ipinfo;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00047}00047\ \ \ \ \ \textcolor{keywordflow}{if}\ (esp\_netif\_get\_ip\_info(netif,\ \&ipinfo)\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00048}00048\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}bind\_socket\_to\_active\_interface:\ failed\ to\ get\ ip\ info"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00051}00051\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00053}00053\ \ \ \ \ \textcolor{keywordflow}{if}\ (ipinfo.ip.addr\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00054}00054\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00055}00055\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}bind\_socket\_to\_active\_interface:\ active\ netif\ has\ no\ IP"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00057}00057\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00058}00058\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00059}00059\ \ \ \ \ \textcolor{keyword}{struct\ }sockaddr\_in\ local\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00060}00060\ \ \ \ \ local.sin\_family\ =\ AF\_INET;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00061}00061\ \ \ \ \ local.sin\_port\ =\ htons(0);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00062}00062\ \ \ \ \ local.sin\_addr.s\_addr\ =\ ipinfo.ip.addr;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00063}00063\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00064}00064\ \ \ \ \ \textcolor{keywordflow}{if}\ (bind(sock,\ (\textcolor{keyword}{struct}\ sockaddr\ *)\&local,\ \textcolor{keyword}{sizeof}(local))\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00065}00065\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}bind\_socket\_to\_active\_interface:\ bind\ failed:\ errno=\%d\ (\%s)"{}},\ errno,\ strerror(errno));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00068}00068\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00069}00069\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00070}00070\ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}bind\_socket\_to\_active\_interface:\ bound\ to\ \%s"{}},\ inet\_ntoa(*(\textcolor{keyword}{struct}\ in\_addr\ *)\&ipinfo.ip.addr));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00071}00071\ \ \ \ \ \textcolor{keywordflow}{return}\ 0;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00072}00072\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00074}00074\ \textcolor{keyword}{static}\ ssize\_t\ safe\_syslog\_send(\textcolor{keywordtype}{int}\ sockfd,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}\ *buf,\ \textcolor{keywordtype}{size\_t}\ len,\ \textcolor{keywordtype}{int}\ flags,\ \textcolor{keyword}{const}\ \textcolor{keyword}{struct}\ sockaddr\ *dest,\ socklen\_t\ destlen)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00075}00075\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00076}00076\ \ \ \ \ \textcolor{keywordflow}{if}\ (sockfd\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00077}00077\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}safe\_syslog\_send:\ invalid\ socket\ fd=\%d"{}},\ sockfd);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00080}00080\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00082}00082\ \ \ \ \ int64\_t\ now\_ms\ =\ esp\_timer\_get\_time()\ /\ 1000LL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00083}00083\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_last\_syslog\_fail\_ms\ !=\ 0\ \&\&}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ (now\_ms\ -\/\ s\_last\_syslog\_fail\_ms)\ <\ \mbox{\hyperlink{syslog_8c_ad80329aa16ea201ab1dc2389a1961c4e}{SYSLOG\_RETRY\_BACKOFF\_MS}})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00085}00085\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}safe\_syslog\_send:\ skipping\ send\ due\ to\ backoff\ (elapsed=\%lldms)"{}},\ (\textcolor{keywordtype}{long}\ \textcolor{keywordtype}{long})(now\_ms\ -\/\ s\_last\_syslog\_fail\_ms));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00088}00088\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00090}00090\ \ \ \ \ ssize\_t\ r\ =\ sendto(sockfd,\ buf,\ len,\ flags\ |\ MSG\_DONTWAIT,\ dest,\ destlen);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00091}00091\ \ \ \ \ \textcolor{keywordflow}{if}\ (r\ >=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00092}00092\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ s\_last\_syslog\_fail\_ms\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ r;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00095}00095\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00096}00096\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00097}00097\ \ \ \ \ \textcolor{keywordtype}{int}\ e\ =\ errno;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00098}00098\ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\ sendto\ failed:\ fd=\%d\ errno=\%d\ (\%s)"{}},\ sockfd,\ e,\ strerror(e));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00099}00099\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00100}00100\ \ \ \ \ \textcolor{comment}{//\ Treat\ common\ transient\ errors\ specially;\ apply\ backoff\ but\ keep\ socket\ open.}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00101}00101\ \ \ \ \ \textcolor{keywordflow}{if}\ (e\ ==\ EAGAIN\ ||\ e\ ==\ EWOULDBLOCK\ ||\ e\ ==\ EINTR)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00102}00102\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ s\_last\_syslog\_fail\_ms\ =\ now\_ms;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00105}00105\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00106}00106\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00107}00107\ \ \ \ \ \textcolor{comment}{//\ For\ other\ errors,\ apply\ backoff\ and\ return\ failure.\ The\ caller\ (which\ creates\ and\ closes\ the\ socket\ per\ message)\ will\ close\ the\ socket.}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00108}00108\ \ \ \ \ s\_last\_syslog\_fail\_ms\ =\ now\_ms;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00109}00109\ \ \ \ \ \textcolor{keywordflow}{return}\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00110}00110\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00111}00111\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00112}00112\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ syslog\_worker\_task(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00113}00113\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00114}00114\ \ \ \ \ (void)pvParameters;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00115}00115\ \ \ \ \ \mbox{\hyperlink{structsyslog__queue__item__t}{syslog\_queue\_item\_t}}\ item;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00116}00116\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00117}00117\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00118}00118\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{bool}\ syslog\_running\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00120}00120\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ -\/-\/-\/\ ASYNCHRONOUS\ SYSLOG\ STATE\ UPDATE\ -\/-\/-\/}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{syslog_8c_a3ba8760c6d06f052277f059d6b2d2ab7}{g\_request\_syslog\_update}})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{syslog_8c_a3ba8760c6d06f052277f059d6b2d2ab7}{g\_request\_syslog\_update}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00125}00125\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ ready\ =\ \mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00127}00127\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ enabled\_cfg\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}}\ \&\&}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}},\ pdMS\_TO\_TICKS(20))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ enabled\_cfg\ =\ (strcmp(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_syslog,\ \textcolor{stringliteral}{"{}On"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00135}00135\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00136}00136\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (enabled\_cfg\ \&\&\ ready\ \&\&\ !syslog\_running)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00137}00137\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00138}00138\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{syslog_8c_a96ec32e39db6dfc4b42d875e8f1c0416}{syslog\_enable}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00139}00139\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ syslog\_running\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00140}00140\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\textcolor{stringliteral}{"{}syslog"{}},\ \textcolor{stringliteral}{"{}Syslog\ enabled"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00141}00141\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00142}00142\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ ((!enabled\_cfg\ ||\ !ready)\ \&\&\ syslog\_running)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00143}00143\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{syslog_8c_a75c8a90b6c205d3df4c8dc0cc4fc2152}{syslog\_disable}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ syslog\_running\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00146}00146\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(\textcolor{stringliteral}{"{}syslog"{}},\ \textcolor{stringliteral}{"{}Syslog\ disabled"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00147}00147\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00148}00148\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00149}00149\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00151}00151\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(1000));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00153}00153\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00154}00154\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00155}00155\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00156}00156\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueReceive(s\_syslog\_queue,\ \&item,\ portMAX\_DELAY)\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00157}00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00158}00158\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00159}00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00160}00160\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00162}00162\ \ \ \ \ \ \ \ \ \textcolor{comment}{/*\ Snapshot\ config\ */}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00163}00163\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ ip[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00164}00164\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ port\_str[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00165}00165\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ hostname\_local[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00166}00166\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ appname\_local[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00167}00167\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ enabled\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00168}00168\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00169}00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}}\ \&\&\ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}},\ pdMS\_TO\_TICKS(50))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00170}00170\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00171}00171\ \ \ \ \ \ \ \ \ \ \ \ \ enabled\ =\ (strcmp(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_syslog,\ \textcolor{stringliteral}{"{}On"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00172}00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (enabled)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00173}00173\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00174}00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(ip,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_ip,\ \textcolor{keyword}{sizeof}(ip)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00175}00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(port\_str,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_port,\ \textcolor{keyword}{sizeof}(port\_str)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00176}00176\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(hostname\_local,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_hostname,\ \textcolor{keyword}{sizeof}(hostname\_local)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00177}00177\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ strncpy(appname\_local,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_appname,\ \textcolor{keyword}{sizeof}(appname\_local)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00178}00178\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00179}00179\ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00180}00180\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00181}00181\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00182}00182\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00183}00183\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ could\ not\ take\ syslog\_config\_mutex;\ skipping\ send"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00184}00184\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00185}00185\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00186}00186\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00187}00187\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00188}00188\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!enabled)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00189}00189\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00190}00190\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00191}00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00192}00192\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00193}00193\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00194}00194\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ port\ =\ atoi(port\_str);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00195}00195\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (port\ <=\ 0\ ||\ port\ >\ 65535)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00196}00196\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00197}00197\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ invalid\ port\ '\%s',\ dropping\ message"{}},\ port\_str);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00198}00198\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00199}00199\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00200}00200\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00201}00201\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00202}00202\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(ip)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00203}00203\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00204}00204\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ syslog\ IP\ empty,\ dropping\ message"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00205}00205\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00206}00206\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00207}00207\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00208}00208\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00209}00209\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Build\ syslog\ message}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00210}00210\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{char}\ *msg\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00211}00211\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ n\ =\ asprintf(\&msg,\ \textcolor{stringliteral}{"{}<13>\%s\ \%s:\ \%s\(\backslash\)n"{}},\ hostname\_local[0]\ ?\ hostname\_local\ :\ \textcolor{stringliteral}{"{}set-\/hostname"{}},\ appname\_local[0]\ ?\ appname\_local\ :\ \textcolor{stringliteral}{"{}set-\/app"{}},\ item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00212}00212\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (n\ <\ 0\ ||\ !msg)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00213}00213\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00214}00214\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ asprintf\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00215}00215\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00216}00216\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00217}00217\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00218}00218\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00219}00219\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Prepare\ destination\ address}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00220}00220\ \ \ \ \ \ \ \ \ \textcolor{keyword}{struct\ }sockaddr\_in\ dest;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00221}00221\ \ \ \ \ \ \ \ \ memset(\&dest,\ 0,\ \textcolor{keyword}{sizeof}(dest));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00222}00222\ \ \ \ \ \ \ \ \ dest.sin\_family\ =\ AF\_INET;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00223}00223\ \ \ \ \ \ \ \ \ dest.sin\_port\ =\ htons(port);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00224}00224\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!inet\_aton(ip,\ \&dest.sin\_addr))}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00225}00225\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00226}00226\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ inet\_aton\ failed\ for\ \%s"{}},\ ip);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00227}00227\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00228}00228\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00229}00229\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00230}00230\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00231}00231\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00232}00232\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (!\mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}())}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00233}00233\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00234}00234\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ no\ active\ network\ interface;\ waiting\ for\ IP\ before\ sending\ syslog"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00235}00235\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{syslog_8c_a10d7a41a57a36f76926a27deab7c5215}{network\_wait\_for\_ip}}(10,\ 500,\ NULL))}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00236}00236\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00237}00237\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ still\ no\ IP\ available;\ retrying"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00238}00238\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00239}00239\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00240}00240\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00241}00241\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Create\ UDP\ socket}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00242}00242\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ sock\ =\ socket(AF\_INET,\ SOCK\_DGRAM,\ IPPROTO\_UDP);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00243}00243\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sock\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00244}00244\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00245}00245\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ socket()\ failed:\ errno=\%d\ (\%s)"{}},\ errno,\ strerror(errno));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00246}00246\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00247}00247\ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00248}00248\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(\mbox{\hyperlink{syslog_8h_a3b0b077cbe385058f258ac051ff57182}{SYSLOG\_RETRY\_DELAY\_MS}}));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00249}00249\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00250}00250\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00251}00251\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00252}00252\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Bind\ socket\ to\ active\ interface\ IP\ so\ outgoing\ packets\ use\ that\ interface}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00253}00253\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (bind\_socket\_to\_active\_interface(sock)\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00254}00254\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00255}00255\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ failed\ to\ bind\ socket\ to\ active\ interface;\ continuing\ (socket\ will\ use\ default\ route)"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00256}00256\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Not\ fatal:\ continue\ and\ attempt\ send}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00257}00257\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00258}00258\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00259}00259\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Try\ to\ send\ with\ a\ few\ retries\ for\ transient\ errors}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00260}00260\ \ \ \ \ \ \ \ \ ssize\_t\ sent\ =\ -\/1;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00261}00261\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ attempt\ =\ 0;\ attempt\ <\ \mbox{\hyperlink{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43}{SYSLOG\_SEND\_RETRIES}};\ ++attempt)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00262}00262\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00263}00263\ \ \ \ \ \ \ \ \ \ \ \ \ sent\ =\ safe\_syslog\_send(sock,\ msg,\ strlen(msg),\ 0,\ (\textcolor{keyword}{struct}\ sockaddr\ *)\&dest,\ \textcolor{keyword}{sizeof}(dest));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00264}00264\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sent\ >=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00265}00265\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{break};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00266}00266\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(\mbox{\hyperlink{syslog_8h_a3b0b077cbe385058f258ac051ff57182}{SYSLOG\_RETRY\_DELAY\_MS}}));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00267}00267\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00268}00268\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00269}00269\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (sent\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00270}00270\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00271}00271\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ send\ failed\ after\ \%d\ attempts"{}},\ \mbox{\hyperlink{syslog_8h_a69ed5be81132148a8a77fa90fc10fb43}{SYSLOG\_SEND\_RETRIES}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00272}00272\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00273}00273\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00274}00274\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00275}00275\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGD(TAG,\ \textcolor{stringliteral}{"{}syslog\_worker:\ sent\ \%d\ bytes"{}},\ (\textcolor{keywordtype}{int})sent);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00276}00276\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Notify\ network\ manager\ that\ Ethernet\ activity\ occurred}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00277}00277\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{network__manager_8c_acdee73edd1c128e1b024f5b1132038ea}{net\_mgr\_notify\_eth\_activity}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00278}00278\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00279}00279\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00280}00280\ \ \ \ \ \ \ \ \ close(sock);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00281}00281\ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00282}00282\ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00283}00283\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00284}00284\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00285}00285\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00286}\mbox{\hyperlink{syslog_8c_ab1e54a15fcb1206c48c501c107880ccf}{00286}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_ab1e54a15fcb1206c48c501c107880ccf}{syslog\_queue\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00287}00287\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00288}00288\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00289}00289\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00290}00290\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00291}00291\ \ \ \ \ s\_syslog\_queue\ =\ xQueueCreate(\mbox{\hyperlink{syslog_8h_a4b9dec5bbecb4815a13be81a5e61b8aa}{SYSLOG\_QUEUE\_LENGTH}},\ \textcolor{keyword}{sizeof}(\mbox{\hyperlink{structsyslog__queue__item__t}{syslog\_queue\_item\_t}}));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00292}00292\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00293}00293\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00294}00294\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_queue\_init:\ failed\ to\ create\ queue"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00295}00295\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00296}00296\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00297}00297\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00298}00298\ \ \ \ \ BaseType\_t\ r\ =\ xTaskCreate(syslog\_worker\_task,\ \textcolor{stringliteral}{"{}syslog\_worker"{}},\ \mbox{\hyperlink{syslog_8h_a8421db09bcdd1d2eda90421d2c3ccf85}{SYSLOG\_WORKER\_STACK}}\ /\ \textcolor{keyword}{sizeof}(StackType\_t),\ NULL,\ \mbox{\hyperlink{syslog_8h_ad6259844e69f7260a58b73da723fd88e}{SYSLOG\_WORKER\_PRIO}},\ \&\mbox{\hyperlink{globals_8c_a60a1c219e198f3df704b40d2d6ec7d85}{task\_syslog}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00299}00299\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00300}00300\ \ \ \ \ \textcolor{keywordflow}{if}\ (r\ !=\ pdPASS)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00301}00301\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00302}00302\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_queue\_init:\ failed\ to\ create\ worker\ task"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00303}00303\ \ \ \ \ \ \ \ \ vQueueDelete(s\_syslog\_queue);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00304}00304\ \ \ \ \ \ \ \ \ s\_syslog\_queue\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00305}00305\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a60a1c219e198f3df704b40d2d6ec7d85}{task\_syslog}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00306}00306\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00307}00307\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00308}00308\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00309}00309\ \ \ \ \ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}syslog\_queue\_init:\ worker\ started"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00310}00310\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00311}00311\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00312}00312\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00313}\mbox{\hyperlink{syslog_8c_a020c13fcbba60e55e063f099a00bea74}{00313}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_a020c13fcbba60e55e063f099a00bea74}{syslog\_queue\_deinit}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00314}00314\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00315}00315\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a60a1c219e198f3df704b40d2d6ec7d85}{task\_syslog}})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00316}00316\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00317}00317\ \ \ \ \ \ \ \ \ vTaskDelete(\mbox{\hyperlink{globals_8c_a60a1c219e198f3df704b40d2d6ec7d85}{task\_syslog}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00318}00318\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{globals_8c_a60a1c219e198f3df704b40d2d6ec7d85}{task\_syslog}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00319}00319\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00320}00320\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00321}00321\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00322}00322\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00323}00323\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{structsyslog__queue__item__t}{syslog\_queue\_item\_t}}\ item;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00324}00324\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (xQueueReceive(s\_syslog\_queue,\ \&item,\ 0)\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00325}00325\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00326}00326\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00327}00327\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ heap\_caps\_free(item.\mbox{\hyperlink{structsyslog__queue__item__t_adb03cb4f2a81d06a9c22ab3f10fc4eeb}{line}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00328}00328\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00329}00329\ \ \ \ \ \ \ \ \ vQueueDelete(s\_syslog\_queue);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00330}00330\ \ \ \ \ \ \ \ \ s\_syslog\_queue\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00331}00331\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00332}00332\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00333}00333\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00334}\mbox{\hyperlink{syslog_8c_a1687dfe7b28a75c0dc10fe5e4bd0eb26}{00334}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_a1687dfe7b28a75c0dc10fe5e4bd0eb26}{syslog\_enqueue\_line}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *line)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00335}00335\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00336}00336\ \ \ \ \ \textcolor{keywordflow}{if}\ (!line\ ||\ !*line)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00337}00337\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00338}00338\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00339}00339\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00340}00340\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00341}00341\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Queue\ not\ initialized:\ fall\ back\ to\ synchronous\ send}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00342}00342\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_enqueue\_line:\ queue\ not\ initialized,\ falling\ back\ to\ direct\ send"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00343}00343\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ call\ original\ synchronous\ implementation\ below}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00344}00344\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{syslog_8c_a21ad61b41c644556b747e1607948ad29}{syslog\_send\_line}}(line);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00345}00345\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00346}00346\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00347}00347\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00348}00348\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ len\ =\ strnlen(line,\ \mbox{\hyperlink{syslog_8h_a3789d56554454c39a416b368eeeb7a8b}{SYSLOG\_MAX\_LINE\_LEN}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00349}00349\ \ \ \ \ \textcolor{keywordtype}{char}\ *copy\ =\ heap\_caps\_malloc(len\ +\ 1,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00350}00350\ \ \ \ \ \textcolor{keywordflow}{if}\ (!copy)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00351}00351\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00352}00352\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}syslog\_enqueue\_line:\ heap\_caps\_malloc\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00353}00353\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00354}00354\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00355}00355\ \ \ \ \ memcpy(copy,\ line,\ len);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00356}00356\ \ \ \ \ copy[len]\ =\ \textcolor{charliteral}{'\(\backslash\)0'};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00357}00357\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00358}00358\ \ \ \ \ \mbox{\hyperlink{structsyslog__queue__item__t}{syslog\_queue\_item\_t}}\ item\ =\ \{.line\ =\ copy,\ .len\ =\ len\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00359}00359\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00360}00360\ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueSend(s\_syslog\_queue,\ \&item,\ 0)\ !=\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00361}00361\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00362}00362\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_enqueue\_line:\ queue\ full,\ dropping\ message"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00363}00363\ \ \ \ \ \ \ \ \ heap\_caps\_free(copy);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00364}00364\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00365}00365\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00366}00366\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00367}\mbox{\hyperlink{syslog_8c_a21ad61b41c644556b747e1607948ad29}{00367}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_a21ad61b41c644556b747e1607948ad29}{syslog\_send\_line}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *line)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00368}00368\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00369}00369\ \ \ \ \ \textcolor{comment}{//\ If\ queue\ exists,\ enqueue\ and\ return\ quickly}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00370}00370\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_syslog\_queue\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00371}00371\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00372}00372\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{syslog_8c_a1687dfe7b28a75c0dc10fe5e4bd0eb26}{syslog\_enqueue\_line}}(line);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00373}00373\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00374}00374\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00375}00375\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00376}00376\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}())}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00377}00377\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00378}00378\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}syslog\_send\_line:\ network\ not\ ready,\ skipping\ send"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00379}00379\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00380}00380\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00381}00381\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00382}00382\ \ \ \ \ \textcolor{keywordflow}{if}\ (!line\ ||\ !*line)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00383}00383\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00384}00384\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}syslog\_send\_line:\ empty\ line,\ nothing\ to\ send"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00385}00385\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00386}00386\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00387}00387\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00388}00388\ \ \ \ \ \textcolor{comment}{//\ Read\ syslog\ config\ safely}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00389}00389\ \ \ \ \ \textcolor{keywordtype}{char}\ ip[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00390}00390\ \ \ \ \ \textcolor{keywordtype}{char}\ port\_str[\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00391}00391\ \ \ \ \ \textcolor{keywordtype}{char}\ hostname\_local[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00392}00392\ \ \ \ \ \textcolor{keywordtype}{char}\ appname\_local[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00393}00393\ \ \ \ \ \textcolor{keywordtype}{char}\ device\_id\_local[\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\_CONFIG\_ITEM}}]\ =\ \{0\};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00394}00394\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00395}00395\ \ \ \ \ \textcolor{keywordtype}{bool}\ enabled\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00396}00396\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00397}00397\ \ \ \ \ xSemaphoreTake(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}},\ portMAX\_DELAY);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00398}00398\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00399}00399\ \ \ \ \ enabled\ =\ (strcmp(\mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.enable\_syslog,\ \textcolor{stringliteral}{"{}On"{}})\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00400}00400\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00401}00401\ \ \ \ \ \textcolor{keywordflow}{if}\ (enabled)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00402}00402\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00403}00403\ \ \ \ \ \ \ \ \ strncpy(ip,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_ip,\ \textcolor{keyword}{sizeof}(ip)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00404}00404\ \ \ \ \ \ \ \ \ strncpy(port\_str,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_port,\ \textcolor{keyword}{sizeof}(port\_str)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00405}00405\ \ \ \ \ \ \ \ \ strncpy(hostname\_local,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_hostname,\ \textcolor{keyword}{sizeof}(hostname\_local)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00406}00406\ \ \ \ \ \ \ \ \ strncpy(appname\_local,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_appname,\ \textcolor{keyword}{sizeof}(appname\_local)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00407}00407\ \ \ \ \ \ \ \ \ strncpy(device\_id\_local,\ \mbox{\hyperlink{globals_8c_afa8f7b2b05ee6ceb77d85f5382303170}{syslog\_config}}.syslog\_device\_id,\ \textcolor{keyword}{sizeof}(device\_id\_local)\ -\/\ 1);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00408}00408\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00409}00409\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00410}00410\ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_a35517c7333006341422af36e1f38dacf}{syslog\_config\_mutex}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00411}00411\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00412}00412\ \ \ \ \ \textcolor{keywordflow}{if}\ (!enabled)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00413}00413\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00414}00414\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00415}00415\ \ \ \ \ \textcolor{keywordtype}{int}\ port\ =\ atoi(port\_str);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00416}00416\ \ \ \ \ \textcolor{keywordflow}{if}\ (port\ <=\ 0\ ||\ port\ >\ 65535)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00417}00417\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00418}00418\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Invalid\ syslog\ port:\ \%s"{}},\ port\_str);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00419}00419\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00420}00420\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00421}00421\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00422}00422\ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(ip)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00423}00423\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00424}00424\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Syslog\ IP\ not\ configured"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00425}00425\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00426}00426\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00427}00427\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00428}00428\ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(hostname\_local)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00429}00429\ \ \ \ \ \ \ \ \ snprintf(hostname\_local,\ \textcolor{keyword}{sizeof}(hostname\_local),\ \textcolor{stringliteral}{"{}\%s"{}},\ \textcolor{stringliteral}{"{}set\ hostname"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00430}00430\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00431}00431\ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(appname\_local)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00432}00432\ \ \ \ \ \ \ \ \ snprintf(appname\_local,\ \textcolor{keyword}{sizeof}(appname\_local),\ \textcolor{stringliteral}{"{}\%s"{}},\ \textcolor{stringliteral}{"{}set\ app\ name"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00433}00433\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00434}00434\ \ \ \ \ \textcolor{keywordflow}{if}\ (strlen(device\_id\_local)\ ==\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00435}00435\ \ \ \ \ \ \ \ \ snprintf(device\_id\_local,\ \textcolor{keyword}{sizeof}(device\_id\_local),\ \textcolor{stringliteral}{"{}\%s"{}},\ \textcolor{stringliteral}{"{}set\ device\ ID"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00436}00436\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00437}00437\ \ \ \ \ \textcolor{keywordtype}{size\_t}\ msg\_len\ =\ strlen(hostname\_local)\ +\ strlen(appname\_local)\ +\ strlen(line)\ +\ 64;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00438}00438\ \ \ \ \ \textcolor{keywordtype}{char}\ *msg\ =\ heap\_caps\_malloc(msg\_len,\ MALLOC\_CAP\_SPIRAM\ |\ MALLOC\_CAP\_8BIT);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00439}00439\ \ \ \ \ \textcolor{keywordflow}{if}\ (!msg)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00440}00440\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00441}00441\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}syslog\_send\_line:\ heap\_caps\_malloc\ failed\ for\ \%zu\ bytes"{}},\ msg\_len);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00442}00442\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00443}00443\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00444}00444\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00445}00445\ \ \ \ \ \textcolor{keywordtype}{int}\ n\ =\ snprintf(msg,\ msg\_len,\ \textcolor{stringliteral}{"{}<13>\%s\ \%s:\ \%s\(\backslash\)n"{}},\ hostname\_local,\ appname\_local,\ line);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00446}00446\ \ \ \ \ \textcolor{keywordflow}{if}\ (n\ <\ 0\ ||\ (\textcolor{keywordtype}{size\_t})n\ >=\ msg\_len)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00447}00447\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00448}00448\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}syslog\_send\_line:\ snprintf\ failed\ or\ truncated"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00449}00449\ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00450}00450\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00451}00451\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00452}00452\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00453}00453\ \ \ \ \ \textcolor{keywordtype}{int}\ sock\ =\ socket(AF\_INET,\ SOCK\_DGRAM,\ IPPROTO\_UDP);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00454}00454\ \ \ \ \ \textcolor{keywordflow}{if}\ (sock\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00455}00455\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00456}00456\ \ \ \ \ \ \ \ \ ESP\_LOGE(TAG,\ \textcolor{stringliteral}{"{}socket()\ failed:\ errno=\%d\ (\%s)"{}},\ errno,\ strerror(errno));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00457}00457\ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00458}00458\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00459}00459\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00460}00460\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00461}00461\ \ \ \ \ \textcolor{comment}{//\ Bind\ to\ active\ interface\ if\ possible}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00462}00462\ \ \ \ \ \textcolor{keywordflow}{if}\ (bind\_socket\_to\_active\_interface(sock)\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00463}00463\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00464}00464\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}syslog\_send\_line:\ failed\ to\ bind\ socket\ to\ active\ interface;\ continuing"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00465}00465\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00466}00466\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00467}00467\ \ \ \ \ \textcolor{keyword}{struct\ }sockaddr\_in\ dest;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00468}00468\ \ \ \ \ memset(\&dest,\ 0,\ \textcolor{keyword}{sizeof}(dest));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00469}00469\ \ \ \ \ dest.sin\_family\ =\ AF\_INET;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00470}00470\ \ \ \ \ dest.sin\_port\ =\ htons(port);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00471}00471\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00472}00472\ \ \ \ \ \textcolor{keywordflow}{if}\ (!inet\_aton(ip,\ \&dest.sin\_addr))}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00473}00473\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00474}00474\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}inet\_aton\ failed\ for\ \%s"{}},\ ip);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00475}00475\ \ \ \ \ \ \ \ \ close(sock);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00476}00476\ \ \ \ \ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00477}00477\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00478}00478\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00479}00479\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00480}00480\ \ \ \ \ ssize\_t\ sent\ =\ safe\_syslog\_send(sock,\ msg,\ strlen(msg),\ 0,\ (\textcolor{keyword}{struct}\ sockaddr\ *)\&dest,\ \textcolor{keyword}{sizeof}(dest));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00481}00481\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00482}00482\ \ \ \ \ \textcolor{keywordflow}{if}\ (sent\ <\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00483}00483\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00484}00484\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}syslog:\ send\ failed\ (see\ earlier\ diagnostics)"{}});}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00485}00485\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00486}00486\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00487}00487\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00488}00488\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}Sent\ \%d\ bytes\ to\ syslog-\/ng"{}},\ (\textcolor{keywordtype}{int})sent);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00489}00489\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Notify\ network\ manager\ that\ Ethernet\ activity\ occurred}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00490}00490\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{network__manager_8c_acdee73edd1c128e1b024f5b1132038ea}{net\_mgr\_notify\_eth\_activity}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00491}00491\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00492}00492\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00493}00493\ \ \ \ \ close(sock);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00494}00494\ \ \ \ \ heap\_caps\_free(msg);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00495}00495\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00496}00496\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00497}00497\ \textcolor{comment}{//\ Public:\ wait\ for\ IP\ on\ a\ given\ netif\ key\ ("{}WIFI\_STA\_DEF"{}\ or\ Ethernet\ key)}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00498}00498\ \textcolor{comment}{//\ Wait\ for\ IP\ on\ a\ specific\ netif\ key\ (if\ netif\_key==NULL,\ wait\ for\ any\ active\ netif).}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00499}\mbox{\hyperlink{syslog_8c_a10d7a41a57a36f76926a27deab7c5215}{00499}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{syslog_8c_a10d7a41a57a36f76926a27deab7c5215}{network\_wait\_for\_ip}}(\textcolor{keywordtype}{int}\ max\_retries,\ \textcolor{keywordtype}{int}\ delay\_ms,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *netif\_key)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00500}00500\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00501}00501\ \ \ \ \ \textcolor{keywordtype}{int}\ retries\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00502}00502\ \ \ \ \ esp\_netif\_ip\_info\_t\ ip;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00503}00503\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00504}00504\ \ \ \ \ \textcolor{keywordflow}{while}\ (retries\ <\ max\_retries)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00505}00505\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00506}00506\ \ \ \ \ \ \ \ \ esp\_netif\_t\ *netif\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00507}00507\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00508}00508\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (netif\_key\ \&\&\ netif\_key[0]\ !=\ \textcolor{charliteral}{'\(\backslash\)0'})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00509}00509\ \ \ \ \ \ \ \ \ \ \ \ \ netif\ =\ esp\_netif\_get\_handle\_from\_ifkey(netif\_key);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00510}00510\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00511}00511\ \ \ \ \ \ \ \ \ \ \ \ \ netif\ =\ \mbox{\hyperlink{network__functions_8c_a6b47beccae7fe1852e3f91ff0f692cd2}{get\_active\_netif}}();}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00512}00512\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00513}00513\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (netif)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00514}00514\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00515}00515\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (esp\_netif\_get\_ip\_info(netif,\ \&ip)\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00516}00516\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00517}00517\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ip.ip.addr\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00518}00518\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00519}00519\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}IP\ ready\ on\ \%s:\ "{}}\ IPSTR,\ netif\_key\ ?\ netif\_key\ :\ \textcolor{stringliteral}{"{}active"{}},\ IP2STR(\&ip.ip));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00520}00520\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00521}00521\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00522}00522\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00523}00523\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00524}00524\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00525}00525\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}Waiting\ for\ IP\ on\ \%s...\ (\%d/\%d)"{}},}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00526}00526\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ netif\_key\ ?\ netif\_key\ :\ \textcolor{stringliteral}{"{}active\ interface"{}},\ retries\ +\ 1,\ max\_retries);}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00527}00527\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00528}00528\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(delay\_ms));}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00529}00529\ \ \ \ \ \ \ \ \ retries++;}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00530}00530\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00531}00531\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00532}00532\ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00533}00533\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00534}00534\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00535}\mbox{\hyperlink{syslog_8c_a96ec32e39db6dfc4b42d875e8f1c0416}{00535}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_a96ec32e39db6dfc4b42d875e8f1c0416}{syslog\_enable}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00536}00536\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00537}00537\ \ \ \ \ \mbox{\hyperlink{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}{syslog\_enabled}}\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00538}00538\ \}}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00539}00539\ }
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00540}\mbox{\hyperlink{syslog_8c_a75c8a90b6c205d3df4c8dc0cc4fc2152}{00540}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{syslog_8c_a75c8a90b6c205d3df4c8dc0cc4fc2152}{syslog\_disable}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00541}00541\ \{}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00542}00542\ \ \ \ \ \mbox{\hyperlink{logging_8h_a342ee57949923fc5afa079a5c7e0a1c8}{syslog\_enabled}}\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{syslog_8c_source_l00543}00543\ \}}
+
+\end{DoxyCode}

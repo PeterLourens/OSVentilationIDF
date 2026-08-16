@@ -1,0 +1,78 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/task\+\_\+sys\+\_\+stats.h File Reference}
+\hypertarget{task__sys__stats_8h}{}\label{task__sys__stats_8h}\index{/home/peter/Development/OSVentilationIDF/main/task\_sys\_stats.h@{/home/peter/Development/OSVentilationIDF/main/task\_sys\_stats.h}}
+
+
+Public declarations for the system statistics task.  
+
+
+{\ttfamily \#include $<$freertos/\+Free\+RTOS.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/task.\+h$>$}\newline
+{\ttfamily \#include $<$freertos/queue.\+h$>$}\newline
+{\ttfamily \#include "{}globals.\+h"{}}\newline
+{\ttfamily \#include "{}sys\+\_\+stats.\+h"{}}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+Include dependency graph for task\+\_\+sys\+\_\+stats.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{task__sys__stats_8h_ae82d8c368af34ca69fe29864ebf41d63}{SYS\+\_\+\+STATS\+\_\+\+POLL\+\_\+\+MS}}~(10000)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{task__sys__stats_8h_a48896c4649c5d1b03fdd74ca8671b4f6}{start\+\_\+task\+\_\+sys\+\_\+stats}} (void)
+\item 
+void \mbox{\hyperlink{task__sys__stats_8h_abb3d1a795183c5d9c667c79e664273a4}{sys\+\_\+stats\+\_\+stop}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public declarations for the system statistics task. 
+
+
+
+Definition in file \mbox{\hyperlink{task__sys__stats_8h_source}{task\+\_\+sys\+\_\+stats.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{task__sys__stats_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{task__sys__stats_8h_ae82d8c368af34ca69fe29864ebf41d63}\index{task\_sys\_stats.h@{task\_sys\_stats.h}!SYS\_STATS\_POLL\_MS@{SYS\_STATS\_POLL\_MS}}
+\index{SYS\_STATS\_POLL\_MS@{SYS\_STATS\_POLL\_MS}!task\_sys\_stats.h@{task\_sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{SYS\_STATS\_POLL\_MS}{SYS\_STATS\_POLL\_MS}}
+{\footnotesize\ttfamily \label{task__sys__stats_8h_ae82d8c368af34ca69fe29864ebf41d63} 
+\#define SYS\+\_\+\+STATS\+\_\+\+POLL\+\_\+\+MS~(10000)}
+
+
+
+Definition at line \mbox{\hyperlink{task__sys__stats_8h_source_l00015}{15}} of file \mbox{\hyperlink{task__sys__stats_8h_source}{task\+\_\+sys\+\_\+stats.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{task__sys__stats_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{task__sys__stats_8h_a48896c4649c5d1b03fdd74ca8671b4f6}\index{task\_sys\_stats.h@{task\_sys\_stats.h}!start\_task\_sys\_stats@{start\_task\_sys\_stats}}
+\index{start\_task\_sys\_stats@{start\_task\_sys\_stats}!task\_sys\_stats.h@{task\_sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{start\_task\_sys\_stats()}{start\_task\_sys\_stats()}}
+{\footnotesize\ttfamily \label{task__sys__stats_8h_a48896c4649c5d1b03fdd74ca8671b4f6} 
+void start\+\_\+task\+\_\+sys\+\_\+stats (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__sys__stats_8c_source_l00045}{45}} of file \mbox{\hyperlink{task__sys__stats_8c_source}{task\+\_\+sys\+\_\+stats.\+c}}.
+
+\Hypertarget{task__sys__stats_8h_abb3d1a795183c5d9c667c79e664273a4}\index{task\_sys\_stats.h@{task\_sys\_stats.h}!sys\_stats\_stop@{sys\_stats\_stop}}
+\index{sys\_stats\_stop@{sys\_stats\_stop}!task\_sys\_stats.h@{task\_sys\_stats.h}}
+\doxysubsubsection{\texorpdfstring{sys\_stats\_stop()}{sys\_stats\_stop()}}
+{\footnotesize\ttfamily \label{task__sys__stats_8h_abb3d1a795183c5d9c667c79e664273a4} 
+void sys\+\_\+stats\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__sys__stats_8c_source_l00064}{64}} of file \mbox{\hyperlink{task__sys__stats_8c_source}{task\+\_\+sys\+\_\+stats.\+c}}.
+

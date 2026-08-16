@@ -1,0 +1,72 @@
+\doxysection{task\+\_\+i2c\+\_\+ds3231.\+c}
+\hypertarget{task__i2c__ds3231_8c_source}{}\label{task__i2c__ds3231_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_ds3231.c@{/home/peter/Development/OSVentilationIDF/main/task\_i2c\_ds3231.c}}
+\mbox{\hyperlink{task__i2c__ds3231_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__i2c__ds3231_8h}{task\_i2c\_ds3231.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_DS3231\_sync"{}};}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ i2c\_ds3231\_stack[5120];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ i2c\_ds3231\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ i2c\_ds3231\_stack\_size\ =\ 5120;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 5120\ words\ =\ 20\ KB}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00020}\mbox{\hyperlink{task__i2c__ds3231_8c_aff27563efde81a428b81055b6fcb1846}{00020}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__ds3231_8c_aff27563efde81a428b81055b6fcb1846}{start\_task\_i2c\_ds3231}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00021}00021\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00022}00022\ \ \ \ \ \textcolor{comment}{//\ xTaskCreate(task\_i2c\_ds3231\_code,\ "{}i2c\_ds3231"{},\ 4096,\ NULL,\ 8,\ \&task\_i2c\_ds3231);}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00023}00023\ \ \ \ \ \mbox{\hyperlink{globals_8c_a65653581d86bd0cf06772d3a7a0ca530}{task\_i2c\_ds3231}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__i2c__ds3231_8c_a8285a7ce430c0f109acaa1b1a8aee714}{task\_i2c\_ds3231\_code}},\ \textcolor{stringliteral}{"{}i2c\_ds3231"{}},\ i2c\_ds3231\_stack\_size,\ NULL,\ 8,\ i2c\_ds3231\_stack,\ \&i2c\_ds3231\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00025}00025\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a65653581d86bd0cf06772d3a7a0ca530}{task\_i2c\_ds3231}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00026}00026\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00027}00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}I2C\ DS3231\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00028}00028\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00029}00029\ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00031}\mbox{\hyperlink{task__i2c__ds3231_8c_a8285a7ce430c0f109acaa1b1a8aee714}{00031}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__i2c__ds3231_8c_a8285a7ce430c0f109acaa1b1a8aee714}{task\_i2c\_ds3231\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00032}00032\ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00033}00033\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{i2c__ds3231_8c_a1d991a3ff0974823e6a7c6b8935a752a}{i2c\_ds3231\_init}}(\mbox{\hyperlink{globals_8c_aefb351ec52ac77546d12f5dd1332c8b8}{i2c\_bus0\_handle}},\ \&\mbox{\hyperlink{globals_8c_a6bb0d5e335c8d4a8358886c3c0579a2c}{ds3231\_bus0\_handle}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00034}00034\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00035}00035\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00036}00036\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialize\ DS3231\ on\ bus\ 0:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00037}00037\ \ \ \ \ \ \ \ \ vTaskDelete(NULL);}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00039}00039\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00041}00041\ \ \ \ \ \mbox{\hyperlink{logging_8h_af2ac58c9ad2091115d531cafcd6e4c8c}{LOGD}}(TAG,\ \textcolor{stringliteral}{"{}DS3231\ initialized\ on\ bus\ 0"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00042}00042\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00043}00043\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00044}00044\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Use\ unified\ network\ logic\ (Ethernet\ preferred,\ Wi-\/Fi\ fallback)}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{network__functions_8c_a5b7241d33ed6fc033aedffbf5cb2cf87}{network\_has\_ip}}())}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}No\ network\ available,\ retrying..."{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(5000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{continue};}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Health\ check}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{i2c__ds3231_8c_a314cdf4ce4a471ece418bf23cc12953d}{ds3231\_health\_monitor}}(\mbox{\hyperlink{globals_8c_a6bb0d5e335c8d4a8358886c3c0579a2c}{ds3231\_bus0\_handle}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00055}00055\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00056}00056\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sync\ with\ NTP\ (this\ function\ already\ handles\ fallback\ to\ DS3231)}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00057}00057\ \ \ \ \ \ \ \ \ err\ =\ \mbox{\hyperlink{i2c__ds3231_8c_ad0e351becf31f986c50269fbf9b18056}{sync\_system\_and\_ds3231\_with\_ntp}}(\mbox{\hyperlink{globals_8c_a6bb0d5e335c8d4a8358886c3c0579a2c}{ds3231\_bus0\_handle}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00058}00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00059}00059\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}DS3231\ successfully\ synced\ with\ NTP"{}});}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Sync\ attempt\ failed:\ \%s"{}},\ esp\_err\_to\_name(err));}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00066}00066\ }
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Sleep\ for\ one\ hour\ before\ next\ sync}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(3600\ *\ 1000));}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00069}00069\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__i2c__ds3231_8c_source_l00070}00070\ \}}
+
+\end{DoxyCode}

@@ -1,0 +1,108 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/task\+\_\+pushbutton.c File Reference}
+\hypertarget{task__pushbutton_8c}{}\label{task__pushbutton_8c}\index{/home/peter/Development/OSVentilationIDF/main/task\_pushbutton.c@{/home/peter/Development/OSVentilationIDF/main/task\_pushbutton.c}}
+
+
+Pushbutton task implementation and long-\/press handling.  
+
+
+{\ttfamily \#include $<$esp\+\_\+attr.\+h$>$}\newline
+{\ttfamily \#include "{}task\+\_\+pushbutton.\+h"{}}\newline
+Include dependency graph for task\+\_\+pushbutton.\+c\+:
+% FIG 0
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d}{DEBOUNCE\+\_\+\+MS}}~50
+\item 
+\#define \mbox{\hyperlink{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37}{POLL\+\_\+\+MS}}~20
+\item 
+\#define \mbox{\hyperlink{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8}{LONG\+\_\+\+PRESS\+\_\+\+MS}}~1000
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51}{task\+\_\+pushbutton\+\_\+code}} (void \texorpdfstring{$\ast$}{*}pv\+Parameters)
+\item 
+void \mbox{\hyperlink{task__pushbutton_8c_a737f9e3ed7a965f1953c048ce598bc2f}{start\+\_\+task\+\_\+pushbutton}} (void)
+\item 
+void \mbox{\hyperlink{task__pushbutton_8c_a29ccfc8a96de65d3b73257c9d43ca3db}{stop\+\_\+task\+\_\+pushbutton}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Pushbutton task implementation and long-\/press handling. 
+
+
+
+Definition in file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{task__pushbutton_8c_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d}\index{task\_pushbutton.c@{task\_pushbutton.c}!DEBOUNCE\_MS@{DEBOUNCE\_MS}}
+\index{DEBOUNCE\_MS@{DEBOUNCE\_MS}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{DEBOUNCE\_MS}{DEBOUNCE\_MS}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d} 
+\#define DEBOUNCE\+\_\+\+MS~50}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00023}{23}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+\Hypertarget{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8}\index{task\_pushbutton.c@{task\_pushbutton.c}!LONG\_PRESS\_MS@{LONG\_PRESS\_MS}}
+\index{LONG\_PRESS\_MS@{LONG\_PRESS\_MS}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{LONG\_PRESS\_MS}{LONG\_PRESS\_MS}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8} 
+\#define LONG\+\_\+\+PRESS\+\_\+\+MS~1000}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00025}{25}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+\Hypertarget{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37}\index{task\_pushbutton.c@{task\_pushbutton.c}!POLL\_MS@{POLL\_MS}}
+\index{POLL\_MS@{POLL\_MS}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{POLL\_MS}{POLL\_MS}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37} 
+\#define POLL\+\_\+\+MS~20}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00024}{24}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{task__pushbutton_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{task__pushbutton_8c_a737f9e3ed7a965f1953c048ce598bc2f}\index{task\_pushbutton.c@{task\_pushbutton.c}!start\_task\_pushbutton@{start\_task\_pushbutton}}
+\index{start\_task\_pushbutton@{start\_task\_pushbutton}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{start\_task\_pushbutton()}{start\_task\_pushbutton()}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_a737f9e3ed7a965f1953c048ce598bc2f} 
+void start\+\_\+task\+\_\+pushbutton (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00140}{140}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+\Hypertarget{task__pushbutton_8c_a29ccfc8a96de65d3b73257c9d43ca3db}\index{task\_pushbutton.c@{task\_pushbutton.c}!stop\_task\_pushbutton@{stop\_task\_pushbutton}}
+\index{stop\_task\_pushbutton@{stop\_task\_pushbutton}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{stop\_task\_pushbutton()}{stop\_task\_pushbutton()}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_a29ccfc8a96de65d3b73257c9d43ca3db} 
+void stop\+\_\+task\+\_\+pushbutton (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00155}{155}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+
+\Hypertarget{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51}\index{task\_pushbutton.c@{task\_pushbutton.c}!task\_pushbutton\_code@{task\_pushbutton\_code}}
+\index{task\_pushbutton\_code@{task\_pushbutton\_code}!task\_pushbutton.c@{task\_pushbutton.c}}
+\doxysubsubsection{\texorpdfstring{task\_pushbutton\_code()}{task\_pushbutton\_code()}}
+{\footnotesize\ttfamily \label{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51} 
+void task\+\_\+pushbutton\+\_\+code (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{pv\+Parameters}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{task__pushbutton_8c_source_l00047}{47}} of file \mbox{\hyperlink{task__pushbutton_8c_source}{task\+\_\+pushbutton.\+c}}.
+

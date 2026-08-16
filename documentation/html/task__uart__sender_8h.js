@@ -3,6 +3,7 @@ var task__uart__sender_8h =
     [ "UART_SENDER_MAX_LINE", "task__uart__sender_8h.html#a024e4e95a65015e0c8cd7ee794daf92e", null ],
     [ "UART_SENDER_QUEUE_LEN", "task__uart__sender_8h.html#a06633252b9be0200eb1ac90b6a1d0e78", null ],
     [ "start_task_uart_sender", "task__uart__sender_8h.html#a344d6c6da7d42dc307e6a78848139f9b", null ],
+    [ "stop_task_uart_sender", "task__uart__sender_8h.html#a6efb470e28a8dcc7e4a2f9db2c50c4c4", null ],
     [ "task_uart_sender_code", "task__uart__sender_8h.html#a4a6dc8a92426ec4ce3b1d20def8fe428", null ],
     [ "uart_log_vprintf", "task__uart__sender_8h.html#ad27761c252a5dd886332658b5a010fd5", null ],
     [ "uart_sender_get_dropped_count", "task__uart__sender_8h.html#a0a6dd7ab5230f1b64947fbf47855995a", null ],

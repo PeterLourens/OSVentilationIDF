@@ -1,0 +1,60 @@
+\doxysection{config\+\_\+files.\+h}
+\hypertarget{config__files_8h_source}{}\label{config__files_8h_source}\index{/home/peter/Development/OSVentilationIDF/main/config\_files.h@{/home/peter/Development/OSVentilationIDF/main/config\_files.h}}
+\mbox{\hyperlink{config__files_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00017}00017\ \textcolor{preprocessor}{\#ifndef\ CONFIG\_FILES\_H}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00018}00018\ \textcolor{preprocessor}{\#define\ CONFIG\_FILES\_H}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00020}00020\ \textcolor{preprocessor}{\#include\ <cJSON.h>}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00021}00021\ \textcolor{preprocessor}{\#include\ <dirent.h>}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00022}00022\ \textcolor{preprocessor}{\#include\ <esp\_log.h>}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00023}00023\ \textcolor{preprocessor}{\#include\ <esp\_heap\_caps.h>}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00025}00025\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{globals_8h}{globals.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00026}00026\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{general_8h}{general.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00027}00027\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{logging_8h}{logging.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00028}00028\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00036}00036\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_ab916f0f2f47f94cf9e4e44063d47481d}{load\_sensor\_config}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00037}00037\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00045}00045\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a81d6b78e8d3fb9e78619a90cff215a51}{load\_wifi\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00046}00046\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00053}00053\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a7f3d1d42aa5dc3771878489c1c3da9c8}{load\_ethernet\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00061}00061\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a81037411e2e8b66c67cba34bae474f1a}{load\_time\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00069}00069\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_acadc0b7b0d1a65b322c9806c4db6a323}{load\_mqtt\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00070}00070\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00077}00077\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a7c0f40001838665e86d0ace66ceadf4a}{load\_influxdb\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00078}00078\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00085}00085\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_ae84752d3b8313299cbaf2e8bffa6dd6d}{load\_fan\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00086}00086\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00093}00093\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_afab78ae80b0c3741ecde847cab78b358}{load\_i2c\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00094}00094\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00101}00101\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a9473b8a9a74298ec11bc3d40fb177b2f}{load\_syslog\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00102}00102\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00109}00109\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_ac72d6ed07c44365d3ac9607b0a546778}{load\_statemachine\_general\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00110}00110\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00119}00119\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8h_a93b19abd029009209007316cd7198e06}{match\_pattern}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00120}00120\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00130}00130\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8h_a0e8d8b1be42e041e90cd9c992054d8dd}{parse\_bool\_flexible}}(\textcolor{keyword}{const}\ cJSON\ *,\ \textcolor{keywordtype}{bool}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00131}00131\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00140}00140\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8h_a3a1af233f56b59dcf57a8e991225f078}{parse\_int\_flexible}}(\textcolor{keyword}{const}\ cJSON\ *,\ \textcolor{keywordtype}{int}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00141}00141\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00152}00152\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{config__files_8h_a68c13344fbad687572c2b449c4c4a676}{parse\_state\_object}}(\textcolor{keyword}{const}\ cJSON\ *,\ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00153}00153\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00160}00160\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{config__files_8h_a2193df50a799911faf5718a9c241dd54}{get\_state\_config}}(\textcolor{keywordtype}{size\_t},\ \mbox{\hyperlink{structStatemachine__config__t}{Statemachine\_config\_t}}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00161}00161\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00173}00173\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a73aa032e00f2e660616ad49d082e5f45}{read\_state\_configs\_from\_json}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *,\ \textcolor{keywordtype}{int},\ \textcolor{keywordtype}{size\_t}\ *);}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00174}00174\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00181}00181\ esp\_err\_t\ \mbox{\hyperlink{config__files_8h_a541442023da9f2da977a4be0d2d1eeef}{load\_state\_config}}(\textcolor{keywordtype}{void});}
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00182}00182\ }
+\DoxyCodeLine{\Hypertarget{config__files_8h_source_l00183}00183\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

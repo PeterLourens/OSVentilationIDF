@@ -1,0 +1,97 @@
+\doxysection{pushbutton.\+c}
+\hypertarget{pushbutton_8c_source}{}\label{pushbutton_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/pushbutton.c@{/home/peter/Development/OSVentilationIDF/main/pushbutton.c}}
+\mbox{\hyperlink{pushbutton_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00001}00001\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00005}00005\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00006}00006\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{pushbutton_8h}{pushbutton.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00007}00007\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00008}00008\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}pushbutton"{}};}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00009}00009\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00010}00010\ \textcolor{comment}{/*\ Determine\ which\ GPIO\ to\ use:}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00011}00011\ \textcolor{comment}{\ \ \ Prefer\ hardware\ definition\ hw.switch1\_pin\ if\ valid\ (>=0),\ otherwise\ fallback\ to\ GPIO6.\ */}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00012}00012\ \textcolor{keyword}{static}\ gpio\_num\_t\ get\_pushbutton\_gpio(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00013}00013\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00014}00014\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.switch1\_pin\ >=\ 0)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00015}00015\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (gpio\_num\_t)\mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.switch1\_pin;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00016}00016\ \ \ \ \ \textcolor{keywordflow}{return}\ GPIO\_NUM\_6;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00017}00017\ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00018}00018\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00019}00019\ \textcolor{comment}{/*\ Queue\ used\ by\ ISR\ to\ notify\ the\ pushbutton\ task\ of\ edges\ */}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00020}00020\ \textcolor{keyword}{static}\ QueueHandle\_t\ s\_pushbutton\_evt\_queue\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00022}00022\ \textcolor{comment}{/*\ Last\ debounced\ state\ (true\ =\ pressed)\ */}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00023}00023\ \textcolor{keyword}{static}\ \textcolor{keyword}{volatile}\ \textcolor{keywordtype}{bool}\ s\_pushbutton\_state\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00025}00025\ \textcolor{comment}{/*\ ISR:\ enqueue\ a\ simple\ event\ (timestamp\ not\ needed)\ */}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00026}00026\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ IRAM\_ATTR\ pushbutton\_isr\_handler(\textcolor{keywordtype}{void}\ *arg)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00027}00027\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00028}00028\ \ \ \ \ uint32\_t\ one\ =\ 1;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00029}00029\ \ \ \ \ BaseType\_t\ xHigherPriorityTaskWoken\ =\ pdFALSE;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00030}00030\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_pushbutton\_evt\_queue)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00031}00031\ \ \ \ \ \ \ \ \ xQueueSendFromISR(s\_pushbutton\_evt\_queue,\ \&one,\ \&xHigherPriorityTaskWoken);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordflow}{if}\ (xHigherPriorityTaskWoken)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00033}00033\ \ \ \ \ \ \ \ \ portYIELD\_FROM\_ISR();}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00034}00034\ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00035}00035\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00036}\mbox{\hyperlink{pushbutton_8c_a6a0c9a83f68dbf0312760446399f9d7e}{00036}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{pushbutton_8c_a6a0c9a83f68dbf0312760446399f9d7e}{pushbutton\_init}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00037}00037\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00038}00038\ \ \ \ \ gpio\_num\_t\ pin\ =\ get\_pushbutton\_gpio();}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00039}00039\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00040}00040\ \ \ \ \ gpio\_config\_t\ io\_conf\ =\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ .pin\_bit\_mask\ =\ (1ULL\ <<\ pin),}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00042}00042\ \ \ \ \ \ \ \ \ .mode\ =\ GPIO\_MODE\_INPUT,}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ .pull\_up\_en\ =\ GPIO\_PULLUP\_ENABLE,}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ .pull\_down\_en\ =\ GPIO\_PULLDOWN\_DISABLE,}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00045}00045\ \ \ \ \ \ \ \ \ .intr\_type\ =\ GPIO\_INTR\_NEGEDGE\};}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00046}00046\ \ \ \ \ gpio\_config(\&io\_conf);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00047}00047\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00048}00048\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_pushbutton\_evt\_queue\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00049}00049\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ s\_pushbutton\_evt\_queue\ =\ xQueueCreate(8,\ \textcolor{keyword}{sizeof}(uint32\_t));}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_pushbutton\_evt\_queue\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00052}00052\ \ \ \ \ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ create\ pushbutton\ queue"{}});}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00053}00053\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00055}00055\ \ \ \ \ \textcolor{comment}{//\ Do\ not\ re-\/install\ ISR\ service\ if\ app\_main\ already\ did\ it.}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00056}00056\ \ \ \ \ \textcolor{comment}{//\ If\ you\ keep\ this\ call,\ tolerate\ ESP\_ERR\_INVALID\_STATE.}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00057}00057\ \ \ \ \ esp\_err\_t\ r\ =\ gpio\_install\_isr\_service(0);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00058}00058\ \ \ \ \ \textcolor{keywordflow}{if}\ (r\ !=\ ESP\_OK\ \&\&\ r\ !=\ ESP\_ERR\_INVALID\_STATE)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00059}00059\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ ESP\_LOGW(TAG,\ \textcolor{stringliteral}{"{}gpio\_install\_isr\_service\ failed:\ \%s"{}},\ esp\_err\_to\_name(r));}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00061}00061\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00062}00062\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00063}00063\ \ \ \ \ gpio\_isr\_handler\_add(pin,\ pushbutton\_isr\_handler,\ NULL);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00064}00064\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00065}00065\ \ \ \ \ s\_pushbutton\_state\ =\ (gpio\_get\_level(pin)\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00066}00066\ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}pushbutton\_init:\ gpio=\%d\ initial=\%d"{}},\ pin,\ s\_pushbutton\_state);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00067}00067\ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00068}00068\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00069}\mbox{\hyperlink{pushbutton_8c_ab77055d0ccece00eb3ebdebfa68d7f47}{00069}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{pushbutton_8c_ab77055d0ccece00eb3ebdebfa68d7f47}{pushbutton\_deinit}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00070}00070\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00071}00071\ \ \ \ \ gpio\_num\_t\ pin\ =\ get\_pushbutton\_gpio();}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00072}00072\ \ \ \ \ gpio\_isr\_handler\_remove(pin);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00073}00073\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00074}00074\ \ \ \ \ \textcolor{comment}{//\ Do\ not\ uninstall\ the\ global\ ISR\ service\ here\ if\ app\_main\ installed\ it.}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00075}00075\ \ \ \ \ \textcolor{comment}{//\ Only\ delete\ the\ queue\ if\ it\ exists\ and\ no\ other\ users\ rely\ on\ it.}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00076}00076\ \ \ \ \ \textcolor{keywordflow}{if}\ (s\_pushbutton\_evt\_queue)}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00077}00077\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ vQueueDelete(s\_pushbutton\_evt\_queue);}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ s\_pushbutton\_evt\_queue\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00080}00080\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00081}00081\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00082}00082\ \ \ \ \ ESP\_LOGI(TAG,\ \textcolor{stringliteral}{"{}pushbutton\_deinit"{}});}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00083}00083\ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00084}00084\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00085}\mbox{\hyperlink{pushbutton_8c_ae9b2eb7ba34500f05a94501af8739d46}{00085}}\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{pushbutton_8c_ae9b2eb7ba34500f05a94501af8739d46}{pushbutton\_get\_state}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00086}00086\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00087}00087\ \ \ \ \ \textcolor{keywordflow}{return}\ s\_pushbutton\_state;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00088}00088\ \}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00089}00089\ }
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00090}00090\ \textcolor{comment}{/*\ Internal\ accessor\ for\ the\ task\ to\ receive\ the\ queue\ handle\ */}}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00091}\mbox{\hyperlink{pushbutton_8c_af995c8d56a26815afb97f3fc4370e5d4}{00091}}\ QueueHandle\_t\ \mbox{\hyperlink{pushbutton_8c_af995c8d56a26815afb97f3fc4370e5d4}{pushbutton\_get\_queue}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00092}00092\ \{}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00093}00093\ \ \ \ \ \textcolor{keywordflow}{return}\ s\_pushbutton\_evt\_queue;}
+\DoxyCodeLine{\Hypertarget{pushbutton_8c_source_l00094}00094\ \}}
+
+\end{DoxyCode}

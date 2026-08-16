@@ -1,0 +1,609 @@
+\doxysection{Statemachine\+\_\+actuals\+\_\+t Struct Reference}
+\hypertarget{structStatemachine__actuals__t}{}\label{structStatemachine__actuals__t}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+
+
+Runtime actuals and telemetry tracked by the statemachine.  
+
+
+
+
+{\ttfamily \#include $<$globals.\+h$>$}
+
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a96a2fd09b7c96598dc071e234f0e492f}{fanspeed}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a74c0ed470b0712452a26a0b2ff69e0d8}{state}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a94c4e0c96b22082c88fc0ff7be2b5c80}{co2\+\_\+sensors\+\_\+high}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a60122c2e236c133b28673c6a955f863e}{rh\+\_\+sensors\+\_\+high}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a520f6f14b6b896955e5b8c92c8db24ec}{valve\+\_\+lock}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a5d30d8fc526bb81861c6ad3f4c6382ab}{wifi\+\_\+error}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a2edb382a02e08ad763f2344bbf794617}{wifi\+\_\+connected}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a2e651de87dc74509b5cf3ac8b563b7d1}{wifi\+\_\+ap\+\_\+mode}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_afb171bbdc7592a85e1f98bead0b5b596}{wifi\+\_\+rssi}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a0794cff8927ae1295b1720e3250870db}{wifi\+\_\+channel}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a5b758e4d791581dbc17831389c9432b3}{wifi\+\_\+authmode}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a81ffd7bd1d34e6f42d784e248b8ee474}{wifi\+\_\+phy}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_a1f7ec1fef1b4bca83747820cc3bebeea}{wifi\+\_\+bandwidth}}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a5185f71db058079692c398e15878b0ff}{wifi\+\_\+bssid}} \mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_adfa4ea9beaec83b73c2441ace0e65abf}{wifi\+\_\+ssid}} \mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a398530802abd2a569788ab1d4899250a}{hostname}} \mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a70addae92ea5fd7c01e66258a76d6389}{wifi\+\_\+ip\+\_\+addr}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_ac3c8ff34bfe77909c8bc9321483a38e6}{wifi\+\_\+netmask}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a0ae6ae0f9ad8b6eadb80affc9ff3a414}{wifi\+\_\+gateway}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_aac2fef34876e7370b36a8f6bdcedb825}{wifi\+\_\+dns1}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a08f86826711223de229381250afc2c4a}{wifi\+\_\+dns2}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a5ecb424dbc56b3f859784b1dd373b988}{wifi\+\_\+dhcp\+\_\+enabled}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_aace983ae73c37f56e782bcd62b7e19f7}{wifi\+\_\+enabled}}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a993afa551ad134b9ad663b0196f231cf}{eth\+\_\+ip\+\_\+addr}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a52f0cf7219b0c27c3ff25b2df5d31b7a}{eth\+\_\+netmask}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a5fad1b98095bf997a0e088ad70980f2c}{eth\+\_\+gateway}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a67f10c351e8c7357e16b5066d020df88}{eth\+\_\+dns1}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+char \mbox{\hyperlink{structStatemachine__actuals__t_a91bb0d33f941528b3b6f948d6c36231a}{eth\+\_\+dns2}} \mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_aef0cf04fb2c40a8fd189a5335030ca1f}{eth\+\_\+dhcp\+\_\+enabled}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_acf9d4b94b8947c3b00a1eee1d1832cce}{ethernet\+\_\+enabled}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a0eec7383ff5d635c0467e2c525e37e2e}{eth\+\_\+connected}}
+\item 
+bool \mbox{\hyperlink{structStatemachine__actuals__t_a0486a6f77ab69be5241afde5e23bd93e}{eth\+\_\+link\+\_\+up}}
+\item 
+int \mbox{\hyperlink{structStatemachine__actuals__t_aff53dd7ab15e2cce1074df5433c11d9f}{cpu\+\_\+temp}}
+\item 
+size\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_abef1c777bfa6ff5e76acaa53649d33a7}{heap\+\_\+free}}
+\item 
+size\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_acff092d6d55d757853cc313a94df2c7d}{heap\+\_\+min\+\_\+ever}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a2f06cddad2b05020f36ecaf97c628546}{stack\+\_\+i2c\+\_\+sensors}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a9521ed0f52e7e546d6833327c8f393c4}{stack\+\_\+i2c\+\_\+ds3231}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_af8b1a1f269b1f0dc1d89128c52b1e7d7}{stack\+\_\+i2c\+\_\+lcd}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a3a7a6dca1d4d269846abce1f41e53623}{stack\+\_\+rgb\+\_\+leds}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a8365ede18af4a442982964fd15365342}{stack\+\_\+statemachine}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a5001df909739e66b3046c0641b4a29a0}{stack\+\_\+valvectrl}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_af4ab7d608056666627d154fd8bdfcfc4}{stack\+\_\+mqtt}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a596a30b9f1ab0adb4ba2f56dbe6efeca}{stack\+\_\+influxdb}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a14baba87f9e55b067fcd4e0d60f866ea}{stack\+\_\+network\+\_\+manager}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_ace8ee6058785870b7fb1221a1d580b88}{stack\+\_\+pushbutton}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_aad1bde9eafae4beb57b3b6e192e9c2f6}{stack\+\_\+sys\+\_\+stats}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a6ef17abb573a209c9a4d4a610b2dab21}{stack\+\_\+syslog}}
+\item 
+uint32\+\_\+t \mbox{\hyperlink{structStatemachine__actuals__t_a3035d7806b5dbd45b07d03247901a356}{stack\+\_\+uart\+\_\+sender}}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Runtime actuals and telemetry tracked by the statemachine. 
+
+This struct collects the current fanspeed, active state, sensor alert counts, network connectivity status, system diagnostics, and per-\/task stack usage. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00389}{389}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+\label{doc-variable-members}
+\Hypertarget{structStatemachine__actuals__t_doc-variable-members}
+\doxysubsection{Member Data Documentation}
+\Hypertarget{structStatemachine__actuals__t_a94c4e0c96b22082c88fc0ff7be2b5c80}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!co2\_sensors\_high@{co2\_sensors\_high}}
+\index{co2\_sensors\_high@{co2\_sensors\_high}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{co2\_sensors\_high}{co2\_sensors\_high}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a94c4e0c96b22082c88fc0ff7be2b5c80} 
+int Statemachine\+\_\+actuals\+\_\+t\+::co2\+\_\+sensors\+\_\+high}
+
+Number of CO2 sensors reporting high values. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00393}{393}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_aff53dd7ab15e2cce1074df5433c11d9f}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!cpu\_temp@{cpu\_temp}}
+\index{cpu\_temp@{cpu\_temp}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{cpu\_temp}{cpu\_temp}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_aff53dd7ab15e2cce1074df5433c11d9f} 
+int Statemachine\+\_\+actuals\+\_\+t\+::cpu\+\_\+temp}
+
+CPU temperature reading. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00429}{429}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a0eec7383ff5d635c0467e2c525e37e2e}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_connected@{eth\_connected}}
+\index{eth\_connected@{eth\_connected}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_connected}{eth\_connected}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a0eec7383ff5d635c0467e2c525e37e2e} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+connected}
+
+True when Ethernet link is established. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00426}{426}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_aef0cf04fb2c40a8fd189a5335030ca1f}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_dhcp\_enabled@{eth\_dhcp\_enabled}}
+\index{eth\_dhcp\_enabled@{eth\_dhcp\_enabled}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_dhcp\_enabled}{eth\_dhcp\_enabled}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_aef0cf04fb2c40a8fd189a5335030ca1f} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+dhcp\+\_\+enabled}
+
+True when Ethernet uses DHCP. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00424}{424}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a67f10c351e8c7357e16b5066d020df88}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_dns1@{eth\_dns1}}
+\index{eth\_dns1@{eth\_dns1}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_dns1}{eth\_dns1}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a67f10c351e8c7357e16b5066d020df88} 
+char Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+dns1\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Ethernet primary DNS. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00422}{422}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a91bb0d33f941528b3b6f948d6c36231a}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_dns2@{eth\_dns2}}
+\index{eth\_dns2@{eth\_dns2}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_dns2}{eth\_dns2}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a91bb0d33f941528b3b6f948d6c36231a} 
+char Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+dns2\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Ethernet secondary DNS. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00423}{423}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5fad1b98095bf997a0e088ad70980f2c}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_gateway@{eth\_gateway}}
+\index{eth\_gateway@{eth\_gateway}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_gateway}{eth\_gateway}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5fad1b98095bf997a0e088ad70980f2c} 
+char Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+gateway\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Ethernet gateway. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00421}{421}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a993afa551ad134b9ad663b0196f231cf}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_ip\_addr@{eth\_ip\_addr}}
+\index{eth\_ip\_addr@{eth\_ip\_addr}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_ip\_addr}{eth\_ip\_addr}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a993afa551ad134b9ad663b0196f231cf} 
+char Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+ip\+\_\+addr\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Ethernet IP address. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00419}{419}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a0486a6f77ab69be5241afde5e23bd93e}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_link\_up@{eth\_link\_up}}
+\index{eth\_link\_up@{eth\_link\_up}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_link\_up}{eth\_link\_up}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a0486a6f77ab69be5241afde5e23bd93e} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+link\+\_\+up}
+
+True when Ethernet PHY link is up. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00427}{427}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a52f0cf7219b0c27c3ff25b2df5d31b7a}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!eth\_netmask@{eth\_netmask}}
+\index{eth\_netmask@{eth\_netmask}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{eth\_netmask}{eth\_netmask}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a52f0cf7219b0c27c3ff25b2df5d31b7a} 
+char Statemachine\+\_\+actuals\+\_\+t\+::eth\+\_\+netmask\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Ethernet netmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00420}{420}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_acf9d4b94b8947c3b00a1eee1d1832cce}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!ethernet\_enabled@{ethernet\_enabled}}
+\index{ethernet\_enabled@{ethernet\_enabled}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{ethernet\_enabled}{ethernet\_enabled}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_acf9d4b94b8947c3b00a1eee1d1832cce} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::ethernet\+\_\+enabled}
+
+True when Ethernet subsystem is enabled. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00425}{425}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a96a2fd09b7c96598dc071e234f0e492f}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!fanspeed@{fanspeed}}
+\index{fanspeed@{fanspeed}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{fanspeed}{fanspeed}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a96a2fd09b7c96598dc071e234f0e492f} 
+int Statemachine\+\_\+actuals\+\_\+t\+::fanspeed}
+
+Current fan speed value. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00391}{391}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_abef1c777bfa6ff5e76acaa53649d33a7}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!heap\_free@{heap\_free}}
+\index{heap\_free@{heap\_free}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{heap\_free}{heap\_free}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_abef1c777bfa6ff5e76acaa53649d33a7} 
+size\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::heap\+\_\+free}
+
+Current free heap in bytes. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00431}{431}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_acff092d6d55d757853cc313a94df2c7d}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!heap\_min\_ever@{heap\_min\_ever}}
+\index{heap\_min\_ever@{heap\_min\_ever}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{heap\_min\_ever}{heap\_min\_ever}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_acff092d6d55d757853cc313a94df2c7d} 
+size\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::heap\+\_\+min\+\_\+ever}
+
+Minimum heap ever available. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00432}{432}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a398530802abd2a569788ab1d4899250a}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!hostname@{hostname}}
+\index{hostname@{hostname}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{hostname}{hostname}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a398530802abd2a569788ab1d4899250a} 
+char Statemachine\+\_\+actuals\+\_\+t\+::hostname\mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Local device hostname. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00409}{409}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a60122c2e236c133b28673c6a955f863e}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!rh\_sensors\_high@{rh\_sensors\_high}}
+\index{rh\_sensors\_high@{rh\_sensors\_high}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{rh\_sensors\_high}{rh\_sensors\_high}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a60122c2e236c133b28673c6a955f863e} 
+int Statemachine\+\_\+actuals\+\_\+t\+::rh\+\_\+sensors\+\_\+high}
+
+Number of RH sensors reporting high values. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00394}{394}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a9521ed0f52e7e546d6833327c8f393c4}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_i2c\_ds3231@{stack\_i2c\_ds3231}}
+\index{stack\_i2c\_ds3231@{stack\_i2c\_ds3231}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_i2c\_ds3231}{stack\_i2c\_ds3231}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a9521ed0f52e7e546d6833327c8f393c4} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+i2c\+\_\+ds3231}
+
+Stack high-\/water mark for ds3231 task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00435}{435}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_af8b1a1f269b1f0dc1d89128c52b1e7d7}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_i2c\_lcd@{stack\_i2c\_lcd}}
+\index{stack\_i2c\_lcd@{stack\_i2c\_lcd}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_i2c\_lcd}{stack\_i2c\_lcd}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_af8b1a1f269b1f0dc1d89128c52b1e7d7} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+i2c\+\_\+lcd}
+
+Stack high-\/water mark for lcd task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00436}{436}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a2f06cddad2b05020f36ecaf97c628546}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_i2c\_sensors@{stack\_i2c\_sensors}}
+\index{stack\_i2c\_sensors@{stack\_i2c\_sensors}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_i2c\_sensors}{stack\_i2c\_sensors}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a2f06cddad2b05020f36ecaf97c628546} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+i2c\+\_\+sensors}
+
+Stack high-\/water mark for i2c\+\_\+sensors task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00434}{434}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a596a30b9f1ab0adb4ba2f56dbe6efeca}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_influxdb@{stack\_influxdb}}
+\index{stack\_influxdb@{stack\_influxdb}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_influxdb}{stack\_influxdb}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a596a30b9f1ab0adb4ba2f56dbe6efeca} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+influxdb}
+
+Stack high-\/water mark for Influx\+DB task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00441}{441}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_af4ab7d608056666627d154fd8bdfcfc4}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_mqtt@{stack\_mqtt}}
+\index{stack\_mqtt@{stack\_mqtt}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_mqtt}{stack\_mqtt}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_af4ab7d608056666627d154fd8bdfcfc4} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+mqtt}
+
+Stack high-\/water mark for MQTT task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00440}{440}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a14baba87f9e55b067fcd4e0d60f866ea}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_network\_manager@{stack\_network\_manager}}
+\index{stack\_network\_manager@{stack\_network\_manager}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_network\_manager}{stack\_network\_manager}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a14baba87f9e55b067fcd4e0d60f866ea} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+network\+\_\+manager}
+
+Stack high-\/water mark for network manager task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00442}{442}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_ace8ee6058785870b7fb1221a1d580b88}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_pushbutton@{stack\_pushbutton}}
+\index{stack\_pushbutton@{stack\_pushbutton}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_pushbutton}{stack\_pushbutton}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_ace8ee6058785870b7fb1221a1d580b88} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+pushbutton}
+
+Stack high-\/water mark for pushbutton task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00443}{443}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a3a7a6dca1d4d269846abce1f41e53623}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_rgb\_leds@{stack\_rgb\_leds}}
+\index{stack\_rgb\_leds@{stack\_rgb\_leds}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_rgb\_leds}{stack\_rgb\_leds}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a3a7a6dca1d4d269846abce1f41e53623} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+rgb\+\_\+leds}
+
+Stack high-\/water mark for RGB LED task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00437}{437}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a8365ede18af4a442982964fd15365342}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_statemachine@{stack\_statemachine}}
+\index{stack\_statemachine@{stack\_statemachine}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_statemachine}{stack\_statemachine}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a8365ede18af4a442982964fd15365342} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+statemachine}
+
+Stack high-\/water mark for statemachine task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00438}{438}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_aad1bde9eafae4beb57b3b6e192e9c2f6}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_sys\_stats@{stack\_sys\_stats}}
+\index{stack\_sys\_stats@{stack\_sys\_stats}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_sys\_stats}{stack\_sys\_stats}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_aad1bde9eafae4beb57b3b6e192e9c2f6} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+sys\+\_\+stats}
+
+Stack high-\/water mark for system stats task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00444}{444}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a6ef17abb573a209c9a4d4a610b2dab21}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_syslog@{stack\_syslog}}
+\index{stack\_syslog@{stack\_syslog}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_syslog}{stack\_syslog}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a6ef17abb573a209c9a4d4a610b2dab21} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+syslog}
+
+Stack high-\/water mark for syslog task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00445}{445}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a3035d7806b5dbd45b07d03247901a356}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_uart\_sender@{stack\_uart\_sender}}
+\index{stack\_uart\_sender@{stack\_uart\_sender}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_uart\_sender}{stack\_uart\_sender}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a3035d7806b5dbd45b07d03247901a356} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+uart\+\_\+sender}
+
+Stack high-\/water mark for UART sender task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00446}{446}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5001df909739e66b3046c0641b4a29a0}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!stack\_valvectrl@{stack\_valvectrl}}
+\index{stack\_valvectrl@{stack\_valvectrl}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{stack\_valvectrl}{stack\_valvectrl}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5001df909739e66b3046c0641b4a29a0} 
+uint32\+\_\+t Statemachine\+\_\+actuals\+\_\+t\+::stack\+\_\+valvectrl}
+
+Stack high-\/water mark for valve control task. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00439}{439}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a74c0ed470b0712452a26a0b2ff69e0d8}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!state@{state}}
+\index{state@{state}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{state}{state}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a74c0ed470b0712452a26a0b2ff69e0d8} 
+int Statemachine\+\_\+actuals\+\_\+t\+::state}
+
+Current statemachine state index. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00392}{392}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a520f6f14b6b896955e5b8c92c8db24ec}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!valve\_lock@{valve\_lock}}
+\index{valve\_lock@{valve\_lock}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{valve\_lock}{valve\_lock}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a520f6f14b6b896955e5b8c92c8db24ec} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::valve\+\_\+lock}
+
+True when valve movement is locked. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00396}{396}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a2e651de87dc74509b5cf3ac8b563b7d1}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_ap\_mode@{wifi\_ap\_mode}}
+\index{wifi\_ap\_mode@{wifi\_ap\_mode}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_ap\_mode}{wifi\_ap\_mode}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a2e651de87dc74509b5cf3ac8b563b7d1} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+ap\+\_\+mode}
+
+True when device is in AP mode. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00400}{400}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5b758e4d791581dbc17831389c9432b3}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_authmode@{wifi\_authmode}}
+\index{wifi\_authmode@{wifi\_authmode}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_authmode}{wifi\_authmode}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5b758e4d791581dbc17831389c9432b3} 
+int Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+authmode}
+
+Wi-\/\+Fi authentication mode. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00404}{404}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a1f7ec1fef1b4bca83747820cc3bebeea}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_bandwidth@{wifi\_bandwidth}}
+\index{wifi\_bandwidth@{wifi\_bandwidth}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_bandwidth}{wifi\_bandwidth}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a1f7ec1fef1b4bca83747820cc3bebeea} 
+int Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+bandwidth}
+
+Wi-\/\+Fi bandwidth. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00406}{406}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5185f71db058079692c398e15878b0ff}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_bssid@{wifi\_bssid}}
+\index{wifi\_bssid@{wifi\_bssid}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_bssid}{wifi\_bssid}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5185f71db058079692c398e15878b0ff} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+bssid\mbox{[}\mbox{\hyperlink{globals_8h_a396aae9223d6138f8e50a2ff1b11d6c0}{MEDIUM\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi BSSID in MAC text form. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00407}{407}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a0794cff8927ae1295b1720e3250870db}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_channel@{wifi\_channel}}
+\index{wifi\_channel@{wifi\_channel}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_channel}{wifi\_channel}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a0794cff8927ae1295b1720e3250870db} 
+int Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+channel}
+
+Wi-\/\+Fi channel in use. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00403}{403}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a2edb382a02e08ad763f2344bbf794617}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_connected@{wifi\_connected}}
+\index{wifi\_connected@{wifi\_connected}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_connected}{wifi\_connected}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a2edb382a02e08ad763f2344bbf794617} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+connected}
+
+True when Wi-\/\+Fi is connected. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00399}{399}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5ecb424dbc56b3f859784b1dd373b988}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_dhcp\_enabled@{wifi\_dhcp\_enabled}}
+\index{wifi\_dhcp\_enabled@{wifi\_dhcp\_enabled}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_dhcp\_enabled}{wifi\_dhcp\_enabled}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5ecb424dbc56b3f859784b1dd373b988} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+dhcp\+\_\+enabled}
+
+True when Wi-\/\+Fi uses DHCP. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00416}{416}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_aac2fef34876e7370b36a8f6bdcedb825}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_dns1@{wifi\_dns1}}
+\index{wifi\_dns1@{wifi\_dns1}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_dns1}{wifi\_dns1}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_aac2fef34876e7370b36a8f6bdcedb825} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+dns1\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi primary DNS. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00414}{414}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a08f86826711223de229381250afc2c4a}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_dns2@{wifi\_dns2}}
+\index{wifi\_dns2@{wifi\_dns2}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_dns2}{wifi\_dns2}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a08f86826711223de229381250afc2c4a} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+dns2\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi secondary DNS. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00415}{415}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_aace983ae73c37f56e782bcd62b7e19f7}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_enabled@{wifi\_enabled}}
+\index{wifi\_enabled@{wifi\_enabled}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_enabled}{wifi\_enabled}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_aace983ae73c37f56e782bcd62b7e19f7} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+enabled}
+
+True when Wi-\/\+Fi subsystem is enabled. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00417}{417}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a5d30d8fc526bb81861c6ad3f4c6382ab}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_error@{wifi\_error}}
+\index{wifi\_error@{wifi\_error}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_error}{wifi\_error}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a5d30d8fc526bb81861c6ad3f4c6382ab} 
+bool Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+error}
+
+True if Wi-\/\+Fi has reported an error. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00398}{398}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a0ae6ae0f9ad8b6eadb80affc9ff3a414}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_gateway@{wifi\_gateway}}
+\index{wifi\_gateway@{wifi\_gateway}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_gateway}{wifi\_gateway}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a0ae6ae0f9ad8b6eadb80affc9ff3a414} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+gateway\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi gateway. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00413}{413}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a70addae92ea5fd7c01e66258a76d6389}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_ip\_addr@{wifi\_ip\_addr}}
+\index{wifi\_ip\_addr@{wifi\_ip\_addr}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_ip\_addr}{wifi\_ip\_addr}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a70addae92ea5fd7c01e66258a76d6389} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+ip\+\_\+addr\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi IP address. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00411}{411}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_ac3c8ff34bfe77909c8bc9321483a38e6}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_netmask@{wifi\_netmask}}
+\index{wifi\_netmask@{wifi\_netmask}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_netmask}{wifi\_netmask}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_ac3c8ff34bfe77909c8bc9321483a38e6} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+netmask\mbox{[}\mbox{\hyperlink{globals_8h_a47aa813e8607babb85e3d34700d65d61}{SMALL\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Wi-\/\+Fi netmask. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00412}{412}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_a81ffd7bd1d34e6f42d784e248b8ee474}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_phy@{wifi\_phy}}
+\index{wifi\_phy@{wifi\_phy}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_phy}{wifi\_phy}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_a81ffd7bd1d34e6f42d784e248b8ee474} 
+int Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+phy}
+
+Wi-\/\+Fi PHY mode. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00405}{405}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_afb171bbdc7592a85e1f98bead0b5b596}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_rssi@{wifi\_rssi}}
+\index{wifi\_rssi@{wifi\_rssi}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_rssi}{wifi\_rssi}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_afb171bbdc7592a85e1f98bead0b5b596} 
+int Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+rssi}
+
+Wi-\/\+Fi RSSI in d\+Bm. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00402}{402}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+\Hypertarget{structStatemachine__actuals__t_adfa4ea9beaec83b73c2441ace0e65abf}\index{Statemachine\_actuals\_t@{Statemachine\_actuals\_t}!wifi\_ssid@{wifi\_ssid}}
+\index{wifi\_ssid@{wifi\_ssid}!Statemachine\_actuals\_t@{Statemachine\_actuals\_t}}
+\doxysubsubsection{\texorpdfstring{wifi\_ssid}{wifi\_ssid}}
+{\footnotesize\ttfamily \label{structStatemachine__actuals__t_adfa4ea9beaec83b73c2441ace0e65abf} 
+char Statemachine\+\_\+actuals\+\_\+t\+::wifi\+\_\+ssid\mbox{[}\mbox{\hyperlink{globals_8h_a9de60adef19eece5b6ae93d625381d04}{LARGE\+\_\+\+CONFIG\+\_\+\+ITEM}}\mbox{]}}
+
+Connected SSID. 
+
+Definition at line \mbox{\hyperlink{globals_8h_source_l00408}{408}} of file \mbox{\hyperlink{globals_8h_source}{globals.\+h}}.
+
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+/home/peter/\+Development/\+OSVentilation\+IDF/main/\mbox{\hyperlink{globals_8h}{globals.\+h}}\end{DoxyCompactItemize}

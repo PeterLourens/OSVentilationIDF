@@ -1,0 +1,169 @@
+\doxysection{task\+\_\+pushbutton.\+c}
+\hypertarget{task__pushbutton_8c_source}{}\label{task__pushbutton_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_pushbutton.c@{/home/peter/Development/OSVentilationIDF/main/task\_pushbutton.c}}
+\mbox{\hyperlink{task__pushbutton_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__pushbutton_8h}{task\_pushbutton.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_pushbutton"{}};}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00016}00016\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00017}00017\ \textcolor{comment}{//\ Static\ task\ allocation\ (pattern\ matches\ existing\ code\ style)\ */}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00018}00018\ \textcolor{keyword}{static}\ StaticTask\_t\ pushbutton\_tcb;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00019}00019\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ pushbutton\_stack[4096];}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00020}00020\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{size\_t}\ pushbutton\_stack\_size\ =\ 4096;\ \textcolor{comment}{//\ words\ (adjust\ if\ needed)}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00021}00021\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00022}00022\ \textcolor{comment}{/*\ Debounce\ and\ long-\/press\ thresholds\ */}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00023}\mbox{\hyperlink{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d}{00023}}\ \textcolor{preprocessor}{\#define\ DEBOUNCE\_MS\ 50}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00024}\mbox{\hyperlink{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37}{00024}}\ \textcolor{preprocessor}{\#define\ POLL\_MS\ 20}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00025}\mbox{\hyperlink{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8}{00025}}\ \textcolor{preprocessor}{\#define\ LONG\_PRESS\_MS\ 1000}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00026}00026\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00027}00027\ \textcolor{comment}{//\ Helper:\ resolve\ GPIO\ used\ for\ button\ (same\ logic\ as\ pushbutton.c)}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00028}00028\ \textcolor{keyword}{static}\ gpio\_num\_t\ get\_pushbutton\_gpio\_local(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00029}00029\ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00030}00030\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.switch1\_pin\ >=\ 0)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00031}00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (gpio\_num\_t)\mbox{\hyperlink{hardware__caps_8c_a4aaf2644be05ee6bfb15e7fd6f84a825}{hw}}.switch1\_pin;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00032}00032\ \ \ \ \ \textcolor{keywordflow}{return}\ GPIO\_NUM\_6;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00033}00033\ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00035}00035\ \textcolor{comment}{//\ Toggle\ backlight\ safely\ via\ i2c\_lcd\ API}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00036}00036\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{void}\ toggle\_backlight(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00037}00037\ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00038}00038\ \ \ \ \ \textcolor{keywordtype}{bool}\ cur\ =\ \mbox{\hyperlink{i2c__lcd_8c_a1aa305169ec8d09845ce0698ecfb50c1}{i2c\_lcd\_backlight\_get}}();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00039}00039\ \ \ \ \ esp\_err\_t\ r\ =\ \mbox{\hyperlink{i2c__lcd_8c_a92c829d8691e09819601b95836b9da5d}{i2c\_lcd\_backlight\_set}}(!cur);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00040}00040\ \ \ \ \ \textcolor{keywordflow}{if}\ (r\ ==\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00041}00041\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Backlight\ toggled\ -\/>\ \%d"{}},\ !cur);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00042}00042\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}Backlight\ toggle\ failed:\ \%s"{}},\ esp\_err\_to\_name(r));}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00044}00044\ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00046}00046\ \textcolor{comment}{//\ Task\ code:\ uses\ ISR\ queue\ when\ available,\ falls\ back\ to\ polling\ for\ robustness}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00047}\mbox{\hyperlink{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51}{00047}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51}{task\_pushbutton\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00048}00048\ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00049}00049\ \ \ \ \ (void)pvParameters;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00050}00050\ \ \ \ \ \mbox{\hyperlink{pushbutton_8c_a6a0c9a83f68dbf0312760446399f9d7e}{pushbutton\_init}}();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00051}00051\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00052}00052\ \ \ \ \ gpio\_num\_t\ pin\ =\ get\_pushbutton\_gpio\_local();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00053}00053\ \ \ \ \ QueueHandle\_t\ q\ =\ \mbox{\hyperlink{pushbutton_8c_af995c8d56a26815afb97f3fc4370e5d4}{pushbutton\_get\_queue}}();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00054}00054\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00055}00055\ \ \ \ \ TickType\_t\ last\_press\_tick\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00056}00056\ \ \ \ \ \textcolor{keywordtype}{bool}\ pressed\_state\ =\ (gpio\_get\_level(pin)\ ==\ 0);\ \textcolor{comment}{//\ active\ low}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00057}00057\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00058}00058\ \ \ \ \ \textcolor{keywordflow}{for}\ (;;)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00059}00059\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00060}00060\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Prefer\ event-\/driven\ path\ if\ queue\ exists}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00061}00061\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (q)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00062}00062\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00063}00063\ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ evt;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00064}00064\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xQueueReceive(q,\ \&evt,\ pdMS\_TO\_TICKS(\mbox{\hyperlink{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37}{POLL\_MS}}))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00065}00065\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00066}00066\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Debounce:\ wait\ and\ re-\/read}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00067}00067\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(\mbox{\hyperlink{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d}{DEBOUNCE\_MS}}));}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00068}00068\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level\ =\ gpio\_get\_level(pin);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00069}00069\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ pressed\ =\ (level\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00070}00070\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pressed\ \&\&\ !pressed\_state)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00071}00071\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00072}00072\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ pressed\ edge}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00073}00073\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_press\_tick\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00074}00074\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pressed\_state\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00075}00075\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00076}00076\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}\ \textcolor{keywordflow}{if}\ (!pressed\ \&\&\ pressed\_state)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00077}00077\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00078}00078\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ release\ edge}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00079}00079\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_press\_tick\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00080}00080\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00081}00081\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TickType\_t\ now\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00082}00082\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ ms\ =\ (uint32\_t)((now\ -\/\ last\_press\_tick)\ *\ portTICK\_PERIOD\_MS);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00083}00083\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ms\ <\ \mbox{\hyperlink{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8}{LONG\_PRESS\_MS}})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00084}00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00085}00085\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ toggle\_backlight();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00086}00086\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00087}00087\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00088}00088\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00089}00089\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Button\ long\ press\ \%lums\ (no\ action)"{}},\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long})ms);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00090}00090\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00091}00091\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_press\_tick\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00092}00092\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00093}00093\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pressed\_state\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00094}00094\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00095}00095\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00096}00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00097}00097\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00098}00098\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ timeout:\ allow\ low-\/power\ polling;\ continue\ loop}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00099}00099\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00100}00100\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00101}00101\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00102}00102\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00103}00103\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Fallback\ polling\ if\ queue\ not\ available}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00104}00104\ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(\mbox{\hyperlink{task__pushbutton_8c_aff464ed0758e736e222281258e5f5e37}{POLL\_MS}}));}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00105}00105\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ level\ =\ gpio\_get\_level(pin);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00106}00106\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ pressed\ =\ (level\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00107}00107\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pressed\ !=\ pressed\_state)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00108}00108\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00109}00109\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ potential\ edge:\ debounce}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00110}00110\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ vTaskDelay(pdMS\_TO\_TICKS(\mbox{\hyperlink{task__pushbutton_8c_add56dedbc09f82766e39588e01978e7d}{DEBOUNCE\_MS}}));}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00111}00111\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ level\ =\ gpio\_get\_level(pin);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00112}00112\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ stable\ =\ (level\ ==\ 0);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00113}00113\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (stable\ ==\ pressed)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00114}00114\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00115}00115\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (pressed)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00116}00116\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00117}00117\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_press\_tick\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00118}00118\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00119}00119\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00120}00120\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00121}00121\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (last\_press\_tick\ !=\ 0)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00122}00122\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00123}00123\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TickType\_t\ now\ =\ xTaskGetTickCount();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00124}00124\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ uint32\_t\ ms\ =\ (uint32\_t)((now\ -\/\ last\_press\_tick)\ *\ portTICK\_PERIOD\_MS);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00125}00125\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (ms\ <\ \mbox{\hyperlink{task__pushbutton_8c_a61271b2f6973cde7a3b2c4c6541026c8}{LONG\_PRESS\_MS}})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00126}00126\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ toggle\_backlight();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00127}00127\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00128}00128\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Button\ long\ press\ \%lums\ (no\ action)"{}},\ (\textcolor{keywordtype}{unsigned}\ \textcolor{keywordtype}{long})ms);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00129}00129\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ last\_press\_tick\ =\ 0;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00130}00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00131}00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00132}00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pressed\_state\ =\ pressed;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00133}00133\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00134}00134\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00135}00135\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00136}00136\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00137}00137\ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00138}00138\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00139}00139\ \textcolor{comment}{//\ Start/stop\ helpers}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00140}\mbox{\hyperlink{task__pushbutton_8c_a737f9e3ed7a965f1953c048ce598bc2f}{00140}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__pushbutton_8c_a737f9e3ed7a965f1953c048ce598bc2f}{start\_task\_pushbutton}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00141}00141\ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00142}00142\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}}\ !=\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00143}00143\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00144}00144\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_aa3aec4c78539b7d586900c6941ff8cb1}{LOGW}}(TAG,\ \textcolor{stringliteral}{"{}pushbutton\ task\ already\ running"{}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00145}00145\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00146}00146\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00147}00147\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00148}00148\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__pushbutton_8c_ab577f5aecbb8fc3ed670120ff5255d51}{task\_pushbutton\_code}},\ \textcolor{stringliteral}{"{}pushbtn"{}},\ pushbutton\_stack\_size,\ NULL,\ 9,\ pushbutton\_stack,\ \&pushbutton\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00149}00149\ \ \ \ \ \textcolor{keywordflow}{if}\ (!\mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00150}00150\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ create\ pushbutton\ task"{}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00151}00151\ \ \ \ \ \textcolor{keywordflow}{else}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00152}00152\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Pushbutton\ task\ started"{}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00153}00153\ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00154}00154\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00155}\mbox{\hyperlink{task__pushbutton_8c_a29ccfc8a96de65d3b73257c9d43ca3db}{00155}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__pushbutton_8c_a29ccfc8a96de65d3b73257c9d43ca3db}{stop\_task\_pushbutton}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00156}00156\ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00157}00157\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00158}00158\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00159}00159\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Pushbutton\ task\ not\ running"{}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00160}00160\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00161}00161\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00162}00162\ }
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00163}00163\ \ \ \ \ \mbox{\hyperlink{pushbutton_8c_ab77055d0ccece00eb3ebdebfa68d7f47}{pushbutton\_deinit}}();}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00164}00164\ \ \ \ \ vTaskDelete(\mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00165}00165\ \ \ \ \ \mbox{\hyperlink{globals_8c_ac594ae682806681934947dd150e87e79}{task\_pushbutton}}\ =\ NULL;}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00166}00166\ \ \ \ \ \mbox{\hyperlink{logging_8h_a90dca01b8743434fbdaf72c69d03a139}{LOGI}}(TAG,\ \textcolor{stringliteral}{"{}Pushbutton\ task\ stopped"{}});}
+\DoxyCodeLine{\Hypertarget{task__pushbutton_8c_source_l00167}00167\ \}}
+
+\end{DoxyCode}

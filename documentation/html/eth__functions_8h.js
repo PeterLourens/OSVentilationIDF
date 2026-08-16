@@ -3,6 +3,7 @@ var eth__functions_8h =
     [ "attempt_guarded_eth_restart", "eth__functions_8h.html#ac083d14cefd22175cce5b2b32d604dbd", null ],
     [ "eth_get_handle", "eth__functions_8h.html#a2fcb11372e14fcede4741b6dd7b9dfc7", null ],
     [ "eth_hardware_reset", "eth__functions_8h.html#aec832b03be0eaa8b74f74a9e4855f8dd", null ],
+    [ "eth_hardware_reset_safe", "eth__functions_8h.html#a9cb9ed4c6f2c4c1313ecf8993c06391d", null ],
     [ "eth_init", "eth__functions_8h.html#a97fccc4d177f1ed03f51d3cee80dfca6", null ],
     [ "eth_is_connected", "eth__functions_8h.html#a7253f023a5396e8fe4eeba5d2aff51b1", null ],
     [ "eth_is_shutting_down", "eth__functions_8h.html#a9d1a52f95274d5e44af2951d99bb59c1", null ],

@@ -1,0 +1,190 @@
+\doxysection{/home/peter/\+Development/\+OSVentilation\+IDF/main/wifi\+\_\+functions.h File Reference}
+\hypertarget{wifi__functions_8h}{}\label{wifi__functions_8h}\index{/home/peter/Development/OSVentilationIDF/main/wifi\_functions.h@{/home/peter/Development/OSVentilationIDF/main/wifi\_functions.h}}
+
+
+Public Wi-\/\+Fi manager and connection helper declarations.  
+
+
+{\ttfamily \#include $<$esp\+\_\+log.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+mac.\+h$>$}\newline
+{\ttfamily \#include $<$esp\+\_\+wifi.\+h$>$}\newline
+{\ttfamily \#include $<$sys/socket.\+h$>$}\newline
+{\ttfamily \#include "{}logging.\+h"{}}\newline
+{\ttfamily \#include "{}network\+\_\+functions.\+h"{}}\newline
+Include dependency graph for wifi\+\_\+functions.\+h\+:
+% FIG 0
+This graph shows which files directly or indirectly include this file\+:
+% FIG 1
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{wifi__functions_8h_a6330dabd312ef47a687684360ff00df6}{MAXIMUM\+\_\+\+RETRY}}~5
+\item 
+\#define \mbox{\hyperlink{wifi__functions_8h_a6fb78111921a2867076323642667469b}{ESP\+\_\+\+AP\+\_\+\+SSID}}~"{}OSVentilation"{}
+\item 
+\#define \mbox{\hyperlink{wifi__functions_8h_a50b7d483bdc526242fb5add16ea17b6b}{ESP\+\_\+\+AP\+\_\+\+PASS}}~"{}"{}
+\item 
+\#define \mbox{\hyperlink{wifi__functions_8h_afb51cd86ddaf4a31d1b3067c49d4820e}{ESP\+\_\+\+AP\+\_\+\+CHANNEL}}~1
+\item 
+\#define \mbox{\hyperlink{wifi__functions_8h_a1245f5fc85ac476df5e7612424768047}{ESP\+\_\+\+AP\+\_\+\+MAX\+\_\+\+CONN}}~4
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{wifi__functions_8h_a6d05278d521f934bbb31a51df5458660}{wifi\+\_\+manager\+\_\+stop}} (void)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{wifi__functions_8h_a8bb10642077dfc7f53bd09e690143c68}{wifi\+\_\+manager\+\_\+init}} (void)
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{wifi__functions_8h_a788e4e68407d160951962ee98feb1d52}{select\+\_\+wifi\+\_\+mode}} (void)
+\item 
+void \mbox{\hyperlink{wifi__functions_8h_a550030b54ca10bd78d5816ddefad2470}{wifi\+\_\+event\+\_\+handler}} (void \texorpdfstring{$\ast$}{*}, esp\+\_\+event\+\_\+base\+\_\+t, int32\+\_\+t, void \texorpdfstring{$\ast$}{*})
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{wifi__functions_8h_ab591dd58e11d30a8ab028afac2f26496}{wifi\+\_\+manager\+\_\+connect}} (\mbox{\hyperlink{structWifi__config__t}{Wifi\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*})
+\item 
+esp\+\_\+err\+\_\+t \mbox{\hyperlink{wifi__functions_8h_ad93d43cebaa3a445427587bbc750a33a}{wifi\+\_\+manager\+\_\+start\+\_\+ap}} (void)
+\item 
+bool \mbox{\hyperlink{wifi__functions_8h_a4a623cea6c0aa29b3664d4d0629d38e5}{wifi\+\_\+manager\+\_\+is\+\_\+connected}} (void)
+\item 
+bool \mbox{\hyperlink{wifi__functions_8h_a376b744611ad2cde77aad5d6dffc0c00}{wifi\+\_\+config\+\_\+is\+\_\+dhcp\+\_\+enabled}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Public Wi-\/\+Fi manager and connection helper declarations. 
+
+
+
+Definition in file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+
+
+\label{doc-define-members}
+\Hypertarget{wifi__functions_8h_doc-define-members}
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{wifi__functions_8h_afb51cd86ddaf4a31d1b3067c49d4820e}\index{wifi\_functions.h@{wifi\_functions.h}!ESP\_AP\_CHANNEL@{ESP\_AP\_CHANNEL}}
+\index{ESP\_AP\_CHANNEL@{ESP\_AP\_CHANNEL}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ESP\_AP\_CHANNEL}{ESP\_AP\_CHANNEL}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_afb51cd86ddaf4a31d1b3067c49d4820e} 
+\#define ESP\+\_\+\+AP\+\_\+\+CHANNEL~1}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8h_source_l00027}{27}} of file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+\Hypertarget{wifi__functions_8h_a1245f5fc85ac476df5e7612424768047}\index{wifi\_functions.h@{wifi\_functions.h}!ESP\_AP\_MAX\_CONN@{ESP\_AP\_MAX\_CONN}}
+\index{ESP\_AP\_MAX\_CONN@{ESP\_AP\_MAX\_CONN}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ESP\_AP\_MAX\_CONN}{ESP\_AP\_MAX\_CONN}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a1245f5fc85ac476df5e7612424768047} 
+\#define ESP\+\_\+\+AP\+\_\+\+MAX\+\_\+\+CONN~4}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8h_source_l00028}{28}} of file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+\Hypertarget{wifi__functions_8h_a50b7d483bdc526242fb5add16ea17b6b}\index{wifi\_functions.h@{wifi\_functions.h}!ESP\_AP\_PASS@{ESP\_AP\_PASS}}
+\index{ESP\_AP\_PASS@{ESP\_AP\_PASS}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ESP\_AP\_PASS}{ESP\_AP\_PASS}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a50b7d483bdc526242fb5add16ea17b6b} 
+\#define ESP\+\_\+\+AP\+\_\+\+PASS~"{}"{}}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8h_source_l00026}{26}} of file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+\Hypertarget{wifi__functions_8h_a6fb78111921a2867076323642667469b}\index{wifi\_functions.h@{wifi\_functions.h}!ESP\_AP\_SSID@{ESP\_AP\_SSID}}
+\index{ESP\_AP\_SSID@{ESP\_AP\_SSID}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{ESP\_AP\_SSID}{ESP\_AP\_SSID}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a6fb78111921a2867076323642667469b} 
+\#define ESP\+\_\+\+AP\+\_\+\+SSID~"{}OSVentilation"{}}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8h_source_l00025}{25}} of file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+\Hypertarget{wifi__functions_8h_a6330dabd312ef47a687684360ff00df6}\index{wifi\_functions.h@{wifi\_functions.h}!MAXIMUM\_RETRY@{MAXIMUM\_RETRY}}
+\index{MAXIMUM\_RETRY@{MAXIMUM\_RETRY}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{MAXIMUM\_RETRY}{MAXIMUM\_RETRY}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a6330dabd312ef47a687684360ff00df6} 
+\#define MAXIMUM\+\_\+\+RETRY~5}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8h_source_l00023}{23}} of file \mbox{\hyperlink{wifi__functions_8h_source}{wifi\+\_\+functions.\+h}}.
+
+
+
+\label{doc-func-members}
+\Hypertarget{wifi__functions_8h_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{wifi__functions_8h_a788e4e68407d160951962ee98feb1d52}\index{wifi\_functions.h@{wifi\_functions.h}!select\_wifi\_mode@{select\_wifi\_mode}}
+\index{select\_wifi\_mode@{select\_wifi\_mode}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{select\_wifi\_mode()}{select\_wifi\_mode()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a788e4e68407d160951962ee98feb1d52} 
+esp\+\_\+err\+\_\+t select\+\_\+wifi\+\_\+mode (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00160}{160}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+
+\Hypertarget{wifi__functions_8h_a376b744611ad2cde77aad5d6dffc0c00}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_config\_is\_dhcp\_enabled@{wifi\_config\_is\_dhcp\_enabled}}
+\index{wifi\_config\_is\_dhcp\_enabled@{wifi\_config\_is\_dhcp\_enabled}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_config\_is\_dhcp\_enabled()}{wifi\_config\_is\_dhcp\_enabled()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a376b744611ad2cde77aad5d6dffc0c00} 
+bool wifi\+\_\+config\+\_\+is\+\_\+dhcp\+\_\+enabled (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00494}{494}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+
+\Hypertarget{wifi__functions_8h_a550030b54ca10bd78d5816ddefad2470}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_event\_handler@{wifi\_event\_handler}}
+\index{wifi\_event\_handler@{wifi\_event\_handler}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_event\_handler()}{wifi\_event\_handler()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a550030b54ca10bd78d5816ddefad2470} 
+void wifi\+\_\+event\+\_\+handler (\begin{DoxyParamCaption}\item[{void \texorpdfstring{$\ast$}{*}}]{}{, }\item[{esp\+\_\+event\+\_\+base\+\_\+t}]{}{, }\item[{int32\+\_\+t}]{}{, }\item[{void \texorpdfstring{$\ast$}{*}}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{wifi__functions_8h_ab591dd58e11d30a8ab028afac2f26496}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_manager\_connect@{wifi\_manager\_connect}}
+\index{wifi\_manager\_connect@{wifi\_manager\_connect}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_manager\_connect()}{wifi\_manager\_connect()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_ab591dd58e11d30a8ab028afac2f26496} 
+esp\+\_\+err\+\_\+t wifi\+\_\+manager\+\_\+connect (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structWifi__config__t}{Wifi\+\_\+config\+\_\+t}} \texorpdfstring{$\ast$}{*}}]{settings}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00207}{207}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+
+\Hypertarget{wifi__functions_8h_a8bb10642077dfc7f53bd09e690143c68}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_manager\_init@{wifi\_manager\_init}}
+\index{wifi\_manager\_init@{wifi\_manager\_init}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_manager\_init()}{wifi\_manager\_init()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a8bb10642077dfc7f53bd09e690143c68} 
+esp\+\_\+err\+\_\+t wifi\+\_\+manager\+\_\+init (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00091}{91}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+
+\Hypertarget{wifi__functions_8h_a4a623cea6c0aa29b3664d4d0629d38e5}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_manager\_is\_connected@{wifi\_manager\_is\_connected}}
+\index{wifi\_manager\_is\_connected@{wifi\_manager\_is\_connected}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_manager\_is\_connected()}{wifi\_manager\_is\_connected()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a4a623cea6c0aa29b3664d4d0629d38e5} 
+bool wifi\+\_\+manager\+\_\+is\+\_\+connected (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{wifi__functions_8h_ad93d43cebaa3a445427587bbc750a33a}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_manager\_start\_ap@{wifi\_manager\_start\_ap}}
+\index{wifi\_manager\_start\_ap@{wifi\_manager\_start\_ap}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_manager\_start\_ap()}{wifi\_manager\_start\_ap()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_ad93d43cebaa3a445427587bbc750a33a} 
+esp\+\_\+err\+\_\+t wifi\+\_\+manager\+\_\+start\+\_\+ap (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00411}{411}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+
+\Hypertarget{wifi__functions_8h_a6d05278d521f934bbb31a51df5458660}\index{wifi\_functions.h@{wifi\_functions.h}!wifi\_manager\_stop@{wifi\_manager\_stop}}
+\index{wifi\_manager\_stop@{wifi\_manager\_stop}!wifi\_functions.h@{wifi\_functions.h}}
+\doxysubsubsection{\texorpdfstring{wifi\_manager\_stop()}{wifi\_manager\_stop()}}
+{\footnotesize\ttfamily \label{wifi__functions_8h_a6d05278d521f934bbb31a51df5458660} 
+void wifi\+\_\+manager\+\_\+stop (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Definition at line \mbox{\hyperlink{wifi__functions_8c_source_l00025}{25}} of file \mbox{\hyperlink{wifi__functions_8c_source}{wifi\+\_\+functions.\+c}}.
+

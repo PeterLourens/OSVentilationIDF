@@ -1,0 +1,58 @@
+\doxysection{task\+\_\+rgb\+\_\+leds.\+c}
+\hypertarget{task__rgb__leds_8c_source}{}\label{task__rgb__leds_8c_source}\index{/home/peter/Development/OSVentilationIDF/main/task\_rgb\_leds.c@{/home/peter/Development/OSVentilationIDF/main/task\_rgb\_leds.c}}
+\mbox{\hyperlink{task__rgb__leds_8c}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00001}00001\ \textcolor{comment}{/*}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00002}00002\ \textcolor{comment}{\ \ \ \ This\ file\ is\ part\ of\ the\ OSVentilationIDF\ project.}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00003}00003\ \textcolor{comment}{}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00004}00004\ \textcolor{comment}{\ \ \ \ Copyright\ (C)\ 2023-\/2026\ Peter\ Lourens}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00005}00005\ \textcolor{comment}{*/}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00006}00006\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00011}00011\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00012}00012\ \textcolor{preprocessor}{\#include\ <esp\_attr.h>}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00013}00013\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{task__rgb__leds_8h}{task\_rgb\_leds.h}}"{}}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00014}00014\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00015}00015\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *TAG\ =\ \textcolor{stringliteral}{"{}task\_rgb\_leds"{}};}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00016}00016\ EXT\_RAM\_BSS\_ATTR\ \textcolor{keyword}{static}\ StackType\_t\ rgb\_leds\_stack[5120];\ \textcolor{comment}{//\ stack\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00017}00017\ \textcolor{keyword}{static}\ StaticTask\_t\ rgb\_leds\_tcb;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ TCB\ buffer}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00018}00018\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{size\_t}\ rgb\_leds\_stack\_size\ =\ 5120;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 5120\ words\ =\ 20\ KB}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00019}00019\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00020}\mbox{\hyperlink{task__rgb__leds_8c_a230f7d03ecc56b13315990bb1dfa084a}{00020}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__rgb__leds_8c_a230f7d03ecc56b13315990bb1dfa084a}{start\_task\_rgb\_leds}}(\textcolor{keywordtype}{void})}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00021}00021\ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00022}00022\ \ \ \ \ \textcolor{comment}{//\ Create\ LCD\ task}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00023}00023\ \ \ \ \ \mbox{\hyperlink{globals_8c_a9ddebb40ab9ed98f51c84eca1a9d0cb2}{task\_rgb\_leds}}\ =\ xTaskCreateStatic(\mbox{\hyperlink{task__rgb__leds_8c_adbda98294673ddf940a1c44cdc82e58f}{task\_rgb\_leds\_code}},\ \textcolor{stringliteral}{"{}rgb\_leds"{}},\ rgb\_leds\_stack\_size,\ NULL,\ 9,\ rgb\_leds\_stack,\ \&rgb\_leds\_tcb);}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00024}00024\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00025}00025\ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{globals_8c_a9ddebb40ab9ed98f51c84eca1a9d0cb2}{task\_rgb\_leds}}\ ==\ NULL)}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00026}00026\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00027}00027\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}RGB\ LEDs\ task\ creation\ failed"{}});}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00028}00028\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00029}00029\ \}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00030}00030\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00031}\mbox{\hyperlink{task__rgb__leds_8c_adbda98294673ddf940a1c44cdc82e58f}{00031}}\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{task__rgb__leds_8c_adbda98294673ddf940a1c44cdc82e58f}{task\_rgb\_leds\_code}}(\textcolor{keywordtype}{void}\ *pvParameters)}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00032}00032\ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00033}00033\ \ \ \ \ \mbox{\hyperlink{structStatemachine__actuals__t}{Statemachine\_actuals\_t}}\ snap;}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00034}00034\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00035}00035\ \ \ \ \ esp\_err\_t\ err\ =\ \mbox{\hyperlink{rgb__leds_8c_aa5c378cd8fe1665ba43767a57fbd1c42}{init\_rgb\_led}}();}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00036}00036\ \ \ \ \ \textcolor{keywordflow}{if}\ (err\ !=\ ESP\_OK)}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00037}00037\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00038}00038\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{logging_8h_a2704585717c3309ece5ec541ed1aabc1}{LOGE}}(TAG,\ \textcolor{stringliteral}{"{}Failed\ to\ initialise\ RGB\ LEDs"{}});}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00039}00039\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00040}00040\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00041}00041\ \ \ \ \ \textcolor{keywordflow}{while}\ (1)}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00042}00042\ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00043}00043\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Wait\ for\ notify\ OR\ timeout\ (for\ blinking)}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00044}00044\ \ \ \ \ \ \ \ \ ulTaskNotifyTake(pdTRUE,\ pdMS\_TO\_TICKS(200));}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00045}00045\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00046}00046\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Safe\ snapshot}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00047}00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (xSemaphoreTake(\mbox{\hyperlink{globals_8c_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\_mutex}},\ pdMS\_TO\_TICKS(5))\ ==\ pdTRUE)}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00048}00048\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00049}00049\ \ \ \ \ \ \ \ \ \ \ \ \ snap\ =\ \mbox{\hyperlink{globals_8c_a478f0c2c075116ec3f06b481bc02db0c}{sm\_actuals}};}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00050}00050\ \ \ \ \ \ \ \ \ \ \ \ \ xSemaphoreGive(\mbox{\hyperlink{globals_8c_afb48a597d7884b66e4a517a56cd7e94b}{statemachine\_mutex}});}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00051}00051\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00052}00052\ }
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00053}00053\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ Update\ LEDs}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00054}00054\ \ \ \ \ \ \ \ \ \mbox{\hyperlink{rgb__leds_8c_a9be864917c40df73e56f26784aa3139d}{leds\_update}}(\&snap);}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00055}00055\ \ \ \ \ \}}
+\DoxyCodeLine{\Hypertarget{task__rgb__leds_8c_source_l00056}00056\ \}}
+
+\end{DoxyCode}
