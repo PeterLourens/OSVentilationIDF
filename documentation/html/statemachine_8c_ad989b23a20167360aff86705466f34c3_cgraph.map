@@ -1,0 +1,38 @@
+<map id="night_transitions" name="night_transitions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,136,148"/>
+<area shape="rect" id="Node000002" href="$statemachine__helper_8c.html#a774307d5c2f51f385f8de9b61fb1db4a" title=" " alt="" coords="444,8,595,52"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="79,118,120,71,149,46,183,27,245,10,310,3,372,4,431,12,426,14,372,10,310,9,246,15,185,32,152,50,124,75,84,121"/>
+<area shape="rect" id="Node000003" href="$statemachine__helper_8c.html#a2bbf20bce579e05c5dd135246668f7b2" title=" " alt="" coords="258,197,322,225"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="100,146,185,182,246,201,240,202,183,187,100,151"/>
+<area shape="rect" id="Node000006" href="$statemachine__helper_8c.html#a2dcc826036e38226014be04552dab09d" title=" " alt="" coords="231,93,348,121"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="135,124,217,114,213,118,137,128"/>
+<area shape="rect" id="Node000007" href="$fancontrol_8c.html#a3ea0e3bb2bc36c18b3266373d038d23f" title="Set the configured fan speed via the selected control method." alt="" coords="236,145,344,173"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="136,139,223,150,218,153,137,144"/>
+<area shape="rect" id="Node000008" href="$statemachine__helper_8c.html#a42c970122ae370a12a8ec4b247066448" title=" " alt="" coords="199,41,381,69"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="97,117,183,79,211,72,207,75,185,84,100,122"/>
+<area shape="rect" id="Node000009" href="$valvecontrol_8c.html#aee22f9eedbcf50992e556d96d5bed12e" title=" " alt="" coords="184,249,396,277"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="84,146,126,190,154,214,185,234,201,244,196,244,182,239,151,218,123,194,83,151"/>
+<area shape="rect" id="Node000004" href="$statemachine__helper_8c.html#a33084da12177128329aed9bfc5be50ce" title=" " alt="" coords="471,149,568,177"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="321,202,458,176,453,177,322,207"/>
+<area shape="rect" id="Node000005" href="$general_8c.html#a2d0208dd7c43529fcddb5d087c0c40c1" title="Format the current local weekday name." alt="" coords="643,149,761,177"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="568,161,631,163,626,164,569,166"/>
+<area shape="poly" id="edge8_Node000008_Node000002" title=" " alt="" coords="381,43,431,39,426,41,382,48"/>
+<area shape="poly" id="edge9_Node000008_Node000004" title=" " alt="" coords="361,67,397,79,448,107,491,140,486,139,445,112,395,84,362,72"/>
+<area shape="rect" id="Node000010" href="$valvecontrol_8c.html#a57b0680f5d0f81e0909756dc60782f90" title=" " alt="" coords="462,249,578,277"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="396,261,448,263,443,264,396,266"/>
+<area shape="rect" id="Node000011" href="$valvecontrol_8c.html#a4ee923edb3a326f0b913b16cb8020d9d" title=" " alt="" coords="651,249,753,277"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="578,261,638,263,633,263,578,266"/>
+<area shape="rect" id="Node000012" href="$valvecontrol_8c.html#a20bef8791973dcbc7f7f8ccaa6ea3b26" title=" " alt="" coords="809,249,926,277"/>
+<area shape="poly" id="edge13_Node000011_Node000012" title=" " alt="" coords="753,261,796,263,791,263,754,266"/>
+<area shape="rect" id="Node000013" href="$valvecontrol_8c.html#a0b7ab2eef26ad4b5a39feb9d2a4f40fd" title=" " alt="" coords="974,197,1108,225"/>
+<area shape="poly" id="edge19_Node000011_Node000013" title=" " alt="" coords="753,247,808,235,956,219,961,218,809,241,754,253"/>
+<area shape="rect" id="Node000016" href="$valvecontrol_8c.html#a3385d6523be79f3ab2a24539364d16ef" title=" " alt="" coords="975,301,1107,329"/>
+<area shape="poly" id="edge20_Node000011_Node000016" title=" " alt="" coords="754,274,809,286,962,308,957,308,808,291,753,279"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="916,246,975,231,981,230,917,251"/>
+<area shape="rect" id="Node000014" href="$valvecontrol_8c.html#a86183349d6f049f0ea847c5b946d8565" title=" " alt="" coords="994,249,1089,277"/>
+<area shape="poly" id="edge15_Node000012_Node000014" title=" " alt="" coords="927,261,981,263,976,263,927,266"/>
+<area shape="poly" id="edge17_Node000012_Node000016" title=" " alt="" coords="917,275,981,297,975,296,916,280"/>
+<area shape="rect" id="Node000015" href="$valvecontrol_8c.html#ad447dad6ad19c87121ce9ae860f2ce8e" title=" " alt="" coords="1156,276,1276,304"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="1089,268,1143,279,1138,278,1089,273"/>
+<area shape="poly" id="edge18_Node000016_Node000015" title=" " alt="" coords="1107,303,1138,301,1144,301,1108,308"/>
+</map>

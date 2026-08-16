@@ -1,0 +1,5 @@
+<map id="init_system_time_from_ds3231" name="init_system_time_from_ds3231">
+<area shape="rect" id="Node000001" title="Initialize system time from the DS3231 RTC." alt="" coords="5,5,178,50"/>
+<area shape="rect" id="Node000002" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="226,14,359,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,25,213,27,207,28,178,30"/>
+</map>

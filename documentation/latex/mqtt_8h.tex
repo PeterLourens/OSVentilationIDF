@@ -13,10 +13,20 @@ MQTT client and Home Assistant discovery interface declarations.
 {\ttfamily \#include "{}statemachine\+\_\+helper.\+h"{}}\newline
 {\ttfamily \#include "{}i2c\+\_\+sensors.\+h"{}}\newline
 {\ttfamily \#include "{}logging.\+h"{}}\newline
-Include dependency graph for mqtt.\+h\+:
-% FIG 0
-This graph shows which files directly or indirectly include this file\+:
-% FIG 1
+Include dependency graph for mqtt.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h__incl}
+\end{center}
+\end{figure}
+This graph shows which files directly or indirectly include this file\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h__dep__incl}
+\end{center}
+\end{figure}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -99,6 +109,14 @@ Clear any pending MQTT discovery request.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00461}{461}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_ac86d692abbf87dddca455da656942725_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a2d00277af8dc8d584239b7fe3b2aec00}\index{mqtt.h@{mqtt.h}!mqtt\_discovery\_requested@{mqtt\_discovery\_requested}}
 \index{mqtt\_discovery\_requested@{mqtt\_discovery\_requested}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_discovery\_requested()}{mqtt\_discovery\_requested()}}
@@ -116,6 +134,14 @@ true if discovery has been requested.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00456}{456}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a2d00277af8dc8d584239b7fe3b2aec00_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_aa5d74fc2366d72f3f730582e7047aa3f}\index{mqtt.h@{mqtt.h}!mqtt\_event\_forwarder@{mqtt\_event\_forwarder}}
 \index{mqtt\_event\_forwarder@{mqtt\_event\_forwarder}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_event\_forwarder()}{mqtt\_event\_forwarder()}}
@@ -141,6 +167,22 @@ Forward an MQTT event to the application event loop.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00625}{625}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_aa5d74fc2366d72f3f730582e7047aa3f_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_aa5d74fc2366d72f3f730582e7047aa3f_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_ae6653452f6ed168ee81cb05e82409373}\index{mqtt.h@{mqtt.h}!mqtt\_get\_config\_snapshot@{mqtt\_get\_config\_snapshot}}
 \index{mqtt\_get\_config\_snapshot@{mqtt\_get\_config\_snapshot}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_get\_config\_snapshot()}{mqtt\_get\_config\_snapshot()}}
@@ -160,6 +202,14 @@ Copy the current MQTT configuration into the output snapshot.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00646}{646}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_ae6653452f6ed168ee81cb05e82409373_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_afb971ca81a572e06658b42d91946dce2}\index{mqtt.h@{mqtt.h}!mqtt\_get\_node\_id@{mqtt\_get\_node\_id}}
 \index{mqtt\_get\_node\_id@{mqtt\_get\_node\_id}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_get\_node\_id()}{mqtt\_get\_node\_id()}}
@@ -177,6 +227,22 @@ Null-\/terminated node ID string.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00734}{734}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=342pt]{mqtt_8h_afb971ca81a572e06658b42d91946dce2_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_afb971ca81a572e06658b42d91946dce2_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a9e385175a1a9854600abcb8ef12abc56}\index{mqtt.h@{mqtt.h}!mqtt\_handle\_incoming@{mqtt\_handle\_incoming}}
 \index{mqtt\_handle\_incoming@{mqtt\_handle\_incoming}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_handle\_incoming()}{mqtt\_handle\_incoming()}}
@@ -203,6 +269,22 @@ Handle an incoming MQTT message event.
 
 Definition at line \mbox{\hyperlink{mqtt__handlers_8c_source_l00021}{21}} of file \mbox{\hyperlink{mqtt__handlers_8c_source}{mqtt\+\_\+handlers.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a9e385175a1a9854600abcb8ef12abc56_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a9e385175a1a9854600abcb8ef12abc56_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a14a4eb1d82363ee8fb9bf053b48fc4a2}\index{mqtt.h@{mqtt.h}!mqtt\_is\_connected@{mqtt\_is\_connected}}
 \index{mqtt\_is\_connected@{mqtt\_is\_connected}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_is\_connected()}{mqtt\_is\_connected()}}
@@ -220,6 +302,14 @@ true if connected.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00471}{471}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a14a4eb1d82363ee8fb9bf053b48fc4a2_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a7aead4cf162396fd72a1f77f0102ba8c}\index{mqtt.h@{mqtt.h}!mqtt\_publish\_homeassistant\_discovery@{mqtt\_publish\_homeassistant\_discovery}}
 \index{mqtt\_publish\_homeassistant\_discovery@{mqtt\_publish\_homeassistant\_discovery}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_publish\_homeassistant\_discovery()}{mqtt\_publish\_homeassistant\_discovery()}}
@@ -234,6 +324,22 @@ Publish MQTT Home Assistant discovery payloads.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00989}{989}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a7aead4cf162396fd72a1f77f0102ba8c_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a7aead4cf162396fd72a1f77f0102ba8c_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a19e6b3f9b4ad16bd172c6d282c384937}\index{mqtt.h@{mqtt.h}!mqtt\_publish\_sensor\_values@{mqtt\_publish\_sensor\_values}}
 \index{mqtt\_publish\_sensor\_values@{mqtt\_publish\_sensor\_values}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_publish\_sensor\_values()}{mqtt\_publish\_sensor\_values()}}
@@ -248,6 +354,22 @@ Publish current sensor values over MQTT.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00791}{791}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a19e6b3f9b4ad16bd172c6d282c384937_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a19e6b3f9b4ad16bd172c6d282c384937_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a711bf2614cc96edc05eab71d9741835a}\index{mqtt.h@{mqtt.h}!mqtt\_publish\_state\_and\_fanspeed@{mqtt\_publish\_state\_and\_fanspeed}}
 \index{mqtt\_publish\_state\_and\_fanspeed@{mqtt\_publish\_state\_and\_fanspeed}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_publish\_state\_and\_fanspeed()}{mqtt\_publish\_state\_and\_fanspeed()}}
@@ -262,6 +384,22 @@ Publish current state and fan speed over MQTT.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00899}{899}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a711bf2614cc96edc05eab71d9741835a_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a711bf2614cc96edc05eab71d9741835a_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_adae8be92f55c6be049cf04593242a763}\index{mqtt.h@{mqtt.h}!mqtt\_publish\_valve\_positions@{mqtt\_publish\_valve\_positions}}
 \index{mqtt\_publish\_valve\_positions@{mqtt\_publish\_valve\_positions}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_publish\_valve\_positions()}{mqtt\_publish\_valve\_positions()}}
@@ -276,6 +414,22 @@ Publish current valve positions over MQTT.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00875}{875}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_adae8be92f55c6be049cf04593242a763_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_adae8be92f55c6be049cf04593242a763_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a3d9cbf984c4b06c097494e54d485f25f}\index{mqtt.h@{mqtt.h}!mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}}
 \index{mqtt\_request\_homeassistant\_discovery@{mqtt\_request\_homeassistant\_discovery}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_request\_homeassistant\_discovery()}{mqtt\_request\_homeassistant\_discovery()}}
@@ -331,6 +485,22 @@ ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00481}{481}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_ab8fa71bd6e32c818199cc74d4651f609_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=324pt]{mqtt_8h_ab8fa71bd6e32c818199cc74d4651f609_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a39ced0e918e274dde370b7da0138c0ec}\index{mqtt.h@{mqtt.h}!mqtt\_stop@{mqtt\_stop}}
 \index{mqtt\_stop@{mqtt\_stop}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_stop()}{mqtt\_stop()}}
@@ -348,6 +518,14 @@ ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00575}{575}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=322pt]{mqtt_8h_a39ced0e918e274dde370b7da0138c0ec_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_ac2bffe2c831e78c836caba9275b41fa9}\index{mqtt.h@{mqtt.h}!mqtt\_wait\_for\_connection@{mqtt\_wait\_for\_connection}}
 \index{mqtt\_wait\_for\_connection@{mqtt\_wait\_for\_connection}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{mqtt\_wait\_for\_connection()}{mqtt\_wait\_for\_connection()}}
@@ -389,6 +567,14 @@ Normalize the MQTT base topic into a safe string.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00702}{702}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a1be0d359120794eac2d4a597be76ca94_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a346a3921be1bcd18272370839faa3e18}\index{mqtt.h@{mqtt.h}!sensors\_ready@{sensors\_ready}}
 \index{sensors\_ready@{sensors\_ready}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{sensors\_ready()}{sensors\_ready()}}
@@ -406,6 +592,22 @@ true if sensor snapshots are available.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00952}{952}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=307pt]{mqtt_8h_a346a3921be1bcd18272370839faa3e18_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a346a3921be1bcd18272370839faa3e18_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{mqtt_8h_a1b7ed315c11d6726b5c6ae8eb7174d84}\index{mqtt.h@{mqtt.h}!statemachine\_set\_speed@{statemachine\_set\_speed}}
 \index{statemachine\_set\_speed@{statemachine\_set\_speed}!mqtt.h@{mqtt.h}}
 \doxysubsubsection{\texorpdfstring{statemachine\_set\_speed()}{statemachine\_set\_speed()}}
@@ -427,6 +629,22 @@ Set the state machine speed based on MQTT payload.
 
 Definition at line \mbox{\hyperlink{mqtt_8c_source_l00663}{663}} of file \mbox{\hyperlink{mqtt_8c_source}{mqtt.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a1b7ed315c11d6726b5c6ae8eb7174d84_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{mqtt_8h_a1b7ed315c11d6726b5c6ae8eb7174d84_icgraph}
+\end{center}
+\end{figure}
 
 
 \label{doc-var-members}

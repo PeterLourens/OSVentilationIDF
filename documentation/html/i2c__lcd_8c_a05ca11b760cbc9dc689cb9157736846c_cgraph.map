@@ -1,0 +1,5 @@
+<map id="lcd_pulse_enable" name="lcd_pulse_enable">
+<area shape="rect" id="Node000001" title="Pulse the HD44780 enable line through the expander." alt="" coords="5,5,139,33"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a958e29ef81709a804ae23d6912bb4659" title="Write a single command or data byte to the LCD expander." alt="" coords="187,5,334,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,17,174,19,169,19,139,22"/>
+</map>

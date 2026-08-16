@@ -1,0 +1,112 @@
+<map id="app_main" name="app_main">
+<area shape="rect" id="Node000001" title="Main application entry point." alt="" coords="5,1007,91,1034"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a961e4f91906bb550ca850594eb8a5033" title="Create global mutexes used by runtime configuration and tasks." alt="" coords="191,5,316,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="47,1006,53,818,68,511,80,352,95,211,113,104,124,67,137,44,154,30,178,21,175,26,157,34,141,48,129,69,119,105,100,212,85,353,73,511,58,818,52,1006"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="169,57,339,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="47,1006,54,829,70,540,82,391,97,259,115,158,125,123,137,102,156,87,154,91,141,105,130,125,120,159,102,260,87,392,75,541,59,829,52,1006"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="635,1137,775,1165"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="47,1006,53,834,68,558,79,416,94,291,113,196,124,164,137,145,166,123,194,107,223,99,251,96,280,100,310,110,340,125,371,145,402,175,433,217,463,268,491,329,543,469,590,623,630,778,662,922,701,1122,696,1122,657,923,625,780,585,624,538,470,486,331,458,271,429,219,398,178,367,149,337,129,308,115,279,105,251,102,224,104,196,112,168,127,141,149,129,167,118,198,100,292,85,417,73,559,58,835,52,1006"/>
+<area shape="rect" id="Node000005" href="$hardware__caps_8c.html#ae58df14f30461cb37e8607aca5522846" title="Initialize the active hardware capability table." alt="" coords="220,159,288,186"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="47,1006,55,845,72,587,85,454,99,337,116,247,126,216,137,197,151,185,168,177,206,170,203,174,170,182,154,190,141,201,131,219,122,248,104,338,90,455,78,587,60,845,53,1006"/>
+<area shape="rect" id="Node000006" href="$i2c__functions_8c.html#a39e18db7ead510094d920f9acee77eac" title="Initialize I2C master bus 0 using configured GPIO pins and internal pull&#45;ups." alt="" coords="189,211,318,238"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="47,1006,56,854,74,613,86,489,101,380,117,296,127,267,137,249,153,236,175,227,172,232,156,240,141,253,132,269,123,297,106,380,91,490,79,614,61,855,53,1007"/>
+<area shape="rect" id="Node000007" href="$i2c__functions_8c.html#a9d3397255ea3cd0730517edd22a18beb" title="Initialize I2C master bus 1 using the configured SDA/SCL pins." alt="" coords="189,263,318,290"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="46,1006,46,873,54,661,64,549,81,445,104,360,119,327,137,301,153,288,176,280,172,284,156,292,141,305,124,329,109,362,86,446,70,550,59,661,51,873,52,1006"/>
+<area shape="rect" id="Node000008" href="$i2c__lcd_8c.html#ace14074686904424c0125adba3ffd973" title="Add and bind the LCD expander device to the specified I2C bus." alt="" coords="207,315,301,342"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="46,1006,47,881,57,685,68,582,84,486,106,407,120,377,137,353,162,336,193,327,190,332,164,340,141,357,125,379,111,409,89,487,73,582,62,685,53,882,52,1006"/>
+<area shape="rect" id="Node000009" href="$influxdb_8c.html#a242305ca91997b8696597fadf6a803b4" title="Initialize the InfluxDB sender subsystem." alt="" coords="178,367,330,394"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="47,1006,49,890,60,709,71,614,87,527,108,455,122,427,137,405,164,388,162,392,141,409,126,429,113,457,92,528,76,615,65,710,54,890,52,1006"/>
+<area shape="rect" id="Node000010" href="$general_8c.html#ab7d13c3b82fb1474e464782d00de491c" title="Mount the LittleFS partition used for runtime JSON and persistent data." alt="" coords="208,419,300,446"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="47,1006,51,899,63,734,74,648,90,568,110,502,123,477,137,457,162,440,195,431,191,436,165,444,141,461,127,479,115,504,95,569,80,648,68,735,56,899,52,1006"/>
+<area shape="rect" id="Node000011" href="$general_8c.html#a1ad3d847e3f03fa2b786624e78a16b08" title="Initialize the NVS partition used for configuration storage." alt="" coords="218,471,290,498"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="47,1006,52,908,66,758,78,680,93,609,112,550,124,527,137,509,151,498,167,490,204,482,200,486,169,495,154,502,141,513,128,530,117,552,98,610,83,681,72,759,58,908,52,1006"/>
+<area shape="rect" id="Node000012" href="$general_8c.html#aacd5bb470555f61358c21f9ba138068f" title="Initialize the runtime timezone from the loaded time configuration." alt="" coords="199,523,309,550"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="47,1006,54,917,69,783,81,713,96,650,114,597,137,561,158,546,185,538,182,542,161,551,141,565,119,599,101,651,86,714,75,784,59,917,53,1006"/>
+<area shape="rect" id="Node000013" href="$config__files_8c.html#a7f3d1d42aa5dc3771878489c1c3da9c8" title="Load Ethernet configuration from LittleFS and store it in runtime state." alt="" coords="175,1059,332,1086"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="90,1030,139,1043,176,1053,172,1056,138,1048,92,1035"/>
+<area shape="rect" id="Node000015" href="$config__files_8c.html#ae84752d3b8313299cbaf2e8bffa6dd6d" title="Load fan controller configuration from LittleFS." alt="" coords="192,575,316,602"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="48,1006,56,925,73,807,85,746,99,691,116,645,137,613,155,600,179,592,176,596,158,604,141,617,121,647,104,692,90,748,78,808,61,926,53,1006"/>
+<area shape="rect" id="Node000016" href="$config__files_8c.html#afab78ae80b0c3741ecde847cab78b358" title="Load I2C bus and peripheral configuration from LittleFS." alt="" coords="193,627,314,654"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="48,1006,58,934,76,832,102,732,118,692,137,665,156,652,180,644,176,648,158,656,141,669,123,695,107,733,81,833,63,935,54,1006"/>
+<area shape="rect" id="Node000017" href="$config__files_8c.html#a7c0f40001838665e86d0ace66ceadf4a" title="Load InfluxDB connection and authentication settings from LittleFS." alt="" coords="177,679,331,706"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="46,1006,48,952,59,874,70,832,86,790,108,751,137,717,164,702,161,706,140,721,112,754,91,792,75,834,64,875,53,953,52,1006"/>
+<area shape="rect" id="Node000018" href="$config__files_8c.html#acadc0b7b0d1a65b322c9806c4db6a323" title="Load MQTT broker and topic configuration from LittleFS." alt="" coords="187,731,320,758"/>
+<area shape="poly" id="edge20_Node000001_Node000018" title=" " alt="" coords="47,1006,52,960,66,896,77,862,92,828,112,796,137,769,153,758,174,750,171,755,156,763,140,773,116,800,97,830,82,864,71,897,57,961,53,1006"/>
+<area shape="rect" id="Node000019" href="$config__files_8c.html#a3a20f8fb43fa88ab898ae3032ba57aac" title="Load sensor bus configuration from a JSON file." alt="" coords="181,783,326,810"/>
+<area shape="poly" id="edge22_Node000001_Node000019" title=" " alt="" coords="49,1006,56,968,72,918,98,865,116,841,137,820,168,804,165,809,140,824,120,844,103,868,77,920,62,970,54,1007"/>
+<area shape="rect" id="Node000020" href="$config__files_8c.html#a541442023da9f2da977a4be0d2d1eeef" title="Load configured statemachine state definitions from JSON files." alt="" coords="186,1111,322,1138"/>
+<area shape="poly" id="edge24_Node000001_Node000020" title=" " alt="" coords="61,1032,96,1065,140,1095,173,1109,169,1112,137,1100,93,1069,63,1037"/>
+<area shape="rect" id="Node000026" href="$config__files_8c.html#ac72d6ed07c44365d3ac9607b0a546778" title="Load general statemachine configuration values from LittleFS." alt="" coords="153,834,354,879"/>
+<area shape="poly" id="edge26_Node000001_Node000026" title=" " alt="" coords="53,1005,83,949,107,917,137,889,147,884,144,889,140,893,111,920,88,952,58,1007"/>
+<area shape="rect" id="Node000027" href="$config__files_8c.html#a9473b8a9a74298ec11bc3d40fb177b2f" title="Load remote syslog forwarding configuration from LittleFS." alt="" coords="182,903,326,930"/>
+<area shape="poly" id="edge28_Node000001_Node000027" title=" " alt="" coords="59,1005,93,972,137,941,168,930,165,934,140,946,96,976,64,1007"/>
+<area shape="rect" id="Node000028" href="$config__files_8c.html#a81037411e2e8b66c67cba34bae474f1a" title="Load time synchronization settings from LittleFS." alt="" coords="188,955,320,982"/>
+<area shape="poly" id="edge30_Node000001_Node000028" title=" " alt="" coords="89,1006,138,993,176,984,172,988,139,998,93,1010"/>
+<area shape="rect" id="Node000029" href="$config__files_8c.html#a81d6b78e8d3fb9e78619a90cff215a51" title="Load Wi&#45;Fi configuration from LittleFS and apply it to runtime state." alt="" coords="191,1007,316,1034"/>
+<area shape="poly" id="edge32_Node000001_Node000029" title=" " alt="" coords="89,1018,177,1019,173,1022,93,1023"/>
+<area shape="rect" id="Node000030" href="$network__manager_8c.html#a529112e8f5aa464cf92ea14eb23b6740" title=" " alt="" coords="166,1163,342,1190"/>
+<area shape="poly" id="edge34_Node000001_Node000030" title=" " alt="" coords="55,1032,87,1090,111,1121,140,1148,154,1156,149,1158,137,1152,107,1125,83,1093,55,1037"/>
+<area shape="rect" id="Node000031" href="$network__functions_8c.html#af959a495a2955a3e222bd900387a5acc" title="Probe the gateway to verify network reachability." alt="" coords="649,1292,761,1320"/>
+<area shape="poly" id="edge35_Node000001_Node000031" title=" " alt="" coords="50,1032,58,1123,72,1253,84,1320,99,1381,118,1429,129,1447,140,1460,177,1479,229,1492,291,1499,358,1500,426,1495,490,1487,545,1475,586,1459,622,1434,652,1400,674,1364,691,1336,694,1332,679,1367,656,1403,626,1438,589,1464,546,1480,491,1492,427,1501,359,1505,291,1504,228,1497,175,1484,137,1464,124,1450,113,1431,94,1382,79,1321,67,1254,53,1123,50,1038"/>
+<area shape="rect" id="Node000037" href="$valvecontrol_8c.html#aa52b0665f802e4c09ac082034c744b03" title=" " alt="" coords="139,1267,369,1294"/>
+<area shape="poly" id="edge38_Node000001_Node000037" title=" " alt="" coords="50,1032,59,1077,73,1136,99,1199,117,1227,140,1252,147,1258,142,1260,137,1256,113,1231,94,1201,68,1138,53,1078,50,1037"/>
+<area shape="rect" id="Node000038" href="$i2c__sensors_8c.html#aba8b1ecc3074f67f381df368f203e76f" title="Reload sensor configuration and reinitialize all configured sensors." alt="" coords="165,1319,343,1346"/>
+<area shape="poly" id="edge39_Node000001_Node000038" title=" " alt="" coords="49,1032,55,1086,66,1159,77,1198,93,1237,114,1273,140,1304,153,1314,148,1316,137,1308,109,1276,88,1239,72,1200,61,1160,49,1087,49,1038"/>
+<area shape="rect" id="Node000041" href="$general_8c.html#a484896840cdb7f6931727f02b8610e5b" title="Configure ESP log levels for firmware subsystems." alt="" coords="197,1371,311,1398"/>
+<area shape="poly" id="edge42_Node000001_Node000041" title=" " alt="" coords="51,1032,64,1103,82,1200,108,1295,124,1332,141,1356,160,1369,184,1379,179,1381,157,1374,137,1360,119,1334,103,1297,77,1201,59,1104,51,1037"/>
+<area shape="rect" id="Node000042" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="171,1423,337,1450"/>
+<area shape="poly" id="edge43_Node000001_Node000042" title=" " alt="" coords="51,1032,62,1112,79,1225,105,1336,122,1379,141,1408,159,1422,154,1424,137,1412,117,1382,100,1338,74,1226,57,1113,51,1037"/>
+<area shape="rect" id="Node000054" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="185,1215,323,1242"/>
+<area shape="poly" id="edge45_Node000001_Node000054" title=" " alt="" coords="52,1032,63,1069,80,1114,105,1160,121,1182,140,1200,172,1217,168,1220,137,1204,117,1185,100,1163,75,1116,58,1070,52,1038"/>
+<area shape="rect" id="Node000071" href="$task__i2c__sensors_8c.html#ae72869b6745c7a6abae9d7b98512c1a0" title=" " alt="" coords="169,1524,338,1552"/>
+<area shape="poly" id="edge49_Node000001_Node000071" title=" " alt="" coords="50,1032,59,1128,74,1270,85,1344,100,1411,119,1467,141,1504,158,1518,153,1520,137,1508,114,1469,95,1413,80,1345,68,1271,53,1129,50,1037"/>
+<area shape="rect" id="Node000082" href="$task__pushbutton_8c.html#a737f9e3ed7a965f1953c048ce598bc2f" title=" " alt="" coords="171,1576,337,1604"/>
+<area shape="poly" id="edge51_Node000001_Node000082" title=" " alt="" coords="50,1032,56,1139,69,1298,81,1381,96,1457,116,1520,128,1544,141,1561,159,1576,154,1578,137,1565,123,1546,111,1522,91,1458,76,1382,64,1298,51,1139,50,1037"/>
+<area shape="rect" id="Node000086" href="$task__rgb__leds_8c.html#a230f7d03ecc56b13315990bb1dfa084a" title=" " alt="" coords="180,1628,328,1656"/>
+<area shape="poly" id="edge53_Node000001_Node000086" title=" " alt="" coords="49,1032,55,1148,66,1323,77,1414,93,1498,114,1567,127,1594,141,1613,168,1632,163,1634,137,1617,122,1596,109,1569,88,1499,72,1415,61,1323,49,1148,49,1038"/>
+<area shape="rect" id="Node000096" href="$task__sys__stats_8c.html#a48896c4649c5d1b03fdd74ca8671b4f6" title=" " alt="" coords="177,1680,331,1708"/>
+<area shape="poly" id="edge54_Node000001_Node000096" title=" " alt="" coords="49,1032,53,1156,63,1346,74,1446,90,1539,112,1615,125,1644,141,1665,165,1683,160,1685,137,1669,121,1646,107,1617,85,1540,69,1447,58,1347,48,1156,49,1037"/>
+<area shape="rect" id="Node000097" href="$task__uart__sender_8c.html#a344d6c6da7d42dc307e6a78848139f9b" title=" " alt="" coords="169,1732,339,1760"/>
+<area shape="poly" id="edge55_Node000001_Node000097" title=" " alt="" coords="49,1032,52,1165,60,1371,71,1480,87,1580,110,1662,124,1694,141,1717,157,1731,152,1733,137,1721,120,1696,105,1664,82,1581,66,1481,55,1372,46,1165,49,1038"/>
+<area shape="rect" id="Node000099" href="$task__valvecontrol_8c.html#a825b6f6b2ba3ddba4892466e1900dc92" title=" " alt="" coords="167,1784,341,1812"/>
+<area shape="poly" id="edge56_Node000001_Node000099" title=" " alt="" coords="50,1032,62,1184,80,1419,92,1539,107,1645,123,1726,132,1753,141,1769,156,1783,151,1784,137,1773,127,1756,118,1728,101,1646,87,1540,74,1419,56,1184,50,1038"/>
+<area shape="rect" id="Node000108" href="$syslog_8c.html#ab1e54a15fcb1206c48c501c107880ccf" title=" " alt="" coords="185,1836,323,1864"/>
+<area shape="poly" id="edge57_Node000001_Node000108" title=" " alt="" coords="50,1032,61,1192,78,1444,90,1573,105,1688,122,1775,131,1804,141,1821,154,1833,172,1843,167,1844,151,1837,137,1825,126,1806,117,1776,100,1689,85,1574,73,1444,55,1192,50,1037"/>
+<area shape="rect" id="Node000109" href="$task__uart__sender_8c.html#ad27761c252a5dd886332658b5a010fd5" title=" " alt="" coords="192,1888,316,1916"/>
+<area shape="poly" id="edge58_Node000001_Node000109" title=" " alt="" coords="50,1032,60,1202,77,1470,89,1608,103,1731,121,1824,131,1855,141,1873,157,1887,180,1897,174,1898,155,1891,137,1877,126,1857,116,1825,98,1731,83,1609,71,1470,55,1202,50,1037"/>
+<area shape="rect" id="Node000110" href="$network__functions_8c.html#a1fcdad688a838b7c6cbfb324a6117b95" title="Update the hostname field in runtime status from the active interface." alt="" coords="185,1940,323,1968"/>
+<area shape="poly" id="edge59_Node000001_Node000110" title=" " alt="" coords="50,1032,59,1211,75,1496,87,1643,102,1773,120,1873,130,1906,141,1925,154,1937,172,1947,167,1948,151,1941,137,1929,125,1908,115,1874,97,1774,82,1643,70,1496,54,1211,50,1038"/>
+<area shape="rect" id="Node000111" href="$network__functions_8c.html#a3c86fa85fdcf38cfc3374759fd73e8fa" title="Check whether the Wi&#45;Fi STA interface has an IPv4 address." alt="" coords="207,1992,300,2020"/>
+<area shape="poly" id="edge60_Node000001_Node000111" title=" " alt="" coords="50,1032,58,1219,74,1521,85,1677,100,1816,119,1921,129,1956,141,1977,164,1994,194,2005,189,2005,162,1999,137,1981,125,1959,114,1922,95,1816,80,1678,68,1522,53,1220,50,1037"/>
+<area shape="rect" id="Node000014" href="$general_8c.html#a8424f992f15f195b9f82211a7399f59d" title="Read the contents of a file into a buffer and null&#45;terminate it." alt="" coords="464,813,541,841"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="331,1061,368,1044,391,1024,412,1001,447,949,473,897,491,858,493,853,478,900,452,952,416,1004,395,1028,370,1048,335,1065"/>
+<area shape="poly" id="edge15_Node000015_Node000014" title=" " alt="" coords="314,591,344,599,370,613,394,633,415,656,451,706,477,756,494,799,489,799,472,758,446,709,411,659,391,637,368,617,342,604,317,596"/>
+<area shape="poly" id="edge17_Node000016_Node000014" title=" " alt="" coords="313,645,344,652,370,665,409,695,442,731,489,799,483,800,438,734,405,699,368,669,342,657,316,649"/>
+<area shape="poly" id="edge19_Node000017_Node000014" title=" " alt="" coords="330,703,370,717,402,735,432,757,480,801,475,803,428,761,399,740,368,722,333,708"/>
+<area shape="poly" id="edge21_Node000018_Node000014" title=" " alt="" coords="319,755,370,769,460,805,455,808,368,774,322,760"/>
+<area shape="poly" id="edge23_Node000019_Node000014" title=" " alt="" coords="326,803,450,819,446,822,328,808"/>
+<area shape="rect" id="Node000021" href="$config__files_8c.html#ab006392deaea973fe053d5ce12250be4" title="Read JSON state files under mount_point that match pattern, parse into statemachine_config[] (global)..." alt="" coords="430,1102,574,1147"/>
+<area shape="poly" id="edge25_Node000020_Node000021" title=" " alt="" coords="320,1122,417,1123,413,1126,323,1127"/>
+<area shape="poly" id="edge27_Node000026_Node000014" title=" " alt="" coords="354,842,450,832,446,835,357,847"/>
+<area shape="poly" id="edge29_Node000027_Node000014" title=" " alt="" coords="324,901,368,889,417,868,464,847,461,851,419,873,370,894,328,905"/>
+<area shape="poly" id="edge31_Node000028_Node000014" title=" " alt="" coords="318,957,368,939,400,920,429,897,480,851,477,855,433,901,403,924,370,944,322,961"/>
+<area shape="poly" id="edge33_Node000029_Node000014" title=" " alt="" coords="315,1012,343,1004,368,992,406,961,439,924,465,886,488,852,486,857,470,889,443,927,410,964,370,996,345,1009,318,1016"/>
+<area shape="rect" id="Node000032" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="823,1265,949,1293"/>
+<area shape="poly" id="edge36_Node000031_Node000032" title=" " alt="" coords="761,1295,810,1290,805,1292,763,1300"/>
+<area shape="rect" id="Node000035" href="$network__functions_8c.html#a15e2bbdf882e4f4df3de788cfb276888" title="Handle the end of an ICMP ping measurement." alt="" coords="834,1317,938,1345"/>
+<area shape="poly" id="edge37_Node000031_Node000035" title=" " alt="" coords="761,1311,822,1321,817,1323,762,1316"/>
+<area shape="rect" id="Node000039" href="$i2c__sensors_8c.html#a7de69590ec0ef7c8fa3d288e84588426" title="Initialize all configured sensors across both I2C multiplexer buses." alt="" coords="423,1276,581,1320"/>
+<area shape="poly" id="edge40_Node000038_Node000039" title=" " alt="" coords="342,1318,410,1309,405,1313,345,1322"/>
+<area shape="rect" id="Node000040" href="$i2c__sensors_8c.html#af72040ee03c9d882a6993d0ebdc72b52" title="Preload sensor type enums from configuration for all bus slots." alt="" coords="420,1345,584,1390"/>
+<area shape="poly" id="edge41_Node000038_Node000040" title=" " alt="" coords="342,1343,408,1352,403,1355,345,1347"/>
+<area shape="rect" id="Node000043" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="418,1423,586,1450"/>
+<area shape="poly" id="edge44_Node000042_Node000043" title=" " alt="" coords="336,1434,406,1435,401,1438,339,1439"/>
+<area shape="rect" id="Node000055" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="432,1215,572,1242"/>
+<area shape="poly" id="edge46_Node000054_Node000055" title=" " alt="" coords="322,1226,419,1227,415,1230,325,1231"/>
+<area shape="poly" id="edge47_Node000055_Node000004" title=" " alt="" coords="539,1212,654,1169,650,1173,542,1216"/>
+<area shape="poly" id="edge48_Node000055_Node000031" title=" " alt="" coords="540,1240,655,1285,650,1287,541,1245"/>
+<area shape="rect" id="Node000072" href="$task__i2c__sensors_8c.html#a16b7689a80a39d8a5de4e4d671d0bb98" title=" " alt="" coords="417,1524,587,1552"/>
+<area shape="poly" id="edge50_Node000071_Node000072" title=" " alt="" coords="338,1535,404,1536,399,1539,340,1540"/>
+<area shape="rect" id="Node000083" href="$task__pushbutton_8c.html#ab577f5aecbb8fc3ed670120ff5255d51" title=" " alt="" coords="418,1576,586,1604"/>
+<area shape="poly" id="edge52_Node000082_Node000083" title=" " alt="" coords="337,1587,406,1589,401,1591,339,1592"/>
+</map>

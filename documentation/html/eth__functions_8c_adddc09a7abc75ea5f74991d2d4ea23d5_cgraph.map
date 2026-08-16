@@ -1,0 +1,7 @@
+<map id="eth_software_restart" name="eth_software_restart">
+<area shape="rect" id="Node000001" title="Perform a safe software restart of the Ethernet driver." alt="" coords="5,32,161,60"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="209,5,380,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,33,196,31,191,32,161,39"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#aba748ea94bbb415836127d41d5fdf4d4" title="Mark Ethernet as currently shutting down." alt="" coords="209,57,380,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="161,52,196,59,190,59,161,58"/>
+</map>

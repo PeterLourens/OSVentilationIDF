@@ -1,0 +1,5 @@
+<map id="sensor_data_average" name="sensor_data_average">
+<area shape="rect" id="Node000001" title="Take the latest sensor snapshot and compute moving averages." alt="" coords="5,5,166,33"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#a4aa3ef68338a18153d625d7ecfa9f8ea" title="Push a sensor measurement value into the moving average FIFO." alt="" coords="214,5,287,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,17,201,19,195,19,166,22"/>
+</map>

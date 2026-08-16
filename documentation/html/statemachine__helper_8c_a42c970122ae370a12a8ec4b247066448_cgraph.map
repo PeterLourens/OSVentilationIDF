@@ -1,0 +1,9 @@
+<map id="valve_cycle_times_night" name="valve_cycle_times_night">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,44,188,72"/>
+<area shape="rect" id="Node000002" href="$statemachine__helper_8c.html#a774307d5c2f51f385f8de9b61fb1db4a" title=" " alt="" coords="236,5,387,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,43,223,40,218,41,188,48"/>
+<area shape="rect" id="Node000003" href="$statemachine__helper_8c.html#a33084da12177128329aed9bfc5be50ce" title=" " alt="" coords="263,74,360,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,68,250,79,244,79,188,73"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#a2d0208dd7c43529fcddb5d087c0c40c1" title="Format the current local weekday name." alt="" coords="435,74,552,102"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="360,85,422,88,417,88,360,90"/>
+</map>

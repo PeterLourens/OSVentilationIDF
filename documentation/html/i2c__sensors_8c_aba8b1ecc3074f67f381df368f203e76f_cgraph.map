@@ -1,0 +1,7 @@
+<map id="reload_and_init_sensors" name="reload_and_init_sensors">
+<area shape="rect" id="Node000001" title="Reload sensor configuration and reinitialize all configured sensors." alt="" coords="5,48,184,76"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#a7de69590ec0ef7c8fa3d288e84588426" title="Initialize all configured sensors across both I2C multiplexer buses." alt="" coords="234,5,392,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,46,221,42,216,43,184,51"/>
+<area shape="rect" id="Node000003" href="$i2c__sensors_8c.html#af72040ee03c9d882a6993d0ebdc72b52" title="Preload sensor type enums from configuration for all bus slots." alt="" coords="232,75,395,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,74,219,81,213,82,184,79"/>
+</map>

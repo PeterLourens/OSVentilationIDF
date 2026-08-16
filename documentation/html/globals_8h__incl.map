@@ -1,0 +1,15 @@
+<map id="/home/peter/Development/OSVentilationIDF/main/globals.h" name="/home/peter/Development/OSVentilationIDF/main/globals.h">
+<area shape="rect" id="Node000001" title="Shared global declarations for runtime handles, queues, and configuration." alt="" coords="304,5,496,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,115,152,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="302,67,140,113,139,108,305,62"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="176,115,312,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="350,66,281,109,278,105,345,69"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="336,115,464,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="402,65,402,101,398,98,398,70"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="488,115,578,143"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="445,65,504,106,499,106,444,70"/>
+<area shape="rect" id="Node000006" href="$hardware__caps_8h.html" title="Hardware capability type definitions and runtime board configuration." alt="" coords="602,115,734,143"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="490,65,617,109,612,110,489,70"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="627,191,708,218"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="670,141,670,177,666,173,666,145"/>
+</map>

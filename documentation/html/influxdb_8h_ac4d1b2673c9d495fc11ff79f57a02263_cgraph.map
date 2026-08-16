@@ -1,0 +1,9 @@
+<map id="influxdb_build_payload_valves" name="influxdb_build_payload_valves">
+<area shape="rect" id="Node000001" title="Build the payload for valve position metrics." alt="" coords="5,24,177,68"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#ad6c5cb1aa8c59d439bd8867f2940f216" title="Append a single line to the InfluxDB payload buffer." alt="" coords="235,5,394,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,33,222,30,217,31,177,38"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#adea0e95512c2cde7de19c5422a069bf4" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="225,57,404,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,53,212,59,206,59,177,58"/>
+<area shape="rect" id="Node000004" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="452,57,585,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="404,69,439,71,434,71,404,74"/>
+</map>

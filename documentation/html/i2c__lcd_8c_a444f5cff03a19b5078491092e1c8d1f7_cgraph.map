@@ -1,0 +1,5 @@
+<map id="lcd_write_backlight_state" name="lcd_write_backlight_state">
+<area shape="rect" id="Node000001" title="Update the PCF8574 expander with the current backlight state." alt="" coords="5,5,153,50"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a958e29ef81709a804ae23d6912bb4659" title="Write a single command or data byte to the LCD expander." alt="" coords="201,14,348,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,25,187,27,182,28,153,30"/>
+</map>

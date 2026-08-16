@@ -1,0 +1,41 @@
+<map id="ds3231_get_time" name="ds3231_get_time">
+<area shape="rect" id="Node000001" title="Read the current time from the DS3231 into a struct tm." alt="" coords="1170,277,1303,305"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#adea0e95512c2cde7de19c5422a069bf4" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="937,204,1116,232"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1177,271,1068,235,1069,230,1183,272"/>
+<area shape="rect" id="Node000014" href="$i2c__ds3231_8c.html#ad6df71745ab454de9956c53bb3a79ef2" title="Initialize the system clock from the DS3231 Real Time Clock." alt="" coords="940,269,1112,314"/>
+<area shape="poly" id="edge17_Node000001_Node000014" title=" " alt="" coords="1152,291,1113,294,1113,289,1157,291"/>
+<area shape="rect" id="Node000015" href="$i2c__ds3231_8c.html#ad0e351becf31f986c50269fbf9b18056" title="Synchronize the system time and DS3231 RTC with NTP when possible." alt="" coords="931,364,1122,408"/>
+<area shape="poly" id="edge18_Node000001_Node000015" title=" " alt="" coords="1193,311,1078,366,1077,360,1187,312"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#aaae5bae1bd60e16228202cd970e85513" title="Build an InfluxDB payload for system actuals." alt="" coords="688,57,860,102"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="995,193,945,156,881,116,855,105,856,99,884,111,948,151,1000,194"/>
+<area shape="rect" id="Node000007" href="$influxdb_8c.html#a21a81dc08551e53f1541269f226c4ff3" title="Build a DMA metrics payload line for InfluxDB." alt="" coords="670,5,878,33"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="1008,189,987,158,958,118,923,79,881,47,860,36,860,31,884,42,926,75,962,115,991,155,1013,191"/>
+<area shape="rect" id="Node000010" href="$influxdb_8c.html#ace66ca39bc5c5ed246dbb9ef47180c7e" title="Build InfluxDB sensor payloads for a single bus." alt="" coords="688,126,860,171"/>
+<area shape="poly" id="edge10_Node000002_Node000010" title=" " alt="" coords="956,200,858,174,858,169,961,199"/>
+<area shape="rect" id="Node000011" href="$influxdb_8c.html#a6a820db91fd96fed47dccdd7a4848c18" title="Build an uptime&#45;only InfluxDB payload." alt="" coords="688,196,860,240"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="918,218,860,220,860,215,924,218"/>
+<area shape="rect" id="Node000012" href="$influxdb_8c.html#a858d289918d0ee40eb51be6e83867d32" title="Build an InfluxDB payload describing valve positions." alt="" coords="688,265,860,310"/>
+<area shape="poly" id="edge13_Node000002_Node000012" title=" " alt="" coords="961,236,859,267,857,262,956,237"/>
+<area shape="rect" id="Node000013" href="$influxdb_8c.html#af3060cb403db557b5f420714f342ea39" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="665,333,883,361"/>
+<area shape="poly" id="edge15_Node000002_Node000013" title=" " alt="" coords="964,237,932,259,918,275,910,291,901,308,884,324,862,335,861,330,881,320,897,305,905,289,913,272,929,254,959,239"/>
+<area shape="rect" id="Node000004" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="466,204,596,232"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="680,107,667,116,632,138,599,162,549,206,546,201,596,158,629,133,664,111,675,109"/>
+<area shape="rect" id="Node000005" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="225,165,371,193"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="448,205,372,194,371,189,453,204"/>
+<area shape="rect" id="Node000006" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="5,165,151,193"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="207,181,152,182,150,177,211,178"/>
+<area shape="rect" id="Node000008" href="$influxdb_8c.html#aeb5b2c9a35f6411ff800bebc2247f893" title="Enqueue DMA metrics payload for sending." alt="" coords="445,66,617,111"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="690,38,666,47,599,68,597,63,665,42,695,36"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="455,118,337,167,335,162,460,115"/>
+<area shape="rect" id="Node000009" href="$influxdb_8c.html#a76b63f80149a23fbe84ffa985ffac12c" title="Tick the DMA monitor and enqueue metrics on the configured interval." alt="" coords="199,75,397,102"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="427,89,398,91,396,86,432,88"/>
+<area shape="poly" id="edge12_Node000011_Node000004" title=" " alt="" coords="670,218,597,220,596,215,675,217"/>
+<area shape="poly" id="edge14_Node000012_Node000004" title=" " alt="" coords="676,260,582,235,583,230,681,260"/>
+<area shape="poly" id="edge16_Node000013_Node000004" title=" " alt="" coords="677,328,664,324,628,303,594,279,545,235,547,229,598,274,631,299,667,319,682,328"/>
+<area shape="rect" id="Node000016" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="690,385,858,413"/>
+<area shape="poly" id="edge19_Node000015_Node000016" title=" " alt="" coords="918,392,858,397,858,392,912,392"/>
+<area shape="rect" id="Node000017" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="448,385,614,413"/>
+<area shape="poly" id="edge20_Node000016_Node000017" title=" " alt="" coords="672,399,615,402,615,397,677,399"/>
+<area shape="rect" id="Node000018" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="255,385,340,413"/>
+<area shape="poly" id="edge21_Node000017_Node000018" title=" " alt="" coords="430,399,341,402,341,397,435,399"/>
+</map>

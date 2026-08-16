@@ -7,8 +7,13 @@ Ethernet lifecycle and configuration support for W5500-\/based interfaces.
 
 {\ttfamily \#include "{}eth\+\_\+functions.\+h"{}}\newline
 {\ttfamily \#include $<$esp\+\_\+mac.\+h$>$}\newline
-Include dependency graph for eth\+\_\+functions.\+c\+:
-% FIG 0
+Include dependency graph for eth\+\_\+functions.\+c\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c__incl}
+\end{center}
+\end{figure}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
@@ -83,6 +88,22 @@ This helper performs a safe restart sequence with backoff and deferred teardown 
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00651}{651}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ac083d14cefd22175cce5b2b32d604dbd_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ac083d14cefd22175cce5b2b32d604dbd_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a2fcb11372e14fcede4741b6dd7b9dfc7}\index{eth\_functions.c@{eth\_functions.c}!eth\_get\_handle@{eth\_get\_handle}}
 \index{eth\_get\_handle@{eth\_get\_handle}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_get\_handle()}{eth\_get\_handle()}}
@@ -123,6 +144,22 @@ ESP\+\_\+\+OK on success, ESP\+\_\+\+ERR\+\_\+\+TIMEOUT if the lifecycle mutex c
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00145}{145}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_aec832b03be0eaa8b74f74a9e4855f8dd_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_aec832b03be0eaa8b74f74a9e4855f8dd_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a9cb9ed4c6f2c4c1313ecf8993c06391d}\index{eth\_functions.c@{eth\_functions.c}!eth\_hardware\_reset\_safe@{eth\_hardware\_reset\_safe}}
 \index{eth\_hardware\_reset\_safe@{eth\_hardware\_reset\_safe}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_hardware\_reset\_safe()}{eth\_hardware\_reset\_safe()}}
@@ -142,6 +179,22 @@ ESP\+\_\+\+OK on success, otherwise an esp\+\_\+err\+\_\+t describing the failur
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00262}{262}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a9cb9ed4c6f2c4c1313ecf8993c06391d_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a9cb9ed4c6f2c4c1313ecf8993c06391d_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a97fccc4d177f1ed03f51d3cee80dfca6}\index{eth\_functions.c@{eth\_functions.c}!eth\_init@{eth\_init}}
 \index{eth\_init@{eth\_init}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_init()}{eth\_init()}}
@@ -158,6 +211,22 @@ This function is idempotent and protects the Ethernet lifecycle using a mutex. I
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00382}{382}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=297pt]{eth__functions_8c_a97fccc4d177f1ed03f51d3cee80dfca6_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a97fccc4d177f1ed03f51d3cee80dfca6_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a7253f023a5396e8fe4eeba5d2aff51b1}\index{eth\_functions.c@{eth\_functions.c}!eth\_is\_connected@{eth\_is\_connected}}
 \index{eth\_is\_connected@{eth\_is\_connected}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_is\_connected()}{eth\_is\_connected()}}
@@ -179,6 +248,22 @@ true if Ethernet is connected and has an IP address, false otherwise.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00355}{355}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a7253f023a5396e8fe4eeba5d2aff51b1_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a7253f023a5396e8fe4eeba5d2aff51b1_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a9d1a52f95274d5e44af2951d99bb59c1}\index{eth\_functions.c@{eth\_functions.c}!eth\_is\_shutting\_down@{eth\_is\_shutting\_down}}
 \index{eth\_is\_shutting\_down@{eth\_is\_shutting\_down}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_is\_shutting\_down()}{eth\_is\_shutting\_down()}}
@@ -198,6 +283,14 @@ true when a shutdown is in progress, false otherwise.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l01099}{1099}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a9d1a52f95274d5e44af2951d99bb59c1_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_af89d4cb7564dda18b4d15cb719405ca4}\index{eth\_functions.c@{eth\_functions.c}!eth\_lifecycle\_init\_once@{eth\_lifecycle\_init\_once}}
 \index{eth\_lifecycle\_init\_once@{eth\_lifecycle\_init\_once}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_lifecycle\_init\_once()}{eth\_lifecycle\_init\_once()}}
@@ -214,6 +307,14 @@ This function is safe to call repeatedly and creates the mutex the first time it
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00311}{311}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_af89d4cb7564dda18b4d15cb719405ca4_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_aba748ea94bbb415836127d41d5fdf4d4}\index{eth\_functions.c@{eth\_functions.c}!eth\_set\_shutting\_down@{eth\_set\_shutting\_down}}
 \index{eth\_set\_shutting\_down@{eth\_set\_shutting\_down}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_set\_shutting\_down()}{eth\_set\_shutting\_down()}}
@@ -235,6 +336,14 @@ Mark that Ethernet shutdown is in progress.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l01089}{1089}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_aba748ea94bbb415836127d41d5fdf4d4_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_adddc09a7abc75ea5f74991d2d4ea23d5}\index{eth\_functions.c@{eth\_functions.c}!eth\_software\_restart@{eth\_software\_restart}}
 \index{eth\_software\_restart@{eth\_software\_restart}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_software\_restart()}{eth\_software\_restart()}}
@@ -256,6 +365,22 @@ ESP\+\_\+\+OK if restart succeeded, otherwise the esp\+\_\+err\+\_\+t from the s
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00837}{837}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_adddc09a7abc75ea5f74991d2d4ea23d5_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_adddc09a7abc75ea5f74991d2d4ea23d5_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_ab28f31c30317345e104ebf7b1c8bb3f2}\index{eth\_functions.c@{eth\_functions.c}!eth\_start@{eth\_start}}
 \index{eth\_start@{eth\_start}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_start()}{eth\_start()}}
@@ -272,6 +397,22 @@ This function is idempotent and uses the lifecycle mutex to avoid races during s
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00749}{749}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ab28f31c30317345e104ebf7b1c8bb3f2_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ab28f31c30317345e104ebf7b1c8bb3f2_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a89d75d93d7ad1d242a929cbfd539e8ca}\index{eth\_functions.c@{eth\_functions.c}!eth\_stop@{eth\_stop}}
 \index{eth\_stop@{eth\_stop}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_stop()}{eth\_stop()}}
@@ -288,6 +429,22 @@ This function uses the lifecycle mutex and calls the locked teardown helper to r
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00894}{894}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=302pt]{eth__functions_8c_a89d75d93d7ad1d242a929cbfd539e8ca_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=298pt]{eth__functions_8c_a89d75d93d7ad1d242a929cbfd539e8ca_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_ac3e62dc70fbe1edc6aa97f5536a56eff}\index{eth\_functions.c@{eth\_functions.c}!eth\_teardown\_safe@{eth\_teardown\_safe}}
 \index{eth\_teardown\_safe@{eth\_teardown\_safe}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{eth\_teardown\_safe()}{eth\_teardown\_safe()}}
@@ -304,6 +461,22 @@ If the mutex cannot be taken immediately, the teardown is deferred and a flag is
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00328}{328}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ac3e62dc70fbe1edc6aa97f5536a56eff_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_ac3e62dc70fbe1edc6aa97f5536a56eff_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a2e4ac85f220239cd04d2f0d2b90de107}\index{eth\_functions.c@{eth\_functions.c}!ethernet\_config\_apply@{ethernet\_config\_apply}}
 \index{ethernet\_config\_apply@{ethernet\_config\_apply}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{ethernet\_config\_apply()}{ethernet\_config\_apply()}}
@@ -325,6 +498,14 @@ ESP\+\_\+\+OK on success, or an esp\+\_\+err\+\_\+t on failure.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00976}{976}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a2e4ac85f220239cd04d2f0d2b90de107_cgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a1a60e853e8890b9ca5e89d668ddb8b1e}\index{eth\_functions.c@{eth\_functions.c}!ethernet\_config\_is\_dhcp\_enabled@{ethernet\_config\_is\_dhcp\_enabled}}
 \index{ethernet\_config\_is\_dhcp\_enabled@{ethernet\_config\_is\_dhcp\_enabled}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{ethernet\_config\_is\_dhcp\_enabled()}{ethernet\_config\_is\_dhcp\_enabled()}}
@@ -344,6 +525,14 @@ true if Ethernet DHCP is enabled in the stored configuration, false otherwise.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00953}{953}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a1a60e853e8890b9ca5e89d668ddb8b1e_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_aa9beadd076bf20623cd4696537a86b7e}\index{eth\_functions.c@{eth\_functions.c}!ethernet\_config\_is\_enabled@{ethernet\_config\_is\_enabled}}
 \index{ethernet\_config\_is\_enabled@{ethernet\_config\_is\_enabled}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{ethernet\_config\_is\_enabled()}{ethernet\_config\_is\_enabled()}}
@@ -363,6 +552,14 @@ true if Ethernet is enabled in the stored configuration, false otherwise.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00933}{933}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_aa9beadd076bf20623cd4696537a86b7e_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a84b588ee86e129becb7c9501a827e113}\index{eth\_functions.c@{eth\_functions.c}!ethernet\_link\_is\_up@{ethernet\_link\_is\_up}}
 \index{ethernet\_link\_is\_up@{ethernet\_link\_is\_up}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{ethernet\_link\_is\_up()}{ethernet\_link\_is\_up()}}
@@ -384,6 +581,22 @@ true if the Ethernet link is up, false otherwise.
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00617}{617}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=349pt]{eth__functions_8c_a84b588ee86e129becb7c9501a827e113_cgraph}
+\end{center}
+\end{figure}
+Here is the caller graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a84b588ee86e129becb7c9501a827e113_icgraph}
+\end{center}
+\end{figure}
 \Hypertarget{eth__functions_8c_a35e913e4e772138708751649995fc419}\index{eth\_functions.c@{eth\_functions.c}!handle\_deferred\_eth\_teardown\_if\_needed@{handle\_deferred\_eth\_teardown\_if\_needed}}
 \index{handle\_deferred\_eth\_teardown\_if\_needed@{handle\_deferred\_eth\_teardown\_if\_needed}!eth\_functions.c@{eth\_functions.c}}
 \doxysubsubsection{\texorpdfstring{handle\_deferred\_eth\_teardown\_if\_needed()}{handle\_deferred\_eth\_teardown\_if\_needed()}}
@@ -400,6 +613,14 @@ Called periodically from the network manager task when teardown could not be com
 
 Definition at line \mbox{\hyperlink{eth__functions_8c_source_l00718}{718}} of file \mbox{\hyperlink{eth__functions_8c_source}{eth\+\_\+functions.\+c}}.
 
+Here is the call graph for this function\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=350pt]{eth__functions_8c_a35e913e4e772138708751649995fc419_cgraph}
+\end{center}
+\end{figure}
 
 
 \label{doc-var-members}

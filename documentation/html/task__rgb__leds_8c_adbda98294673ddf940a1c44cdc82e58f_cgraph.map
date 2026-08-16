@@ -1,0 +1,21 @@
+<map id="task_rgb_leds_code" name="task_rgb_leds_code">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,84,155,112"/>
+<area shape="rect" id="Node000002" href="$rgb__leds_8c.html#aa5c378cd8fe1665ba43767a57fbd1c42" title=" " alt="" coords="204,57,302,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,84,191,80,186,82,156,89"/>
+<area shape="rect" id="Node000003" href="$rgb__leds_8c.html#a9be864917c40df73e56f26784aa3139d" title=" " alt="" coords="203,109,303,137"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,106,190,113,185,114,155,111"/>
+<area shape="rect" id="Node000004" href="$rgb__leds_8c.html#a3bae5a46c516ed6872078d8826820890" title=" " alt="" coords="357,5,458,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="283,106,301,94,325,69,334,57,349,44,356,42,361,39,353,48,338,61,329,73,305,99,285,111"/>
+<area shape="rect" id="Node000005" href="$rgb__leds_8c.html#a0fa5627faeeda83a1b37d89c89ac87a5" title=" " alt="" coords="374,57,442,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="296,106,361,87,356,88,297,111"/>
+<area shape="rect" id="Node000007" href="$rgb__leds_8c.html#a30660306061cfb1268696c10f3fa7342" title=" " alt="" coords="551,161,617,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="267,135,303,169,326,186,352,198,400,208,449,207,495,200,534,192,539,191,497,205,449,212,399,213,350,203,324,190,300,173,265,140"/>
+<area shape="rect" id="Node000008" href="$rgb__leds_8c.html#a5ab6a1fcd2c56901680bdbc17922387f" title=" " alt="" coords="351,161,464,189"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="297,135,352,156,347,156,296,140"/>
+<area shape="rect" id="Node000009" href="$rgb__leds_8c.html#a3df25b66553f44d46ff48baad432cc57" title=" " alt="" coords="363,109,452,137"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="303,121,350,123,345,124,304,126"/>
+<area shape="rect" id="Node000006" href="$rgb__leds_8c.html#a47b741602a8db9cfbe7daf12b54e4b3f" title=" " alt="" coords="512,84,656,112"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="442,74,500,84,494,85,443,79"/>
+<area shape="poly" id="edge9_Node000009_Node000006" title=" " alt="" coords="452,114,499,110,494,111,453,119"/>
+<area shape="poly" id="edge10_Node000009_Node000007" title=" " alt="" coords="453,134,539,161,534,161,452,139"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="load_mqtt_config" name="load_mqtt_config">
+<area shape="rect" id="Node000001" title="Load MQTT configuration from /data/json/mqtt_config.json." alt="" coords="5,5,139,33"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a8424f992f15f195b9f82211a7399f59d" title="Read the contents of a file into a buffer and null&#45;terminate it." alt="" coords="187,5,264,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,17,174,19,168,19,139,22"/>
+</map>

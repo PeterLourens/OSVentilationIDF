@@ -1,0 +1,9 @@
+<map id="eth_start" name="eth_start">
+<area shape="rect" id="Node000001" title="Start Ethernet driver operation, initializing first if needed." alt="" coords="454,44,533,72"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#ac083d14cefd22175cce5b2b32d604dbd" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="243,5,404,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="436,49,405,45,405,40,441,49"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a2e4ac85f220239cd04d2f0d2b90de107" title="Apply the current Ethernet configuration from the network config." alt="" coords="241,74,406,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="441,67,407,76,406,71,436,68"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,5,193,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="225,28,194,30,193,25,230,27"/>
+</map>

@@ -1,0 +1,14 @@
+<map id="update_network_led_state" name="update_network_led_state">
+<area shape="rect" id="Node000001" title="Update status LEDs for network connectivity." alt="" coords="5,49,159,94"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#ac6b806585e37b43729765a3f5565f2e4" title="Set the Ethernet LED mode." alt="" coords="208,5,348,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,48,211,36,206,39,160,53"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="215,57,341,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,69,201,70,196,72,159,74"/>
+<area shape="rect" id="Node000006" href="$network__functions_8c.html#ac9b8a9ee069ee8702cdc869fb1d0033b" title="Set the Wi&#45;Fi LED mode." alt="" coords="207,109,349,137"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="159,89,211,104,206,105,159,94"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="593,57,756,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="341,69,580,70,575,72,342,74"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="397,83,545,110"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="342,77,384,85,379,85,342,82"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="545,85,575,84,580,83,546,90"/>
+</map>

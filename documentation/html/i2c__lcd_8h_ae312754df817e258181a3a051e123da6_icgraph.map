@@ -1,0 +1,26 @@
+<map id="lcd_dev_write_byte" name="lcd_dev_write_byte">
+<area shape="rect" id="Node000001" title="Write a raw byte to the PCF8574 expander." alt="" coords="1189,28,1337,55"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#ab08a929d9ec8f4e45889e2daab1b7739" title="Initialize the HD44780&#45;compatible LCD through the PCF8574 expander." alt="" coords="618,28,763,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1187,24,1141,19,1051,11,980,8,909,11,819,19,752,30,751,25,818,14,909,6,980,3,1051,5,1142,14,1193,24"/>
+<area shape="rect" id="Node000007" href="$i2c__lcd_8c.html#a05ca11b760cbc9dc689cb9157736846c" title="Pulse the HD44780 enable line through the expander." alt="" coords="1001,28,1134,55"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1171,42,1135,44,1135,39,1176,41"/>
+<area shape="rect" id="Node000009" href="$i2c__lcd_8c.html#a444f5cff03a19b5078491092e1c8d1f7" title="Update the PCF8574 expander with the current backlight state." alt="" coords="994,79,1141,124"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="1204,60,1142,82,1141,76,1198,61"/>
+<area shape="rect" id="Node000003" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="423,29,562,57"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="600,42,563,45,562,40,606,42"/>
+<area shape="rect" id="Node000004" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,29,375,57"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="405,43,375,46,375,40,410,43"/>
+<area shape="rect" id="Node000005" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,29,140,57"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="219,44,140,46,140,40,223,42"/>
+<area shape="rect" id="Node000006" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,81,189,109"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="230,62,156,83,155,78,235,60"/>
+<area shape="rect" id="Node000008" href="$i2c__lcd_8c.html#ad55729a86c03ef20b765e96229ca6d7b" title="Write a 4&#45;bit nibble to the LCD controller." alt="" coords="819,28,946,55"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="983,42,947,44,946,39,988,41"/>
+<area shape="poly" id="edge8_Node000008_Node000002" title=" " alt="" coords="800,42,763,44,763,39,805,41"/>
+<area shape="rect" id="Node000010" href="$i2c__lcd_8c.html#a92c829d8691e09819601b95836b9da5d" title="Enable or disable the LCD backlight." alt="" coords="610,81,771,109"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="976,100,771,99,771,94,981,100"/>
+<area shape="poly" id="edge13_Node000010_Node000003" title=" " alt="" coords="617,76,548,60,549,55,623,77"/>
+<area shape="rect" id="Node000011" href="$task__i2c__lcd_8c.html#a045e98ef80147ad694d5f048f6db2325" title=" " alt="" coords="238,81,374,109"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="592,95,374,98,374,92,598,95"/>
+<area shape="poly" id="edge12_Node000011_Node000006" title=" " alt="" coords="220,95,189,98,189,92,225,95"/>
+</map>

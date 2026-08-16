@@ -1,0 +1,9 @@
+<map id="mqtt_handle_incoming" name="mqtt_handle_incoming">
+<area shape="rect" id="Node000001" title="Handle an incoming MQTT message event." alt="" coords="592,14,763,42"/>
+<area shape="rect" id="Node000002" href="$mqtt_8c.html#afe173dc5ef66bf3aa0f89db100b572f0" title="Forward an MQTT event to the application event loop." alt="" coords="378,14,544,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="574,28,545,30,545,25,579,28"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html#ab8fa71bd6e32c818199cc74d4651f609" title="Start the MQTT client using the provided configuration." alt="" coords="241,14,330,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="360,28,330,30,330,25,365,28"/>
+<area shape="rect" id="Node000004" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,5,193,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="222,28,193,30,193,25,227,27"/>
+</map>

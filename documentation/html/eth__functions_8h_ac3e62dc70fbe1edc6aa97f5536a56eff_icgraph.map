@@ -1,0 +1,7 @@
+<map id="eth_teardown_safe" name="eth_teardown_safe">
+<area shape="rect" id="Node000001" title="Safely teardown Ethernet resources when the lifecycle mutex is available." alt="" coords="450,14,595,42"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#ac083d14cefd22175cce5b2b32d604dbd" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="241,5,402,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="432,28,402,30,402,25,437,28"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,5,193,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="222,28,193,30,193,25,228,27"/>
+</map>

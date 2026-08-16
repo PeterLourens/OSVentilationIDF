@@ -1,0 +1,29 @@
+<map id="influxdb_get_timestamp" name="influxdb_get_timestamp">
+<area shape="rect" id="Node000001" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="931,169,1110,197"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#aaae5bae1bd60e16228202cd970e85513" title="Build an InfluxDB payload for system actuals." alt="" coords="688,57,860,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="978,161,882,116,851,105,852,99,884,111,983,162"/>
+<area shape="rect" id="Node000006" href="$influxdb_8c.html#a21a81dc08551e53f1541269f226c4ff3" title="Build a DMA metrics payload line for InfluxDB." alt="" coords="670,5,878,33"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="998,156,950,101,917,72,881,47,858,36,858,31,884,42,921,67,953,97,1003,157"/>
+<area shape="rect" id="Node000009" href="$influxdb_8c.html#ace66ca39bc5c5ed246dbb9ef47180c7e" title="Build InfluxDB sensor payloads for a single bus." alt="" coords="688,126,860,171"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="913,169,860,163,860,158,918,168"/>
+<area shape="rect" id="Node000010" href="$influxdb_8c.html#a6a820db91fd96fed47dccdd7a4848c18" title="Build an uptime&#45;only InfluxDB payload." alt="" coords="688,196,860,240"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="913,198,861,208,860,203,918,197"/>
+<area shape="rect" id="Node000011" href="$influxdb_8c.html#a858d289918d0ee40eb51be6e83867d32" title="Build an InfluxDB payload describing valve positions." alt="" coords="688,265,860,310"/>
+<area shape="poly" id="edge12_Node000001_Node000011" title=" " alt="" coords="983,204,884,255,852,267,851,262,882,250,978,206"/>
+<area shape="rect" id="Node000012" href="$influxdb_8c.html#af3060cb403db557b5f420714f342ea39" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="665,333,883,361"/>
+<area shape="poly" id="edge14_Node000001_Node000012" title=" " alt="" coords="1003,209,953,269,921,299,884,324,859,335,857,330,881,320,917,295,950,265,998,211"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="466,204,596,232"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="680,107,667,116,632,138,599,162,549,206,546,201,596,158,629,133,664,111,675,109"/>
+<area shape="rect" id="Node000004" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="225,131,371,158"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="467,199,345,162,345,156,472,198"/>
+<area shape="rect" id="Node000005" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="5,131,151,158"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="207,146,152,147,150,142,211,143"/>
+<area shape="rect" id="Node000007" href="$influxdb_8c.html#aeb5b2c9a35f6411ff800bebc2247f893" title="Enqueue DMA metrics payload for sending." alt="" coords="445,66,617,111"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="690,38,666,47,599,68,597,63,665,42,695,36"/>
+<area shape="poly" id="edge8_Node000007_Node000004" title=" " alt="" coords="427,114,360,132,358,128,432,112"/>
+<area shape="rect" id="Node000008" href="$influxdb_8c.html#a76b63f80149a23fbe84ffa985ffac12c" title="Tick the DMA monitor and enqueue metrics on the configured interval." alt="" coords="199,75,397,102"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="427,89,398,91,397,86,432,88"/>
+<area shape="poly" id="edge11_Node000010_Node000003" title=" " alt="" coords="670,218,597,220,597,215,675,217"/>
+<area shape="poly" id="edge13_Node000011_Node000003" title=" " alt="" coords="676,260,582,235,583,230,681,260"/>
+<area shape="poly" id="edge15_Node000012_Node000003" title=" " alt="" coords="677,328,664,324,628,303,594,279,545,234,547,229,598,274,631,299,667,319,682,328"/>
+</map>

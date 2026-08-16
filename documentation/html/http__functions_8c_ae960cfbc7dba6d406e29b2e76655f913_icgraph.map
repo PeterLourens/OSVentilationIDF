@@ -1,0 +1,5 @@
+<map id="register_http_handlers" name="register_http_handlers">
+<area shape="rect" id="Node000001" title="Register the HTTP URI handlers for the embedded web interface." alt="" coords="186,5,353,33"/>
+<area shape="rect" id="Node000002" href="$http__functions_8c.html#a9dd8efe54e059142817e14d63550cd7f" title="Start the embedded HTTP server and bind URI handlers." alt="" coords="5,5,138,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,19,138,22,138,17,173,19"/>
+</map>

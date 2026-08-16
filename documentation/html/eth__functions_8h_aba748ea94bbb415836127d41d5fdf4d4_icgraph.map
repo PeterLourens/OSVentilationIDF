@@ -1,0 +1,14 @@
+<map id="eth_set_shutting_down" name="eth_set_shutting_down">
+<area shape="rect" id="Node000001" title="Mark that Ethernet shutdown is in progress." alt="" coords="887,32,1058,60"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#aec832b03be0eaa8b74f74a9e4855f8dd" title="Perform a guarded hardware reset of the W5500 Ethernet controller." alt="" coords="686,5,836,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="868,33,836,31,837,26,874,33"/>
+<area shape="rect" id="Node000006" href="$eth__functions_8c.html#adddc09a7abc75ea5f74991d2d4ea23d5" title="Perform a safe software restart of the Ethernet driver." alt="" coords="683,57,839,85"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="874,58,839,65,839,59,868,58"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a9cb9ed4c6f2c4c1313ecf8993c06391d" title="Safe reset helper: try software restart first, then guarded hardware reset." alt="" coords="450,32,635,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="673,30,636,37,636,32,668,30"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#ac083d14cefd22175cce5b2b32d604dbd" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="241,24,402,68"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="432,46,403,48,403,43,437,46"/>
+<area shape="rect" id="Node000005" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,24,193,68"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="222,46,193,48,193,43,228,46"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="665,60,636,59,636,54,671,60"/>
+</map>

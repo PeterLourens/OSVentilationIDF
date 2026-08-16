@@ -1,0 +1,11 @@
+<map id="parse_int_flexible" name="parse_int_flexible">
+<area shape="rect" id="Node000001" title="Parse a JSON value into an integer with flexible type handling." alt="" coords="706,14,842,42"/>
+<area shape="rect" id="Node000002" href="$config__files_8c.html#a760bd6bd8a3a5a3427e30d3b161fc78d" title="Parse a single statemachine state object from JSON." alt="" coords="513,14,658,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="688,28,658,30,658,25,693,28"/>
+<area shape="rect" id="Node000003" href="$config__files_8c.html#ab006392deaea973fe053d5ce12250be4" title="Read JSON state files under mount_point that match pattern, parse into statemachine_config[] (global)..." alt="" coords="322,5,465,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="495,28,466,30,466,25,501,28"/>
+<area shape="rect" id="Node000004" href="$config__files_8c.html#a541442023da9f2da977a4be0d2d1eeef" title="Load configured statemachine state definitions from JSON files." alt="" coords="139,14,274,42"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="304,28,274,30,274,25,309,28"/>
+<area shape="rect" id="Node000005" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,14,91,42"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="120,28,91,30,91,25,126,27"/>
+</map>

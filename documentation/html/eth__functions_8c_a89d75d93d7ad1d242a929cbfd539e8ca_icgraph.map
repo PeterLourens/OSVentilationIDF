@@ -1,0 +1,5 @@
+<map id="eth_stop" name="eth_stop">
+<area shape="rect" id="Node000001" title="Stop Ethernet and perform a full cleanup of driver resources." alt="" coords="219,5,296,33"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a2e4ac85f220239cd04d2f0d2b90de107" title="Apply the current Ethernet configuration from the network config." alt="" coords="5,5,171,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,19,171,22,171,17,206,19"/>
+</map>

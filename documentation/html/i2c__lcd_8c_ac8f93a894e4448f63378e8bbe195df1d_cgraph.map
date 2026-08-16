@@ -1,0 +1,5 @@
+<map id="i2c_lcd_write_text" name="i2c_lcd_write_text">
+<area shape="rect" id="Node000001" title="Write a text string to the LCD display." alt="" coords="5,5,145,33"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a431fd9d8d9fe0336e0128bcb5d8eba93" title="Position the LCD cursor to the requested row and column." alt="" coords="193,5,333,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,17,180,19,175,19,145,22"/>
+</map>

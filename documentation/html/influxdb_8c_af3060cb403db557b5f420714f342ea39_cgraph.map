@@ -1,0 +1,9 @@
+<map id="influxdb_enqueue_sensor_line" name="influxdb_enqueue_sensor_line">
+<area shape="rect" id="Node000001" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="5,32,223,60"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#a83b53a96c830013ff30b2d1c42f45010" title="Enqueue a raw InfluxDB line protocol payload for sending." alt="" coords="271,5,466,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,32,258,31,253,31,224,37"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#adea0e95512c2cde7de19c5422a069bf4" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="279,57,458,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,54,266,61,261,61,223,59"/>
+<area shape="rect" id="Node000004" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="514,57,647,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="459,69,501,71,496,71,459,74"/>
+</map>

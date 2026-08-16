@@ -1,0 +1,18 @@
+<map id="control_valves" name="control_valves">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,122,85"/>
+<area shape="rect" id="Node000002" href="$valvecontrol_8c.html#a4ee923edb3a326f0b913b16cb8020d9d" title=" " alt="" coords="170,57,272,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="122,69,156,70,151,72,122,74"/>
+<area shape="rect" id="Node000003" href="$valvecontrol_8c.html#a20bef8791973dcbc7f7f8ccaa6ea3b26" title=" " alt="" coords="320,57,437,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="272,69,307,71,302,72,273,74"/>
+<area shape="rect" id="Node000004" href="$valvecontrol_8c.html#a0b7ab2eef26ad4b5a39feb9d2a4f40fd" title=" " alt="" coords="485,5,620,33"/>
+<area shape="poly" id="edge8_Node000002_Node000004" title=" " alt="" coords="272,54,320,43,472,25,467,26,320,48,273,59"/>
+<area shape="rect" id="Node000007" href="$valvecontrol_8c.html#a3385d6523be79f3ab2a24539364d16ef" title=" " alt="" coords="486,109,619,137"/>
+<area shape="poly" id="edge9_Node000002_Node000007" title=" " alt="" coords="273,83,320,94,473,116,468,117,320,99,272,88"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="427,54,487,39,492,37,428,59"/>
+<area shape="rect" id="Node000005" href="$valvecontrol_8c.html#a86183349d6f049f0ea847c5b946d8565" title=" " alt="" coords="505,57,600,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="438,69,492,71,487,71,438,74"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="428,83,492,105,487,104,427,88"/>
+<area shape="rect" id="Node000006" href="$valvecontrol_8c.html#ad447dad6ad19c87121ce9ae860f2ce8e" title=" " alt="" coords="668,84,787,112"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="601,76,655,86,649,86,600,81"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="619,111,650,109,655,108,619,116"/>
+</map>

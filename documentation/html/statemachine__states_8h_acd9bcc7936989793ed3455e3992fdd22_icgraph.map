@@ -1,0 +1,23 @@
+<map id="fan_speed_to_str" name="fan_speed_to_str">
+<area shape="rect" id="Node000001" title="Convert a fan speed enum to a human&#45;readable string." alt="" coords="838,121,970,149"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a4d2628d9853ed04094e95b9d7aa561a9" title="Build a formatted statemachine actuals string for LCD output." alt="" coords="610,31,790,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="866,112,830,93,789,72,759,62,760,56,791,67,833,88,871,113"/>
+<area shape="rect" id="Node000007" href="$mqtt_8c.html#a711bf2614cc96edc05eab71d9741835a" title="Publish current state and fan speed over MQTT." alt="" coords="627,82,773,127"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="819,123,774,118,774,113,825,123"/>
+<area shape="rect" id="Node000010" href="$http__send__ws__data_8c.html#af425c96b333925214c1cd7c33f7afcb8" title="Send index page data and current runtime state to a WebSocket client." alt="" coords="621,151,779,178"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="825,147,780,156,779,150,819,147"/>
+<area shape="rect" id="Node000011" href="$http__send__ws__data_8c.html#a1c43e7e23b509639add460b20512314e" title="Send collected system statistics as JSON over WebSocket." alt="" coords="625,203,775,230"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="865,156,791,192,755,205,754,199,789,187,860,157"/>
+<area shape="rect" id="Node000003" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="423,31,562,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="592,45,563,47,563,42,597,44"/>
+<area shape="rect" id="Node000004" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,31,375,58"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="405,45,376,47,375,42,410,44"/>
+<area shape="rect" id="Node000005" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,5,140,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="219,36,140,27,139,22,224,33"/>
+<area shape="rect" id="Node000006" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,57,189,85"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="219,57,190,62,188,57,224,54"/>
+<area shape="rect" id="Node000008" href="$task__mqtt_8c.html#a6f4aa30845d9fd1b629abc54545ee7c5" title=" " alt="" coords="430,91,555,118"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="609,105,556,107,555,102,614,104"/>
+<area shape="rect" id="Node000009" href="$task__mqtt_8c.html#aa0c26154f5b12a4990adc5a61088f410" title=" " alt="" coords="244,91,368,118"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="412,105,369,107,368,102,417,104"/>
+</map>

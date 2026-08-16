@@ -1,0 +1,21 @@
+<map id="task_i2c_sensors_code" name="task_i2c_sensors_code">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,109,176,137"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#a1f979d728c9b17b94734d8666c38acd9" title="Initialize the TCA9548A I2C multiplexer." alt="" coords="253,57,380,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,106,240,88,236,91,155,111"/>
+<area shape="rect" id="Node000003" href="$i2c__sensors_8c.html#a8a473764f5efa100fa0ac4163c0ccf16" title="Read all configured sensors and publish a snapshot into the sensor queue." alt="" coords="224,109,410,137"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,121,211,122,205,124,176,126"/>
+<area shape="rect" id="Node000009" href="$i2c__sensors_8c.html#a5b7307fab1bf8e372fcf6fb3103c90f7" title="Take the latest sensor snapshot and compute moving averages." alt="" coords="237,187,397,214"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="134,135,262,180,257,183,133,140"/>
+<area shape="rect" id="Node000004" href="$i2c__sensors_8c.html#a171099de7e13430bc88ca29eac054b6c" title="Read temperature and humidity from an AHT20 sensor." alt="" coords="503,5,597,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="383,106,409,94,423,82,432,70,441,57,457,44,485,33,490,31,459,48,445,60,436,73,427,86,411,99,385,111"/>
+<area shape="rect" id="Node000005" href="$i2c__sensors_8c.html#a6e6e68d136b9477af4aa8b0da8b9cc11" title="Read temperature and humidity from a DHT20 sensor." alt="" coords="503,57,597,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="382,106,490,84,485,86,383,111"/>
+<area shape="rect" id="Node000006" href="$i2c__sensors_8c.html#afab3800bd0c8fae2e389415892a8ae82" title="Select a channel on the TCA9548A multiplexer." alt="" coords="458,109,642,137"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="410,121,445,123,440,124,411,126"/>
+<area shape="rect" id="Node000007" href="$i2c__sensors_8c.html#a04a5633f2ff5a878a455f5b7be6771a7" title="Read CO2, temperature, and humidity values from an SCD41 sensor." alt="" coords="502,161,598,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="383,135,490,161,485,162,382,140"/>
+<area shape="rect" id="Node000008" href="$i2c__sensors_8c.html#aeaae1542ebb2cf1747323b997715a2a7" title="Compute CRC8 for SCD41 data blocks." alt="" coords="690,161,784,189"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="598,173,677,175,672,175,599,178"/>
+<area shape="rect" id="Node000010" href="$i2c__sensors_8c.html#a4aa3ef68338a18153d625d7ecfa9f8ea" title="Push a sensor measurement value into the moving average FIFO." alt="" coords="514,213,587,241"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="398,207,501,221,496,221,397,212"/>
+</map>

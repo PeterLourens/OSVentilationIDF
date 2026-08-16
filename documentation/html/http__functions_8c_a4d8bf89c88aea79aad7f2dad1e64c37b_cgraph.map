@@ -1,0 +1,12 @@
+<map id="asm" name="asm">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,14,55,42"/>
+<area shape="rect" id="Node000002" href="$network__manager_8c.html#acdee73edd1c128e1b024f5b1132038ea" title=" " alt="" coords="103,5,250,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="55,25,89,26,85,29,55,30"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="298,14,424,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="250,25,285,27,280,28,250,30"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="669,14,831,42"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="425,25,655,27,650,28,425,30"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="472,39,621,67"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="425,34,459,41,454,41,425,39"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="621,41,650,40,656,40,621,46"/>
+</map>

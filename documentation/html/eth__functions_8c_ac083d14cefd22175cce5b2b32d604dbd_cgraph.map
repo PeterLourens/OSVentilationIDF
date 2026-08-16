@@ -1,0 +1,37 @@
+<map id="attempt_guarded_eth_restart" name="attempt_guarded_eth_restart">
+<area shape="rect" id="Node000001" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="5,212,167,257"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a9cb9ed4c6f2c4c1313ecf8993c06391d" title="Safe reset helper: try software restart first, then guarded hardware reset." alt="" coords="220,168,405,196"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,213,236,199,232,202,168,218"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a97fccc4d177f1ed03f51d3cee80dfca6" title="Initialize Ethernet hardware and attach the W5500 Ethernet driver." alt="" coords="712,14,782,42"/>
+<area shape="poly" id="edge13_Node000001_Node000004" title=" " alt="" coords="102,210,148,158,179,131,213,108,276,79,343,57,411,41,478,31,602,21,699,24,694,25,602,27,479,36,412,46,344,62,278,84,216,113,182,135,152,162,106,213"/>
+<area shape="rect" id="Node000009" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="462,220,610,248"/>
+<area shape="poly" id="edge19_Node000001_Node000009" title=" " alt="" coords="167,232,447,232,445,237,168,237"/>
+<area shape="rect" id="Node000011" href="$eth__functions_8c.html#ab28f31c30317345e104ebf7b1c8bb3f2" title="Start Ethernet driver operation, initializing first if needed." alt="" coords="496,64,575,92"/>
+<area shape="poly" id="edge14_Node000001_Node000011" title=" " alt="" coords="117,209,162,181,214,155,284,129,356,109,483,85,478,88,358,114,286,134,216,159,164,185,121,213"/>
+<area shape="rect" id="Node000012" href="$eth__functions_8c.html#ac3e62dc70fbe1edc6aa97f5536a56eff" title="Safely teardown Ethernet resources, deferring if the lifecycle mutex is busy." alt="" coords="674,319,820,347"/>
+<area shape="poly" id="edge17_Node000001_Node000012" title=" " alt="" coords="167,244,660,318,658,322,167,249"/>
+<area shape="rect" id="Node000013" href="$network__manager_8c.html#a37c2555a31427a21faeddfdd9c47a63a" title=" " alt="" coords="215,323,410,367"/>
+<area shape="poly" id="edge20_Node000001_Node000013" title=" " alt="" coords="127,255,216,301,244,316,238,316,213,306,127,260"/>
+<area shape="rect" id="Node000014" href="$network__functions_8c.html#aa4d5963a27d3b48cd75d02c723e52545" title="Request a syslog state update based on current network conditions." alt="" coords="235,391,390,419"/>
+<area shape="poly" id="edge21_Node000001_Node000014" title=" " alt="" coords="102,255,148,317,180,350,216,377,226,385,221,384,213,382,177,354,144,320,100,260"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#aec832b03be0eaa8b74f74a9e4855f8dd" title="Perform a guarded hardware reset of the W5500 Ethernet controller." alt="" coords="460,116,611,144"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,165,461,147,456,149,376,170"/>
+<area shape="rect" id="Node000008" href="$eth__functions_8c.html#adddc09a7abc75ea5f74991d2d4ea23d5" title="Perform a safe software restart of the Ethernet driver." alt="" coords="458,168,613,196"/>
+<area shape="poly" id="edge8_Node000002_Node000008" title=" " alt="" coords="405,180,445,182,440,183,406,185"/>
+<area shape="poly" id="edge11_Node000002_Node000009" title=" " alt="" coords="375,194,461,216,456,217,375,199"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="582,113,612,101,664,75,709,51,713,49,666,79,614,106,584,118"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="881,115,1051,143"/>
+<area shape="poly" id="edge6_Node000003_Node000005" title=" " alt="" coords="611,127,868,128,863,130,612,133"/>
+<area shape="rect" id="Node000007" href="$eth__functions_8c.html#aba748ea94bbb415836127d41d5fdf4d4" title="Mark Ethernet as currently shutting down." alt="" coords="661,166,833,194"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="598,142,673,161,667,162,598,147"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="783,37,834,57,928,107,923,107,832,62,783,42"/>
+<area shape="rect" id="Node000006" href="$eth__functions_8c.html#a1a60e853e8890b9ca5e89d668ddb8b1e" title="Check whether DHCP is enabled for Ethernet in the network configuration." alt="" coords="896,5,1036,50"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="782,25,882,27,877,28,783,30"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="590,194,642,205,703,212,768,212,832,202,887,179,932,153,937,151,890,184,833,208,768,218,702,217,641,210,590,199"/>
+<area shape="poly" id="edge10_Node000008_Node000007" title=" " alt="" coords="613,179,648,180,643,181,614,184"/>
+<area shape="rect" id="Node000010" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="666,267,828,295"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="601,246,669,263,664,263,601,251"/>
+<area shape="poly" id="edge15_Node000011_Node000004" title=" " alt="" coords="575,66,699,38,694,41,577,71"/>
+<area shape="poly" id="edge16_Node000011_Node000005" title=" " alt="" coords="576,80,833,109,868,115,863,116,832,114,576,85"/>
+<area shape="poly" id="edge18_Node000012_Node000005" title=" " alt="" coords="809,316,831,304,870,270,903,230,949,158,953,155,907,233,874,273,834,309,811,321"/>
+</map>

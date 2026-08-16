@@ -1,0 +1,5 @@
+<map id="influxdb_get_timestamp" name="influxdb_get_timestamp">
+<area shape="rect" id="Node000001" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="5,5,185,33"/>
+<area shape="rect" id="Node000002" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="233,5,366,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,17,220,19,214,19,185,22"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="stop_task_pushbutton" name="stop_task_pushbutton">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,170,33"/>
+<area shape="rect" id="Node000002" href="$pushbutton_8c.html#ab77055d0ccece00eb3ebdebfa68d7f47" title="Deinitialize the pushbutton module and release resources." alt="" coords="218,5,356,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,17,204,19,199,19,170,22"/>
+</map>

@@ -1,0 +1,15 @@
+<map id="ethernet_config_apply" name="ethernet_config_apply">
+<area shape="rect" id="Node000001" title="Apply the current Ethernet configuration from the shared network config." alt="" coords="5,94,171,122"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#ab28f31c30317345e104ebf7b1c8bb3f2" title="Start Ethernet driver operation, initializing first if needed." alt="" coords="219,68,298,96"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,93,206,90,201,91,172,98"/>
+<area shape="rect" id="Node000006" href="$eth__functions_8c.html#a89d75d93d7ad1d242a929cbfd539e8ca" title="Stop Ethernet and perform a full cleanup of driver resources." alt="" coords="346,119,423,147"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="171,112,333,127,329,130,171,117"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a97fccc4d177f1ed03f51d3cee80dfca6" title="Initialize Ethernet hardware and attach the W5500 Ethernet driver." alt="" coords="350,18,420,46"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="294,65,332,52,337,51,296,70"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="471,74,642,102"/>
+<area shape="poly" id="edge5_Node000002_Node000004" title=" " alt="" coords="298,80,458,85,453,86,298,86"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="421,42,472,60,494,69,489,69,470,65,420,47"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#a1a60e853e8890b9ca5e89d668ddb8b1e" title="Check whether DHCP is enabled for Ethernet in the network configuration." alt="" coords="486,5,627,50"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="420,28,473,29,468,30,421,34"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="423,120,484,106,489,106,424,125"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="leds_update" name="leds_update">
+<area shape="rect" id="Node000001" title=" " alt="" coords="532,5,633,33"/>
+<area shape="rect" id="Node000002" href="$task__rgb__leds_8c.html#adbda98294673ddf940a1c44cdc82e58f" title=" " alt="" coords="335,5,484,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="514,19,485,22,485,17,519,19"/>
+<area shape="rect" id="Node000003" href="$task__rgb__leds_8c.html#a230f7d03ecc56b13315990bb1dfa084a" title=" " alt="" coords="139,5,287,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="317,19,287,22,287,17,322,19"/>
+<area shape="rect" id="Node000004" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,5,91,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="120,20,91,22,91,17,126,19"/>
+</map>

@@ -1,0 +1,18 @@
+<map id="syslog_send_line" name="syslog_send_line">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,100,138,128"/>
+<area shape="rect" id="Node000002" href="$network__manager_8c.html#acdee73edd1c128e1b024f5b1132038ea" title=" " alt="" coords="191,5,338,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,97,185,60,201,55,196,58,187,65,105,102"/>
+<area shape="rect" id="Node000006" href="$network__functions_8c.html#a5b7241d33ed6fc033aedffbf5cb2cf87" title="Check whether any active network interface currently has an IP." alt="" coords="203,74,326,102"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="138,103,190,97,185,99,139,108"/>
+<area shape="rect" id="Node000007" href="$syslog_8c.html#a1687dfe7b28a75c0dc10fe5e4bd0eb26" title=" " alt="" coords="186,126,343,154"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="121,126,173,136,168,137,121,131"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="391,44,517,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="338,37,379,45,373,46,339,42"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="762,44,924,72"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="518,56,748,58,743,59,518,61"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="565,70,714,98"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="518,64,552,71,547,71,518,70"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="714,72,743,71,749,70,714,77"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="326,76,378,70,373,71,327,81"/>
+<area shape="poly" id="edge9_Node000007_Node000001" title=" " alt="" coords="212,126,153,119,153,113,217,125"/>
+</map>

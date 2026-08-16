@@ -1,0 +1,11 @@
+<map id="send_index_html_ws" name="send_index_html_ws">
+<area shape="rect" id="Node000001" title="Send index page data and current runtime state to a WebSocket client." alt="" coords="5,84,163,112"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#acd9bcc7936989793ed3455e3992fdd22" title="Convert a fan speed enum to a human&#45;readable string." alt="" coords="233,5,365,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,81,210,43,235,37,231,39,212,48,119,86"/>
+<area shape="rect" id="Node000003" href="$general_8c.html#a17a42747791f295ff5825b19d4d0bc73" title="Format the current local date and time including weekday abbreviation." alt="" coords="211,57,387,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,86,197,83,193,85,164,91"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="229,109,368,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="163,104,216,112,211,114,163,110"/>
+<area shape="rect" id="Node000005" href="$general_8c.html#acae851b7d5bb3f90f1584d6ae457cc48" title="Convert a statemachine state enum to a human&#45;readable string." alt="" coords="240,161,358,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="119,110,212,146,236,156,230,156,210,151,118,115"/>
+</map>

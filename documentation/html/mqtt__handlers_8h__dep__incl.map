@@ -1,0 +1,5 @@
+<map id="/home/peter/Development/OSVentilationIDF/main/mqtt_handlers.h" name="/home/peter/Development/OSVentilationIDF/main/mqtt_handlers.h">
+<area shape="rect" id="Node000001" title="Callback declarations for incoming MQTT message handling." alt="" coords="5,5,198,67"/>
+<area shape="rect" id="Node000002" href="$mqtt__handlers_8c.html" title="MQTT message processing callbacks for OSVentilation." alt="" coords="5,115,198,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,80,104,115,99,114,100,85"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="get_active_netif" name="get_active_netif">
+<area shape="rect" id="Node000001" title="Get the currently active network interface." alt="" coords="5,5,132,33"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="376,5,538,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,17,361,17,360,22,132,22"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="180,31,328,58"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,25,167,32,161,33,132,30"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="328,33,358,31,363,31,328,38"/>
+</map>

@@ -1,0 +1,19 @@
+<map id="influxdb_append_line" name="influxdb_append_line">
+<area shape="rect" id="Node000001" title="Append a single line to the InfluxDB payload buffer." alt="" coords="791,118,950,146"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#aaae5bae1bd60e16228202cd970e85513" title="Build an InfluxDB payload for system actuals." alt="" coords="571,5,743,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="829,109,741,65,716,53,717,48,744,60,834,110"/>
+<area shape="rect" id="Node000006" href="$influxdb_8c.html#ace66ca39bc5c5ed246dbb9ef47180c7e" title="Build InfluxDB sensor payloads for a single bus." alt="" coords="571,75,743,119"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="773,116,743,114,743,108,778,116"/>
+<area shape="rect" id="Node000007" href="$influxdb_8c.html#a6a820db91fd96fed47dccdd7a4848c18" title="Build an uptime&#45;only InfluxDB payload." alt="" coords="571,144,743,189"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="778,147,744,155,743,150,773,147"/>
+<area shape="rect" id="Node000008" href="$influxdb_8c.html#a858d289918d0ee40eb51be6e83867d32" title="Build an InfluxDB payload describing valve positions." alt="" coords="571,213,743,258"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="834,153,744,203,717,215,716,210,741,199,829,154"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="393,152,523,180"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="581,57,573,65,515,111,473,154,470,150,512,107,570,60,577,59"/>
+<area shape="rect" id="Node000004" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="199,152,345,180"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="375,167,346,169,345,164,380,166"/>
+<area shape="rect" id="Node000005" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="5,152,151,180"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="181,167,152,169,151,164,186,165"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="553,167,524,169,524,164,558,166"/>
+<area shape="poly" id="edge9_Node000008_Node000003" title=" " alt="" coords="574,208,500,183,501,178,579,208"/>
+</map>

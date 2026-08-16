@@ -1,0 +1,12 @@
+<map id="http_server_start" name="http_server_start">
+<area shape="rect" id="Node000001" title="Start the embedded HTTP server and bind handlers." alt="" coords="5,32,138,60"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="206,5,332,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="137,34,193,29,188,31,138,40"/>
+<area shape="rect" id="Node000005" href="$http__functions_8c.html#ae960cfbc7dba6d406e29b2e76655f913" title="Register the HTTP URI handlers for the embedded web interface." alt="" coords="186,57,353,85"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="138,52,173,58,168,59,138,57"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="597,5,760,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,17,584,18,579,20,333,22"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="401,31,549,58"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="333,24,388,33,383,34,333,30"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="549,33,579,32,584,31,550,38"/>
+</map>

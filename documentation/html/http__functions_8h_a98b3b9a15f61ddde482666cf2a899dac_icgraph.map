@@ -1,0 +1,7 @@
+<map id="ws_async_send" name="ws_async_send">
+<area shape="rect" id="Node000001" title="Send raw text to all connected WebSocket clients." alt="" coords="230,44,352,72"/>
+<area shape="rect" id="Node000002" href="$sys__stats_8c.html#a216ae6dedc0151d1c60ba6eda113d768" title=" " alt="" coords="5,5,182,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,47,182,44,182,39,217,46"/>
+<area shape="rect" id="Node000003" href="$http__helper_8c.html#a74fca8c99366c1067a129e43858cf216" title="WebSocket logger callback that forwards logs to UART and WebSocket." alt="" coords="10,74,177,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,70,178,78,177,73,217,69"/>
+</map>

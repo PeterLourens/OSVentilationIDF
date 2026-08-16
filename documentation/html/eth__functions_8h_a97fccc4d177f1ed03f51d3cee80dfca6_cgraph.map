@@ -1,0 +1,7 @@
+<map id="eth_init" name="eth_init">
+<area shape="rect" id="Node000001" title="Initialize the Ethernet interface and driver." alt="" coords="5,36,76,64"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="124,5,294,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,41,117,35,112,38,77,46"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a1a60e853e8890b9ca5e89d668ddb8b1e" title="Check whether DHCP is enabled for Ethernet in the network configuration." alt="" coords="139,57,279,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="76,53,126,63,121,66,76,59"/>
+</map>

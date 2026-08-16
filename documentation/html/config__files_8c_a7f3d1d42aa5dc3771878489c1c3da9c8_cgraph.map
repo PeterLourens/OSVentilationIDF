@@ -1,0 +1,5 @@
+<map id="load_ethernet_config" name="load_ethernet_config">
+<area shape="rect" id="Node000001" title="Load Ethernet configuration from LittleFS and store it in runtime state." alt="" coords="5,5,163,33"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a8424f992f15f195b9f82211a7399f59d" title="Read the contents of a file into a buffer and null&#45;terminate it." alt="" coords="211,5,288,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,17,198,19,192,19,163,22"/>
+</map>

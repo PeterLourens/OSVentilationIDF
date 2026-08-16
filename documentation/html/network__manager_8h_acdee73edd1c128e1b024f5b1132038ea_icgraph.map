@@ -1,0 +1,30 @@
+<map id="net_mgr_notify_eth_activity" name="net_mgr_notify_eth_activity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1078,76,1225,120"/>
+<area shape="rect" id="Node000002" href="$http__functions_8c.html#a4d8bf89c88aea79aad7f2dad1e64c37b" title=" " alt="" coords="922,5,972,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1084,69,1029,48,972,29,972,24,1031,43,1090,69"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html#afe173dc5ef66bf3aa0f89db100b572f0" title="Forward an MQTT event to the application event loop." alt="" coords="864,57,1030,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="1060,86,1031,85,1031,79,1065,86"/>
+<area shape="rect" id="Node000006" href="$network__functions_8c.html#a15e2bbdf882e4f4df3de788cfb276888" title="Handle the end of an ICMP ping measurement." alt="" coords="895,109,998,137"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1065,109,999,119,999,114,1060,109"/>
+<area shape="rect" id="Node000012" href="$syslog_8c.html#a21ad61b41c644556b747e1607948ad29" title=" " alt="" coords="881,161,1013,189"/>
+<area shape="poly" id="edge13_Node000001_Node000012" title=" " alt="" coords="1087,126,1031,151,995,163,994,158,1029,146,1082,127"/>
+<area shape="rect" id="Node000004" href="$mqtt_8c.html#ab8fa71bd6e32c818199cc74d4651f609" title="Start the MQTT client using the provided configuration." alt="" coords="692,53,782,81"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="845,69,782,71,782,65,851,69"/>
+<area shape="rect" id="Node000005" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="423,42,610,87"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="675,67,611,68,611,63,680,66"/>
+<area shape="rect" id="Node000007" href="$network__functions_8c.html#af959a495a2955a3e222bd900387a5acc" title="Probe the gateway to verify network reachability." alt="" coords="681,109,793,137"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="877,123,794,126,793,121,882,123"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="665,105,603,90,603,85,671,105"/>
+<area shape="rect" id="Node000008" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,111,140,138"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="665,126,140,127,140,122,665,121"/>
+<area shape="rect" id="Node000009" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="447,161,586,189"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="668,140,579,163,578,158,663,140"/>
+<area shape="rect" id="Node000010" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,161,375,189"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="429,175,376,178,375,173,434,175"/>
+<area shape="poly" id="edge11_Node000010_Node000008" title=" " alt="" coords="229,158,140,137,140,132,234,156"/>
+<area shape="rect" id="Node000011" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,163,189,190"/>
+<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="219,176,189,179,189,173,224,176"/>
+<area shape="rect" id="Node000013" href="$syslog_8c.html#a1687dfe7b28a75c0dc10fe5e4bd0eb26" title=" " alt="" coords="658,161,816,189"/>
+<area shape="poly" id="edge14_Node000012_Node000013" title=" " alt="" coords="863,184,816,187,816,181,868,184"/>
+<area shape="poly" id="edge15_Node000013_Node000012" title=" " alt="" coords="831,164,883,167,878,167,831,169"/>
+</map>

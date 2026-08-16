@@ -1,0 +1,5 @@
+<map id="ethernet_link_is_up" name="ethernet_link_is_up">
+<area shape="rect" id="Node000001" title="Check whether the Ethernet PHY/link appears to be up." alt="" coords="5,5,154,33"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="202,5,364,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,17,189,19,183,19,154,22"/>
+</map>

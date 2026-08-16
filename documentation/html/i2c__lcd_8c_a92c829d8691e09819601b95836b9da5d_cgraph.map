@@ -1,0 +1,7 @@
+<map id="i2c_lcd_backlight_set" name="i2c_lcd_backlight_set">
+<area shape="rect" id="Node000001" title="Enable or disable the LCD backlight." alt="" coords="5,14,166,42"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a444f5cff03a19b5078491092e1c8d1f7" title="Update the PCF8574 expander with the current backlight state." alt="" coords="214,5,361,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,25,201,27,196,28,166,30"/>
+<area shape="rect" id="Node000003" href="$i2c__lcd_8c.html#a958e29ef81709a804ae23d6912bb4659" title="Write a single command or data byte to the LCD expander." alt="" coords="409,14,556,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="361,25,396,28,390,28,362,30"/>
+</map>

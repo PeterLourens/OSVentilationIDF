@@ -1,0 +1,19 @@
+<map id="ethernet_config_is_dhcp_enabled" name="ethernet_config_is_dhcp_enabled">
+<area shape="rect" id="Node000001" title="Check whether Ethernet DHCP is enabled in the runtime network configuration." alt="" coords="1000,25,1140,69"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a97fccc4d177f1ed03f51d3cee80dfca6" title="Initialize Ethernet hardware and attach the W5500 Ethernet driver." alt="" coords="882,33,952,61"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="982,47,953,50,952,44,987,47"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#ac083d14cefd22175cce5b2b32d604dbd" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="241,25,402,69"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="864,29,833,24,726,11,642,9,558,14,450,24,403,31,402,26,450,19,558,8,642,3,727,6,834,19,869,29"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#aec832b03be0eaa8b74f74a9e4855f8dd" title="Perform a guarded hardware reset of the W5500 Ethernet controller." alt="" coords="683,33,834,61"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="863,47,834,50,834,44,869,47"/>
+<area shape="rect" id="Node000007" href="$eth__functions_8c.html#ab28f31c30317345e104ebf7b1c8bb3f2" title="Start Ethernet driver operation, initializing first if needed." alt="" coords="719,85,798,113"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="870,63,799,89,798,84,865,64"/>
+<area shape="rect" id="Node000004" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,25,193,69"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="222,48,194,50,193,44,227,46"/>
+<area shape="rect" id="Node000006" href="$eth__functions_8c.html#a9cb9ed4c6f2c4c1313ecf8993c06391d" title="Safe reset helper: try software restart first, then guarded hardware reset." alt="" coords="450,33,635,61"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="665,47,636,50,636,44,671,47"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="432,47,403,50,402,44,437,47"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="700,96,586,90,450,75,403,67,403,62,450,70,587,85,706,96"/>
+<area shape="rect" id="Node000008" href="$eth__functions_8c.html#a2e4ac85f220239cd04d2f0d2b90de107" title="Apply the current Ethernet configuration from the network config." alt="" coords="460,135,625,162"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="707,111,607,137,606,131,701,112"/>
+</map>

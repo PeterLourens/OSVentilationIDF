@@ -1,0 +1,7 @@
+<map id="ds3231_check_status" name="ds3231_check_status">
+<area shape="rect" id="Node000001" title="Check and format the DS3231 status register." alt="" coords="5,32,166,60"/>
+<area shape="rect" id="Node000002" href="$i2c__ds3231_8c.html#a9abdc3947bf6cee65f5cce7c438cbd28" title="Read a single register from the DS3231." alt="" coords="216,5,348,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,32,203,30,198,31,167,38"/>
+<area shape="rect" id="Node000003" href="$i2c__ds3231_8c.html#a6ee183dc0a17563c4c72d3a26fb79b55" title="Write a single register of the DS3231." alt="" coords="214,57,350,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,54,201,60,196,61,166,59"/>
+</map>

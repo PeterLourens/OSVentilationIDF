@@ -1,0 +1,8 @@
+<map id="eth_is_connected" name="eth_is_connected">
+<area shape="rect" id="Node000001" title="Check whether the Ethernet interface is currently connected." alt="" coords="5,5,140,33"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="384,5,546,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="140,17,369,17,368,22,140,22"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="188,31,336,58"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="140,26,175,32,170,33,140,31"/>
+<area shape="poly" id="edge3_Node000003_Node000002" title=" " alt="" coords="336,33,366,31,371,31,336,38"/>
+</map>

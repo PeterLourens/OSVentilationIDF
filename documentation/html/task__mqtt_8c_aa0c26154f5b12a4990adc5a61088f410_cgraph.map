@@ -1,0 +1,44 @@
+<map id="start_task_mqtt" name="start_task_mqtt">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,266,130,293"/>
+<area shape="rect" id="Node000002" href="$task__mqtt_8c.html#a6f4aa30845d9fd1b629abc54545ee7c5" title=" " alt="" coords="178,266,303,293"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="129,277,164,278,160,281,132,282"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html#ac86d692abbf87dddca455da656942725" title="Clear any pending MQTT discovery request." alt="" coords="624,5,785,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,264,252,224,272,169,303,112,324,87,349,65,379,48,411,34,479,18,546,12,611,14,606,16,546,17,480,23,413,40,382,53,353,70,328,90,308,115,276,171,257,225,247,266"/>
+<area shape="rect" id="Node000004" href="$mqtt_8c.html#a2d00277af8dc8d584239b7fe3b2aec00" title="Query whether an MQTT discovery request is pending." alt="" coords="358,436,553,464"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="249,291,288,356,317,392,353,423,361,430,356,429,349,427,313,396,283,359,247,296"/>
+<area shape="rect" id="Node000005" href="$mqtt_8c.html#a14a4eb1d82363ee8fb9bf053b48fc4a2" title="Query whether MQTT is currently connected." alt="" coords="384,488,528,516"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="246,292,260,330,281,379,311,430,331,454,353,474,371,487,366,486,349,478,327,457,307,433,276,381,255,332,245,297"/>
+<area shape="rect" id="Node000006" href="$mqtt_8c.html#a7aead4cf162396fd72a1f77f0102ba8c" title="Publish MQTT Home Assistant discovery payloads." alt="" coords="351,139,560,183"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="261,263,350,208,392,189,387,192,352,213,264,267"/>
+<area shape="rect" id="Node000011" href="$mqtt_8c.html#a19e6b3f9b4ad16bd172c6d282c384937" title="Publish current sensor values over MQTT." alt="" coords="378,292,534,337"/>
+<area shape="poly" id="edge12_Node000002_Node000011" title=" " alt="" coords="303,287,365,298,360,300,304,292"/>
+<area shape="rect" id="Node000012" href="$mqtt_8c.html#a711bf2614cc96edc05eab71d9741835a" title="Publish current state and fan speed over MQTT." alt="" coords="382,368,529,413"/>
+<area shape="poly" id="edge15_Node000002_Node000012" title=" " alt="" coords="262,291,304,319,352,347,381,362,376,362,350,351,301,323,262,297"/>
+<area shape="rect" id="Node000016" href="$mqtt_8c.html#adae8be92f55c6be049cf04593242a763" title="Publish current valve positions over MQTT." alt="" coords="381,223,530,267"/>
+<area shape="poly" id="edge21_Node000002_Node000016" title=" " alt="" coords="302,267,368,258,363,261,304,272"/>
+<area shape="rect" id="Node000017" href="$mqtt_8c.html#a346a3921be1bcd18272370839faa3e18" title="Check whether sensor data is ready for MQTT publication." alt="" coords="398,79,513,107"/>
+<area shape="poly" id="edge24_Node000002_Node000017" title=" " alt="" coords="246,264,283,197,313,158,349,124,385,108,381,111,353,129,317,162,287,200,250,267"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="524,136,559,116,573,102,582,89,591,75,607,60,618,56,614,59,610,64,595,78,586,92,577,106,562,120,527,140"/>
+<area shape="rect" id="Node000007" href="$i2c__sensors_8c.html#ab0890b3f408a66c55d29bfb75a657822" title="Check whether a sensor is configured and initialized on the specified bus and slot." alt="" coords="635,74,774,102"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="529,136,608,112,639,105,634,107,609,117,531,140"/>
+<area shape="rect" id="Node000008" href="$mqtt_8c.html#ae6653452f6ed168ee81cb05e82409373" title="Copy the current MQTT configuration into the output snapshot." alt="" coords="608,278,801,305"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="507,181,562,208,669,269,664,270,559,213,507,187"/>
+<area shape="rect" id="Node000009" href="$mqtt_8c.html#afb971ca81a572e06658b42d91946dce2" title="Retrieve the cached MQTT node identifier." alt="" coords="635,126,774,154"/>
+<area shape="poly" id="edge9_Node000006_Node000009" title=" " alt="" coords="560,149,623,146,618,148,562,155"/>
+<area shape="rect" id="Node000010" href="$mqtt_8c.html#a1be0d359120794eac2d4a597be76ca94" title="Normalize the MQTT base topic into a safe string." alt="" coords="849,227,1012,255"/>
+<area shape="poly" id="edge11_Node000006_Node000010" title=" " alt="" coords="560,176,836,224,831,226,561,181"/>
+<area shape="poly" id="edge10_Node000009_Node000010" title=" " alt="" coords="754,151,802,169,895,219,890,219,800,174,754,157"/>
+<area shape="poly" id="edge13_Node000011_Node000008" title=" " alt="" coords="534,305,596,301,590,303,535,310"/>
+<area shape="poly" id="edge14_Node000011_Node000010" title=" " alt="" coords="534,324,593,330,661,332,731,327,800,314,854,292,897,266,902,264,856,296,801,320,732,333,661,337,593,335,535,329"/>
+<area shape="poly" id="edge18_Node000012_Node000008" title=" " alt="" coords="513,365,559,347,651,313,656,311,561,351,515,370"/>
+<area shape="poly" id="edge19_Node000012_Node000010" title=" " alt="" coords="530,404,562,423,573,436,580,449,585,475,591,500,598,510,610,520,660,545,683,552,705,554,727,552,750,546,799,520,829,496,854,466,875,432,891,396,913,326,924,272,928,268,918,327,896,398,879,434,859,469,833,499,802,525,751,551,728,557,705,559,682,557,658,550,607,525,594,514,586,502,580,477,575,451,569,439,559,427,529,409"/>
+<area shape="rect" id="Node000013" href="$general_8c.html#acd9bcc7936989793ed3455e3992fdd22" title="Convert a fan speed enum to a human&#45;readable string." alt="" coords="638,483,771,511"/>
+<area shape="poly" id="edge16_Node000012_Node000013" title=" " alt="" coords="530,407,562,423,577,435,586,446,595,457,610,468,626,478,621,477,607,473,592,461,582,450,573,438,559,427,529,413"/>
+<area shape="rect" id="Node000014" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="635,379,774,407"/>
+<area shape="poly" id="edge17_Node000012_Node000014" title=" " alt="" coords="529,388,622,392,617,393,529,394"/>
+<area shape="rect" id="Node000015" href="$general_8c.html#acae851b7d5bb3f90f1584d6ae457cc48" title="Convert a statemachine state enum to a human&#45;readable string." alt="" coords="645,431,764,459"/>
+<area shape="poly" id="edge20_Node000012_Node000015" title=" " alt="" coords="529,404,633,429,627,429,529,409"/>
+<area shape="poly" id="edge22_Node000016_Node000008" title=" " alt="" coords="531,256,614,274,609,275,531,262"/>
+<area shape="poly" id="edge23_Node000016_Node000010" title=" " alt="" coords="530,242,836,241,831,243,531,247"/>
+<area shape="poly" id="edge25_Node000017_Node000007" title=" " alt="" coords="513,89,622,88,617,91,514,94"/>
+</map>

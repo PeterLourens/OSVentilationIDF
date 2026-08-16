@@ -1,0 +1,22 @@
+<map id="mqtt_event_forwarder" name="mqtt_event_forwarder">
+<area shape="rect" id="Node000001" title="Forward an MQTT event to the application event loop." alt="" coords="5,36,172,64"/>
+<area shape="rect" id="Node000002" href="$mqtt__handlers_8c.html#a5296328a6374c77a2539ed17bab82d7c" title="Handle an incoming MQTT message event." alt="" coords="220,5,390,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,36,207,32,202,34,173,41"/>
+<area shape="rect" id="Node000007" href="$network__manager_8c.html#acdee73edd1c128e1b024f5b1132038ea" title=" " alt="" coords="231,57,378,102"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="172,58,218,67,213,68,172,64"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html#a1b7ed315c11d6726b5c6ae8eb7174d84" title="Set the state machine speed based on MQTT payload." alt="" coords="438,5,621,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="390,17,425,19,420,20,390,22"/>
+<area shape="rect" id="Node000004" href="$statemachine__helper_8c.html#a2bbf20bce579e05c5dd135246668f7b2" title=" " alt="" coords="712,5,775,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="622,17,699,19,694,19,622,22"/>
+<area shape="rect" id="Node000005" href="$statemachine__helper_8c.html#a33084da12177128329aed9bfc5be50ce" title=" " alt="" coords="898,5,996,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="776,17,885,19,880,19,776,22"/>
+<area shape="rect" id="Node000006" href="$general_8c.html#a2d0208dd7c43529fcddb5d087c0c40c1" title="Format the current local weekday name." alt="" coords="1076,5,1193,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="996,17,1063,19,1058,19,996,22"/>
+<area shape="rect" id="Node000008" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="466,65,593,93"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="379,77,453,79,448,79,379,82"/>
+<area shape="rect" id="Node000009" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="866,81,1028,109"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="593,79,853,91,848,92,593,84"/>
+<area shape="rect" id="Node000010" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="669,107,818,134"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="593,89,657,103,651,103,593,94"/>
+<area shape="poly" id="edge10_Node000010_Node000009" title=" " alt="" coords="818,109,847,107,853,107,818,114"/>
+</map>

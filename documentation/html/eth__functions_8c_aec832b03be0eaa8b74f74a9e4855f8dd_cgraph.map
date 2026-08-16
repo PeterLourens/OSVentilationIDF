@@ -1,0 +1,12 @@
+<map id="eth_hardware_reset" name="eth_hardware_reset">
+<area shape="rect" id="Node000001" title="Perform a guarded hardware reset of the W5500 Ethernet controller." alt="" coords="5,56,156,84"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#a97fccc4d177f1ed03f51d3cee80dfca6" title="Initialize Ethernet hardware and attach the W5500 Ethernet driver." alt="" coords="254,56,324,84"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,67,241,69,236,71,157,72"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="423,5,593,33"/>
+<area shape="poly" id="edge4_Node000001_Node000003" title=" " alt="" coords="143,53,203,42,309,30,410,24,405,25,309,35,204,47,145,58"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#aba748ea94bbb415836127d41d5fdf4d4" title="Mark Ethernet as currently shutting down." alt="" coords="204,108,375,136"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="140,82,218,103,213,104,139,87"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="324,59,428,38,433,36,326,64"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a1a60e853e8890b9ca5e89d668ddb8b1e" title="Check whether DHCP is enabled for Ethernet in the network configuration." alt="" coords="438,57,578,102"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="325,69,425,75,419,76,325,74"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="on_ping_end" name="on_ping_end">
+<area shape="rect" id="Node000001" title="Handle the end of an ICMP ping measurement." alt="" coords="5,14,109,42"/>
+<area shape="rect" id="Node000002" href="$network__manager_8c.html#acdee73edd1c128e1b024f5b1132038ea" title=" " alt="" coords="157,5,304,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="109,25,143,27,138,28,109,30"/>
+<area shape="rect" id="Node000003" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="352,14,478,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="304,25,339,27,334,28,304,30"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="723,14,885,42"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="479,25,709,27,704,28,479,30"/>
+<area shape="rect" id="Node000005" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="526,39,675,67"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="479,34,513,41,508,41,479,39"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="675,41,704,40,710,40,675,46"/>
+</map>

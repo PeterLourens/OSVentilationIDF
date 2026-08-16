@@ -1,0 +1,9 @@
+<map id="mqtt_get_node_id" name="mqtt_get_node_id">
+<area shape="rect" id="Node000001" title="Retrieve the cached MQTT node identifier." alt="" coords="608,14,747,42"/>
+<area shape="rect" id="Node000002" href="$mqtt_8c.html#a7aead4cf162396fd72a1f77f0102ba8c" title="Publish MQTT Home Assistant discovery payloads." alt="" coords="351,5,560,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="590,28,561,30,561,25,596,28"/>
+<area shape="rect" id="Node000003" href="$task__mqtt_8c.html#a6f4aa30845d9fd1b629abc54545ee7c5" title=" " alt="" coords="178,14,303,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="333,28,304,30,304,25,338,28"/>
+<area shape="rect" id="Node000004" href="$task__mqtt_8c.html#aa0c26154f5b12a4990adc5a61088f410" title=" " alt="" coords="5,14,130,42"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="159,28,130,30,130,25,165,27"/>
+</map>

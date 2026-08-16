@@ -1,0 +1,7 @@
+<map id="build_sm_actuals_buffer" name="build_sm_actuals_buffer">
+<area shape="rect" id="Node000001" title="Build formatted statemachine actuals text for LCD output." alt="" coords="5,32,185,60"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#acd9bcc7936989793ed3455e3992fdd22" title="Convert a fan speed enum to a human&#45;readable string." alt="" coords="233,5,365,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,31,220,29,214,30,186,37"/>
+<area shape="rect" id="Node000003" href="$general_8c.html#acae851b7d5bb3f90f1584d6ae457cc48" title="Convert a statemachine state enum to a human&#45;readable string." alt="" coords="240,57,358,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="185,54,227,62,221,62,185,60"/>
+</map>

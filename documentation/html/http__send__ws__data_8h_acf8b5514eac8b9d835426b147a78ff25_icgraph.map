@@ -1,0 +1,5 @@
+<map id="get_cpu_temp_c" name="get_cpu_temp_c">
+<area shape="rect" id="Node000001" title="Get the latest CPU temperature sampled by the sys_stats task." alt="" coords="204,5,331,33"/>
+<area shape="rect" id="Node000002" href="$http__send__ws__data_8c.html#a1c43e7e23b509639add460b20512314e" title="Send collected system statistics as JSON over WebSocket." alt="" coords="5,5,156,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,19,156,22,156,17,191,19"/>
+</map>

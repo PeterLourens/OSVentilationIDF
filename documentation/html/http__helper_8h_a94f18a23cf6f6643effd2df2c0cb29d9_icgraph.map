@@ -1,0 +1,5 @@
+<map id="remove_ansi_escape_codes" name="remove_ansi_escape_codes">
+<area shape="rect" id="Node000001" title="Remove ANSI escape sequences from a buffer." alt="" coords="220,5,378,50"/>
+<area shape="rect" id="Node000002" href="$http__helper_8c.html#a74fca8c99366c1067a129e43858cf216" title="WebSocket logger callback that forwards logs to UART and WebSocket." alt="" coords="5,14,172,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,28,172,30,172,25,207,27"/>
+</map>

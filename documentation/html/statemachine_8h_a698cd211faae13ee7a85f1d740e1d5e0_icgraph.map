@@ -1,0 +1,7 @@
+<map id="init_statemachine" name="init_statemachine">
+<area shape="rect" id="Node000001" title=" " alt="" coords="467,5,605,33"/>
+<area shape="rect" id="Node000002" href="$task__statemachine_8c.html#ac862c2c78ff997ac06b48c49a42a2471" title=" " alt="" coords="236,5,419,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="449,19,420,22,419,17,454,19"/>
+<area shape="rect" id="Node000003" href="$task__statemachine_8c.html#a3e82ad656087c71f923a600a15e15aa9" title=" " alt="" coords="5,5,188,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="217,19,188,22,188,17,223,19"/>
+</map>

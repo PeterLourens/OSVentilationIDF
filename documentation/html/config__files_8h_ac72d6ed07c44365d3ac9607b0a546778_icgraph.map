@@ -1,0 +1,5 @@
+<map id="load_statemachine_general_config" name="load_statemachine_general_config">
+<area shape="rect" id="Node000001" title="Load general statemachine settings from /data/json/sm_general_config.json." alt="" coords="139,5,340,50"/>
+<area shape="rect" id="Node000002" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,14,91,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="120,28,91,30,91,25,126,27"/>
+</map>

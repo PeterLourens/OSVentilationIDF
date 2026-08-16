@@ -1,0 +1,21 @@
+<map id="normalize_base_topic" name="normalize_base_topic">
+<area shape="rect" id="Node000001" title="Normalize the MQTT base topic into a safe string." alt="" coords="806,107,969,134"/>
+<area shape="rect" id="Node000002" href="$mqtt_8c.html#afb971ca81a572e06658b42d91946dce2" title="Retrieve the cached MQTT node identifier." alt="" coords="614,5,752,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="845,99,756,54,719,36,719,31,759,49,850,99"/>
+<area shape="rect" id="Node000003" href="$mqtt_8c.html#a7aead4cf162396fd72a1f77f0102ba8c" title="Publish MQTT Home Assistant discovery payloads." alt="" coords="351,10,560,55"/>
+<area shape="poly" id="edge5_Node000001_Node000003" title=" " alt="" coords="804,103,757,95,561,55,561,50,758,90,809,103"/>
+<area shape="rect" id="Node000006" href="$mqtt_8c.html#a19e6b3f9b4ad16bd172c6d282c384937" title="Publish current sensor values over MQTT." alt="" coords="378,80,534,124"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="788,117,535,108,534,103,793,116"/>
+<area shape="rect" id="Node000007" href="$mqtt_8c.html#a711bf2614cc96edc05eab71d9741835a" title="Publish current state and fan speed over MQTT." alt="" coords="382,149,529,194"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="788,132,530,165,529,160,793,131"/>
+<area shape="rect" id="Node000008" href="$mqtt_8c.html#adae8be92f55c6be049cf04593242a763" title="Publish current valve positions over MQTT." alt="" coords="608,209,758,254"/>
+<area shape="poly" id="edge10_Node000001_Node000008" title=" " alt="" coords="849,142,727,211,725,206,844,143"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="596,25,561,29,560,24,601,23"/>
+<area shape="rect" id="Node000004" href="$task__mqtt_8c.html#a6f4aa30845d9fd1b629abc54545ee7c5" title=" " alt="" coords="178,123,303,150"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="362,62,352,70,303,97,262,124,260,120,300,93,350,65,367,60"/>
+<area shape="rect" id="Node000005" href="$task__mqtt_8c.html#aa0c26154f5b12a4990adc5a61088f410" title=" " alt="" coords="5,123,130,150"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="160,138,131,139,129,134,164,135"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="359,118,304,129,303,124,365,116"/>
+<area shape="poly" id="edge9_Node000007_Node000004" title=" " alt="" coords="365,157,304,149,304,144,370,157"/>
+<area shape="poly" id="edge11_Node000008_Node000004" title=" " alt="" coords="590,236,476,234,412,224,350,208,297,182,258,154,259,148,300,178,352,203,413,219,476,228,596,236"/>
+</map>

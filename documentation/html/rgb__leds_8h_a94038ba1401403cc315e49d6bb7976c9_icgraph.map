@@ -1,0 +1,16 @@
+<map id="set_led_brightness" name="set_led_brightness">
+<area shape="rect" id="Node000001" title=" " alt="" coords="818,32,961,60"/>
+<area shape="rect" id="Node000002" href="$rgb__leds_8c.html#a0fa5627faeeda83a1b37d89c89ac87a5" title=" " alt="" coords="691,5,760,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="800,32,760,27,760,22,805,32"/>
+<area shape="rect" id="Node000007" href="$rgb__leds_8c.html#a3df25b66553f44d46ff48baad432cc57" title=" " alt="" coords="681,57,770,85"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="805,59,771,67,770,62,800,60"/>
+<area shape="rect" id="Node000003" href="$rgb__leds_8c.html#a9be864917c40df73e56f26784aa3139d" title=" " alt="" coords="532,32,633,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="679,28,634,39,633,34,673,29"/>
+<area shape="rect" id="Node000004" href="$task__rgb__leds_8c.html#adbda98294673ddf940a1c44cdc82e58f" title=" " alt="" coords="335,32,484,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="514,46,485,48,485,43,519,46"/>
+<area shape="rect" id="Node000005" href="$task__rgb__leds_8c.html#a230f7d03ecc56b13315990bb1dfa084a" title=" " alt="" coords="139,32,287,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="317,46,287,48,287,43,322,46"/>
+<area shape="rect" id="Node000006" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,32,91,60"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="120,47,91,48,91,43,125,45"/>
+<area shape="poly" id="edge7_Node000007_Node000003" title=" " alt="" coords="663,60,633,57,633,52,668,61"/>
+</map>

@@ -1,0 +1,27 @@
+<map id="show_system_and_task_stats" name="show_system_and_task_stats">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,205,182,250"/>
+<area shape="rect" id="Node000002" href="$sys__stats_8c.html#aef621e600baaecd9d056247c385db804" title=" " alt="" coords="251,84,372,112"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,202,275,117,273,122,134,207"/>
+<area shape="rect" id="Node000006" href="$sys__stats_8c.html#a8fd914e6c2b8b61978713adbedcaabe7" title=" " alt="" coords="238,161,385,189"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="181,204,238,192,233,194,183,209"/>
+<area shape="rect" id="Node000007" href="$sys__stats_8c.html#a93311b41ea7763d6499eb33c328cadd6" title=" " alt="" coords="230,213,393,241"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="181,225,217,226,211,228,182,230"/>
+<area shape="rect" id="Node000010" href="$sys__stats_8c.html#af438d41ab15936dabdee47712c26be03" title=" " alt="" coords="239,265,384,293"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="182,246,238,261,233,262,182,251"/>
+<area shape="rect" id="Node000013" href="$http__functions_8c.html#a98b3b9a15f61ddde482666cf2a899dac" title="Broadcast raw text to all connected WebSocket clients." alt="" coords="250,317,372,345"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="130,247,178,275,231,302,250,312,245,312,229,307,175,280,129,252"/>
+<area shape="rect" id="Node000003" href="$general_8c.html#a17a42747791f295ff5825b19d4d0bc73" title="Format the current local date and time including weekday abbreviation." alt="" coords="441,5,617,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="345,81,440,43,466,37,461,39,442,48,347,86"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="460,57,599,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="372,88,447,80,442,83,373,93"/>
+<area shape="rect" id="Node000005" href="$sys__stats_8c.html#a35a723839054c5b77467194b44ffb440" title=" " alt="" coords="464,109,594,137"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="372,102,452,113,447,115,373,108"/>
+<area shape="rect" id="Node000008" href="$sys__stats_8c.html#ab32ee9e85444234aaa0cd39be9d16c3f" title=" " alt="" coords="448,161,610,189"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="372,210,456,192,451,194,373,215"/>
+<area shape="rect" id="Node000009" href="$sys__stats_8c.html#a4c8b1ca6f94ffc37e18d1a468a7434ab" title=" " alt="" coords="470,213,589,241"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="393,225,457,227,452,228,394,230"/>
+<area shape="rect" id="Node000011" href="$sys__stats_8c.html#a7119a08e5b0bf50cb9e430ed35a1f82e" title=" " alt="" coords="469,265,589,293"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="384,277,456,279,451,279,384,282"/>
+<area shape="rect" id="Node000012" href="$sys__stats_8c.html#ad5305aab5bf44a33510cb6f4ed766806" title=" " alt="" coords="444,317,615,345"/>
+<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="373,291,456,313,450,313,372,296"/>
+</map>

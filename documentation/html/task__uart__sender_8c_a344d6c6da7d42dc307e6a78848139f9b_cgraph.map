@@ -1,0 +1,5 @@
+<map id="start_task_uart_sender" name="start_task_uart_sender">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,176,33"/>
+<area shape="rect" id="Node000002" href="$task__uart__sender_8c.html#a4a6dc8a92426ec4ce3b1d20def8fe428" title=" " alt="" coords="224,5,395,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,17,211,19,206,19,176,22"/>
+</map>

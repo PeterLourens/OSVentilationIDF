@@ -1,0 +1,17 @@
+<map id="influxdb_enqueue_payload" name="influxdb_enqueue_payload">
+<area shape="rect" id="Node000001" title="Enqueue a raw InfluxDB payload line." alt="" coords="905,85,1100,113"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#aeb5b2c9a35f6411ff800bebc2247f893" title="Enqueue DMA metrics payload for sending." alt="" coords="662,17,834,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="923,81,835,62,835,57,929,81"/>
+<area shape="rect" id="Node000006" href="$influxdb_8c.html#af3060cb403db557b5f420714f342ea39" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="639,85,857,113"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="886,99,857,102,857,97,891,99"/>
+<area shape="rect" id="Node000007" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="427,107,557,134"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="920,116,857,127,776,132,695,132,558,128,558,122,695,127,776,126,856,122,915,116"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#a76b63f80149a23fbe84ffa985ffac12c" title="Tick the DMA monitor and enqueue metrics on the configured interval." alt="" coords="393,5,591,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="644,31,592,30,592,24,649,31"/>
+<area shape="rect" id="Node000004" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="199,81,345,109"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="644,52,346,89,345,84,649,50"/>
+<area shape="rect" id="Node000005" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="5,81,151,109"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="181,96,151,98,151,93,186,95"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="627,109,558,118,558,112,621,110"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="409,111,346,106,346,101,415,111"/>
+</map>

@@ -1,0 +1,41 @@
+<map id="day_transitions" name="day_transitions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,144,127,172"/>
+<area shape="rect" id="Node000002" href="$statemachine__helper_8c.html#adab1407545fb6a4bc3165407db12ad3a" title=" " alt="" coords="223,40,339,68"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,142,122,110,174,78,209,67,206,70,176,83,125,114,85,145"/>
+<area shape="rect" id="Node000003" href="$statemachine__helper_8c.html#a774307d5c2f51f385f8de9b61fb1db4a" title=" " alt="" coords="435,32,586,76"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="71,143,86,116,108,83,137,51,173,26,205,14,239,7,307,4,373,11,434,26,429,28,372,16,307,9,239,12,207,19,176,31,141,55,112,86,91,119,76,145"/>
+<area shape="rect" id="Node000004" href="$statemachine__helper_8c.html#a2bbf20bce579e05c5dd135246668f7b2" title=" " alt="" coords="249,248,312,276"/>
+<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="83,170,125,202,176,233,236,253,231,255,174,238,122,206,83,175"/>
+<area shape="rect" id="Node000007" href="$statemachine__helper_8c.html#a2dcc826036e38226014be04552dab09d" title=" " alt="" coords="222,144,340,172"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="126,156,209,156,204,160,128,161"/>
+<area shape="rect" id="Node000008" href="$fancontrol_8c.html#a3ea0e3bb2bc36c18b3266373d038d23f" title="Set the configured fan speed via the selected control method." alt="" coords="227,196,335,224"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="126,170,214,192,209,195,127,175"/>
+<area shape="rect" id="Node000009" href="$statemachine__helper_8c.html#a88cb84d084a76ff39347b764997b5cef" title=" " alt="" coords="194,92,368,120"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="125,141,207,122,204,126,128,146"/>
+<area shape="rect" id="Node000010" href="$valvecontrol_8c.html#aee22f9eedbcf50992e556d96d5bed12e" title=" " alt="" coords="175,300,387,328"/>
+<area shape="poly" id="edge12_Node000001_Node000010" title=" " alt="" coords="76,170,115,227,143,259,176,285,189,294,183,294,173,290,139,262,111,230,74,175"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="339,52,422,53,417,55,340,57"/>
+<area shape="rect" id="Node000005" href="$statemachine__helper_8c.html#a33084da12177128329aed9bfc5be50ce" title=" " alt="" coords="462,175,559,203"/>
+<area shape="poly" id="edge5_Node000004_Node000005" title=" " alt="" coords="312,253,386,233,463,208,458,210,388,238,314,258"/>
+<area shape="rect" id="Node000006" href="$general_8c.html#a2d0208dd7c43529fcddb5d087c0c40c1" title="Format the current local weekday name." alt="" coords="634,175,752,203"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="559,186,622,188,617,189,560,191"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="344,89,422,73,418,76,346,94"/>
+<area shape="poly" id="edge11_Node000009_Node000005" title=" " alt="" coords="346,118,388,130,471,167,466,168,386,135,347,123"/>
+<area shape="rect" id="Node000011" href="$valvecontrol_8c.html#a57b0680f5d0f81e0909756dc60782f90" title=" " alt="" coords="452,300,569,328"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="387,311,439,314,434,314,387,317"/>
+<area shape="rect" id="Node000012" href="$valvecontrol_8c.html#a4ee923edb3a326f0b913b16cb8020d9d" title=" " alt="" coords="642,300,744,328"/>
+<area shape="poly" id="edge14_Node000011_Node000012" title=" " alt="" coords="569,311,629,314,624,314,569,317"/>
+<area shape="rect" id="Node000013" href="$valvecontrol_8c.html#a20bef8791973dcbc7f7f8ccaa6ea3b26" title=" " alt="" coords="800,300,917,328"/>
+<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="744,311,787,314,782,314,745,317"/>
+<area shape="rect" id="Node000014" href="$valvecontrol_8c.html#a0b7ab2eef26ad4b5a39feb9d2a4f40fd" title=" " alt="" coords="965,248,1099,276"/>
+<area shape="poly" id="edge21_Node000012_Node000014" title=" " alt="" coords="744,298,799,286,947,269,952,269,800,291,745,303"/>
+<area shape="rect" id="Node000017" href="$valvecontrol_8c.html#a3385d6523be79f3ab2a24539364d16ef" title=" " alt="" coords="966,352,1098,380"/>
+<area shape="poly" id="edge22_Node000012_Node000017" title=" " alt="" coords="745,325,800,337,953,359,948,359,799,342,744,330"/>
+<area shape="poly" id="edge16_Node000013_Node000014" title=" " alt="" coords="907,297,966,281,972,280,908,302"/>
+<area shape="rect" id="Node000015" href="$valvecontrol_8c.html#a86183349d6f049f0ea847c5b946d8565" title=" " alt="" coords="984,300,1080,328"/>
+<area shape="poly" id="edge17_Node000013_Node000015" title=" " alt="" coords="918,311,972,314,967,314,918,317"/>
+<area shape="poly" id="edge19_Node000013_Node000017" title=" " alt="" coords="908,326,972,348,966,347,907,331"/>
+<area shape="rect" id="Node000016" href="$valvecontrol_8c.html#ad447dad6ad19c87121ce9ae860f2ce8e" title=" " alt="" coords="1147,327,1267,355"/>
+<area shape="poly" id="edge18_Node000015_Node000016" title=" " alt="" coords="1080,319,1134,329,1129,329,1080,324"/>
+<area shape="poly" id="edge20_Node000017_Node000016" title=" " alt="" coords="1098,354,1129,352,1135,351,1099,359"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="websocket_log_output" name="websocket_log_output">
+<area shape="rect" id="Node000001" title="WebSocket log printer used by the ESP log system." alt="" coords="5,74,172,102"/>
+<area shape="rect" id="Node000002" href="$http__helper_8c.html#af7c67dd6dea889902e8cfa21fcf37b40" title="Strip ANSI escape sequences from a string." alt="" coords="220,5,378,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="139,71,207,53,202,56,140,76"/>
+<area shape="rect" id="Node000003" href="$task__uart__sender_8c.html#ad27761c252a5dd886332658b5a010fd5" title=" " alt="" coords="237,74,361,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="172,85,224,87,219,88,172,90"/>
+<area shape="rect" id="Node000004" href="$http__functions_8c.html#a98b3b9a15f61ddde482666cf2a899dac" title="Broadcast raw text to all connected WebSocket clients." alt="" coords="238,126,360,154"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="148,99,228,121,223,122,147,105"/>
+</map>

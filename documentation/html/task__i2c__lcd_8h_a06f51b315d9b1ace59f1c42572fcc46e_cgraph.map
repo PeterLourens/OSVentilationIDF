@@ -1,0 +1,51 @@
+<map id="task_i2c_lcd_code" name="task_i2c_lcd_code">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,281,145,309"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a4d2628d9853ed04094e95b9d7aa561a9" title="Build a formatted statemachine actuals string for LCD output." alt="" coords="194,31,374,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,280,89,239,110,181,144,120,166,92,191,68,199,64,196,69,194,72,170,96,148,123,115,184,94,240,82,282"/>
+<area shape="rect" id="Node000005" href="$i2c__lcd_8c.html#ae5e4b73813686ba9d070db7a1acad4c2" title="Build a formatted valve position status string for LCD output." alt="" coords="203,82,365,127"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="81,280,122,212,153,172,191,137,201,133,197,137,194,141,157,176,126,215,86,282"/>
+<area shape="rect" id="Node000006" href="$i2c__lcd_8c.html#a82f87149db2db26c4b6ec16038b5f4db" title="Format the sensor overview text for the LCD display." alt="" coords="193,151,375,178"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="86,279,130,235,159,210,191,189,209,182,205,186,194,193,162,214,133,239,91,282"/>
+<area shape="rect" id="Node000007" href="$general_8c.html#a2af39f4ace3105d51da3c357ecb058d4" title="Format the current local date and time without weekday text." alt="" coords="208,203,360,230"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="104,279,192,241,217,234,213,237,194,246,107,283"/>
+<area shape="rect" id="Node000008" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="214,255,354,282"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="144,284,201,278,197,281,146,289"/>
+<area shape="rect" id="Node000009" href="$i2c__lcd_8c.html#a92c829d8691e09819601b95836b9da5d" title="Enable or disable the LCD backlight." alt="" coords="204,307,364,334"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="144,301,190,307,186,310,146,306"/>
+<area shape="rect" id="Node000012" href="$i2c__lcd_8c.html#ab84aa39864d1f61797588a56b0d9034d" title="Clear the LCD display." alt="" coords="231,359,336,386"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="106,307,194,343,219,353,214,355,192,348,107,312"/>
+<area shape="rect" id="Node000013" href="$i2c__lcd_8c.html#ab08a929d9ec8f4e45889e2daab1b7739" title="Initialize the HD44780&#45;compatible LCD through the PCF8574 expander." alt="" coords="212,411,356,438"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="89,307,134,351,163,375,194,396,209,404,204,405,191,400,159,379,130,355,89,312"/>
+<area shape="rect" id="Node000016" href="$i2c__lcd_8c.html#ac8f93a894e4448f63378e8bbe195df1d" title="Write a text string to the LCD display." alt="" coords="214,463,354,490"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="83,307,125,375,157,414,194,448,205,455,199,456,191,452,153,418,121,378,83,312"/>
+<area shape="rect" id="Node000018" href="$network__functions_8c.html#af959a495a2955a3e222bd900387a5acc" title="Probe the gateway to verify network reachability." alt="" coords="228,515,340,542"/>
+<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="80,306,95,347,118,398,151,453,171,478,194,500,216,514,210,514,191,504,167,482,146,456,113,401,90,348,80,312"/>
+<area shape="rect" id="Node000003" href="$general_8c.html#acd9bcc7936989793ed3455e3992fdd22" title="Convert a fan speed enum to a human&#45;readable string." alt="" coords="427,5,559,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="373,31,414,27,410,30,375,36"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#acae851b7d5bb3f90f1584d6ae457cc48" title="Convert a statemachine state enum to a human&#45;readable string." alt="" coords="434,57,552,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="373,53,421,61,416,63,375,58"/>
+<area shape="rect" id="Node000010" href="$i2c__lcd_8c.html#a444f5cff03a19b5078491092e1c8d1f7" title="Update the PCF8574 expander with the current backlight state." alt="" coords="611,292,759,336"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="364,317,598,314,594,317,365,322"/>
+<area shape="rect" id="Node000011" href="$i2c__lcd_8c.html#a958e29ef81709a804ae23d6912bb4659" title="Write a single command or data byte to the LCD expander." alt="" coords="807,360,954,388"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="759,334,821,355,816,355,759,339"/>
+<area shape="poly" id="edge13_Node000013_Node000011" title=" " alt="" coords="354,407,423,397,620,380,794,375,789,376,621,385,423,402,355,413"/>
+<area shape="rect" id="Node000014" href="$i2c__lcd_8c.html#ad55729a86c03ef20b765e96229ca6d7b" title="Write a 4&#45;bit nibble to the LCD controller." alt="" coords="430,411,557,438"/>
+<area shape="poly" id="edge14_Node000013_Node000014" title=" " alt="" coords="356,422,417,424,411,425,357,427"/>
+<area shape="rect" id="Node000015" href="$i2c__lcd_8c.html#a05ca11b760cbc9dc689cb9157736846c" title="Pulse the HD44780 enable line through the expander." alt="" coords="618,411,752,438"/>
+<area shape="poly" id="edge15_Node000014_Node000015" title=" " alt="" coords="557,422,605,424,600,425,558,427"/>
+<area shape="poly" id="edge16_Node000015_Node000011" title=" " alt="" coords="740,408,812,391,807,393,742,413"/>
+<area shape="rect" id="Node000017" href="$i2c__lcd_8c.html#a431fd9d8d9fe0336e0128bcb5d8eba93" title="Position the LCD cursor to the requested row and column." alt="" coords="423,463,563,490"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="354,474,410,476,405,477,354,479"/>
+<area shape="rect" id="Node000019" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="817,543,944,570"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="341,528,802,550,801,555,340,534"/>
+<area shape="rect" id="Node000022" href="$network__functions_8c.html#a15e2bbdf882e4f4df3de788cfb276888" title="Handle the end of an ICMP ping measurement." alt="" coords="442,568,545,596"/>
+<area shape="poly" id="edge24_Node000018_Node000022" title=" " alt="" coords="341,540,429,565,423,565,340,545"/>
+<area shape="rect" id="Node000020" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="1198,543,1361,570"/>
+<area shape="poly" id="edge21_Node000019_Node000020" title=" " alt="" coords="944,554,1186,556,1180,557,944,559"/>
+<area shape="rect" id="Node000021" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="1002,568,1150,596"/>
+<area shape="poly" id="edge22_Node000019_Node000021" title=" " alt="" coords="944,562,989,570,984,570,944,567"/>
+<area shape="poly" id="edge23_Node000021_Node000020" title=" " alt="" coords="1150,570,1180,569,1185,568,1151,575"/>
+<area shape="rect" id="Node000023" href="$network__manager_8c.html#acdee73edd1c128e1b024f5b1132038ea" title=" " alt="" coords="611,565,759,610"/>
+<area shape="poly" id="edge25_Node000022_Node000023" title=" " alt="" coords="545,581,598,585,593,585,545,586"/>
+<area shape="poly" id="edge26_Node000023_Node000019" title=" " alt="" coords="759,573,799,569,804,569,759,578"/>
+</map>

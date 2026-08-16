@@ -1,0 +1,10 @@
+<map id="net_mgr_notify_eth_activity" name="net_mgr_notify_eth_activity">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,153,50"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="201,14,327,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,25,188,27,182,28,153,30"/>
+<area shape="rect" id="Node000003" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="571,14,734,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="328,25,558,27,553,28,328,30"/>
+<area shape="rect" id="Node000004" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="375,39,523,67"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="328,34,362,41,357,41,327,39"/>
+<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="523,41,553,40,558,40,524,46"/>
+</map>

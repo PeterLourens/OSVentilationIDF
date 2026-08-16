@@ -1,0 +1,5 @@
+<map id="scd41_data_ready" name="scd41_data_ready">
+<area shape="rect" id="Node000001" title="Query whether the SCD41 sensor has new measurement data available." alt="" coords="5,5,145,33"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#aeaae1542ebb2cf1747323b997715a2a7" title="Compute CRC8 for SCD41 data blocks." alt="" coords="193,5,286,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,17,180,19,175,19,145,22"/>
+</map>

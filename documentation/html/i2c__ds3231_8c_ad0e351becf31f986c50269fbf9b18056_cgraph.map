@@ -1,0 +1,16 @@
+<map id="sync_system_and_ds3231_with_ntp" name="sync_system_and_ds3231_with_ntp">
+<area shape="rect" id="Node000001" title="Synchronize the system time and DS3231 RTC with NTP when possible." alt="" coords="5,49,197,94"/>
+<area shape="rect" id="Node000002" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="245,5,378,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="193,46,240,36,235,38,195,51"/>
+<area shape="rect" id="Node000003" href="$i2c__ds3231_8c.html#a3e73eab63f95c1a3d10d5b11783a813c" title="Set the DS3231 time register from a struct tm." alt="" coords="245,57,378,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="197,69,232,70,227,72,198,74"/>
+<area shape="rect" id="Node000004" href="$network__functions_8c.html#a5b7241d33ed6fc033aedffbf5cb2cf87" title="Check whether any active network interface currently has an IP." alt="" coords="250,109,373,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,91,240,105,235,105,194,97"/>
+<area shape="rect" id="Node000005" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="426,109,552,137"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="373,121,413,123,407,123,374,126"/>
+<area shape="rect" id="Node000006" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="797,109,959,137"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="553,121,783,123,778,123,553,126"/>
+<area shape="rect" id="Node000007" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="600,135,749,162"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="553,129,587,136,582,136,553,134"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="749,137,778,135,784,135,749,142"/>
+</map>

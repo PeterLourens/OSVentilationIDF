@@ -1,0 +1,5 @@
+<map id="mqtt_get_node_id" name="mqtt_get_node_id">
+<area shape="rect" id="Node000001" title="Retrieve the cached MQTT node identifier." alt="" coords="5,5,144,33"/>
+<area shape="rect" id="Node000002" href="$mqtt_8c.html#a1be0d359120794eac2d4a597be76ca94" title="Normalize the MQTT base topic into a safe string." alt="" coords="192,5,355,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,17,179,19,173,19,144,22"/>
+</map>

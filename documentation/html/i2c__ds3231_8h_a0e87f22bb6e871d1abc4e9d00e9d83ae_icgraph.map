@@ -1,0 +1,11 @@
+<map id="ds3231_read_temperature" name="ds3231_read_temperature">
+<area shape="rect" id="Node000001" title="Read temperature in degrees Celsius from the DS3231." alt="" coords="791,5,983,33"/>
+<area shape="rect" id="Node000002" href="$i2c__ds3231_8c.html#a314cdf4ce4a471ece418bf23cc12953d" title="Perform a combined DS3231 health check." alt="" coords="568,5,743,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="773,19,743,22,743,17,778,19"/>
+<area shape="rect" id="Node000003" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="353,5,520,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="550,19,521,22,521,17,556,19"/>
+<area shape="rect" id="Node000004" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="139,5,305,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="335,19,306,22,306,17,340,19"/>
+<area shape="rect" id="Node000005" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,5,91,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="121,20,91,22,91,17,126,19"/>
+</map>

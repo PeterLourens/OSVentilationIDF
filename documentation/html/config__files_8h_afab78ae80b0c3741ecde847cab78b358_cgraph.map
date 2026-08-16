@@ -1,0 +1,5 @@
+<map id="load_i2c_config" name="load_i2c_config">
+<area shape="rect" id="Node000001" title="Load I2C bus configuration from /data/json/i2c_config.json." alt="" coords="5,5,127,33"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a8424f992f15f195b9f82211a7399f59d" title="Read the contents of a file into a buffer and null&#45;terminate it." alt="" coords="175,5,252,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,17,162,19,156,19,127,22"/>
+</map>

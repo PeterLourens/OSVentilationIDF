@@ -1,0 +1,11 @@
+<map id="i2c_tca9548_set_channel" name="i2c_tca9548_set_channel">
+<area shape="rect" id="Node000001" title="Select a channel on the TCA9548A multiplexer." alt="" coords="809,5,993,33"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#a8a473764f5efa100fa0ac4163c0ccf16" title="Read all configured sensors and publish a snapshot into the sensor queue." alt="" coords="574,5,761,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="791,19,761,22,761,17,796,19"/>
+<area shape="rect" id="Node000003" href="$task__i2c__sensors_8c.html#a16b7689a80a39d8a5de4e4d671d0bb98" title=" " alt="" coords="356,5,526,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="556,19,527,22,527,17,561,19"/>
+<area shape="rect" id="Node000004" href="$task__i2c__sensors_8c.html#ae72869b6745c7a6abae9d7b98512c1a0" title=" " alt="" coords="139,5,308,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="337,19,309,22,308,17,343,19"/>
+<area shape="rect" id="Node000005" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,5,91,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="120,19,91,22,91,17,126,19"/>
+</map>

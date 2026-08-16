@@ -1,0 +1,5 @@
+<map id="load_mqtt_config" name="load_mqtt_config">
+<area shape="rect" id="Node000001" title="Load MQTT broker and topic configuration from LittleFS." alt="" coords="139,5,272,33"/>
+<area shape="rect" id="Node000002" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,5,91,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,20,91,22,91,17,126,19"/>
+</map>

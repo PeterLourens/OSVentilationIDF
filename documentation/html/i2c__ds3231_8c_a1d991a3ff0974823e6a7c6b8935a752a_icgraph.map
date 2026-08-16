@@ -1,0 +1,9 @@
+<map id="i2c_ds3231_init" name="i2c_ds3231_init">
+<area shape="rect" id="Node000001" title="Initialize the DS3231 on the specified bus." alt="" coords="568,5,691,33"/>
+<area shape="rect" id="Node000002" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="353,5,520,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,19,521,22,521,17,556,19"/>
+<area shape="rect" id="Node000003" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="139,5,305,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="335,19,306,22,306,17,340,19"/>
+<area shape="rect" id="Node000004" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,5,91,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="121,20,91,22,91,17,126,19"/>
+</map>

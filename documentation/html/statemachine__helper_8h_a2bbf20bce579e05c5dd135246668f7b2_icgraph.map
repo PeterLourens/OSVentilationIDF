@@ -1,0 +1,42 @@
+<map id="is_day" name="is_day">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1164,213,1227,241"/>
+<area shape="rect" id="Node000002" href="$statemachine_8c.html#ac6c834acebafbafed3bf80728c5c27c2" title=" " alt="" coords="944,5,1092,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1187,196,1179,163,1165,123,1144,82,1114,48,1092,34,1093,29,1118,44,1148,79,1170,121,1184,162,1192,199"/>
+<area shape="rect" id="Node000006" href="$statemachine_8c.html#a70e9a63327dc20eabea333778b0febb7" title=" " alt="" coords="958,57,1079,85"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="1182,198,1156,148,1137,122,1114,100,1079,83,1080,78,1118,96,1142,119,1161,146,1187,200"/>
+<area shape="rect" id="Node000007" href="$statemachine_8c.html#ac8982f4a395dd06097567b94193407fa" title=" " alt="" coords="925,109,1112,137"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="1172,201,1147,176,1115,152,1089,140,1089,135,1117,148,1150,172,1177,202"/>
+<area shape="rect" id="Node000008" href="$statemachine_8c.html#ab8e691c384e136f8891465748b74054f" title=" " alt="" coords="921,161,1116,189"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="1147,212,1115,204,1073,192,1073,187,1117,199,1152,212"/>
+<area shape="rect" id="Node000009" href="$statemachine_8c.html#a1aec138142e0672642fd887773a46698" title=" " alt="" coords="930,213,1106,241"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="1146,227,1107,230,1107,225,1151,227"/>
+<area shape="rect" id="Node000010" href="$statemachine_8c.html#a829bf2433ddd5bfcc53d4017b7646c94" title=" " alt="" coords="926,265,1111,293"/>
+<area shape="poly" id="edge13_Node000001_Node000010" title=" " alt="" coords="1152,241,1117,255,1074,267,1073,262,1115,250,1147,243"/>
+<area shape="rect" id="Node000011" href="$statemachine_8c.html#afbcb951eafe0c095eb8865f0066f7569" title=" " alt="" coords="959,317,1078,345"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="1177,252,1150,282,1117,307,1079,323,1077,318,1115,302,1147,278,1172,254"/>
+<area shape="rect" id="Node000012" href="$statemachine_8c.html#ad989b23a20167360aff86705466f34c3" title=" " alt="" coords="953,369,1084,397"/>
+<area shape="poly" id="edge17_Node000001_Node000012" title=" " alt="" coords="1187,254,1161,309,1142,336,1118,359,1085,375,1083,370,1114,354,1137,332,1156,306,1182,257"/>
+<area shape="rect" id="Node000013" href="$mqtt_8c.html#a1b7ed315c11d6726b5c6ae8eb7174d84" title="Set the state machine speed based on MQTT payload." alt="" coords="927,421,1110,449"/>
+<area shape="poly" id="edge19_Node000001_Node000013" title=" " alt="" coords="1192,255,1184,292,1170,334,1148,375,1118,411,1098,423,1096,418,1114,406,1144,372,1165,332,1179,291,1188,258"/>
+<area shape="rect" id="Node000003" href="$statemachine_8c.html#a0e57b192099637ff71dcf0df93d2c9cb" title=" " alt="" coords="718,188,857,216"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="934,38,922,48,881,82,845,121,798,190,795,186,841,118,877,78,919,44,930,41"/>
+<area shape="rect" id="Node000004" href="$task__statemachine_8c.html#ac862c2c78ff997ac06b48c49a42a2471" title=" " alt="" coords="471,188,654,216"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="700,202,655,204,654,199,705,201"/>
+<area shape="rect" id="Node000005" href="$task__statemachine_8c.html#a3e82ad656087c71f923a600a15e15aa9" title=" " alt="" coords="241,188,423,216"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="453,203,424,204,423,199,458,201"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="945,88,922,100,887,121,854,145,804,190,801,185,851,141,884,117,919,95,940,90"/>
+<area shape="poly" id="edge8_Node000007_Node000003" title=" " alt="" coords="944,143,922,152,824,190,822,185,920,147,949,141"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="903,189,858,196,857,191,908,188"/>
+<area shape="poly" id="edge12_Node000009_Node000003" title=" " alt="" coords="913,216,857,212,857,207,918,216"/>
+<area shape="poly" id="edge14_Node000010_Node000003" title=" " alt="" coords="944,260,920,255,823,219,824,214,922,250,949,261"/>
+<area shape="poly" id="edge16_Node000011_Node000003" title=" " alt="" coords="941,314,919,307,884,286,851,262,803,219,804,214,854,258,887,282,922,302,947,315"/>
+<area shape="poly" id="edge18_Node000012_Node000003" title=" " alt="" coords="936,365,919,359,877,325,841,285,796,219,798,214,846,282,881,321,922,354,941,366"/>
+<area shape="rect" id="Node000014" href="$mqtt__handlers_8c.html#a5296328a6374c77a2539ed17bab82d7c" title="Handle an incoming MQTT message event." alt="" coords="702,421,873,449"/>
+<area shape="poly" id="edge20_Node000013_Node000014" title=" " alt="" coords="908,435,873,438,873,433,913,435"/>
+<area shape="rect" id="Node000015" href="$mqtt_8c.html#afe173dc5ef66bf3aa0f89db100b572f0" title="Forward an MQTT event to the application event loop." alt="" coords="480,421,646,449"/>
+<area shape="poly" id="edge21_Node000014_Node000015" title=" " alt="" coords="684,435,646,438,646,433,690,435"/>
+<area shape="rect" id="Node000016" href="$mqtt_8c.html#ab8fa71bd6e32c818199cc74d4651f609" title="Start the MQTT client using the provided configuration." alt="" coords="287,421,376,449"/>
+<area shape="poly" id="edge22_Node000015_Node000016" title=" " alt="" coords="461,435,377,438,377,433,466,435"/>
+<area shape="rect" id="Node000017" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,413,193,458"/>
+<area shape="poly" id="edge23_Node000016_Node000017" title=" " alt="" coords="269,435,193,438,193,433,274,435"/>
+</map>

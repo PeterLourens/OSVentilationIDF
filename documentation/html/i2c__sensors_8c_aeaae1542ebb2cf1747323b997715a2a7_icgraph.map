@@ -1,0 +1,15 @@
+<map id="scd41_crc8" name="scd41_crc8">
+<area shape="rect" id="Node000001" title="Compute CRC8 for SCD41 data blocks." alt="" coords="996,32,1089,60"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#aed7572374dcbd9652943a148bad169c4" title="Query whether the SCD41 sensor has new measurement data available." alt="" coords="809,5,948,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="978,36,948,33,949,28,983,36"/>
+<area shape="rect" id="Node000003" href="$i2c__sensors_8c.html#a04a5633f2ff5a878a455f5b7be6771a7" title="Read CO2, temperature, and humidity values from an SCD41 sensor." alt="" coords="831,57,926,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="983,55,926,67,926,61,978,56"/>
+<area shape="rect" id="Node000004" href="$i2c__sensors_8c.html#a8a473764f5efa100fa0ac4163c0ccf16" title="Read all configured sensors and publish a snapshot into the sensor queue." alt="" coords="574,57,761,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="813,71,761,74,761,69,818,71"/>
+<area shape="rect" id="Node000005" href="$task__i2c__sensors_8c.html#a16b7689a80a39d8a5de4e4d671d0bb98" title=" " alt="" coords="356,57,526,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="556,71,527,74,527,69,561,71"/>
+<area shape="rect" id="Node000006" href="$task__i2c__sensors_8c.html#ae72869b6745c7a6abae9d7b98512c1a0" title=" " alt="" coords="139,57,308,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="337,71,309,74,308,69,343,71"/>
+<area shape="rect" id="Node000007" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,57,91,85"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="120,71,91,74,91,69,126,71"/>
+</map>

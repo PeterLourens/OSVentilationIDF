@@ -1,0 +1,13 @@
+<map id="/home/peter/Development/OSVentilationIDF/main/pushbutton.h" name="/home/peter/Development/OSVentilationIDF/main/pushbutton.h">
+<area shape="rect" id="Node000001" title="Public pushbutton GPIO and event queue interface for the OSVentilation firmware." alt="" coords="113,5,306,67"/>
+<area shape="rect" id="Node000002" href="$pushbutton_8c.html" title="Pushbutton GPIO and ISR support for the OSVentilation input module." alt="" coords="5,115,198,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,80,134,116,130,113,170,76"/>
+<area shape="rect" id="Node000003" href="$task__pushbutton_8h.html" title="Public interface for the pushbutton FreeRTOS task." alt="" coords="221,115,414,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="251,75,290,114,285,115,250,81"/>
+<area shape="rect" id="Node000004" href="$main_8h.html" title="Central includes and project&#45;level configuration for the OSVentilation firmware." alt="" coords="113,225,306,286"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="279,186,242,226,238,222,274,189"/>
+<area shape="rect" id="Node000006" href="$task__pushbutton_8c.html" title="Pushbutton task implementation and long&#45;press handling." alt="" coords="329,225,522,286"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="359,185,398,224,393,224,358,190"/>
+<area shape="rect" id="Node000005" href="$main_8c.html" title="Firmware startup and runtime initialization for the OSVentilation system." alt="" coords="113,334,306,396"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="211,300,212,335,207,333,208,304"/>
+</map>

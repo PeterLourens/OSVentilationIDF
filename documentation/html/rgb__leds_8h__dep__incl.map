@@ -1,0 +1,23 @@
+<map id="/home/peter/Development/OSVentilationIDF/main/rgb_leds.h" name="/home/peter/Development/OSVentilationIDF/main/rgb_leds.h">
+<area shape="rect" id="Node000001" title="Public RGB LED declarations for OSVentilation status indicators." alt="" coords="329,5,522,67"/>
+<area shape="rect" id="Node000002" href="$rgb__leds_8c.html" title="RGB LED support and state&#45;based color mapping for the OSVentilation firmware." alt="" coords="5,115,198,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="318,74,194,117,191,112,322,70"/>
+<area shape="rect" id="Node000003" href="$task__mqtt_8h.html" title="Public MQTT task declarations and connection helpers." alt="" coords="653,115,846,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="531,70,661,114,656,115,531,75"/>
+<area shape="rect" id="Node000007" href="$task__rgb__leds_8h.html" title="Public task declarations for RGB LED state updates." alt="" coords="221,115,414,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="387,76,350,116,346,113,383,80"/>
+<area shape="rect" id="Node000009" href="$task__statemachine_8h.html" title="Public interface for the state machine FreeRTOS task." alt="" coords="437,115,630,177"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="467,75,506,115,501,114,466,81"/>
+<area shape="rect" id="Node000004" href="$main_8h.html" title="Central includes and project&#45;level configuration for the OSVentilation firmware." alt="" coords="329,225,522,286"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="642,183,517,227,516,222,647,181"/>
+<area shape="rect" id="Node000006" href="$task__mqtt_8c.html" title="MQTT background task for periodic telemetry and Home Assistant discovery publishing." alt="" coords="761,225,954,286"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="791,185,830,225,825,224,790,190"/>
+<area shape="rect" id="Node000005" href="$main_8c.html" title="Firmware startup and runtime initialization for the OSVentilation system." alt="" coords="329,334,522,396"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="427,300,428,335,423,332,424,304"/>
+<area shape="poly" id="edge7_Node000007_Node000004" title=" " alt="" coords="359,185,398,224,393,224,358,190"/>
+<area shape="rect" id="Node000008" href="$task__rgb__leds_8c.html" title="RGB LED task implementation for status updates and blinking." alt="" coords="113,225,306,286"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="279,186,242,226,238,222,274,189"/>
+<area shape="poly" id="edge10_Node000009_Node000004" title=" " alt="" coords="495,186,457,226,454,222,490,189"/>
+<area shape="rect" id="Node000010" href="$task__statemachine_8c.html" title="FreeRTOS task wrapper for the OSVentilation state machine." alt="" coords="545,225,738,286"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="575,185,614,225,609,224,574,190"/>
+</map>

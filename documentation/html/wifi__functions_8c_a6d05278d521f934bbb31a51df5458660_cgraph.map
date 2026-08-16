@@ -1,0 +1,5 @@
+<map id="wifi_manager_stop" name="wifi_manager_stop">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,150,33"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#aa4d5963a27d3b48cd75d02c723e52545" title="Request a syslog state update based on current network conditions." alt="" coords="198,5,353,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,17,185,19,180,19,150,22"/>
+</map>

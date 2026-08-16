@@ -1,0 +1,46 @@
+<map id="task_influxdb_code" name="task_influxdb_code">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,414,152,442"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#aeb5b2c9a35f6411ff800bebc2247f893" title="Enqueue DMA metrics payload for sending." alt="" coords="200,375,372,419"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,414,187,411,182,413,153,419"/>
+<area shape="rect" id="Node000007" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="221,212,351,240"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="93,411,258,249,261,253,96,415"/>
+<area shape="rect" id="Node000014" href="$influxdb_8c.html#a4e1b30e5a34a97bd12df076a8df11b75" title="Wait for the InfluxDB queue to become ready." alt="" coords="210,443,362,471"/>
+<area shape="poly" id="edge21_Node000001_Node000014" title=" " alt="" coords="152,435,197,443,192,445,152,441"/>
+<area shape="rect" id="Node000015" href="$network__functions_8c.html#a5b7241d33ed6fc033aedffbf5cb2cf87" title="Check whether any active network interface currently has an IP." alt="" coords="224,495,348,523"/>
+<area shape="poly" id="edge22_Node000001_Node000015" title=" " alt="" coords="109,439,201,480,223,490,218,490,199,485,108,445"/>
+<area shape="rect" id="Node000003" href="$influxdb_8c.html#a21a81dc08551e53f1541269f226c4ff3" title="Build a DMA metrics payload line for InfluxDB." alt="" coords="425,383,632,411"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,394,412,396,407,398,373,400"/>
+<area shape="rect" id="Node000006" href="$influxdb_8c.html#a83b53a96c830013ff30b2d1c42f45010" title="Enqueue a raw InfluxDB line protocol payload for sending." alt="" coords="685,263,881,291"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="357,417,419,432,490,440,565,438,601,431,636,420,677,396,712,365,741,332,763,305,767,302,745,335,716,369,680,401,638,425,603,437,566,443,490,446,418,437,357,423"/>
+<area shape="rect" id="Node000004" href="$influxdb_8c.html#adea0e95512c2cde7de19c5422a069bf4" title="Retrieve a nanosecond&#45;resolution timestamp for InfluxDB line protocol." alt="" coords="693,152,873,180"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="619,380,636,370,648,356,656,343,663,315,667,284,683,250,714,215,746,191,751,188,717,219,688,253,673,286,668,316,661,345,653,359,639,374,622,385"/>
+<area shape="rect" id="Node000005" href="$i2c__ds3231_8c.html#ae876375841446a81743414c9433dd235" title="Read the current time from the DS3231 into a struct tm." alt="" coords="943,152,1076,180"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="872,164,930,166,925,167,873,169"/>
+<area shape="poly" id="edge16_Node000007_Node000006" title=" " alt="" coords="351,238,420,249,550,262,673,272,668,273,549,267,420,254,352,243"/>
+<area shape="rect" id="Node000008" href="$influxdb_8c.html#aaae5bae1bd60e16228202cd970e85513" title="Build an InfluxDB payload for system actuals." alt="" coords="443,75,614,119"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="302,210,352,171,419,129,435,124,431,127,421,134,355,175,305,214"/>
+<area shape="rect" id="Node000010" href="$influxdb_8c.html#a6a820db91fd96fed47dccdd7a4848c18" title="Build an uptime&#45;only InfluxDB payload." alt="" coords="443,144,614,189"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="344,210,430,190,426,193,346,214"/>
+<area shape="rect" id="Node000011" href="$influxdb_8c.html#a858d289918d0ee40eb51be6e83867d32" title="Build an InfluxDB payload describing valve positions." alt="" coords="443,5,614,50"/>
+<area shape="poly" id="edge13_Node000007_Node000011" title=" " alt="" coords="293,211,339,139,376,97,418,60,431,55,427,58,422,64,379,101,344,143,297,214"/>
+<area shape="rect" id="Node000012" href="$influxdb_8c.html#af3060cb403db557b5f420714f342ea39" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="420,212,637,240"/>
+<area shape="poly" id="edge17_Node000007_Node000012" title=" " alt="" coords="351,224,407,225,402,227,352,229"/>
+<area shape="rect" id="Node000013" href="$influxdb_8c.html#a7a77d1c59401bf176ee1716e1628a0d7" title="Copy the current InfluxDB configuration into the provided snapshot." alt="" coords="455,315,602,359"/>
+<area shape="poly" id="edge20_Node000007_Node000013" title=" " alt="" coords="313,238,421,293,453,308,448,309,419,298,313,243"/>
+<area shape="poly" id="edge9_Node000008_Node000004" title=" " alt="" coords="613,117,717,147,712,148,614,123"/>
+<area shape="rect" id="Node000009" href="$influxdb_8c.html#ad6c5cb1aa8c59d439bd8867f2940f216" title="Append a single line to the InfluxDB payload buffer." alt="" coords="703,83,863,111"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="614,94,690,96,685,98,616,100"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="614,164,680,166,675,167,615,169"/>
+<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="612,141,717,114,712,117,614,146"/>
+<area shape="poly" id="edge15_Node000011_Node000004" title=" " alt="" coords="615,47,639,60,655,75,664,90,673,105,687,120,728,146,722,146,684,124,668,108,659,93,651,79,636,64,615,52"/>
+<area shape="poly" id="edge14_Node000011_Node000009" title=" " alt="" coords="613,48,717,78,712,79,614,53"/>
+<area shape="poly" id="edge19_Node000012_Node000004" title=" " alt="" coords="590,209,637,198,710,183,705,185,638,204,592,214"/>
+<area shape="poly" id="edge18_Node000012_Node000006" title=" " alt="" coords="602,238,697,259,692,260,602,243"/>
+<area shape="rect" id="Node000016" href="$network__functions_8c.html#a6b47beccae7fe1852e3f91ff0f692cd2" title="Get the currently active network interface." alt="" coords="466,495,592,523"/>
+<area shape="poly" id="edge23_Node000015_Node000016" title=" " alt="" coords="348,506,452,509,447,509,348,512"/>
+<area shape="rect" id="Node000017" href="$eth__functions_8c.html#a9d1a52f95274d5e44af2951d99bb59c1" title="Check whether Ethernet is currently in shutdown state." alt="" coords="929,495,1091,523"/>
+<area shape="poly" id="edge24_Node000016_Node000017" title=" " alt="" coords="592,506,916,509,911,509,592,512"/>
+<area shape="rect" id="Node000018" href="$eth__functions_8c.html#a84b588ee86e129becb7c9501a827e113" title="Query whether the Ethernet PHY link is currently up." alt="" coords="709,520,857,548"/>
+<area shape="poly" id="edge25_Node000016_Node000018" title=" " alt="" coords="592,513,696,525,691,525,592,518"/>
+<area shape="poly" id="edge26_Node000018_Node000017" title=" " alt="" coords="858,523,911,520,916,520,858,529"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="attempt_guarded_eth_restart" name="attempt_guarded_eth_restart">
+<area shape="rect" id="Node000001" title="Attempt a guarded Ethernet restart when the link is down." alt="" coords="241,5,402,50"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="5,5,193,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,28,193,30,193,25,228,27"/>
+</map>

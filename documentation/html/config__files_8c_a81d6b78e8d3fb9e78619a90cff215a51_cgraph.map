@@ -1,0 +1,5 @@
+<map id="load_wifi_config" name="load_wifi_config">
+<area shape="rect" id="Node000001" title="Load Wi&#45;Fi configuration from LittleFS and apply it to runtime state." alt="" coords="5,5,131,33"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a8424f992f15f195b9f82211a7399f59d" title="Read the contents of a file into a buffer and null&#45;terminate it." alt="" coords="179,5,256,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,17,166,19,160,19,131,22"/>
+</map>

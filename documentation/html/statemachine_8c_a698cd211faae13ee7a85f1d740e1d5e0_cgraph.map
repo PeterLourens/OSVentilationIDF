@@ -1,0 +1,5 @@
+<map id="init_statemachine" name="init_statemachine">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,144,33"/>
+<area shape="rect" id="Node000002" href="$fancontrol_8c.html#a3ea0e3bb2bc36c18b3266373d038d23f" title="Set the configured fan speed via the selected control method." alt="" coords="192,5,300,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,17,179,19,173,19,144,22"/>
+</map>

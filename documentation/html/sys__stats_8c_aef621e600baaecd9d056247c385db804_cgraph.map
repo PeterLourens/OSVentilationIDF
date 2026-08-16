@@ -1,0 +1,9 @@
+<map id="append_header" name="append_header">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,57,127,85"/>
+<area shape="rect" id="Node000002" href="$general_8c.html#a17a42747791f295ff5825b19d4d0bc73" title="Format the current local date and time including weekday abbreviation." alt="" coords="175,5,351,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="121,54,195,36,191,39,122,59"/>
+<area shape="rect" id="Node000003" href="$general_8c.html#a92231c5baf01ef89de17130c220cffae" title="Format the current uptime into a human&#45;readable string." alt="" coords="193,57,332,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="127,69,180,70,175,72,128,74"/>
+<area shape="rect" id="Node000004" href="$sys__stats_8c.html#a35a723839054c5b77467194b44ffb440" title=" " alt="" coords="198,109,328,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="122,83,196,104,191,106,121,88"/>
+</map>

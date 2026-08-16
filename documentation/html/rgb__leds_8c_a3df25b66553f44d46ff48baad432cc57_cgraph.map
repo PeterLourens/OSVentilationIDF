@@ -1,0 +1,7 @@
+<map id="toggle_led" name="toggle_led">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,95,60"/>
+<area shape="rect" id="Node000002" href="$rgb__leds_8c.html#a47b741602a8db9cfbe7daf12b54e4b3f" title=" " alt="" coords="143,5,286,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,36,130,32,125,34,96,41"/>
+<area shape="rect" id="Node000003" href="$rgb__leds_8c.html#a30660306061cfb1268696c10f3fa7342" title=" " alt="" coords="182,57,247,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="95,50,169,63,164,65,95,55"/>
+</map>

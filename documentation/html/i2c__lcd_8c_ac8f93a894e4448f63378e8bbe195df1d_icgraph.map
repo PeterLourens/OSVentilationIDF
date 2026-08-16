@@ -1,0 +1,11 @@
+<map id="i2c_lcd_write_text" name="i2c_lcd_write_text">
+<area shape="rect" id="Node000001" title="Write a text string to the LCD display." alt="" coords="610,32,750,60"/>
+<area shape="rect" id="Node000002" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="423,32,562,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="592,46,563,48,563,43,598,46"/>
+<area shape="rect" id="Node000003" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,32,375,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="405,46,375,48,375,43,410,46"/>
+<area shape="rect" id="Node000004" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,5,140,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="219,36,140,27,140,22,224,34"/>
+<area shape="rect" id="Node000005" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,57,189,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="219,56,189,63,189,57,224,56"/>
+</map>

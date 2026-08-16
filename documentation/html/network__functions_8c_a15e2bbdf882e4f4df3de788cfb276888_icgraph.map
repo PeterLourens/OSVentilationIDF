@@ -1,0 +1,16 @@
+<map id="on_ping_end" name="on_ping_end">
+<area shape="rect" id="Node000001" title="Handle the end of an ICMP ping measurement." alt="" coords="819,48,922,76"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#af959a495a2955a3e222bd900387a5acc" title="Probe the gateway to verify network reachability." alt="" coords="658,48,771,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="800,62,771,64,771,59,806,62"/>
+<area shape="rect" id="Node000003" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,5,140,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="662,42,610,30,476,15,344,10,227,13,141,18,140,13,226,8,344,5,477,9,611,25,668,42"/>
+<area shape="rect" id="Node000004" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="423,40,610,84"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="640,62,611,64,611,59,645,62"/>
+<area shape="rect" id="Node000005" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="447,108,586,136"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="661,81,611,99,573,110,572,105,610,94,655,82"/>
+<area shape="rect" id="Node000006" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,91,375,118"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="429,115,375,113,376,108,435,115"/>
+<area shape="poly" id="edge6_Node000006_Node000003" title=" " alt="" coords="254,86,133,36,134,31,258,83"/>
+<area shape="rect" id="Node000007" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,91,189,118"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="219,105,189,107,189,102,224,104"/>
+</map>

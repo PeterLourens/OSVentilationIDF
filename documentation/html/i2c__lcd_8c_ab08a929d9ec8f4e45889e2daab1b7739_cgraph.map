@@ -1,0 +1,10 @@
+<map id="i2c_lcd_init_device" name="i2c_lcd_init_device">
+<area shape="rect" id="Node000001" title="Initialize the HD44780&#45;compatible LCD through the PCF8574 expander." alt="" coords="5,5,150,33"/>
+<area shape="rect" id="Node000002" href="$i2c__lcd_8c.html#a958e29ef81709a804ae23d6912bb4659" title="Write a single command or data byte to the LCD expander." alt="" coords="554,5,702,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,17,539,17,539,22,150,22"/>
+<area shape="rect" id="Node000003" href="$i2c__lcd_8c.html#ad55729a86c03ef20b765e96229ca6d7b" title="Write a 4&#45;bit nibble to the LCD controller." alt="" coords="198,31,325,58"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,26,185,33,180,34,150,32"/>
+<area shape="rect" id="Node000004" href="$i2c__lcd_8c.html#a05ca11b760cbc9dc689cb9157736846c" title="Pulse the HD44780 enable line through the expander." alt="" coords="373,31,506,58"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="326,42,360,44,355,45,326,47"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="507,33,536,31,542,31,507,38"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="parse_state_object" name="parse_state_object">
+<area shape="rect" id="Node000001" title="Parse a single JSON object into a statemachine configuration structure." alt="" coords="5,32,150,60"/>
+<area shape="rect" id="Node000002" href="$config__files_8c.html#aaf3ddf1afe92b86354c0ab79267d0484" title="Parse a JSON value into a boolean with flexible type handling." alt="" coords="198,5,345,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,33,185,31,180,32,151,39"/>
+<area shape="rect" id="Node000003" href="$config__files_8c.html#a19e33fe1ec0a9a43967e1f1033c208c1" title="Parse a JSON value into an integer with flexible type handling." alt="" coords="203,57,340,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="150,53,190,60,185,60,150,58"/>
+</map>

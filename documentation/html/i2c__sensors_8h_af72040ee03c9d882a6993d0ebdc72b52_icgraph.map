@@ -1,0 +1,7 @@
+<map id="preload_sensor_types_from_config" name="preload_sensor_types_from_config">
+<area shape="rect" id="Node000001" title="Preload sensor type information from the configuration into local driver state." alt="" coords="365,5,528,50"/>
+<area shape="rect" id="Node000002" href="$i2c__sensors_8c.html#aba8b1ecc3074f67f381df368f203e76f" title="Reload sensor configuration and reinitialize all configured sensors." alt="" coords="139,14,317,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="347,28,317,30,317,25,352,28"/>
+<area shape="rect" id="Node000003" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,14,91,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="121,28,91,30,91,25,126,27"/>
+</map>

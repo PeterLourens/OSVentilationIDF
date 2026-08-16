@@ -1,0 +1,7 @@
+<map id="/home/peter/Development/OSVentilationIDF/main/hardware_caps.c" name="/home/peter/Development/OSVentilationIDF/main/hardware_caps.c">
+<area shape="rect" id="Node000001" title="Board capability profiles and hardware initialization." alt="" coords="5,5,198,67"/>
+<area shape="rect" id="Node000002" href="$hardware__caps_8h.html" title="Hardware capability type definitions and runtime board configuration." alt="" coords="36,115,167,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,65,104,100,99,99,100,70"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="61,191,142,218"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="103,141,104,176,99,174,100,145"/>
+</map>

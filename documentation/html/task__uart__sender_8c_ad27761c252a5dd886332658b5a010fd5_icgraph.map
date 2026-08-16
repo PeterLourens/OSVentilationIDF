@@ -1,0 +1,7 @@
+<map id="uart_log_vprintf" name="uart_log_vprintf">
+<area shape="rect" id="Node000001" title=" " alt="" coords="220,32,344,60"/>
+<area shape="rect" id="Node000002" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="46,5,131,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,36,132,28,132,22,207,34"/>
+<area shape="rect" id="Node000003" href="$http__helper_8c.html#a74fca8c99366c1067a129e43858cf216" title="WebSocket logger callback that forwards logs to UART and WebSocket." alt="" coords="5,57,172,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="201,56,173,63,172,58,207,56"/>
+</map>

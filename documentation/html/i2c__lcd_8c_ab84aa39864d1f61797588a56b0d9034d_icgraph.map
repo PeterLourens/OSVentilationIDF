@@ -1,0 +1,14 @@
+<map id="i2c_lcd_clear" name="i2c_lcd_clear">
+<area shape="rect" id="Node000001" title="Clear the LCD display." alt="" coords="610,32,716,60"/>
+<area shape="rect" id="Node000002" href="$task__i2c__lcd_8c.html#a045e98ef80147ad694d5f048f6db2325" title=" " alt="" coords="238,5,374,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="592,41,374,27,374,22,597,40"/>
+<area shape="rect" id="Node000004" href="$task__i2c__lcd_8c.html#a4677be9997af47689c11547eb30e714c" title=" " alt="" coords="423,57,562,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="598,56,563,63,562,58,592,56"/>
+<area shape="rect" id="Node000003" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,5,189,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,20,190,22,189,17,225,19"/>
+<area shape="rect" id="Node000005" href="$task__i2c__lcd_8c.html#ae17437b7ce12dcd27f7a51f57faa2123" title=" " alt="" coords="237,57,375,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="405,71,375,74,375,69,410,71"/>
+<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="230,54,156,36,156,31,235,52"/>
+<area shape="rect" id="Node000006" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="54,57,140,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="219,72,140,74,140,69,224,71"/>
+</map>

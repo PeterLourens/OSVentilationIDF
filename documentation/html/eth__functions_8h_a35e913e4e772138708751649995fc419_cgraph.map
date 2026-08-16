@@ -1,0 +1,5 @@
+<map id="handle_deferred_eth_teardown_if_needed" name="handle_deferred_eth_teardown_if_needed">
+<area shape="rect" id="Node000001" title="Retry a previously deferred Ethernet teardown if required." alt="" coords="5,5,166,50"/>
+<area shape="rect" id="Node000002" href="$eth__functions_8c.html#af89d4cb7564dda18b4d15cb719405ca4" title="Initialize the Ethernet lifecycle mutex once." alt="" coords="214,14,384,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,25,201,27,195,28,166,30"/>
+</map>

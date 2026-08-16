@@ -1,0 +1,23 @@
+<map id="network_has_ip" name="network_has_ip">
+<area shape="rect" id="Node000001" title="Check whether any active network interface currently has an IP." alt="" coords="808,143,931,171"/>
+<area shape="rect" id="Node000002" href="$network__functions_8c.html#a342ff2c427cf4e86ee615c98db1499bd" title="Perform a periodic health check of network and Ethernet state." alt="" coords="570,5,758,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="842,131,805,99,758,65,736,53,736,48,761,60,808,94,847,133"/>
+<area shape="rect" id="Node000003" href="$i2c__ds3231_8c.html#ad0e351becf31f986c50269fbf9b18056" title="Synchronize the system time and DS3231 RTC with NTP when possible." alt="" coords="568,75,760,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="802,138,743,123,743,117,808,138"/>
+<area shape="rect" id="Node000004" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="353,112,520,140"/>
+<area shape="poly" id="edge9_Node000001_Node000004" title=" " alt="" coords="790,152,521,135,521,130,795,151"/>
+<area shape="rect" id="Node000007" href="$syslog_8c.html#a21ad61b41c644556b747e1607948ad29" title=" " alt="" coords="598,194,730,222"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="798,175,724,196,723,191,793,176"/>
+<area shape="rect" id="Node000009" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="591,246,737,274"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="842,180,804,210,761,235,728,248,727,243,759,231,801,206,837,182"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="550,112,521,118,520,113,555,111"/>
+<area shape="rect" id="Node000005" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="139,112,305,140"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="335,127,306,129,305,124,340,126"/>
+<area shape="rect" id="Node000006" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,112,91,140"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="121,128,92,129,90,124,126,125"/>
+<area shape="rect" id="Node000008" href="$syslog_8c.html#a1687dfe7b28a75c0dc10fe5e4bd0eb26" title=" " alt="" coords="358,194,515,222"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="580,216,516,219,516,214,586,216"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="531,196,600,199,595,200,531,201"/>
+<area shape="rect" id="Node000010" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="364,246,509,274"/>
+<area shape="poly" id="edge11_Node000009_Node000010" title=" " alt="" coords="573,260,510,262,510,257,578,260"/>
+</map>

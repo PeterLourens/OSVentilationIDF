@@ -1,0 +1,9 @@
+<map id="influxdb_enqueue_sensor_line" name="influxdb_enqueue_sensor_line">
+<area shape="rect" id="Node000001" title="Build and enqueue an InfluxDB line for a single sensor." alt="" coords="571,5,789,33"/>
+<area shape="rect" id="Node000002" href="$influxdb_8c.html#aa4004dc89e2d65499b5ee5af1720122d" title="Process sensor and system data into InfluxDB payloads for enqueueing." alt="" coords="393,5,523,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="553,19,524,22,524,17,558,19"/>
+<area shape="rect" id="Node000003" href="$task__influxdb_8c.html#a826aed32dc5c4180d194202385e3736a" title=" " alt="" coords="199,5,345,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,19,345,22,345,17,380,19"/>
+<area shape="rect" id="Node000004" href="$task__influxdb_8c.html#a72dd9501ebdf8224549e68ec03a555b5" title=" " alt="" coords="5,5,151,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="181,19,151,22,151,17,186,19"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="read_state_configs_from_json" name="read_state_configs_from_json">
+<area shape="rect" id="Node000001" title="Read state configuration files from a directory and populate statemachine_config." alt="" coords="5,24,149,68"/>
+<area shape="rect" id="Node000002" href="$config__files_8c.html#a885a82f60036503777c85ae3738c37b9" title="Match a string against a wildcard pattern containing &#39;*&#39; and &#39;?&#39;." alt="" coords="211,5,327,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,33,198,28,193,30,150,38"/>
+<area shape="rect" id="Node000003" href="$config__files_8c.html#a760bd6bd8a3a5a3427e30d3b161fc78d" title="Parse a single statemachine state object from JSON." alt="" coords="197,57,341,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,53,184,59,179,60,149,58"/>
+<area shape="rect" id="Node000004" href="$config__files_8c.html#aaf3ddf1afe92b86354c0ab79267d0484" title="Parse a JSON value into a boolean with flexible type handling." alt="" coords="389,31,536,58"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="341,59,376,56,371,57,342,64"/>
+<area shape="rect" id="Node000005" href="$config__files_8c.html#a19e33fe1ec0a9a43967e1f1033c208c1" title="Parse a JSON value into an integer with flexible type handling." alt="" coords="394,83,531,110"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="341,78,382,86,376,86,341,83"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="stop_task_i2c_lcd" name="stop_task_i2c_lcd">
+<area shape="rect" id="Node000001" title=" " alt="" coords="237,5,373,33"/>
+<area shape="rect" id="Node000002" href="$http__post__functions_8c.html#af12146017cf8658f4b314a3a534f0886" title="Apply LCD configuration changes by starting or stopping the LCD task." alt="" coords="5,5,189,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,19,189,22,189,17,224,19"/>
+</map>

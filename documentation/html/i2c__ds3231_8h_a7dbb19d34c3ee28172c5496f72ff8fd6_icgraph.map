@@ -1,0 +1,9 @@
+<map id="sync_system_and_ds3231_with_ntp" name="sync_system_and_ds3231_with_ntp">
+<area shape="rect" id="Node000001" title="Synchronize system clock and DS3231 with NTP and optionally update the RTC." alt="" coords="568,5,760,50"/>
+<area shape="rect" id="Node000002" href="$task__i2c__ds3231_8c.html#a8285a7ce430c0f109acaa1b1a8aee714" title=" " alt="" coords="353,14,520,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="550,28,521,30,521,25,556,28"/>
+<area shape="rect" id="Node000003" href="$task__i2c__ds3231_8c.html#aff27563efde81a428b81055b6fcb1846" title=" " alt="" coords="139,14,305,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="335,28,306,30,305,25,340,28"/>
+<area shape="rect" id="Node000004" href="$main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70" title="Main application entry point." alt="" coords="5,14,91,42"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="121,28,91,30,91,25,126,27"/>
+</map>

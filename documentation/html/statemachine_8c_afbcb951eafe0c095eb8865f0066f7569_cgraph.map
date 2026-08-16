@@ -1,0 +1,11 @@
+<map id="init_transitions" name="init_transitions">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,124,60"/>
+<area shape="rect" id="Node000002" href="$statemachine__helper_8c.html#a2bbf20bce579e05c5dd135246668f7b2" title=" " alt="" coords="194,5,258,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,33,182,26,177,28,125,39"/>
+<area shape="rect" id="Node000005" href="$fancontrol_8c.html#a3ea0e3bb2bc36c18b3266373d038d23f" title="Set the configured fan speed via the selected control method." alt="" coords="172,57,280,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="124,52,159,60,154,61,124,58"/>
+<area shape="rect" id="Node000003" href="$statemachine__helper_8c.html#a33084da12177128329aed9bfc5be50ce" title=" " alt="" coords="328,5,425,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="258,17,315,19,310,20,258,22"/>
+<area shape="rect" id="Node000004" href="$general_8c.html#a2d0208dd7c43529fcddb5d087c0c40c1" title="Format the current local weekday name." alt="" coords="473,5,591,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="426,17,460,19,455,19,426,22"/>
+</map>
