@@ -248,6 +248,15 @@ static void mqtt_publish_discovery_for_system(const char *base, const char *node
 	mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Fan Speed",
 						   NULL, NULL, state_topic, "{{ value }}",
 						   unique_id, "mdi:fan");
+
+	// Uptime
+	strcpy(object_id, "system_uptime");
+	snprintf(unique_id, sizeof(unique_id), "%s_%s", node_id, object_id);
+	snprintf(state_topic, sizeof(state_topic), "%s/system/uptime", base);
+
+	mqtt_publish_ha_sensor(node_id, object_id, "OSVentilation Uptime",
+						   NULL, NULL, state_topic, "{{ value }}",
+						   unique_id, "mdi:clock-start");
 }
 
 // Helpers for publishing
@@ -899,14 +908,19 @@ void mqtt_publish_state_and_fanspeed(void)
 	MQTT_config_t cfg;
 	mqtt_get_config_snapshot(&cfg);
 
-	formatted_uptime(uptime_str, sizeof(uptime_str));
-
 	if (!mqtt_is_enabled(&cfg))
 		return;
 
 	if (!s_mqtt_client || !s_mqtt_connected)
 	{
 		LOGW(TAG, "... not connected; skipping ...");
+		return;
+	}
+
+	formatted_uptime(uptime_str, sizeof(uptime_str));
+	if (uptime_str[0] == '\0')
+	{
+		LOGW(TAG, "mqtt_publish_state_and_fanspeed: generated empty uptime string");
 		return;
 	}
 
