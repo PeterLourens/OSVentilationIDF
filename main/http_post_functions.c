@@ -338,25 +338,37 @@ cJSON *build_influxdb_config_from_body_urlencoded(const char *body, size_t len)
 
     snprintf(key, sizeof(key), "influxdb_url");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "influxdb_org");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "influxdb_bucket");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "influxdb_token");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
