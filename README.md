@@ -20,9 +20,9 @@ Two hardware revisions are available (there has never been a revision 3):
 <center><img src="images/hardware_rev4.jpg" width="100%" height="100%"></center>
 <center><img src="images/hardware_rev4_display.jpg" width="100%" height="100%"></center>
 
-The essential difference between both version is the removal of the external interface for an ESP32 module, the addition of a W5500 ethernet interface and 2 additional status LEDs, per default used to indicate wifi and ethernet status.
+The essential difference between both version is the removal of the external interface for an ESP32 module, the addition of a W5500 ethernet interface, 2 additional status LEDs, per default used to indicate wifi and ethernet status, two spare connectors per I2C bus, a header for external connections (i.e. power supply voltages and RX0/TX0) and a haeder for the JTAG interface (if not used with USB-C connector).
 
-Documentation of the software has been automatically generated (by AI and )
+Documentation of the software has been automatically generated (by AI and Doxygen)
 
 ## Hardware design
 The hardware design is based on commonly available electronic parts. The basis of the design:
@@ -45,7 +45,7 @@ The hardware design is based on commonly available electronic parts. The basis o
 * MOSFET output drivers for low on state resistance. Alternatively ULN2803 could used as well (pin compatible)
 
 ### Valve control design
-The valves are stepper motors with 4 windings and two windings have a common connection. The stepper motor made by Saia of type UCD2EZ7. The common connection is connected to +15V and the 4 other winding connections are connected with a MOSFET. By turning on the MOSFET, the windings can be individually energised. The winding voltage is 12V and taking a voltage drop over de MOSFET into account, 15V is an appropriate voltage. The circuit of one valve is outlined below. 
+The valves are stepper motors with 4 windings and two windings have a common connection. The stepper motor are made by Saia of type UCD2EZ7. The common connection is connected to +15V and the 4 other winding connections are connected to a MOSFET ablre to switch it to GND. By turning on the MOSFET, the windings can be individually energised. The winding voltage is 12V and taking a voltage drop over de MOSFET into account, 15V is an appropriate supply voltage. The circuit of one valve is outlined below. 
 
 <center><img src="images/valve_control_circuit.png" width="50%" height="50%"></center>
 
@@ -88,9 +88,9 @@ The software has the following tasks:
 * task_influxdb - Task to data on regular intervals to InfluxDB. Uses standard HTTP protocol, no additona libraries required
 * task_mqtt - Task to publish data to MQTT, uses default MQTT functions available in ESP-IDF
 * task_pushbutton - Task to control the functions of the 2 programmable pushbuttons
-* task_rgb - Task to control the RGB LEDs
+* task_rgb_leds - Task to control the RGB LEDs
 * task_statemachine - Task to control the statemachine. The statemachine decides how the systems responds to events such as events in time or sensor readings
-* task_sys_stats - Task
+* task_sys_stats - Task to 
 
 
 The following external libraries are required (included in managed_components):
