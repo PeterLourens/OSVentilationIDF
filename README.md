@@ -88,9 +88,9 @@ The software has the following tasks:
 * task_influxdb - Task to data on regular intervals to InfluxDB. Uses standard HTTP protocol, no additona libraries required
 * task_mqtt - Task to publish data to MQTT, uses default MQTT functions available in ESP-IDF
 * task_pushbutton - Task to control the functions of the 2 programmable pushbuttons
-* task_rgb - Task to control the RGB LEDs
+* task_rgb_leds - Task to control the RGB LEDs
 * task_statemachine - Task to control the statemachine. The statemachine decides how the systems responds to events such as events in time or sensor readings
-* task_sys_stats - Task
+* task_sys_stats - Task to 
 
 
 The following external libraries are required (included in managed_components):
