@@ -535,11 +535,18 @@ void network_manager_health_check(void)
             }
 
             // Restart MQTT after network restart attempt
-            MQTT_config_t cfg;
-            mqtt_get_config_snapshot(&cfg);
             mqtt_stop();
-            vTaskDelay(pdMS_TO_TICKS(300));
-            mqtt_start(&cfg);
+            if (mqtt_is_enabled_in_config())
+            {
+                MQTT_config_t cfg;
+                mqtt_get_config_snapshot(&cfg);
+                vTaskDelay(pdMS_TO_TICKS(300));
+                mqtt_start(&cfg);
+            }
+            else
+            {
+                LOGI(TAG, "MQTT disabled by configuration; client remains stopped");
+            }
         }
     }
     else

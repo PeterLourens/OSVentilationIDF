@@ -29,6 +29,8 @@
 #include "stats_worker.h"
 #include "sys_stats.h"
 #include "task_uart_sender.h"
+#include "task_influxdb.h"
+#include "task_mqtt.h"
 
 #define LOG_BUF_SIZE 256
 

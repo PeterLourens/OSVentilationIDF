@@ -66,6 +66,11 @@ void mqtt_set_connected(bool state);
 bool mqtt_is_connected(void);
 
 /**
+ * @brief Check whether MQTT is enabled in the current runtime configuration.
+ */
+bool mqtt_is_enabled_in_config(void);
+
+/**
  * @brief Start the MQTT client using the provided configuration.
  *
  * @param cfg Pointer to MQTT configuration data.

@@ -1585,16 +1585,24 @@ static void network_manager_task(void *pvParameters)
             MQTT_config_t cfg;
             mqtt_get_config_snapshot(&cfg);
 
-            LOGI(TAG, "network_manager_task: restarting MQTT client");
             mqtt_stop();
-            vTaskDelay(pdMS_TO_TICKS(300));
-            if (mqtt_start(&cfg) != ESP_OK)
+
+            if (!mqtt_is_enabled_in_config())
             {
-                LOGW(TAG, "network_manager_task: mqtt_start failed");
+                LOGI(TAG, "network_manager_task: MQTT disabled; client remains stopped");
             }
             else
             {
-                LOGI(TAG, "network_manager_task: mqtt restarted");
+                LOGI(TAG, "network_manager_task: restarting MQTT client");
+                vTaskDelay(pdMS_TO_TICKS(300));
+                if (mqtt_start(&cfg) != ESP_OK)
+                {
+                    LOGW(TAG, "network_manager_task: mqtt_start failed");
+                }
+                else
+                {
+                    LOGI(TAG, "network_manager_task: mqtt restarted");
+                }
             }
         }
 

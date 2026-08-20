@@ -15,6 +15,7 @@ static const char *TAG = "influxdb";
 
 QueueHandle_t influx_queue = NULL;
 TaskHandle_t influx_sender_task_handle = NULL;
+static volatile bool influx_sender_stop_requested = false;
 
 //   Configuration
 #define INFLUX_QUEUE_LEN 32
@@ -821,22 +822,51 @@ static void influx_sender_task(void *pv)
 
     while (!network_has_ip())
     {
+        if (influx_sender_stop_requested)
+        {
+            LOGI(TAG, "InfluxDB sender stop requested before network ready");
+            break;
+        }
+
         LOGW(TAG, "InfluxDB: No network available, waiting...");
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
 
+    if (influx_sender_stop_requested)
+    {
+        influx_sender_task_handle = NULL;
+        vTaskDelete(NULL);
+    }
+
     for (;;)
     {
-        influx_job_t job;
-        if (xQueueReceive(influx_queue, &job, portMAX_DELAY) == pdTRUE)
+        if (influx_sender_stop_requested)
+        {
+            LOGI(TAG, "InfluxDB sender task exiting on stop request");
+            break;
+        }
+
+        influx_job_t job = {0};
+        if (xQueueReceive(influx_queue, &job, pdMS_TO_TICKS(250)) == pdTRUE)
         {
             if (!job.payload)
-                continue;
+            {
+                LOGI(TAG, "InfluxDB sender got stop sentinel");
+                break;
+            }
 
             influxdb_get_config_snapshot(&cfg);
 
             while (!network_has_ip())
             {
+                if (influx_sender_stop_requested)
+                {
+                    heap_caps_free(job.payload);
+                    LOGI(TAG, "InfluxDB sender stop requested while waiting for network");
+                    influx_sender_task_handle = NULL;
+                    vTaskDelete(NULL);
+                }
+
                 LOGW(TAG, "InfluxDB: No network available, waiting...");
                 vTaskDelay(pdMS_TO_TICKS(2000));
             }
@@ -852,6 +882,9 @@ static void influx_sender_task(void *pv)
             heap_caps_free(job.payload);
         }
     }
+
+    influx_sender_task_handle = NULL;
+    vTaskDelete(NULL);
 }
 
 // Public: initialize sender (call once at startup)
@@ -860,32 +893,88 @@ static void influx_sender_task(void *pv)
  *
  * @return true if initialization succeeded.
  */
-bool influxdb_init_sender(void)
+bool influxdb_start_sender(void)
 {
-    if (influx_queue != NULL)
+    Influxdb_config_t cfg;
+    influxdb_get_config_snapshot(&cfg);
+
+    if (strcmp(cfg.enable_influxdb, "On") != 0)
     {
-        LOGI(TAG, "influxdb_init_sender: already initialized (queue=%p)", (void *)influx_queue);
+        LOGI(TAG, "InfluxDB sender disabled by config; queue/task not started");
+        influxdb_stop_sender();
+        return false;
+    }
+
+    if (influx_queue != NULL && influx_sender_task_handle != NULL)
+    {
+        LOGI(TAG, "influxdb_start_sender: already initialized (queue=%p, task=%p)", (void *)influx_queue, (void *)influx_sender_task_handle);
         return true;
     }
 
-    influx_queue = xQueueCreate(INFLUX_QUEUE_LEN, sizeof(influx_job_t));
-    if (!influx_queue)
+    if (!network_has_ip())
     {
-        LOGE(TAG, "influxdb_init_sender: failed to create queue");
+        LOGW(TAG, "InfluxDB sender deferred until network is ready");
         return false;
     }
 
-    BaseType_t r = xTaskCreate(influx_sender_task, "influx_sender", INFLUX_SENDER_STACK, NULL, INFLUX_SENDER_PRIO, &influx_sender_task_handle);
-    if (r != pdTRUE)
+    influx_sender_stop_requested = false;
+
+    if (influx_queue == NULL)
     {
-        LOGE(TAG, "influxdb_init_sender: failed to create sender task");
-        vQueueDelete(influx_queue);
-        influx_queue = NULL;
-        return false;
+        influx_queue = xQueueCreate(INFLUX_QUEUE_LEN, sizeof(influx_job_t));
+        if (!influx_queue)
+        {
+            LOGE(TAG, "influxdb_start_sender: failed to create queue");
+            return false;
+        }
     }
 
-    LOGI(TAG, "influxdb_init_sender: initialized (queue=%p, task=%p)", (void *)influx_queue, (void *)influx_sender_task_handle);
+    if (influx_sender_task_handle == NULL)
+    {
+        BaseType_t r = xTaskCreate(influx_sender_task, "influx_sender", INFLUX_SENDER_STACK, NULL, INFLUX_SENDER_PRIO, &influx_sender_task_handle);
+        if (r != pdTRUE)
+        {
+            LOGE(TAG, "influxdb_start_sender: failed to create sender task");
+            vQueueDelete(influx_queue);
+            influx_queue = NULL;
+            return false;
+        }
+    }
+
+    LOGI(TAG, "influxdb_start_sender: initialized (queue=%p, task=%p)", (void *)influx_queue, (void *)influx_sender_task_handle);
     return true;
+}
+
+void influxdb_stop_sender(void)
+{
+    influx_sender_stop_requested = true;
+
+    if (influx_queue != NULL && influx_sender_task_handle != NULL)
+    {
+        influx_job_t sentinel = {0};
+        sentinel.payload = NULL;
+        sentinel.len = 0;
+        xQueueSend(influx_queue, &sentinel, pdMS_TO_TICKS(100));
+    }
+
+    if (influx_sender_task_handle != NULL)
+    {
+        LOGI(TAG, "Stopping InfluxDB sender task");
+
+        TickType_t start = xTaskGetTickCount();
+        while (influx_sender_task_handle != NULL && (xTaskGetTickCount() - start) < pdMS_TO_TICKS(2000))
+        {
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
+    }
+
+    // Keep the queue allocated across configuration changes. This prevents
+    // a producer or a delayed sender wake-up from accessing freed queue memory.
+}
+
+bool influxdb_init_sender(void)
+{
+    return influxdb_start_sender();
 }
 
 // Enqueue helper (non-blocking with short timeout)

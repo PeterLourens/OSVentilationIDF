@@ -288,12 +288,6 @@ void app_main(void)
     // Read valve positions from NVS into valvecontrol struct
     read_valve_pos_in_valvecontrol();
 
-    // Iinit influxdb sender task and queue
-    if (!influxdb_init_sender())
-    {
-        LOGW("main", "InfluxDB sender init failed; Influx disabled for this boot");
-    }
-
     // TCP/IP stack and default event loop (do once)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());

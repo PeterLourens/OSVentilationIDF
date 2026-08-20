@@ -16,16 +16,85 @@ static const char *TAG = "task_influxdb";
 EXT_RAM_BSS_ATTR static StackType_t influxdb_stack[8192]; // stack buffer
 static StaticTask_t influxdb_tcb;                         // TCB buffer
 static size_t influxdb_stack_size = 8192;                 // 8192 words = 32768 KB
+static volatile bool influxdb_task_stop_requested = false;
+
+static bool influxdb_task_enabled(void)
+{
+    bool enabled = false;
+
+    if (influxdb_config_mutex && xSemaphoreTake(influxdb_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        enabled = strcmp(influxdb_config.enable_influxdb, "On") == 0;
+        xSemaphoreGive(influxdb_config_mutex);
+    }
+
+    return enabled;
+}
+
+void stop_task_influxdb(void)
+{
+    influxdb_task_stop_requested = true;
+    influxdb_stop_sender();
+
+    if (task_influxdb == NULL)
+    {
+        LOGI(TAG, "InfluxDB task not running");
+        return;
+    }
+
+    LOGI(TAG, "Stopping InfluxDB task");
+    TickType_t start = xTaskGetTickCount();
+    while (task_influxdb != NULL && (xTaskGetTickCount() - start) < pdMS_TO_TICKS(10000))
+    {
+        vTaskDelay(pdMS_TO_TICKS(50));
+    }
+}
 
 void start_task_influxdb(void)
 {
+    if (!influxdb_task_enabled())
+    {
+        LOGI(TAG, "InfluxDB disabled by config; not starting task");
+        if (task_influxdb != NULL)
+        {
+            stop_task_influxdb();
+        }
+        else
+        {
+            influxdb_stop_sender();
+        }
+        return;
+    }
+
+    if (task_influxdb != NULL)
+    {
+        LOGI(TAG, "InfluxDB task already running");
+        return;
+    }
+
+    influxdb_task_stop_requested = false;
     // Create influxdb task
     task_influxdb = xTaskCreateStatic(task_influxdb_code, "influxdb", influxdb_stack_size, NULL, 6, influxdb_stack, &influxdb_tcb);
 
     if (task_influxdb == NULL)
     {
         LOGE(TAG, "InfluxDB task creation failed");
+        return;
     }
+
+    LOGI(TAG, "InfluxDB task started");
+}
+
+bool refresh_influxdb_task_state(void)
+{
+    if (influxdb_task_enabled())
+    {
+        start_task_influxdb();
+        return true;
+    }
+
+    stop_task_influxdb();
+    return false;
 }
 
 void task_influxdb_code(void *pvParameters)
@@ -35,13 +104,24 @@ void task_influxdb_code(void *pvParameters)
     // initial startup delay
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    while (!network_has_ip())
+    while (!network_has_ip() && !influxdb_task_stop_requested && influxdb_task_enabled())
     {
         LOGW(TAG, "InfluxDB: Waiting for network...");
         vTaskDelay(pdMS_TO_TICKS(2000));
     }
 
+    if (influxdb_task_stop_requested || !influxdb_task_enabled())
+    {
+        task_influxdb = NULL;
+        vTaskDelete(NULL);
+    }
+
     LOGI(TAG, "InfluxDB: Network ready");
+
+    if (!influxdb_start_sender())
+    {
+        LOGW(TAG, "Influx sender could not be started after network became ready");
+    }
 
     if (!influxdb_wait_ready(pdMS_TO_TICKS(2000)))
     {
@@ -74,8 +154,21 @@ void task_influxdb_code(void *pvParameters)
 
     for (;;)
     {
+        if (influxdb_task_stop_requested || !influxdb_task_enabled())
+        {
+            LOGI(TAG, "InfluxDB disabled by config; task exiting");
+            task_influxdb = NULL;
+            vTaskDelete(NULL);
+        }
+
         // Sleep for the resolution slice
-        vTaskDelay(pdMS_TO_TICKS(tick_resolution_ms));
+        TickType_t remaining = pdMS_TO_TICKS(tick_resolution_ms);
+        while (remaining > 0 && !influxdb_task_stop_requested)
+        {
+            TickType_t slice = remaining > pdMS_TO_TICKS(100) ? pdMS_TO_TICKS(100) : remaining;
+            vTaskDelay(slice);
+            remaining -= slice;
+        }
 
         // Update intervals in case they were changed at runtime
         influx_interval_ms = g_influx_task_interval_ms;

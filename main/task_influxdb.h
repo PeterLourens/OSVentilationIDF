@@ -17,6 +17,8 @@
 
 // Function definitions
 void start_task_influxdb(void);
+void stop_task_influxdb(void);
+bool refresh_influxdb_task_state(void);
 void task_influxdb_code(void *);
 
 #endif

@@ -693,6 +693,7 @@ static esp_err_t influxdb_config_post_handler(httpd_req_t *req)
     {
         LOGE(TAG, "Failed to reload influxdb config after write");
     }
+    refresh_influxdb_task_state();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
@@ -748,6 +749,13 @@ static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     {
         LOGE(TAG, "Failed to reload MQTT config after write");
     }
+
+    if (!mqtt_is_enabled_in_config())
+    {
+        mqtt_stop();
+    }
+
+    refresh_mqtt_task_state();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");

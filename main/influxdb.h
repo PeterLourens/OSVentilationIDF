@@ -103,6 +103,8 @@ int64_t influxdb_get_timestamp(void);
  * @return true if initialization succeeded.
  */
 bool influxdb_init_sender(void);
+bool influxdb_start_sender(void);
+void influxdb_stop_sender(void);
 
 /**
  * @brief Enqueue a raw InfluxDB payload line.

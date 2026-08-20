@@ -109,6 +109,8 @@ void read_valve_pos_in_valvecontrol(void)
             pos = 0;
         }
 
+        positions[i] = pos;
+
         if (valve_control_data_mutex &&
             xSemaphoreTake(valve_control_data_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {

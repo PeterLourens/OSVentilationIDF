@@ -473,6 +473,19 @@ bool mqtt_is_connected(void)
 	return s_mqtt_connected;
 }
 
+bool mqtt_is_enabled_in_config(void)
+{
+	bool enabled = false;
+
+	if (mqtt_config_mutex && xSemaphoreTake(mqtt_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+	{
+		enabled = strcmp(mqtt_config.enable_mqtt, "On") == 0;
+		xSemaphoreGive(mqtt_config_mutex);
+	}
+
+	return enabled;
+}
+
 esp_mqtt_client_handle_t mqtt_get_client(void)
 {
 	return s_mqtt_client;
@@ -480,6 +493,12 @@ esp_mqtt_client_handle_t mqtt_get_client(void)
 
 esp_err_t mqtt_start(const MQTT_config_t *cfg)
 {
+	if (!mqtt_is_enabled_in_config())
+	{
+		LOGI(TAG, "mqtt_start: disabled by configuration");
+		return ESP_ERR_INVALID_STATE;
+	}
+
 	if (s_mqtt_started)
 	{
 		LOGI(TAG, "mqtt_start: already started");
