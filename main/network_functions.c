@@ -95,13 +95,10 @@ esp_netif_t *get_active_netif(void)
 {
     /* Prefer Ethernet only when the PHY/link is actually up and the ETH netif has a valid IP.
        Fall back to Wi‑Fi STA only when it has a valid IP. */
-    if (hw.has_ethernet)
+    if (hw.has_ethernet && ethernet_config_is_enabled())
     {
-        if (eth_handle == NULL || eth_netif == NULL || eth_is_shutting_down())
-            return NULL;
-
         esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
-        if (eth)
+        if (eth && eth_handle != NULL && eth_netif != NULL && !eth_is_shutting_down())
         {
             /* ethernet_link_is_up() checks PHY link (ioctl fallback to IP presence).
                This avoids treating an attached-but-unlinked netif as "active". */
@@ -121,6 +118,18 @@ esp_netif_t *get_active_netif(void)
         esp_netif_ip_info_t ip;
         if (esp_netif_get_ip_info(wifi, &ip) == ESP_OK && ip.ip.addr != 0)
             return wifi;
+    }
+
+    /* Keep the device reachable through the fail-safe configuration AP. */
+    if (wifi_manager_ap_is_running())
+    {
+        esp_netif_t *ap = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+        if (ap)
+        {
+            esp_netif_ip_info_t ip;
+            if (esp_netif_get_ip_info(ap, &ip) == ESP_OK && ip.ip.addr != 0)
+                return ap;
+        }
     }
 
     return NULL;

@@ -81,21 +81,21 @@ static void eth_teardown_locked(void)
         eth_glue = NULL;
     }
 
-    // Destroy the LWIP ESP netif before recreating it. Leaving a stale ETH_DEF
-    // netif attached is what causes the classic "netif already added" assert when
-    // the driver is re-initialized after unplug/reconnect.
-    if (eth_netif)
-    {
-        esp_netif_destroy(eth_netif);
-        eth_netif = NULL;
-    }
-
     if (eth_handle)
     {
         esp_err_t r = esp_eth_driver_uninstall(eth_handle);
         if (r != ESP_OK)
             LOGW(TAG, "esp_eth_driver_uninstall -> %s", esp_err_to_name(r));
         eth_handle = NULL;
+    }
+
+    // Destroy the netif only after uninstalling the driver. The W5500 receive
+    // task is deleted by esp_eth_driver_uninstall and may still be finishing a
+    // packet callback after esp_eth_stop returns.
+    if (eth_netif)
+    {
+        esp_netif_destroy(eth_netif);
+        eth_netif = NULL;
     }
 
     s_eth_initialized = false;
@@ -886,10 +886,11 @@ esp_err_t eth_software_restart(void)
 }
 
 /**
- * @brief Stop Ethernet and perform a full cleanup of driver resources.
+ * @brief Stop Ethernet without destroying resources needed by the RX task.
  *
- * This function uses the lifecycle mutex and calls the locked teardown helper
- * to release all Ethernet resources safely.
+ * Runtime configuration changes can arrive while the W5500 RX task is still
+ * executing on the other CPU. Keep the netif, glue, and driver allocated so
+ * an in-flight packet callback cannot access freed memory.
  */
 void eth_stop(void)
 {
@@ -915,12 +916,17 @@ void eth_stop(void)
         return;
     }
 
-    LOGI(TAG, "eth_stop: tearing down Ethernet safely");
+    eth_set_shutting_down(true);
+    if (eth_handle && eth_started)
+    {
+        esp_err_t r = esp_eth_stop(eth_handle);
+        if (r != ESP_OK && r != ESP_ERR_INVALID_STATE)
+            LOGW(TAG, "eth_stop: esp_eth_stop -> %s", esp_err_to_name(r));
+        eth_started = false;
+    }
+    eth_set_shutting_down(false);
 
-    // We already hold the mutex, call locked teardown directly
-    eth_teardown_locked();
-
-    LOGI(TAG, "eth_stop: teardown complete");
+    LOGI(TAG, "eth_stop: Ethernet driver stopped; resources retained for safe restart");
 
     xSemaphoreGive(eth_lifecycle_mutex);
 }
@@ -1031,8 +1037,17 @@ esp_err_t ethernet_config_apply(void)
         !validate_ipv4_string(local.gateway) ||
         !validate_ipv4_string(local.primary_dns))
     {
-        LOGE(TAG, "Invalid static IP configuration; not applying");
+        LOGW(TAG, "Invalid static IP configuration; keeping the current Ethernet IP");
         return ESP_ERR_INVALID_ARG;
+    }
+
+    // Switch cleanly from DHCP to static addressing only after the complete
+    // static configuration has been validated.
+    esp_err_t dhcp_err = esp_netif_dhcpc_stop(eth_netif);
+    if (dhcp_err != ESP_OK && dhcp_err != ESP_ERR_ESP_NETIF_DHCP_ALREADY_STOPPED)
+    {
+        LOGE(TAG, "esp_netif_dhcpc_stop failed: %s", esp_err_to_name(dhcp_err));
+        return dhcp_err;
     }
 
     esp_netif_ip_info_t ip_info;

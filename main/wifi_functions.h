@@ -34,6 +34,7 @@ esp_err_t select_wifi_mode(void);
 void wifi_event_handler(void *, esp_event_base_t, int32_t, void *);
 esp_err_t wifi_manager_connect(Wifi_config_t *);
 esp_err_t wifi_manager_start_ap(void);
+bool wifi_manager_ap_is_running(void);
 bool wifi_manager_is_connected(void);
 bool wifi_config_is_dhcp_enabled(void);
 

@@ -31,6 +31,8 @@ typedef enum
  */
 void update_syslog_state(void);
 
+bool wifi_manager_ap_is_running(void);
+
 /**
  * @brief Validate an IPv4 address string.
  *

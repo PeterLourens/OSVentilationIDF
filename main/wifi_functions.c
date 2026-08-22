@@ -15,6 +15,7 @@ static const char *TAG = "wifi_functions";
 
 int s_retry_num = 0; // used by network_manager.c
 static bool s_wifi_initialized = false;
+static volatile bool s_wifi_ap_running = false;
 char hostname[MEDIUM_CONFIG_ITEM] = {};
 
 static bool cfg_str_is_on(const char *s)
@@ -25,6 +26,7 @@ static bool cfg_str_is_on(const char *s)
 void wifi_manager_stop(void)
 {
     LOGI(TAG, "Stopping WiFi... (request received)");
+    s_wifi_ap_running = false;
 
     if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
     {
@@ -410,6 +412,12 @@ esp_err_t wifi_manager_connect(Wifi_config_t *settings)
 // wifi_manager_start_ap: start AP mode and return status. Caller must decide when to call this.
 esp_err_t wifi_manager_start_ap(void)
 {
+    if (s_wifi_ap_running)
+    {
+        LOGD(TAG, "wifi_manager_start_ap: AP already running");
+        return ESP_OK;
+    }
+
     if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
     {
         LOGE(TAG, "wifi_manager_start_ap: failed to take network_config_mutex");
@@ -464,7 +472,7 @@ esp_err_t wifi_manager_start_ap(void)
     }
 
     err = esp_wifi_start();
-    if (err != ESP_OK)
+    if (err != ESP_OK && err != ESP_ERR_WIFI_STATE)
     {
         LOGE(TAG, "wifi_manager_start_ap: esp_wifi_start(AP) failed: %s", esp_err_to_name(err));
         xSemaphoreGive(network_config_mutex);
@@ -483,12 +491,18 @@ esp_err_t wifi_manager_start_ap(void)
 
     if (bits & AP_STARTED_BIT)
     {
+        s_wifi_ap_running = true;
         LOGI(TAG, "wifi_manager_start_ap: AP started successfully (SSID=%s)", ESP_AP_SSID);
         return ESP_OK;
     }
 
     LOGE(TAG, "wifi_manager_start_ap: AP failed to start (timeout)");
     return ESP_FAIL;
+}
+
+bool wifi_manager_ap_is_running(void)
+{
+    return s_wifi_ap_running;
 }
 
 bool wifi_config_is_dhcp_enabled(void)

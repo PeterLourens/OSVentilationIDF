@@ -549,9 +549,12 @@
             const val = payload[key];
             if (el.tagName === 'INPUT' && el.type === 'checkbox') el.checked = Boolean(val);
             else if (el.tagName === 'SELECT') {
-                el.value = val;
+                const selectValue = (key === 'enable_dhcp' || key === 'eth_enable_dhcp')
+                    ? (String(val).toLowerCase() === 'on' ? 'On' : 'Off')
+                    : String(val);
+                el.value = selectValue;
                 if (!Array.from(el.options).some(o => o.value === el.value)) {
-                    for (let o of el.options) if (o.text === val) { o.selected = true; break; }
+                    for (let o of el.options) if (o.text === selectValue) { o.selected = true; break; }
                 }
             } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = val;
             else el.textContent = val;

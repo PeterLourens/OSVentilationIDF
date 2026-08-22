@@ -170,39 +170,39 @@ cJSON *build_ethernet_config_from_body_urlencoded(const char *body, size_t len)
 
     snprintf(key, sizeof(key), "eth_enable_dhcp");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, (strcmp(val, "On") == 0) ? "On" : "Off");
+        cJSON_AddStringToObject(obj, "enable_dhcp", (strcmp(val, "On") == 0) ? "On" : "Off");
     else
-        cJSON_AddStringToObject(obj, key, "None");
+        cJSON_AddStringToObject(obj, "enable_dhcp", "None");
 
     snprintf(key, sizeof(key), "eth_ip_address");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "ip_address", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "ip_address", "");
 
     snprintf(key, sizeof(key), "eth_subnet_mask");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "subnet_mask", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "subnet_mask", "");
 
     snprintf(key, sizeof(key), "eth_gateway");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "gateway", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "gateway", "");
 
     snprintf(key, sizeof(key), "eth_primary_dns");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "primary_dns", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "primary_dns", "");
 
     snprintf(key, sizeof(key), "eth_secondary_dns");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
+        cJSON_AddStringToObject(obj, "secondary_dns", val);
     else
-        cJSON_AddStringToObject(obj, key, "");
+        cJSON_AddStringToObject(obj, "secondary_dns", "");
 
     return obj;
 }

@@ -489,6 +489,13 @@ static void on_wifi_event(void *arg, esp_event_base_t base, int32_t id, void *da
     case WIFI_EVENT_AP_START:
         LOGI(TAG, "WIFI_EVENT_AP_START");
 
+        if (!ethernet_config_is_enabled())
+        {
+            esp_netif_t *ap = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
+            if (ap)
+                esp_netif_set_default_netif(ap);
+        }
+
         wifi_led_set_mode(LED_SOLID);
         if (s_wifi_event_group)
             xEventGroupSetBits(s_wifi_event_group, AP_STARTED_BIT);
@@ -602,6 +609,13 @@ static void on_ip_event(void *arg, esp_event_base_t base, int32_t id, void *data
     case IP_EVENT_STA_GOT_IP:
     {
         LOGI(TAG, "IP_EVENT_STA_GOT_IP (handler)");
+        if (!ethernet_config_is_enabled())
+        {
+            esp_netif_t *wifi = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+            if (wifi)
+                esp_netif_set_default_netif(wifi);
+        }
+
         if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(10)) == pdTRUE)
         {
             sm_actuals.wifi_connected = true;
@@ -736,9 +750,9 @@ static void on_eth_event(void *arg, esp_event_base_t base, int32_t id, void *dat
     case ETHERNET_EVENT_DISCONNECTED:
         LOGW(TAG, "ETHERNET_EVENT_DISCONNECTED (handler)");
 
-        // Fully invalidate the ETH interface on unplug so no stale netif/IP state remains
-        // and Wi‑Fi failover can proceed instead of being stuck behind a dead Ethernet handle.
-        eth_teardown_safe();
+        // Do not tear down the driver/netif here. HTTP and other TCP sockets may
+        // still hold lwIP objects associated with this interface. The manager
+        // keeps the resources alive so Ethernet can be restarted safely.
 
         s_eth_wd.link_up_event = false;
         s_eth_wd.has_ip_event = false;
@@ -878,7 +892,16 @@ static void evaluate_config_and_apply(void)
     bool eth_enabled = false;
     bool wifi_dhcp = true;
     bool eth_dhcp = true;
+    bool wifi_static_valid = false;
     char hostname[64] = {0};
+    char wifi_ip_address[MEDIUM_CONFIG_ITEM] = {0};
+    char wifi_subnet_mask[MEDIUM_CONFIG_ITEM] = {0};
+    char wifi_gateway[MEDIUM_CONFIG_ITEM] = {0};
+    char wifi_primary_dns[MEDIUM_CONFIG_ITEM] = {0};
+    char eth_ip_address[MEDIUM_CONFIG_ITEM] = {0};
+    char eth_subnet_mask[MEDIUM_CONFIG_ITEM] = {0};
+    char eth_gateway[MEDIUM_CONFIG_ITEM] = {0};
+    char eth_primary_dns[MEDIUM_CONFIG_ITEM] = {0};
 
     if (network_config_mutex && xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
@@ -887,6 +910,14 @@ static void evaluate_config_and_apply(void)
         wifi_dhcp = (strcmp(wifi_config.enable_dhcp, "On") == 0);
         eth_dhcp = (strcmp(ethernet_config.enable_dhcp, "On") == 0);
         strncpy(hostname, wifi_config.hostname, sizeof(hostname) - 1);
+        strncpy(wifi_ip_address, wifi_config.ip_address, sizeof(wifi_ip_address) - 1);
+        strncpy(wifi_subnet_mask, wifi_config.subnet_mask, sizeof(wifi_subnet_mask) - 1);
+        strncpy(wifi_gateway, wifi_config.gateway, sizeof(wifi_gateway) - 1);
+        strncpy(wifi_primary_dns, wifi_config.primary_dns, sizeof(wifi_primary_dns) - 1);
+        strncpy(eth_ip_address, ethernet_config.ip_address, sizeof(eth_ip_address) - 1);
+        strncpy(eth_subnet_mask, ethernet_config.subnet_mask, sizeof(eth_subnet_mask) - 1);
+        strncpy(eth_gateway, ethernet_config.gateway, sizeof(eth_gateway) - 1);
+        strncpy(eth_primary_dns, ethernet_config.primary_dns, sizeof(eth_primary_dns) - 1);
         xSemaphoreGive(network_config_mutex);
     }
     else
@@ -894,6 +925,13 @@ static void evaluate_config_and_apply(void)
         LOGW(TAG, "evaluate_config_and_apply: could not take network_config_mutex");
         return;
     }
+
+    wifi_static_valid = is_valid_ip_address(wifi_ip_address) &&
+                        is_valid_ip_address(wifi_subnet_mask) &&
+                        is_valid_ip_address(wifi_gateway) &&
+                        is_valid_ip_address(wifi_primary_dns);
+
+    s_eth_wd.enabled_cfg = eth_enabled;
 
     // ------------------------------------------------------------------------
     // 2. STATIC snapshot to detect changes
@@ -905,6 +943,14 @@ static void evaluate_config_and_apply(void)
         bool wifi_dhcp;
         bool eth_dhcp;
         char hostname[64];
+        char wifi_ip_address[MEDIUM_CONFIG_ITEM];
+        char wifi_subnet_mask[MEDIUM_CONFIG_ITEM];
+        char wifi_gateway[MEDIUM_CONFIG_ITEM];
+        char wifi_primary_dns[MEDIUM_CONFIG_ITEM];
+        char eth_ip_address[MEDIUM_CONFIG_ITEM];
+        char eth_subnet_mask[MEDIUM_CONFIG_ITEM];
+        char eth_gateway[MEDIUM_CONFIG_ITEM];
+        char eth_primary_dns[MEDIUM_CONFIG_ITEM];
     } cfg_snapshot_t;
 
     static cfg_snapshot_t last_cfg = {0};
@@ -914,6 +960,15 @@ static void evaluate_config_and_apply(void)
         .wifi_dhcp = wifi_dhcp,
         .eth_dhcp = eth_dhcp};
     strncpy(current_cfg.hostname, hostname, sizeof(current_cfg.hostname) - 1);
+    strncpy(current_cfg.wifi_ip_address, wifi_ip_address, sizeof(current_cfg.wifi_ip_address) - 1);
+    strncpy(current_cfg.wifi_subnet_mask, wifi_subnet_mask, sizeof(current_cfg.wifi_subnet_mask) - 1);
+    strncpy(current_cfg.wifi_gateway, wifi_gateway, sizeof(current_cfg.wifi_gateway) - 1);
+    strncpy(current_cfg.wifi_primary_dns, wifi_primary_dns, sizeof(current_cfg.wifi_primary_dns) - 1);
+
+    strncpy(current_cfg.eth_ip_address, eth_ip_address, sizeof(current_cfg.eth_ip_address) - 1);
+    strncpy(current_cfg.eth_subnet_mask, eth_subnet_mask, sizeof(current_cfg.eth_subnet_mask) - 1);
+    strncpy(current_cfg.eth_gateway, eth_gateway, sizeof(current_cfg.eth_gateway) - 1);
+    strncpy(current_cfg.eth_primary_dns, eth_primary_dns, sizeof(current_cfg.eth_primary_dns) - 1);
 
     // ------------------------------------------------------------------------
     // 3. Evaluate Ethernet state (link + IP)
@@ -972,6 +1027,18 @@ static void evaluate_config_and_apply(void)
             esp_netif_set_hostname(n, hostname);
     }
 
+    // Bring up the fail-safe AP before stopping Ethernet so the default route
+    // always has a valid replacement when both configured interfaces are off.
+    if (!wifi_enabled && !eth_enabled)
+    {
+        if (wifi_manager_init() == ESP_OK && !wifi_manager_ap_is_running())
+        {
+            esp_err_t ap_r = wifi_manager_start_ap();
+            if (ap_r != ESP_OK)
+                LOGW(TAG, "evaluate_config_and_apply: fail-safe AP start failed: %s", esp_err_to_name(ap_r));
+        }
+    }
+
     // ------------------------------------------------------------------------
     // 6. Ethernet handling (init/stop/apply config)
     // ------------------------------------------------------------------------
@@ -986,6 +1053,16 @@ static void evaluate_config_and_apply(void)
         }
         else
         {
+            // Move the default route away from ETH_DEF before stopping the
+            // driver; active sockets may still emit traffic during shutdown.
+            esp_netif_t *eth = esp_netif_get_handle_from_ifkey("ETH_DEF");
+            if (eth && esp_netif_get_default_netif() == eth)
+            {
+                esp_netif_t *fallback = get_active_netif();
+                if (fallback)
+                    esp_netif_set_default_netif(fallback);
+            }
+
             eth_stop();
             eth_led_set_mode(LED_OFF);
         }
@@ -998,6 +1075,24 @@ static void evaluate_config_and_apply(void)
     // ------------------------------------------------------------------------
     if (!wifi_enabled)
     {
+        if (!eth_enabled)
+        {
+            LOGW(TAG, "evaluate_config_and_apply: Wi-Fi and Ethernet are disabled; keeping the configuration AP available");
+            if (wifi_manager_init() != ESP_OK)
+            {
+                LOGW(TAG, "evaluate_config_and_apply: wifi_manager_init failed while starting configuration AP");
+                return;
+            }
+
+            if (!wifi_manager_ap_is_running())
+            {
+                esp_err_t ap_r = wifi_manager_start_ap();
+                if (ap_r != ESP_OK)
+                    LOGW(TAG, "evaluate_config_and_apply: configuration AP start failed: %s", esp_err_to_name(ap_r));
+            }
+            return;
+        }
+
         // Wi‑Fi disabled in config: ensure it's stopped and clear Wi‑Fi actuals
         wifi_manager_stop();
         wifi_led_set_mode(LED_OFF);
@@ -1125,7 +1220,19 @@ static void evaluate_config_and_apply(void)
         xSemaphoreGive(network_config_mutex);
     }
 
-    if (have_credentials)
+    if (!wifi_dhcp && !wifi_static_valid)
+    {
+        LOGW(TAG, "evaluate_config_and_apply: Wi-Fi DHCP is off but static IP data is invalid; starting AP");
+        if (!wifi_manager_ap_is_running())
+        {
+            wifi_manager_stop();
+            wifi_led_set_mode(LED_OFF);
+            esp_err_t ap_r = wifi_manager_start_ap();
+            if (ap_r != ESP_OK)
+                LOGW(TAG, "evaluate_config_and_apply: AP start failed: %s", esp_err_to_name(ap_r));
+        }
+    }
+    else if (have_credentials)
     {
         LOGI(TAG, "evaluate_config_and_apply: attempting Wi‑Fi STA connect");
         esp_err_t r = wifi_manager_connect(&wifi_config);
@@ -1135,12 +1242,28 @@ static void evaluate_config_and_apply(void)
         }
         else
         {
-            LOGW(TAG, "evaluate_config_and_apply: Wi‑Fi STA connect returned %s", esp_err_to_name(r));
+            LOGW(TAG, "evaluate_config_and_apply: Wi-Fi STA connect returned %s; starting AP", esp_err_to_name(r));
+            if (!wifi_manager_ap_is_running())
+            {
+                wifi_manager_stop();
+                wifi_led_set_mode(LED_OFF);
+                esp_err_t ap_r = wifi_manager_start_ap();
+                if (ap_r != ESP_OK)
+                    LOGW(TAG, "evaluate_config_and_apply: AP start failed: %s", esp_err_to_name(ap_r));
+            }
         }
     }
     else
     {
-        LOGI(TAG, "evaluate_config_and_apply: no Wi‑Fi credentials; not starting STA");
+        LOGI(TAG, "evaluate_config_and_apply: no Wi-Fi credentials; starting AP");
+        if (!wifi_manager_ap_is_running())
+        {
+            wifi_manager_stop();
+            wifi_led_set_mode(LED_OFF);
+            esp_err_t ap_r = wifi_manager_start_ap();
+            if (ap_r != ESP_OK)
+                LOGW(TAG, "evaluate_config_and_apply: AP start failed: %s", esp_err_to_name(ap_r));
+        }
     }
 }
 
@@ -1360,13 +1483,6 @@ static void network_manager_task(void *pvParameters)
     // Register event handlers (Wi‑Fi, IP, ETH, MQTT)
     register_event_handlers();
 
-    // Initialize network drivers/managers (safe to call multiple times)
-    if (hw.has_ethernet)
-    {
-        eth_init();
-    }
-    wifi_manager_init();
-
     manager_running = true;
     LOGI(TAG, "network_manager_task: manager_running = true");
 
@@ -1425,10 +1541,11 @@ static void network_manager_task(void *pvParameters)
                 esp_netif_ip_info_t ip;
                 esp_err_t r = esp_netif_get_ip_info(eth, &ip);
                 bool link = eth_is_connected();
+                bool eth_dhcp_enabled = ethernet_config_is_dhcp_enabled();
 
                 if (r == ESP_OK)
                 {
-                    if (link && ip.ip.addr == 0)
+                    if (link && ip.ip.addr == 0 && eth_dhcp_enabled)
                     {
                         ESP_LOGW(TAG, "network_manager_task: ETH link up but no IP — attempting DHCP (backoff=%d)", dhcp_restart_backoff);
                         esp_err_t s = esp_netif_dhcpc_start(eth);
