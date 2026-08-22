@@ -145,6 +145,15 @@ void stopped_transitions(void)
 
 void init_transitions(void)
 {
+    time_t now = time(NULL);
+    struct tm tm_now;
+    localtime_r(&now, &tm_now);
+    if (tm_now.tm_year + 1900 < 2020)
+    {
+        LOGW(TAG, "init_transitions: system time is not valid yet; waiting before selecting day/night state");
+        return;
+    }
+
     int new_state = STATE_NR_DAY;
 
     if (is_day())
