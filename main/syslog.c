@@ -22,6 +22,20 @@ typedef struct
 
 // Static state
 static QueueHandle_t s_syslog_queue = NULL;
+static volatile bool s_syslog_stop_requested = false;
+
+static bool syslog_task_enabled(void)
+{
+    bool enabled = false;
+
+    if (syslog_config_mutex && xSemaphoreTake(syslog_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        enabled = strcmp(syslog_config.enable_syslog, "On") == 0;
+        xSemaphoreGive(syslog_config_mutex);
+    }
+
+    return enabled;
+}
 
 /// Forward declarations
 static void syslog_worker_task(void *pvParameters);
@@ -118,6 +132,18 @@ static void syslog_worker_task(void *pvParameters)
     {
         static bool syslog_running = false;
 
+        if (s_syslog_stop_requested || !syslog_task_enabled())
+        {
+            if (syslog_running)
+            {
+                syslog_disable();
+                syslog_running = false;
+            }
+
+            task_syslog = NULL;
+            vTaskDelete(NULL);
+        }
+
         // --- ASYNCHRONOUS SYSLOG STATE UPDATE ---
         if (g_request_syslog_update)
         {
@@ -153,7 +179,7 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        if (xQueueReceive(s_syslog_queue, &item, portMAX_DELAY) != pdTRUE)
+        if (xQueueReceive(s_syslog_queue, &item, pdMS_TO_TICKS(250)) != pdTRUE)
             continue;
 
         if (!item.line)
@@ -229,13 +255,20 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        while (!network_has_ip())
+        while (!network_has_ip() && !s_syslog_stop_requested && syslog_task_enabled())
         {
             ESP_LOGW(TAG, "syslog_worker: no active network interface; waiting for IP before sending syslog");
             if (!network_wait_for_ip(10, 500, NULL))
             {
                 ESP_LOGW(TAG, "syslog_worker: still no IP available; retrying");
             }
+        }
+
+        if (s_syslog_stop_requested || !syslog_task_enabled())
+        {
+            heap_caps_free(msg);
+            heap_caps_free(item.line);
+            continue;
         }
 
         // Create UDP socket
@@ -285,8 +318,16 @@ static void syslog_worker_task(void *pvParameters)
 
 void syslog_queue_init(void)
 {
+    if (!syslog_task_enabled())
+    {
+        ESP_LOGI(TAG, "syslog_queue_init: syslog disabled; worker not started");
+        return;
+    }
+
     if (s_syslog_queue != NULL)
         return;
+
+    s_syslog_stop_requested = false;
 
     s_syslog_queue = xQueueCreate(SYSLOG_QUEUE_LENGTH, sizeof(syslog_queue_item_t));
     if (s_syslog_queue == NULL)
@@ -312,10 +353,27 @@ void syslog_queue_init(void)
 
 void syslog_queue_deinit(void)
 {
+    s_syslog_stop_requested = true;
+
+    if (s_syslog_queue && task_syslog)
+    {
+        syslog_queue_item_t sentinel = {0};
+        xQueueSend(s_syslog_queue, &sentinel, pdMS_TO_TICKS(100));
+    }
+
     if (task_syslog)
     {
-        vTaskDelete(task_syslog);
-        task_syslog = NULL;
+        TickType_t start = xTaskGetTickCount();
+        while (task_syslog != NULL && (xTaskGetTickCount() - start) < pdMS_TO_TICKS(2000))
+        {
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
+
+        if (task_syslog != NULL)
+        {
+            vTaskDelete(task_syslog);
+            task_syslog = NULL;
+        }
     }
 
     if (s_syslog_queue)
@@ -329,6 +387,17 @@ void syslog_queue_deinit(void)
         vQueueDelete(s_syslog_queue);
         s_syslog_queue = NULL;
     }
+}
+
+void syslog_refresh_task_state(void)
+{
+    if (syslog_task_enabled())
+    {
+        syslog_queue_init();
+        return;
+    }
+
+    syslog_queue_deinit();
 }
 
 void syslog_enqueue_line(const char *line)

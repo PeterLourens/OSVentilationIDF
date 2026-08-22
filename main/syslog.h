@@ -36,6 +36,7 @@ void syslog_enable(void);
 void syslog_disable(void);
 void syslog_queue_init(void);
 void syslog_queue_deinit(void);
+void syslog_refresh_task_state(void);
 void syslog_enqueue_line(const char *line);
 
 #endif

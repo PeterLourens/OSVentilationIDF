@@ -109,15 +109,15 @@ void task_mqtt_code(void *pvParameters)
             break;
         }
 
-        LOGI(TAG, "MQTT: publish cycle");
-
         if (!mqtt_is_connected())
         {
-            LOGW(TAG, "MQTT: not connected, skipping publish");
-            for (int i = 0; i < 50 && !mqtt_stop_requested; i++)
+            LOGI(TAG, "MQTT: waiting for client connection");
+            for (int i = 0; i < 50 && !mqtt_stop_requested && mqtt_task_enabled(); i++)
                 vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
+
+        LOGI(TAG, "MQTT: publish cycle");
 
         // Handle deferred HA discovery here (MQTT task context)
         if (mqtt_discovery_requested() && sensors_ready())

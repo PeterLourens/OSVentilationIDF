@@ -17,33 +17,52 @@ static const char *TAG = "task_i2c_LCD";
 EXT_RAM_BSS_ATTR static StackType_t i2c_lcd_stack[5120]; // stack buffer
 static StaticTask_t i2c_lcd_tcb;                         // TCB buffer
 static size_t i2c_lcd_stack_size = 5120;                 // 5120 words = 20 KB
+static volatile bool i2c_lcd_stop_requested = false;
+
+static bool i2c_lcd_task_enabled(void)
+{
+    bool enabled = false;
+
+    if (i2c_config_mutex && xSemaphoreTake(i2c_config_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        enabled = strcmp(i2c_config.enable_lcd, "On") == 0;
+        xSemaphoreGive(i2c_config_mutex);
+    }
+
+    return enabled;
+}
+
+static void i2c_lcd_delay(TickType_t ticks)
+{
+    while (ticks > 0 && !i2c_lcd_stop_requested && i2c_lcd_task_enabled())
+    {
+        TickType_t slice = ticks > pdMS_TO_TICKS(100) ? pdMS_TO_TICKS(100) : ticks;
+        vTaskDelay(slice);
+        ticks -= slice;
+    }
+}
 
 void stop_task_i2c_lcd(void)
 {
+    i2c_lcd_stop_requested = true;
+
     if (task_i2c_lcd == NULL)
     {
         LOGI(TAG, "LCD task already stopped");
         return;
     }
 
-    // Optional: turn off LCD hardware
-    i2c_lcd_clear();
-    i2c_lcd_backlight_set(false);
-
     LOGI(TAG, "Stopping LCD task...");
-    vTaskDelete(task_i2c_lcd);
-    task_i2c_lcd = NULL;
+    TickType_t start = xTaskGetTickCount();
+    while (task_i2c_lcd != NULL && (xTaskGetTickCount() - start) < pdMS_TO_TICKS(5000))
+    {
+        vTaskDelay(pdMS_TO_TICKS(20));
+    }
 }
 
 void start_task_i2c_lcd(void)
 {
-    I2C_config_t cfg;
-
-    xSemaphoreTake(i2c_config_mutex, portMAX_DELAY);
-    memcpy(&cfg, &i2c_config, sizeof(cfg));
-    xSemaphoreGive(i2c_config_mutex);
-
-    if (strcmp(cfg.enable_lcd, "On") != 0)
+    if (!i2c_lcd_task_enabled())
     {
         LOGI(TAG, "LCD disabled → task not started");
         return;
@@ -55,6 +74,7 @@ void start_task_i2c_lcd(void)
         return;
     }
 
+    i2c_lcd_stop_requested = false;
     task_i2c_lcd = xTaskCreateStatic(task_i2c_lcd_code, "i2c_lcd", i2c_lcd_stack_size, NULL, 6, i2c_lcd_stack, &i2c_lcd_tcb);
 
     if (!task_i2c_lcd)
@@ -65,7 +85,6 @@ void start_task_i2c_lcd(void)
 
 void task_i2c_lcd_code(void *pvParameters)
 {
-    I2C_config_t cfg;
     char uptime[20] = {};
     char ping_result[20] = {};
     char formatted_time[32] = {};
@@ -73,19 +92,7 @@ void task_i2c_lcd_code(void *pvParameters)
     char eth_ip[16] = "0.0.0.0";
     char buf[200] = {};
 
-    // Copy config under mutex if available
-    if (i2c_config_mutex && xSemaphoreTake(i2c_config_mutex, portMAX_DELAY) == pdTRUE)
-    {
-        memcpy(&cfg, &i2c_config, sizeof(cfg));
-        xSemaphoreGive(i2c_config_mutex);
-    }
-    else
-    {
-        LOGW(TAG, "i2c_config_mutex not available; using defaults");
-        memset(&cfg, 0, sizeof(cfg));
-    }
-
-    if (strcmp(cfg.enable_lcd, "Off") == 0)
+    if (!i2c_lcd_task_enabled())
     {
         LOGW(TAG, "LCD disabled → terminating LCD task");
         task_i2c_lcd = NULL;
@@ -101,6 +108,15 @@ void task_i2c_lcd_code(void *pvParameters)
 
     for (;;)
     {
+        if (i2c_lcd_stop_requested || !i2c_lcd_task_enabled())
+        {
+            LOGI(TAG, "LCD disabled by config; task exiting");
+            i2c_lcd_clear();
+            i2c_lcd_backlight_set(false);
+            task_i2c_lcd = NULL;
+            vTaskDelete(NULL);
+        }
+
         if (!lcd_available)
         {
             if (i2c_lcd_init_device() == ESP_OK)
@@ -114,12 +130,12 @@ void task_i2c_lcd_code(void *pvParameters)
             else
             {
                 LOGW(TAG, "LCD init failed; will retry in 1s");
-                vTaskDelay(retry_initial_delay);
+                i2c_lcd_delay(retry_initial_delay);
                 // Try again a few times quickly, then back off
                 if (i2c_lcd_init_device() != ESP_OK)
                 {
                     LOGW(TAG, "LCD init retry failed; backing off 30s");
-                    vTaskDelay(retry_long_delay);
+                    i2c_lcd_delay(retry_long_delay);
                     continue;
                 }
                 else
@@ -144,10 +160,10 @@ void task_i2c_lcd_code(void *pvParameters)
                 LOGW(TAG, "Failed to write general info to LCD; marking LCD unavailable");
                 lcd_available = false;
                 // small delay before next init attempt
-                vTaskDelay(pdMS_TO_TICKS(500));
+                i2c_lcd_delay(pdMS_TO_TICKS(500));
                 continue;
             }
-            vTaskDelay(pdMS_TO_TICKS(3000));
+            i2c_lcd_delay(pdMS_TO_TICKS(3000));
 
             // Display 2 - Network info
             if (statemachine_mutex && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(20)) == pdTRUE)
@@ -177,10 +193,10 @@ void task_i2c_lcd_code(void *pvParameters)
             {
                 LOGW(TAG, "Failed to write network info to LCD; marking LCD unavailable");
                 lcd_available = false;
-                vTaskDelay(pdMS_TO_TICKS(500));
+                i2c_lcd_delay(pdMS_TO_TICKS(500));
                 continue;
             }
-            vTaskDelay(pdMS_TO_TICKS(3000));
+            i2c_lcd_delay(pdMS_TO_TICKS(3000));
 
             // Display 3 - Statemachine state
             build_sm_actuals_buffer(buf, sizeof(buf));
@@ -188,17 +204,17 @@ void task_i2c_lcd_code(void *pvParameters)
             {
                 LOGW(TAG, "Failed to write state info to LCD; marking LCD unavailable");
                 lcd_available = false;
-                vTaskDelay(pdMS_TO_TICKS(500));
+                i2c_lcd_delay(pdMS_TO_TICKS(500));
                 continue;
             }
-            vTaskDelay(pdMS_TO_TICKS(3000));
+            i2c_lcd_delay(pdMS_TO_TICKS(3000));
 
             // Display 4 - Sensors
             // Wait for sensor queues to be ready
-            while (!sensors_queues_ready)
+            while (!sensors_queues_ready && !i2c_lcd_stop_requested && i2c_lcd_task_enabled())
             {
                 LOGD(TAG, "Waiting for sensor queues to be ready...");
-                vTaskDelay(pdMS_TO_TICKS(50));
+                i2c_lcd_delay(pdMS_TO_TICKS(50));
             }
 
             if (sensor_avg_item_size != sizeof(float[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS]))
@@ -243,7 +259,7 @@ void task_i2c_lcd_code(void *pvParameters)
                                 lcd_available = false;
                                 break;
                             }
-                            vTaskDelay(pdMS_TO_TICKS(3000));
+                            i2c_lcd_delay(pdMS_TO_TICKS(3000));
                         }
                         if (!lcd_available)
                             break;
@@ -254,7 +270,7 @@ void task_i2c_lcd_code(void *pvParameters)
             if (!lcd_available)
             {
                 // short delay before re-init attempts
-                vTaskDelay(pdMS_TO_TICKS(500));
+                i2c_lcd_delay(pdMS_TO_TICKS(500));
                 continue;
             }
 
@@ -264,16 +280,16 @@ void task_i2c_lcd_code(void *pvParameters)
             {
                 LOGW(TAG, "Failed to write valve positions to LCD; marking LCD unavailable");
                 lcd_available = false;
-                vTaskDelay(pdMS_TO_TICKS(500));
+                i2c_lcd_delay(pdMS_TO_TICKS(500));
                 continue;
             }
-            vTaskDelay(pdMS_TO_TICKS(3000));
+            i2c_lcd_delay(pdMS_TO_TICKS(3000));
         }
         else
         {
             // LCD not available: wait and retry init periodically
             LOGI(TAG, "LCD unavailable; retrying initialization in 30s");
-            vTaskDelay(retry_long_delay);
+            i2c_lcd_delay(retry_long_delay);
             // next loop iteration will attempt init
         }
     }

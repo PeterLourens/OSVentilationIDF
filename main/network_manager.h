@@ -51,6 +51,9 @@ bool network_manager_start(void);
 // Notify the manager that network configuration changed (safe to call from ISR/context).
 void network_manager_notify_config_change(void);
 
+// Request the network manager to apply the current MQTT configuration.
+void network_manager_request_mqtt_restart(void);
+
 // Request a synchronous refresh of network actuals (non-blocking; schedules update).
 void network_manager_request_actuals_update(void);
 

@@ -756,6 +756,7 @@ static esp_err_t mqtt_config_post_handler(httpd_req_t *req)
     }
 
     refresh_mqtt_task_state();
+    network_manager_request_mqtt_restart();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");
@@ -822,6 +823,8 @@ static esp_err_t syslog_config_post_handler(httpd_req_t *req)
             stop_task_uart_sender();
         }
     }
+
+    syslog_refresh_task_state();
 
     // return the page body (original config.html)
     httpd_resp_set_type(req, "text/html");

@@ -355,6 +355,16 @@ void network_manager_notify_config_change(void)
     }
 }
 
+void network_manager_request_mqtt_restart(void)
+{
+    s_request_mqtt_restart = true;
+
+    if (network_manager_task_handle != NULL)
+    {
+        xTaskNotifyGive(network_manager_task_handle);
+    }
+}
+
 void network_manager_request_actuals_update(void)
 {
     if (network_manager_task_handle != NULL)
