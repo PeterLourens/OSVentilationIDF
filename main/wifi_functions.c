@@ -43,12 +43,6 @@ void wifi_manager_stop(void)
         return;
     }
 
-    if (!s_wifi_initialized)
-    {
-        LOGI(TAG, "wifi_manager_stop: WiFi stop requested, but WiFi manager has never been initialized; no action taken");
-        return;
-    }
-
     esp_err_t err = esp_wifi_disconnect();
     if (err == ESP_ERR_WIFI_NOT_STARTED)
     {
@@ -418,12 +412,6 @@ esp_err_t wifi_manager_start_ap(void)
         return ESP_OK;
     }
 
-    if (xSemaphoreTake(network_config_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
-    {
-        LOGE(TAG, "wifi_manager_start_ap: failed to take network_config_mutex");
-        return ESP_ERR_TIMEOUT;
-    }
-
     /* Create or reuse AP netif */
     esp_netif_t *ap_existing = esp_netif_get_handle_from_ifkey("WIFI_AP_DEF");
     if (ap_existing == NULL)
@@ -432,7 +420,6 @@ esp_err_t wifi_manager_start_ap(void)
         if (!ap_netif)
         {
             LOGE(TAG, "wifi_manager_start_ap: esp_netif_create_default_wifi_ap returned NULL");
-            xSemaphoreGive(network_config_mutex);
             return ESP_FAIL;
         }
     }
@@ -459,7 +446,6 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "wifi_manager_start_ap: esp_wifi_set_mode(AP) failed: %s", esp_err_to_name(err));
-        xSemaphoreGive(network_config_mutex);
         return err;
     }
 
@@ -467,7 +453,6 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK)
     {
         LOGE(TAG, "wifi_manager_start_ap: esp_wifi_set_config(AP) failed: %s", esp_err_to_name(err));
-        xSemaphoreGive(network_config_mutex);
         return err;
     }
 
@@ -475,12 +460,8 @@ esp_err_t wifi_manager_start_ap(void)
     if (err != ESP_OK && err != ESP_ERR_WIFI_STATE)
     {
         LOGE(TAG, "wifi_manager_start_ap: esp_wifi_start(AP) failed: %s", esp_err_to_name(err));
-        xSemaphoreGive(network_config_mutex);
         return err;
     }
-
-    /* Release mutex before waiting */
-    xSemaphoreGive(network_config_mutex);
 
     /* Wait for AP_STARTED_BIT set by event handler */
     EventBits_t bits = xEventGroupWaitBits(

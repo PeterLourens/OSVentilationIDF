@@ -11,6 +11,7 @@
 
 #include "main.h"
 #include "cJSON.h"
+#include "esp_rom_sys.h"
 
 static const char *TAG = "main";
 
@@ -78,7 +79,10 @@ static void start_network_services(void)
 void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 {
     (void)xTask;
-    (void)pcTaskName;
+
+    // Use the ROM printer: normal logging can recurse or require stack while
+    // the overflowing task is already out of stack space.
+    esp_rom_printf("STACK OVERFLOW: task=%s\n", pcTaskName ? pcTaskName : "<unknown>");
 
     // Avoid re-entering the logging subsystem from inside the overflow hook.
     // The hardware will abort immediately so the crash dump can be captured.

@@ -415,24 +415,40 @@ void eth_init(void)
         return;
     }
 
-    // Always create a fresh ETH_DEF netif after teardown. Reusing a stale
-    // handle here is what causes the lwIP assert: "netif already added".
+    // Do not destroy a live ETH_DEF netif during normal reinitialization.
+    // Reusing an old handle is much safer than tearing down a lwIP netif that
+    // may still be referenced by event callbacks, the default route, or active
+    // sockets. If the handle is already present, keep it stable and attach to it.
     esp_netif_t *existing = esp_netif_get_handle_from_ifkey("ETH_DEF");
     if (existing != NULL)
     {
-        LOGW(TAG, "eth_init: stale ETH_DEF netif found (%p); destroying before recreating", (void *)existing);
-        esp_netif_destroy(existing);
+        if (eth_netif == NULL)
+        {
+            eth_netif = existing;
+            LOGW(TAG, "eth_init: reusing existing ETH_DEF netif %p; avoiding destructive reinit", (void *)eth_netif);
+        }
+        else if (eth_netif != existing)
+        {
+            LOGW(TAG, "eth_init: ETH_DEF netif already assigned to %p; leaving existing handle %p alone", (void *)eth_netif, (void *)existing);
+        }
     }
 
-    esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
-    eth_netif = esp_netif_new(&cfg);
     if (eth_netif == NULL)
     {
-        LOGE(TAG, "eth_init: esp_netif_new returned NULL");
-        xSemaphoreGive(eth_lifecycle_mutex);
-        return;
+        esp_netif_config_t cfg = ESP_NETIF_DEFAULT_ETH();
+        eth_netif = esp_netif_new(&cfg);
+        if (eth_netif == NULL)
+        {
+            LOGE(TAG, "eth_init: esp_netif_new returned NULL");
+            xSemaphoreGive(eth_lifecycle_mutex);
+            return;
+        }
+        LOGI(TAG, "eth_init: created new ETH_DEF netif %p", (void *)eth_netif);
     }
-    LOGI(TAG, "eth_init: created new ETH_DEF netif %p", (void *)eth_netif);
+    else
+    {
+        LOGI(TAG, "eth_init: using existing ETH_DEF netif %p", (void *)eth_netif);
+    }
 
     // SPI bus init (idempotent)
     spi_bus_config_t buscfg = {
@@ -946,7 +962,8 @@ bool ethernet_config_is_enabled(void)
     }
     else
     {
-        LOGW(TAG, "Could not take network_config_mutex when reading Ethernet enabled state; assuming Ethernet is disabled for this check");
+        // A transient lock failure must not log here: logging may query the
+        // active interface again and recursively re-enter this function.
     }
     return enabled;
 }
@@ -966,7 +983,7 @@ bool ethernet_config_is_dhcp_enabled(void)
     }
     else
     {
-        LOGW(TAG, "Could not take network_config_mutex when reading DHCP setting; assuming DHCP is enabled for this check");
+        // Keep the DHCP default on transient lock failure without logging.
     }
     return dhcp;
 }

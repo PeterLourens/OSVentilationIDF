@@ -22,7 +22,10 @@ typedef struct
 
 // Static state
 static QueueHandle_t s_syslog_queue = NULL;
+static SemaphoreHandle_t s_syslog_queue_mutex = NULL;
 static volatile bool s_syslog_stop_requested = false;
+static volatile uint32_t s_last_queue_full_log_ms = 0;
+static volatile uint32_t s_last_no_ip_log_ms = 0;
 
 static bool syslog_task_enabled(void)
 {
@@ -232,6 +235,15 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
+        // Do not hold an item while waiting for the network to recover. The
+        // queue is a best-effort transport; dropping this item also lets the
+        // worker stop promptly during queue teardown.
+        if (!network_has_ip())
+        {
+            heap_caps_free(item.line);
+            continue;
+        }
+
         // Build syslog message
         char *msg = NULL;
         int n = asprintf(&msg, "<13>%s %s: %s\n", hostname_local[0] ? hostname_local : "set-hostname", appname_local[0] ? appname_local : "set-app", item.line);
@@ -255,16 +267,7 @@ static void syslog_worker_task(void *pvParameters)
             continue;
         }
 
-        while (!network_has_ip() && !s_syslog_stop_requested && syslog_task_enabled())
-        {
-            ESP_LOGW(TAG, "syslog_worker: no active network interface; waiting for IP before sending syslog");
-            if (!network_wait_for_ip(10, 500, NULL))
-            {
-                ESP_LOGW(TAG, "syslog_worker: still no IP available; retrying");
-            }
-        }
-
-        if (s_syslog_stop_requested || !syslog_task_enabled())
+        if (s_syslog_stop_requested || !syslog_task_enabled() || !network_has_ip())
         {
             heap_caps_free(msg);
             heap_caps_free(item.line);
@@ -324,8 +327,23 @@ void syslog_queue_init(void)
         return;
     }
 
-    if (s_syslog_queue != NULL)
+    if (s_syslog_queue_mutex == NULL)
+        s_syslog_queue_mutex = xSemaphoreCreateMutex();
+
+    if (s_syslog_queue_mutex == NULL)
+    {
+        ESP_LOGE(TAG, "syslog_queue_init: failed to create queue mutex");
         return;
+    }
+
+    if (xSemaphoreTake(s_syslog_queue_mutex, pdMS_TO_TICKS(100)) != pdTRUE)
+        return;
+
+    if (s_syslog_queue != NULL)
+    {
+        xSemaphoreGive(s_syslog_queue_mutex);
+        return;
+    }
 
     s_syslog_stop_requested = false;
 
@@ -333,10 +351,11 @@ void syslog_queue_init(void)
     if (s_syslog_queue == NULL)
     {
         ESP_LOGE(TAG, "syslog_queue_init: failed to create queue");
+        xSemaphoreGive(s_syslog_queue_mutex);
         return;
     }
 
-    BaseType_t r = xTaskCreate(syslog_worker_task, "syslog_worker", SYSLOG_WORKER_STACK / sizeof(StackType_t), NULL, SYSLOG_WORKER_PRIO, &task_syslog);
+    BaseType_t r = xTaskCreate(syslog_worker_task, "syslog_worker", SYSLOG_WORKER_STACK, NULL, SYSLOG_WORKER_PRIO, &task_syslog);
 
     if (r != pdPASS)
     {
@@ -344,10 +363,12 @@ void syslog_queue_init(void)
         vQueueDelete(s_syslog_queue);
         s_syslog_queue = NULL;
         task_syslog = NULL;
+        xSemaphoreGive(s_syslog_queue_mutex);
     }
     else
     {
         ESP_LOGI(TAG, "syslog_queue_init: worker started");
+        xSemaphoreGive(s_syslog_queue_mutex);
     }
 }
 
@@ -376,6 +397,13 @@ void syslog_queue_deinit(void)
         }
     }
 
+    if (s_syslog_queue_mutex &&
+        xSemaphoreTake(s_syslog_queue_mutex, pdMS_TO_TICKS(500)) != pdTRUE)
+    {
+        ESP_LOGW(TAG, "syslog_queue_deinit: queue mutex busy; leaving queue intact");
+        return;
+    }
+
     if (s_syslog_queue)
     {
         syslog_queue_item_t item;
@@ -387,6 +415,9 @@ void syslog_queue_deinit(void)
         vQueueDelete(s_syslog_queue);
         s_syslog_queue = NULL;
     }
+
+    if (s_syslog_queue_mutex)
+        xSemaphoreGive(s_syslog_queue_mutex);
 }
 
 void syslog_refresh_task_state(void)
@@ -405,8 +436,31 @@ void syslog_enqueue_line(const char *line)
     if (!line || !*line)
         return;
 
+    // If there is no active IP, do not keep queueing syslog traffic while the
+    // network is offline. This prevents the recovery path from building a backlog
+    // that then floods the queue and stack when the interface comes back.
+    if (!network_has_ip())
+    {
+        static uint32_t s_last_offline_drop_ms = 0;
+        uint32_t now_ms = esp_timer_get_time() / 1000ULL;
+        // Do not log this drop: logging here would re-enter this function while
+        // network_has_ip() is evaluating the active interface.
+        if ((now_ms - s_last_offline_drop_ms) > 30000UL)
+            s_last_offline_drop_ms = now_ms;
+        return;
+    }
+
+    if (s_syslog_queue_mutex == NULL ||
+        xSemaphoreTake(s_syslog_queue_mutex, pdMS_TO_TICKS(20)) != pdTRUE)
+    {
+        // Avoid synchronous network sends from callers when queue state is
+        // changing; this path is deliberately best effort.
+        return;
+    }
+
     if (s_syslog_queue == NULL)
     {
+        xSemaphoreGive(s_syslog_queue_mutex);
         // Queue not initialized: fall back to synchronous send
         ESP_LOGW(TAG, "syslog_enqueue_line: queue not initialized, falling back to direct send");
         // call original synchronous implementation below
@@ -419,6 +473,7 @@ void syslog_enqueue_line(const char *line)
     if (!copy)
     {
         ESP_LOGE(TAG, "syslog_enqueue_line: heap_caps_malloc failed");
+        xSemaphoreGive(s_syslog_queue_mutex);
         return;
     }
     memcpy(copy, line, len);
@@ -428,9 +483,16 @@ void syslog_enqueue_line(const char *line)
 
     if (xQueueSend(s_syslog_queue, &item, 0) != pdTRUE)
     {
-        ESP_LOGW(TAG, "syslog_enqueue_line: queue full, dropping message");
+        uint32_t now_ms = esp_timer_get_time() / 1000ULL;
+        if ((now_ms - s_last_queue_full_log_ms) > 30000UL)
+        {
+            ESP_LOGW(TAG, "syslog_enqueue_line: queue full, dropping message");
+            s_last_queue_full_log_ms = now_ms;
+        }
         heap_caps_free(copy);
     }
+
+    xSemaphoreGive(s_syslog_queue_mutex);
 }
 
 void syslog_send_line(const char *line)

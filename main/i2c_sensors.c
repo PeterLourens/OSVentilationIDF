@@ -19,6 +19,8 @@ static float sum[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static float avg[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoHead[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
+static float last_good_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
+static bool last_good_valid[MAX_I2C_BUSES][CHANNELS_PER_BUS] = {0};
 
 // Sensor slot model (per bus, per channel)
 typedef enum
@@ -52,6 +54,13 @@ static void reset_sensor_average_slot(int bus, int slot)
             sensor_fifo[bus][slot][m][i] = 0.0f;
         }
     }
+
+}
+
+static void reset_last_good_sensor_slot(int bus, int slot)
+{
+    memset(last_good_snapshot[bus][slot], 0, sizeof(last_good_snapshot[bus][slot]));
+    last_good_valid[bus][slot] = false;
 }
 
 // TCA9548A helpers
@@ -582,6 +591,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
         }
         slots[ch].type = SENSOR_NONE;
         reset_sensor_average_slot(bus_index, ch);
+        reset_last_good_sensor_slot(bus_index, ch);
         return ESP_OK;
     }
 
@@ -594,6 +604,7 @@ static esp_err_t configure_bus_channel(sensor_slot_t *slots, int bus_index, i2c_
 
     // Clear stale average data when a channel is reconfigured or replaced.
     reset_sensor_average_slot(bus_index, ch);
+    reset_last_good_sensor_slot(bus_index, ch);
 
     // If a different type or no handle, remove old handle first */
     if (slots[ch].handle)
@@ -837,6 +848,16 @@ esp_err_t read_sensors_into_queue(void)
             if (!ok)
             {
                 LOGD(TAG, "READ: bus=%d ch=%d read failed", bus, ch);
+
+                // Preserve the last valid sample through a transient I2C
+                // failure. Resetting this slot to zero makes one missed read
+                // look like a permanent sensor failure to the Influx task.
+                if (last_good_valid[bus][ch])
+                {
+                    memcpy(snapshot[bus][ch], last_good_snapshot[bus][ch],
+                           sizeof(snapshot[bus][ch]));
+                    LOGD(TAG, "READ: bus=%d ch=%d using last valid sample", bus, ch);
+                }
                 continue;
             }
 
@@ -846,6 +867,9 @@ esp_err_t read_sensors_into_queue(void)
             snapshot[bus][ch][IDX_CO2] = (slot->type == SENSOR_SCD41) ? (float)co2 : 0.0f;
             snapshot[bus][ch][IDX_TIMESTAMP] = (float)esp_timer_get_time();
             snapshot[bus][ch][IDX_VALID] = 1.0f;
+                 memcpy(last_good_snapshot[bus][ch], snapshot[bus][ch],
+                     sizeof(snapshot[bus][ch]));
+                 last_good_valid[bus][ch] = true;
 
             LOGD(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
                  bus, ch, temp, rh, snapshot[bus][ch][IDX_CO2]);

@@ -13,9 +13,9 @@
 #include "task_mqtt.h"
 
 static const char *TAG = "task_mqtt";
-EXT_RAM_BSS_ATTR static StackType_t mqtt_stack[8192];
+EXT_RAM_BSS_ATTR static StackType_t mqtt_stack[12288];
 static StaticTask_t mqtt_tcb;
-static size_t mqtt_stack_size = 8192; // 8192 words = 32768 KB
+static size_t mqtt_stack_size = 12288; // 12 KiB stack for recovery/reconnect handling
 static volatile bool mqtt_stop_requested = false;
 
 static bool mqtt_task_enabled(void)
