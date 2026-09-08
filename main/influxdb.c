@@ -793,6 +793,9 @@ static void influxdb_send_with_retry(const char *payload, const Influxdb_config_
 
     while (attempt <= max_retries)
     {
+        if (influx_sender_stop_requested || !network_has_ip())
+            return;
+
         esp_err_t err = influxdb_send_payload_internal(payload, cfg);
         if (err == ESP_OK)
         {
@@ -857,18 +860,13 @@ static void influx_sender_task(void *pv)
 
             influxdb_get_config_snapshot(&cfg);
 
-            while (!network_has_ip())
+            // Do not hold a queued payload while waiting for an interface to
+            // recover. Drop it and return to the queue so the sender can
+            // resume normally after Ethernet or Wi-Fi becomes active.
+            if (!network_has_ip())
             {
-                if (influx_sender_stop_requested)
-                {
-                    heap_caps_free(job.payload);
-                    LOGI(TAG, "InfluxDB sender stop requested while waiting for network");
-                    influx_sender_task_handle = NULL;
-                    vTaskDelete(NULL);
-                }
-
-                LOGW(TAG, "InfluxDB: No network available, waiting...");
-                vTaskDelay(pdMS_TO_TICKS(2000));
+                heap_caps_free(job.payload);
+                continue;
             }
 
             if (strcmp(cfg.enable_influxdb, "On") != 0)

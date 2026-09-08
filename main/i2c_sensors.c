@@ -21,6 +21,9 @@ static int fifoSize[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static int fifoHead[MAX_I2C_BUSES][CHANNELS_PER_BUS][5] = {0};
 static float last_good_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS] = {0};
 static bool last_good_valid[MAX_I2C_BUSES][CHANNELS_PER_BUS] = {0};
+static uint8_t read_failure_count[MAX_I2C_BUSES][CHANNELS_PER_BUS] = {0};
+
+#define SENSOR_READ_FAILURE_REINIT_LIMIT 3
 
 // Sensor slot model (per bus, per channel)
 typedef enum
@@ -61,6 +64,11 @@ static void reset_last_good_sensor_slot(int bus, int slot)
 {
     memset(last_good_snapshot[bus][slot], 0, sizeof(last_good_snapshot[bus][slot]));
     last_good_valid[bus][slot] = false;
+}
+
+static void reset_sensor_read_failures(int bus, int slot)
+{
+    read_failure_count[bus][slot] = 0;
 }
 
 // TCA9548A helpers
@@ -825,19 +833,23 @@ esp_err_t read_sensors_into_queue(void)
             float temp = 0, rh = 0;
             uint16_t co2 = 0;
             bool ok = false;
+            esp_err_t read_err = ESP_OK;
 
             switch (slot->type)
             {
             case SENSOR_AHT20:
-                ok = (aht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                read_err = aht20_read(slot->handle, &temp, &rh);
+                ok = (read_err == ESP_OK);
                 break;
 
             case SENSOR_DHT20:
-                ok = (dht20_read(slot->handle, &temp, &rh) == ESP_OK);
+                read_err = dht20_read(slot->handle, &temp, &rh);
+                ok = (read_err == ESP_OK);
                 break;
 
             case SENSOR_SCD41:
-                ok = (scd41_read(slot->handle, &co2, &temp, &rh) == ESP_OK);
+                read_err = scd41_read(slot->handle, &co2, &temp, &rh);
+                ok = (read_err == ESP_OK);
                 break;
 
             default:
@@ -847,16 +859,42 @@ esp_err_t read_sensors_into_queue(void)
 
             if (!ok)
             {
-                LOGD(TAG, "READ: bus=%d ch=%d read failed", bus, ch);
+                if (read_failure_count[bus][ch] < UINT8_MAX)
+                    read_failure_count[bus][ch]++;
+                LOGW(TAG, "READ: bus=%d ch=%d read failed (%s), failure %u/%u",
+                     bus, ch, esp_err_to_name(read_err),
+                     (unsigned)read_failure_count[bus][ch],
+                     SENSOR_READ_FAILURE_REINIT_LIMIT);
 
                 // Preserve the last valid sample through a transient I2C
                 // failure. Resetting this slot to zero makes one missed read
                 // look like a permanent sensor failure to the Influx task.
-                if (last_good_valid[bus][ch])
+                if (last_good_valid[bus][ch] &&
+                    read_failure_count[bus][ch] < SENSOR_READ_FAILURE_REINIT_LIMIT)
                 {
                     memcpy(snapshot[bus][ch], last_good_snapshot[bus][ch],
                            sizeof(snapshot[bus][ch]));
                     LOGD(TAG, "READ: bus=%d ch=%d using last valid sample", bus, ch);
+                }
+                else if (read_failure_count[bus][ch] >= SENSOR_READ_FAILURE_REINIT_LIMIT)
+                {
+                    reset_sensor_average_slot(bus, ch);
+                    reset_last_good_sensor_slot(bus, ch);
+                    LOGW(TAG, "READ: bus=%d ch=%d reinitializing after repeated failures", bus, ch);
+
+                    // configure_bus_channel intentionally skips an unchanged
+                    // type when its old handle is still present. Remove that
+                    // handle first so recovery creates a real new device.
+                    if (slot->handle)
+                    {
+                        i2c_master_bus_rm_device(slot->handle);
+                        slot->handle = NULL;
+                    }
+                    configure_bus_channel(slots, bus,
+                                          bus == 0 ? i2c_bus0_handle : i2c_bus1_handle,
+                                          tca, ch,
+                                          bus == 0 ? bus0_sensor_settings[ch].type : bus1_sensor_settings[ch].type);
+                    reset_sensor_read_failures(bus, ch);
                 }
                 continue;
             }
@@ -870,6 +908,7 @@ esp_err_t read_sensors_into_queue(void)
                  memcpy(last_good_snapshot[bus][ch], snapshot[bus][ch],
                      sizeof(snapshot[bus][ch]));
                  last_good_valid[bus][ch] = true;
+                 reset_sensor_read_failures(bus, ch);
 
             LOGD(TAG, "READ OK: bus=%d ch=%d T=%.2f H=%.2f CO2=%.0f",
                  bus, ch, temp, rh, snapshot[bus][ch][IDX_CO2]);

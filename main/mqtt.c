@@ -17,8 +17,31 @@ static esp_mqtt_client_handle_t s_mqtt_client = NULL;
 static bool s_mqtt_started = false;
 static bool s_mqtt_connected = false;
 static char mqtt_node_id[64] = {0}; // Cached node id (derived from sm_actuals.hostname or fallback)
+static SemaphoreHandle_t s_mqtt_lifecycle_mutex = NULL;
 
 static volatile bool s_discovery_requested = false;
+
+static bool mqtt_lifecycle_lock(TickType_t timeout)
+{
+	return s_mqtt_lifecycle_mutex != NULL &&
+		xSemaphoreTake(s_mqtt_lifecycle_mutex, timeout) == pdTRUE;
+}
+
+static int mqtt_publish_safe(const char *topic, const char *payload, int len, int qos, int retain)
+{
+	if (!mqtt_lifecycle_lock(pdMS_TO_TICKS(100)))
+		return -1;
+
+	if (!s_mqtt_client || !s_mqtt_connected)
+	{
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
+		return -1;
+	}
+
+	int result = esp_mqtt_client_publish(s_mqtt_client, topic, payload, len, qos, retain);
+	xSemaphoreGive(s_mqtt_lifecycle_mutex);
+	return result;
+}
 
 // Global snapshots to avoid large stack allocations
 static float s_raw_snapshot[MAX_I2C_BUSES][CHANNELS_PER_BUS][DATA_FIELDS];
@@ -31,17 +54,12 @@ static SemaphoreHandle_t s_mqtt_snapshot_mutex = NULL;
 // Retained publish helper
 static inline void mqtt_pubs_retained(const char *topic, const char *value)
 {
-	if (!s_mqtt_client || !s_mqtt_connected)
-	{
-		LOGW(TAG, "mqtt_pubs_retained: MQTT not connected; skipping %s", topic);
-		return;
-	}
 	if (!value)
 	{
 		LOGW(TAG, "mqtt_pubs_retained: NULL value for topic %s", topic);
 		return;
 	}
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt_client, topic, value, 0, 0, 1);
+	int err = mqtt_publish_safe(topic, value, 0, 0, 1);
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubs_retained: publish failed for topic %s", topic);
@@ -262,16 +280,10 @@ static void mqtt_publish_discovery_for_system(const char *base, const char *node
 // Helpers for publishing
 static inline void mqtt_pubf(const char *topic, float value)
 {
-	if (!s_mqtt_client || !s_mqtt_connected)
-	{
-		LOGW(TAG, "mqtt_pubf: MQTT not connected; skipping publish for %s", topic);
-		return;
-	}
-
 	char payload[32];
 	snprintf(payload, sizeof(payload), "%.2f", value);
 
-	int err = esp_mqtt_client_publish(s_mqtt_client, topic, payload, 0, 1, 0);
+	int err = mqtt_publish_safe(topic, payload, 0, 1, 0);
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubf: publish failed for topic %s", topic);
@@ -285,19 +297,13 @@ static inline void mqtt_pubf(const char *topic, float value)
 // Publish string value to MQTT
 static inline void mqtt_pubs(const char *topic, const char *value)
 {
-	if (!s_mqtt_client || !s_mqtt_connected)
-	{
-		LOGW(TAG, "mqtt_pubs: MQTT not connected; skipping publish");
-		return;
-	}
-
 	if (!value)
 	{
 		LOGW(TAG, "mqtt_pubs: NULL value for topic %s", topic);
 		return;
 	}
 
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt_client, topic, value, 0, 1, 0);
+	int err = mqtt_publish_safe(topic, value, 0, 1, 0);
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubs: publish failed for topic %s", topic);
@@ -311,16 +317,10 @@ static inline void mqtt_pubs(const char *topic, const char *value)
 // Publish integer value to MQTT
 static inline void mqtt_pubi(const char *topic, int value)
 {
-	if (!s_mqtt_client || !s_mqtt_connected)
-	{
-		LOGW(TAG, "mqtt_pubi: MQTT not connected; skipping publish");
-		return;
-	}
-
 	char payload[16];
 	snprintf(payload, sizeof(payload), "%d", value);
 
-	esp_err_t err = esp_mqtt_client_publish(s_mqtt_client, topic, payload, 0, 1, 0);
+	int err = mqtt_publish_safe(topic, payload, 0, 1, 0);
 	if (err < 0)
 	{
 		LOGW(TAG, "mqtt_pubi: publish failed for topic %s", topic);
@@ -493,6 +493,11 @@ esp_mqtt_client_handle_t mqtt_get_client(void)
 
 esp_err_t mqtt_start(const MQTT_config_t *cfg)
 {
+	if (s_mqtt_lifecycle_mutex == NULL)
+		s_mqtt_lifecycle_mutex = xSemaphoreCreateMutex();
+	if (s_mqtt_lifecycle_mutex == NULL)
+		return ESP_ERR_NO_MEM;
+
 	if (!mqtt_is_enabled_in_config())
 	{
 		LOGI(TAG, "mqtt_start: disabled by configuration");
@@ -548,11 +553,14 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		.session.last_will.qos = cfg->will_qos,
 		.session.last_will.retain = cfg->will_retain,
 	};
+	if (!mqtt_lifecycle_lock(pdMS_TO_TICKS(100)))
+		return ESP_ERR_TIMEOUT;
 
 	s_mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 	if (s_mqtt_client == NULL)
 	{
 		LOGE(TAG, "esp_mqtt_client_init failed");
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
 		return ESP_FAIL;
 	}
 
@@ -563,6 +571,7 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		LOGE(TAG, "esp_mqtt_client_register_event failed: %s", esp_err_to_name(err));
 		esp_mqtt_client_destroy(s_mqtt_client);
 		s_mqtt_client = NULL;
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
 		return err;
 	}
 
@@ -572,6 +581,7 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 		LOGE(TAG, "esp_mqtt_client_start failed: %s", esp_err_to_name(err));
 		esp_mqtt_client_destroy(s_mqtt_client);
 		s_mqtt_client = NULL;
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
 		return err;
 	}
 
@@ -587,15 +597,23 @@ esp_err_t mqtt_start(const MQTT_config_t *cfg)
 	}
 
 	s_mqtt_started = true;
+	xSemaphoreGive(s_mqtt_lifecycle_mutex);
 	LOGI(TAG, "MQTT client started");
 	return ESP_OK;
 }
 
 esp_err_t mqtt_stop(void)
 {
+	if (s_mqtt_lifecycle_mutex == NULL)
+		return ESP_OK;
+
+	if (!mqtt_lifecycle_lock(pdMS_TO_TICKS(5000)))
+		return ESP_ERR_TIMEOUT;
+
 	if (!s_mqtt_started || s_mqtt_client == NULL)
 	{
 		LOGW(TAG, "mqtt_stop: not started");
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
 		return ESP_OK;
 	}
 
@@ -616,28 +634,30 @@ esp_err_t mqtt_stop(void)
 
 	s_mqtt_client = NULL;
 	s_mqtt_started = false;
+	xSemaphoreGive(s_mqtt_lifecycle_mutex);
 	LOGI(TAG, "MQTT client stopped");
 	return ESP_OK;
 }
 
 int mqtt_publish(const char *topic, const char *data, int len, int qos, int retain)
 {
-	if (!s_mqtt_client)
-	{
-		LOGW(TAG, "mqtt_publish: client not started");
-		return -1;
-	}
-	return esp_mqtt_client_publish(s_mqtt_client, topic, data, len, qos, retain);
+	return mqtt_publish_safe(topic, data, len, qos, retain);
 }
 
 int mqtt_subscribe(const char *topic, int qos)
 {
+	if (!mqtt_lifecycle_lock(pdMS_TO_TICKS(100)))
+		return -1;
+
 	if (!s_mqtt_client)
 	{
-		LOGW(TAG, "mqtt_subscribe: client not started");
+		xSemaphoreGive(s_mqtt_lifecycle_mutex);
 		return -1;
 	}
-	return esp_mqtt_client_subscribe(s_mqtt_client, topic, qos);
+
+	int result = esp_mqtt_client_subscribe(s_mqtt_client, topic, qos);
+	xSemaphoreGive(s_mqtt_lifecycle_mutex);
+	return result;
 }
 
 // This function is called by esp-mqtt and forwards events to the global event loop

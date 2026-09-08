@@ -104,33 +104,16 @@ void task_influxdb_code(void *pvParameters)
     // initial startup delay
     vTaskDelay(pdMS_TO_TICKS(5000));
 
-    while (!network_has_ip() && !influxdb_task_stop_requested && influxdb_task_enabled())
-    {
-        LOGW(TAG, "InfluxDB: Waiting for network...");
-        vTaskDelay(pdMS_TO_TICKS(2000));
-    }
-
     if (influxdb_task_stop_requested || !influxdb_task_enabled())
     {
         task_influxdb = NULL;
         vTaskDelete(NULL);
     }
 
-    LOGI(TAG, "InfluxDB: Network ready");
-
-    if (!influxdb_start_sender())
-    {
-        LOGW(TAG, "Influx sender could not be started after network became ready");
-    }
-
-    if (!influxdb_wait_ready(pdMS_TO_TICKS(2000)))
-    {
-        LOGW(TAG, "Influx sender not ready after wait; enqueues will be skipped until ready");
-    }
-    else
-    {
-        LOGI(TAG, "Influx sender ready (queue=%p)", (void *)influx_queue);
-    }
+    // Sender startup is retried from the main loop. Network availability can
+    // change after boot, especially while Ethernet hands over to Wi-Fi.
+    if (network_has_ip() && !influxdb_start_sender())
+        LOGW(TAG, "Influx sender startup deferred until network becomes ready");
 
     // Use local copies of intervals so reads are atomic-ish
     uint32_t influx_interval_ms = g_influx_task_interval_ms;
@@ -159,6 +142,14 @@ void task_influxdb_code(void *pvParameters)
             LOGI(TAG, "InfluxDB disabled by config; task exiting");
             task_influxdb = NULL;
             vTaskDelete(NULL);
+        }
+
+        // Recover a sender that was not available at boot or became stopped
+        // during an interface transition. This is deliberately non-blocking.
+        if (network_has_ip() && influx_sender_task_handle == NULL)
+        {
+            if (influxdb_start_sender())
+                LOGI(TAG, "InfluxDB sender started after network recovery");
         }
 
         // Sleep for the resolution slice
