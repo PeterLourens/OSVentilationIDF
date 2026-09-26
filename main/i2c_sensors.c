@@ -861,10 +861,7 @@ esp_err_t read_sensors_into_queue(void)
             {
                 if (read_failure_count[bus][ch] < UINT8_MAX)
                     read_failure_count[bus][ch]++;
-                LOGW(TAG, "READ: bus=%d ch=%d read failed (%s), failure %u/%u",
-                     bus, ch, esp_err_to_name(read_err),
-                     (unsigned)read_failure_count[bus][ch],
-                     SENSOR_READ_FAILURE_REINIT_LIMIT);
+                LOGD(TAG, "READ: bus=%d ch=%d read failed (%s), failure %u/%u", bus, ch, esp_err_to_name(read_err), (unsigned)read_failure_count[bus][ch], SENSOR_READ_FAILURE_REINIT_LIMIT);
 
                 // Preserve the last valid sample through a transient I2C
                 // failure. Resetting this slot to zero makes one missed read
