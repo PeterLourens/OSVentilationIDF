@@ -44,13 +44,15 @@ void task_rgb_leds_code(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));
 
         // Safe snapshot
-        if (xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
+        if (statemachine_mutex != NULL && xSemaphoreTake(statemachine_mutex, pdMS_TO_TICKS(5)) == pdTRUE)
         {
             snap = sm_actuals;
             xSemaphoreGive(statemachine_mutex);
+            leds_update(&snap);
         }
-
-        // Update LEDs
-        leds_update(&snap);
+        else
+        {
+            LOGW(TAG, "Could not snapshot sm_actuals; skipping LED update");
+        }
     }
 }
