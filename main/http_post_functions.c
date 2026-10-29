@@ -374,44 +374,66 @@ cJSON *build_fan_config_from_body_urlencoded(const char *body, size_t len)
     char key[64], val[256];
 
     snprintf(key, sizeof(key), "fan_control_mode");
+    const char *mode = "";
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
-        cJSON_AddStringToObject(obj, key, val);
-    else
-        cJSON_AddStringToObject(obj, key, "");
+    {
+        url_decode_inplace(val);
+        if (strcmp(val, "MQTT subscribe") == 0 || strcmp(val, "HTTP API") == 0)
+            mode = val;
+    }
+    cJSON_AddStringToObject(obj, key, mode);
 
     snprintf(key, sizeof(key), "fan_control_mqtt_server");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "fan_control_mqtt_port");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "fan_control_mqtt_topic");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "fan_control_url_hs");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "fan_control_url_ms");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 
     snprintf(key, sizeof(key), "fan_control_url_ls");
     if (httpd_query_key_value(body, key, val, sizeof(val)) == ESP_OK)
+    {
+        url_decode_inplace(val);
         cJSON_AddStringToObject(obj, key, val);
+    }
     else
         cJSON_AddStringToObject(obj, key, "");
 

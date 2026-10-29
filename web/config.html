@@ -223,18 +223,18 @@
                             <div class="pure-u-1 pure-u-md-1-1">
                                 <label for="fan_control_mode">Fan control mode:</label>
                                 <select id="fan_control_mode" name="fan_control_mode" class="pure-input-1-4">
-                                    <option>MQTT subscribe</option>
-                                    <option>HTTP API</option>
+                                    <option value="MQTT subscribe">MQTT subscribe</option>
+                                    <option value="HTTP API">HTTP API</option>
                                 </select>
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_server">Fan control MQTT Server:</label>
-                                <input type="text" placeholder="Fan control MQTT server ipdress or hostname" name="fan_control_mqtt_server" id="fan_control_mqtt_server"
+                                <input type="text" placeholder="Broker IPv4 address or hostname" name="fan_control_mqtt_server" id="fan_control_mqtt_server"
                                     class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_port">Fan control MQTT Server port:</label>
-                                <input type="text" placeholder="default is 1883" name="fan_control_mqtt_port" id="fan_control_mqtt_port" class="pure-input-3-4">
+                                <input type="number" min="1" max="65535" step="1" placeholder="1883" name="fan_control_mqtt_port" id="fan_control_mqtt_port" class="pure-input-3-4">
                             </div>
                             <div class="pure-u-1 pure-u-md-1-2">
                                 <label for="fan_control_mqtt_topic">Fan control MQTT publish topic:</label>
@@ -371,18 +371,6 @@
     </div>
     <script src="ui.js"></script>
     <script src="send_json_ws.js"></script>
-    <script>
-        fetch("/api/restart", { method: "POST" })
-            .then(() => {
-                // Optional: show a message
-                showToast("Rebooting…");
-
-                // Redirect after a short delay
-                setTimeout(() => {
-                    window.location.href = "/";
-                }, 3000);
-            });
-    </script>
 </body>
 
 </html>
