@@ -139,14 +139,14 @@ static void mqtt_publish_ha_sensor(const char *node_id, const char *object_id, c
 // Publish discovery config for a valve sensor (position + availability)
 static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object_id, const char *name, const char *state_topic, const char *availability_topic, const char *unique_id)
 {
-	char payload[350];
+	char payload[768];
 	char topic[200];
 
 	snprintf(topic, sizeof(topic),
 			 "homeassistant/sensor/%s/%s/config",
 			 node_id, object_id);
 
-	snprintf(payload, sizeof(payload),
+	int payload_len = snprintf(payload, sizeof(payload),
 			 "{"
 			 "\"name\":\"%s\","
 			 "\"unique_id\":\"%s\","
@@ -163,6 +163,11 @@ static void mqtt_publish_ha_valve_sensor(const char *node_id, const char *object
 			 name, unique_id,
 			 state_topic, availability_topic,
 			 node_id, node_id);
+	if (payload_len < 0 || (size_t)payload_len >= sizeof(payload))
+	{
+		LOGE(TAG, "Valve discovery payload truncated for %s", object_id);
+		return;
+	}
 
 	mqtt_pubs_retained(topic, payload);
 }
