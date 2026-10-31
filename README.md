@@ -3,13 +3,13 @@
 This project is intended as a replacement of the Itho Demandflow controller. The reason that this project was started because my controller at home was behaving strange, the transformer and fuse failed and it is expensive to replace. With modern microcontrollers it should be relatively easy to make a controller for such a system. This project is inspired by the orignal Itho controller but not an exact copy of the Itho controller. Compared to the Itho controller, this design provides full transparancy on what it exactly does. 
 
 The basis for this design is:
-* Speed of Itho fan can be controlled by either MQTT or HTTP API with settings Low, Medium and High. To set the fanspeed of an Itho fan See https://www.nrgwatch.nl/
-* The controller has 12 channels for 12 Itho valves of type DemandFlow Klep (545-7100). No changes required to the default connection on the valve.
-* This controller can be a 1:1 replacement
+* Speed of Itho fan can be controlled by either MQTT or HTTP API with settings Low, Medium and High. To set the fanspeed of an Itho fan see https://www.nrgwatch.nl/
+* The controller has 12 channels for 12 Itho valves of type "DemandFlow Klep" (Itho product number 545-7100). No changes required to the default connection on the valve.
+* This controller can be a 1:1 replacement, it fits in the existing housing except for the location of the lights
 * The system must be modular, e.g. it is not required to add the display, a different I2C RTC could be used, the number, type and location of sensors can be adjusted in the application
 * The software is open source
 * The hardware is open source
-* The hardware can be used as an ESP32-S3 development platform to experiment with sensors, displays, other i2C devices and connectivity (wifi and ethernet)
+* The hardware can also be used as an ESP32-S3 development platform to experiment with sensors, displays, other i2C devices and connectivity (wifi and ethernet)
 
 Two hardware revisions are available (there has never been a revision 3):
 
@@ -35,11 +35,11 @@ The hardware design is based on commonly available electronic parts. The basis o
 * All I2C connections can have pull-up resistors if not integrated in the connected devices
 * Connection to sensors through I2C multiplexer (TCA9548) enabling the use of I2C sensors with fixed I2C addresses
 * 2 Addressable RGB LEDs for status and fandspeed
-* 2 Configurable pushbuttons, one is standard allocated to turn on the LCD
+* 2 Configurable pushbuttons, one is standard allocated to turn on the LCD backlight
 * A red power LED
-* A green LED (rev4 only default assigned to WIFI status)
-* A blue LED (rev4 only default assigned to Ethernet status)
-* Accurate RTC with rechargeable battery backup because most actions are time based, alternative can be connected to spare I2C connectors 
+* A blue LED (rev4 only default assigned to WIFI status)
+* A green LED (rev4 only default assigned to Ethernet status)
+* Accurate RTC (DS3231) with rechargeable battery backup because most actions are time based, alternative can be connected to spare I2C connectors 
 * Single 15V power supply with on-board (non-isolating) 3.3V and 5V convertors (1A capacity each)
 * Operation of sensors on 5V or 3.3V. Data communication always on 3.3V
 * MOSFET output drivers for low on state resistance. Alternatively ULN2803 could used as well (pin compatible)
@@ -55,13 +55,13 @@ The ESP32 has two circuits to control 2 sets of 3 74595 IC's. Three 74595 can co
 
 ### I2C Design
 
-The controller used both default I2C busses (Wire, Wire1) on custom pins on the EP32-S3. Because most sensors have fixed I2C addresses, an multiplexer is required to connect more than one sensor to the same I2C bus. The multiplexer is a TCA9548A, a very common I2C multiplexer. The RTC is connected to bus 0 and the LCD to bus1. The multiplexer, LCD and RTC have an adjustable I2C address so this configuration should never lead to an address conflict for devices on the I2C bus.
+The controller used both default I2C busses (Wire, Wire1) on custom pins on the EP32-S3. Because most sensors have fixed I2C addresses, a multiplexer is required to connect more than one sensor to the same I2C bus. The multiplexer is a TCA9548A, a very common I2C multiplexer. The RTC chip is connected to bus 0 and the LCD to bus1. The multiplexer, LCD and RTC have an adjustable I2C address so this configuration should never lead to an address conflict for devices on the I2C bus.
 
 To set the I2C address of the multiplexers, 6 resistor pads (R52/R53/R54/R55/R56/R57 for bus 0 and R58/R59/R60/R61/R62/R63. for bus 1) are available to solder 0 Ohm 0805 size resistors on (or a wire). Refer to the datasheet of the multiplexer: https://www.ti.com/lit/ds/symlink/tca9548a.pdf. Default is is that the A0,A1,A2 are connected to GND which gives the I2C address of 0x70. The multiplexer address can be set in the settings page. Remember to convert the hex address to a decimal number, e.g. default 0x70 address is 112 decimal.
 
 Most sensors and other I2C devices have internal pull-up resistors but if this is not the case, the controller PCB has the option to install  pull-up resistors to SDA and SCL for each sensor. The multiplexer allow also the use of sensors on +5V and 3.3V. The selection is done with a jumper on the controller. There are 4 voltage selection jumpers on the controller and each jumper control the voltage 4 sensors, e.g. bus0, sensors 0,1,2,3, bus0 sensors 4,5,6,7, bus1 sensors 0,1,2,3 and bus1 sensors 4,5,6,7.
 
-Hardware version 4 has the option to connect 2 additional devices to each bus (totally 4). The software will have to be adapted to make use of these devices.
+Hardware version 4 has the option to connect 2 additional devices to each bus (totally 4). The software does not contain code for these devices yet.
 
 ### Hardware options
 
@@ -72,6 +72,8 @@ The controller has the following hardware options:
 * 2 Programmable RGB LEDs
 * 2 Programmable pushbuttons
 * 2 programmable LEDs (v4 only)
+* JTAG Interface (v4 only)
+* Header with all control voltages and spare I/O
 
 ### Hardware overview
 
@@ -79,7 +81,7 @@ The controller has the following hardware options:
 <center><img src="images/hardware3D_rev4.png" width="100%" height="100%"></center>
 
 ## Software design
-The software is written in C with ESP-IDF. Additional libraries are included for the RGB LEDs and littlefs. The software is modular because most functions are written as individual tasks. It should be possible to run the software without WiFi connection but with reduced functionaltiy.
+The software is written in C with ESP-IDF 5.5.4. Additional libraries are included for the RGB LEDs and littlefs. The software is modular because most functions are written as individual tasks. It should be possible to run the software without WiFi connection but with reduced functionaltiy.
 
 The software has the following tasks:
 * task_i2c_ds3231 - Task to regurlarly synchronise the system time with NTP and health diagnostic
@@ -90,8 +92,9 @@ The software has the following tasks:
 * task_pushbutton - Task to control the functions of the 2 programmable pushbuttons
 * task_rgb_leds - Task to control the RGB LEDs
 * task_statemachine - Task to control the statemachine. The statemachine decides how the systems responds to events such as events in time or sensor readings
-* task_sys_stats - Task to 
-
+* task_sys_stats - Task to provide system statistics
+* task_uart_sender - Teask to send log data to uart interface on RX0 and TX0
+* task_vavle_control - Task to control the valves
 
 The following external libraries are required (included in managed_components):
 * Espressif_led_strip
@@ -141,7 +144,7 @@ In these settings the LCD can be enabled and the address can be filled in. If en
 
 ### Valve Control
 
-From this page the valves can be calibrated and controlled. The valves have no means of giving feedback on their position. If the valves are operated beyond their full closed position the connection between the shaft and the rubber will run off the shaft and the valve can't be controlled anymore. If the valve is fully open and operated further open, the device which connects the shaft with the rubber will be pulled out of the rubber and control of the valve is no longer possible. I have not experienced it will damage the valves. The operating range is defined between 0 (fully closed) and 24 (fully open). The valves can only move in steps of 1. This is a design choice and I think there is no necessity for a finer control but it can be done and requires changes to the code.
+From this page the valves can be calibrated and controlled. The valves have no hardware means of giving feedback on their position. If the valves are operated beyond their full closed position the connection between the shaft and the rubber will run off the shaft and the valve can't be controlled anymore. If the valve is fully open and operated further open, the device which connects the shaft with the rubber will be pulled out of the rubber and control of the valve is no longer possible. I have not experienced it will damage the valves. The operating range is defined between 0 (fully closed) and 24 (fully open). The valves can only move in steps of 1. This is a design choice and I think there is no necessity for a finer control but it can be done and requires changes to the code.
 
 To keep the valves within their operating range, the position is recorded on the flash storage as a JSON file. The structure is:
 
