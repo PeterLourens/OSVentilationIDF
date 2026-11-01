@@ -1,0 +1,23 @@
+{
+    "enable_state": "On",
+    "fanspeed": 1,
+    "state_name": "night",
+    "state_start_hour": 0,
+    "state_start_minute": 0,
+    "state_end_hour": 0,
+    "state_end_minute": 0,
+    "duration_minutes": 5,
+    "cycling_interval_min": 0,
+    "valve0_pos": 4,
+    "valve1_pos": 4,
+    "valve2_pos": 0,
+    "valve3_pos": 0,
+    "valve4_pos": 0,
+    "valve5_pos": 4,
+    "valve6_pos": 4,
+    "valve7_pos": 0,
+    "valve8_pos": 20,
+    "valve9_pos": 20,
+    "valve10_pos": 20,
+    "valve11_pos": 20
+}

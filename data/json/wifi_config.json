@@ -1,0 +1,12 @@
+{
+    "enable_wifi": "On",
+    "enable_dhcp": "On",
+    "hostname": "OSVentilation",
+    "ssid": "",
+    "wifi_password": "",
+    "ip_address": "",
+    "subnet_mask": "",
+    "gateway": "",
+    "primary_dns": "",
+    "secondary_dns": ""
+}
