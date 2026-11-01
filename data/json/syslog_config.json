@@ -1,9 +1,0 @@
-{
-    "enable_syslog": "Off",
-    "enable_uart": "Off",
-    "syslog_ip": "",
-    "syslog_port": "",
-    "syslog_hostname": "",
-    "syslog_appname": "",
-    "syslog_device_id": ""
-}

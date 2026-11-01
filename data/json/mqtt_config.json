@@ -1,6 +1,0 @@
-{
-    "enable_mqtt": "Off",
-    "mqtt_server": "",
-    "mqtt_port": "",
-    "mqtt_base_topic": ""
-}

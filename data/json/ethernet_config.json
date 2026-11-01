@@ -1,9 +1,0 @@
-{
-    "enable_ethernet": "On",
-    "enable_dhcp": "On",
-    "ip_address": "",
-    "subnet_mask": "",
-    "gateway": "",
-    "primary_dns": "",
-    "secondary_dns": ""
-}
