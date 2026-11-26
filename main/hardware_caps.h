@@ -30,6 +30,7 @@ typedef enum
 typedef struct
 {
     bool has_ethernet;
+    bool has_cc1101;
     bool has_wifi_led;
     bool has_eth_led;
 
@@ -43,13 +44,20 @@ typedef struct
     int i2c_master_bus1_sda_io;
     int i2c_master_bus1_scl_io;
 
-    // Ethernet hardware configuration
+    // Ethernet hardware configuration (revision 4 and 5)
     int w5500_miso_gpio;
     int w5500_mosi_gpio;
     int w5500_sclk_gpio;
     int w5500_cs_gpio;
     int w5500_int_gpio;
     int w5500_rst_gpio;
+
+    // CC1101 hardware configuration (revision 5)
+    int cc1101_miso_gpio;
+    int cc1101_mosi_gpio;
+    int cc1101_sclk_gpio;
+    int cc1101_cs_gpio;
+    int cc1101_int_gpio;
 
     // UART0 hardware configuration
     int uart0_tx_gpio;
@@ -60,7 +68,7 @@ typedef struct
     int latchpin1;
     int datapin1;
 
-    // 74595 pins circuit 2
+    // 74595 pins circuit 2 (revision 2 and 4 only)
     int clockpin2;
     int latchpin2;
     int datapin2;

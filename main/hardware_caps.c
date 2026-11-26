@@ -22,6 +22,7 @@ hardware_version_t hw_version = HW_VERSION_4;
  */
 static const hw_caps_t hw_v2 = {
     .has_ethernet = false,
+    .has_cc1101 = false,
     .has_wifi_led = false,
     .has_eth_led = false,
 
@@ -62,6 +63,7 @@ static const hw_caps_t hw_v2 = {
  */
 static const hw_caps_t hw_v4 = {
     .has_ethernet = true,
+    .has_cc1101 = false,
     .has_wifi_led = true,
     .has_eth_led = true,
 
@@ -103,6 +105,7 @@ hw_caps_t hw;
  */
 static const hw_caps_t hw_v5 = {
     .has_ethernet = true,
+    .has_cc1101 = true,
     .has_wifi_led = true,
     .has_eth_led = true,
 
@@ -121,6 +124,12 @@ static const hw_caps_t hw_v5 = {
     .w5500_int_gpio = 9,
     .w5500_rst_gpio = 8,
 
+    .cc1101_miso_gpio = 16,
+    .cc1101_mosi_gpio = 14,
+    .cc1101_sclk_gpio = 15,
+    .cc1101_cs_gpio = 21,
+    .cc1101_int_gpio = 5,
+
     .uart0_tx_gpio = 43,
     .uart0_rx_gpio = 44,
 
@@ -134,8 +143,6 @@ static const hw_caps_t hw_v5 = {
     .switch2_pin = 5,
 };
 hw_caps_t hw;
-
-
 
 /**
  * @brief Initialize the active hardware capability table.
