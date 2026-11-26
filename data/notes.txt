@@ -8,3 +8,10 @@ app0,       app,    ota_0,      0x20000,    0x300000
 app1,       app,    ota_1,      0x320000,   0x300000
 storage,    data,   littlefs,   0x620000,   0x95E000
 coredump,   data,   coredump,   0xF80000,  0x80000
+
+
+in hardware_caps I have added i/o for CC1101 module. File https://github.com/arjenhiemstra/ithowifi/blob/master/software/NRG_itho_wifi/main/tasks/task_cc1101.cpp contains the code for communicating with the CC1101 chip with itho devices and the corresponding library can be found here: https://github.com/arjenhiemstra/ithowifi/tree/a93b17c0a20596912656f6e354e5e3f259ab2f9e/software/NRG_itho_wifi/main/cc1101
+
+I want to include the CC1101 as per above links in my project but step for step. The join command for a remote to join an itho device is done with switch2 connected to I/o48 for revision 5. In other revisions switch2 does not have a function.
+
+Thre first step is to create the hardware interface with the CC1101 module and do a test if the device works
