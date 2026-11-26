@@ -17,6 +17,11 @@ static const char *TAG = "valve_control";
 static const uint8_t pattern1[4] = {0b00000101, 0b00001001, 0b00001010, 0b00000110};
 static const uint8_t pattern2[4] = {0b01010000, 0b10010000, 0b10100000, 0b01100000};
 
+static int valve_chain_chip_count(void)
+{
+    return hw_version == HW_VERSION_5 ? 6 : 3;
+}
+
 // ---------------------- Generic helpers ----------------------
 
 // Configure three GPIOs as outputs (idempotent). Returns ESP_OK or error.
@@ -71,11 +76,10 @@ void all_outputs_off(int dataPin, int clockPin, int latchPin)
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
         return;
 
-    // follow original order: shift output[2], output[1], output[0]
+    // Shift farthest chip first so output[0] reaches the nearest chip.
     gpio_set_level(latchPin, 0);
-    shift_out_msbfist(dataPin, clockPin, 0x00); // nearest chip
-    shift_out_msbfist(dataPin, clockPin, 0x00); // middle chip
-    shift_out_msbfist(dataPin, clockPin, 0x00); // farthest chip
+    for (int chip = valve_chain_chip_count() - 1; chip >= 0; --chip)
+        shift_out_msbfist(dataPin, clockPin, 0x00);
     latch_pulse(latchPin);
 }
 
@@ -217,20 +221,14 @@ void control_valves(void)
         valve_pos = (int)pos;
 
         // Assign the correct IO based on valve number
-        if (valve_number < 6)
+        if (hw_version == HW_VERSION_5 || valve_number < 6)
         {
-            // latchPin = LATCHPIN1;
-            // clockPin = CLOCKPIN1;
-            // dataPin = DATAPIN1;
             latchPin = hw.latchpin1;
             clockPin = hw.clockpin1;
             dataPin = hw.datapin1;
         }
         else
         {
-            // latchPin = LATCHPIN2;
-            // clockPin = CLOCKPIN2;
-            // dataPin = DATAPIN2;
             latchPin = hw.latchpin2;
             clockPin = hw.clockpin2;
             dataPin = hw.datapin2;
@@ -429,9 +427,10 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
 {
     static const char *TAG = "Valvecontrol";
 
-    int output[3][4] = {{0}};
+    int output[6][4] = {{0}};
     int i, j, k;
     const int cycles = 24; // cycles per full rotation (same as original)
+    const int chip_count = valve_chain_chip_count();
 
     // Validate direction and position_change like original
     if (!(direction == 1 || direction == 0))
@@ -442,6 +441,11 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
     if (position_change < 0 || position_change > 24)
     {
         LOGE(TAG, "Error in valvecontrol. Requested position change is: %d. Position change should be between 0 and 24", position_change);
+        return ESP_ERR_INVALID_ARG;
+    }
+    if (valve_number < 0 || valve_number >= MAX_VALVE_COUNT)
+    {
+        LOGE(TAG, "Invalid valve_number: %d", valve_number);
         return ESP_ERR_INVALID_ARG;
     }
 
@@ -455,74 +459,14 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
         }
     }
 
-    // Normalize valve number same as original
-    if (valve_number >= 6)
+    // v4 has two three-chip chains; v5 has one six-chip chain.
+    if (chip_count == 3 && valve_number >= 6)
         valve_number -= 6;
 
-    // Build outputs exactly like Arduino switch-case
-    switch (valve_number)
-    {
-    case 0:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = pattern1[i];
-            output[1][i] = 0;
-            output[2][i] = 0;
-        }
-        break;
-    case 1:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = pattern2[i];
-            output[1][i] = 0;
-            output[2][i] = 0;
-        }
-        break;
-    case 2:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = 0;
-            output[1][i] = pattern1[i];
-            output[2][i] = 0;
-        }
-        break;
-    case 3:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = 0;
-            output[1][i] = pattern2[i];
-            output[2][i] = 0;
-        }
-        break;
-    case 4:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = 0;
-            output[1][i] = 0;
-            output[2][i] = pattern1[i];
-        }
-        break;
-    case 5:
-        for (i = 0; i < 4; i++)
-        {
-            output[0][i] = 0;
-            output[1][i] = 0;
-            output[2][i] = pattern2[i];
-        }
-        break;
-    default:
-        LOGE(TAG, "Invalid valve_number: %d", valve_number);
-        // Clear lock flag if set then return
-        if (statemachine_mutex)
-        {
-            if (xSemaphoreTake(statemachine_mutex, (TickType_t)10) == pdTRUE)
-            {
-                sm_actuals.valve_lock = false;
-                xSemaphoreGive(statemachine_mutex);
-            }
-        }
-        return ESP_ERR_INVALID_ARG;
-    }
+    const int chip = valve_number / 2;
+    const uint8_t *pattern = (valve_number % 2 == 0) ? pattern1 : pattern2;
+    for (i = 0; i < 4; i++)
+        output[chip][i] = pattern[i];
 
     // Configure GPIO pins
     if (gpio_setup_3pins(dataPin, clockPin, latchPin) != ESP_OK)
@@ -552,9 +496,8 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
             for (k = 0; k < 4; k++)
             {
                 gpio_set_level(latchPin, 0);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[2][k]);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[1][k]);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[0][k]);
+                for (int chip = chip_count - 1; chip >= 0; --chip)
+                    shift_out_msbfist(dataPin, clockPin, (uint8_t)output[chip][k]);
                 gpio_set_level(latchPin, 1);
                 // match original delay
                 vTaskDelay(pdMS_TO_TICKS(10));
@@ -571,9 +514,8 @@ esp_err_t valvecontrol(int direction, int position_change, int valve_number, int
             for (k = 3; k >= 0; k--)
             {
                 gpio_set_level(latchPin, 0);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[2][k]);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[1][k]);
-                shift_out_msbfist(dataPin, clockPin, (uint8_t)output[0][k]);
+                for (int chip = chip_count - 1; chip >= 0; --chip)
+                    shift_out_msbfist(dataPin, clockPin, (uint8_t)output[chip][k]);
                 gpio_set_level(latchPin, 1);
                 vTaskDelay(pdMS_TO_TICKS(10));
                 gpio_set_level(latchPin, 0);

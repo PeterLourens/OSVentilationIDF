@@ -14,11 +14,11 @@
 
 #include "hardware_caps.h"
 
-// default: build for v3 in this branch
-hardware_version_t hw_version = HW_VERSION_3;
+// default: build for v4 in this branch
+hardware_version_t hw_version = HW_VERSION_4;
 
 /**
- * @brief Hardware capability profile for board version 2.
+ * @brief Hardware capability profile for board version 2. This version is without Ether
  */
 static const hw_caps_t hw_v2 = {
     .has_ethernet = false,
@@ -58,9 +58,9 @@ static const hw_caps_t hw_v2 = {
 };
 
 /**
- * @brief Hardware capability profile for board version 3.
+ * @brief Hardware capability profile for board version 4.
  */
-static const hw_caps_t hw_v3 = {
+static const hw_caps_t hw_v4 = {
     .has_ethernet = true,
     .has_wifi_led = true,
     .has_eth_led = true,
@@ -99,6 +99,45 @@ static const hw_caps_t hw_v3 = {
 hw_caps_t hw;
 
 /**
+ * @brief Hardware capability profile for board version 5.
+ */
+static const hw_caps_t hw_v5 = {
+    .has_ethernet = true,
+    .has_wifi_led = true,
+    .has_eth_led = true,
+
+    .pin_wifi_led = 45,
+    .pin_eth_led = 46,
+
+    .i2c_master_bus0_sda_io = 18,
+    .i2c_master_bus0_scl_io = 17,
+    .i2c_master_bus1_sda_io = 7,
+    .i2c_master_bus1_scl_io = 6,
+
+    .w5500_miso_gpio = 13,
+    .w5500_mosi_gpio = 11,
+    .w5500_sclk_gpio = 12,
+    .w5500_cs_gpio = 10,
+    .w5500_int_gpio = 9,
+    .w5500_rst_gpio = 8,
+
+    .uart0_tx_gpio = 43,
+    .uart0_rx_gpio = 44,
+
+    .clockpin1 = 1,
+    .latchpin1 = 2,
+    .datapin1 = 3,
+
+    .rgb_led_pin = 47,
+
+    .switch1_pin = 4,
+    .switch2_pin = 5,
+};
+hw_caps_t hw;
+
+
+
+/**
  * @brief Initialize the active hardware capability table.
  *
  * This function selects the appropriate board profile based on
@@ -111,9 +150,12 @@ void hw_init(void)
     case HW_VERSION_2:
         hw = hw_v2;
         break;
-    case HW_VERSION_3:
+    case HW_VERSION_4:
+        hw = hw_v4;
+        break;
+    case HW_VERSION_5:
     default:
-        hw = hw_v3;
+        hw = hw_v5;
         break;
     }
 }

@@ -212,7 +212,7 @@ void leds_update(const Statemachine_actuals_t *sm)
     uint32_t now = (uint32_t)(esp_timer_get_time() / 1000); // ms
 
     const bool use_wifi_blink = (hw_version == HW_VERSION_2 && sm_snap.wifi_connected);
-    const bool skip_network_blink = (hw_version == HW_VERSION_3);
+    const bool skip_network_blink = (hw_version == HW_VERSION_4 || hw_version == HW_VERSION_5);
     ColorName_t net_color = COLOR_RED;
 
     if (use_wifi_blink)

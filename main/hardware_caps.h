@@ -17,7 +17,8 @@
 typedef enum
 {
     HW_VERSION_2 = 2,
-    HW_VERSION_3 = 3
+    HW_VERSION_4 = 4,
+    HW_VERSION_5 = 5
 } hardware_version_t;
 
 /**
