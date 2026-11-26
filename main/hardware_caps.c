@@ -140,7 +140,7 @@ static const hw_caps_t hw_v5 = {
     .rgb_led_pin = 47,
 
     .switch1_pin = 4,
-    .switch2_pin = 5,
+    .switch2_pin = 48,
 };
 hw_caps_t hw;
 
