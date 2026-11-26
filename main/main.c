@@ -314,6 +314,7 @@ void app_main(void)
     start_task_rgb_leds();
     start_task_valvecontrol();
     start_task_pushbutton();
+    start_task_cc1101();
     start_task_sys_stats();
     // ws_broadcaster_init();
     // stats_worker_init();

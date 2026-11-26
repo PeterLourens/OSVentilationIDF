@@ -41,6 +41,12 @@ static const hw_caps_t hw_v2 = {
     .w5500_int_gpio = -1,
     .w5500_rst_gpio = -1,
 
+    .cc1101_miso_gpio = -1,
+    .cc1101_mosi_gpio = -1,
+    .cc1101_sclk_gpio = -1,
+    .cc1101_cs_gpio = -1,
+    .cc1101_int_gpio = -1,
+
     .uart0_tx_gpio = -1,
     .uart0_rx_gpio = -1,
 
@@ -81,6 +87,12 @@ static const hw_caps_t hw_v4 = {
     .w5500_cs_gpio = 10,
     .w5500_int_gpio = 9,
     .w5500_rst_gpio = 8,
+
+    .cc1101_miso_gpio = -1,
+    .cc1101_mosi_gpio = -1,
+    .cc1101_sclk_gpio = -1,
+    .cc1101_cs_gpio = -1,
+    .cc1101_int_gpio = -1,
 
     .uart0_tx_gpio = 43,
     .uart0_rx_gpio = 44,

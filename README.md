@@ -75,6 +75,20 @@ The controller has the following hardware options:
 * JTAG Interface (v4 only)
 * Header with all control voltages and spare I/O
 
+### Revision 5 CC1101 bring-up
+
+Revision 5 includes a CC1101 radio. The `task_cc1101` FreeRTOS task initializes its SPI
+interface on SPI3 (MISO GPIO16, MOSI GPIO14, SCLK GPIO15, CS GPIO21) and configures
+GDO0 (GPIO5) as an input. It then resets the radio and reads the PARTNUM and VERSION
+status registers. A successful test is reported in the serial log as
+`CC1101 detected (PARTNUM=0x00, VERSION=0x...)`. If the module is not detected, a
+warning is logged and the rest of the controller continues to start.
+
+The checked-in hardware selection defaults to revision 4 in `main/hardware_caps.c`.
+For a revision 5 board test, select `HW_VERSION_5` there before building and flashing.
+Revisions 2 and 4 do not initialize the CC1101. This initial bring-up does not yet
+implement Itho communication or remote pairing.
+
 ### Hardware overview
 
 <center><img src="images/hardware3D_rev2.jpg" width="100%" height="100%"></center>
@@ -251,8 +265,6 @@ By default MQTT is not enabled. To enable MQTT, got to the settings page and set
 
 ### Step 7 - Configure InfluxDB (Optional)
 By default writing measurments to InfluxDB is not enabled. Writing to InfluxDB can be configured in the settings page. Fill in also 
-
-
 
 
 
