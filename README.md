@@ -80,12 +80,15 @@ The controller has the following hardware options:
 Revision 5 includes a CC1101 radio. The `task_cc1101` FreeRTOS task initializes its SPI
 interface on SPI3 (MISO GPIO16, MOSI GPIO14, SCLK GPIO15, CS GPIO21) and configures
 GDO0 (GPIO5) as an input. It then resets the radio and reads the PARTNUM and VERSION
-status registers. A successful test is reported in the serial log as
-`CC1101 detected (PARTNUM=0x00, VERSION=0x...)`. If the module is not detected, a
-warning is logged and the rest of the controller continues to start.
+status registers, verifies that MARCSTATE reports IDLE, and tests IOCFG2 with a
+temporary write/readback that is restored afterward. A successful test is reported
+in the serial log as `CC1101 detected (PARTNUM=0x00, VERSION=0x..., MARCSTATE=IDLE)`.
+If the module is not detected, a warning is logged and the rest of the controller
+continues to start.
 
-The checked-in hardware selection defaults to revision 4 in `main/hardware_caps.c`.
-For a revision 5 board test, select `HW_VERSION_5` there before building and flashing.
+The checked-in hardware selection currently defaults to revision 5 in
+`main/hardware_caps.c`. Change `hw_version` there before building and flashing for
+another board revision.
 Revisions 2 and 4 do not initialize the CC1101. This initial bring-up does not yet
 implement Itho communication or remote pairing.
 

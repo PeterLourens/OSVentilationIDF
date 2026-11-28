@@ -17,6 +17,12 @@
 static const char *TAG = "cc1101";
 static spi_device_handle_t s_cc1101_device;
 
+#define CC1101_READ_SINGLE 0x80
+#define CC1101_STATUS_MARCSTATE 0x35
+#define CC1101_MARCSTATE_MASK 0x1F
+#define CC1101_MARCSTATE_IDLE 0x01
+#define CC1101_CONFIG_IOCFG2 0x00
+
 static esp_err_t cc1101_spi_transmit(spi_transaction_t *transaction)
 {
     gpio_num_t cs_pin = (gpio_num_t)hw.cc1101_cs_gpio;
@@ -64,13 +70,13 @@ static esp_err_t cc1101_send_strobe(uint8_t strobe)
     return cc1101_spi_transmit(&transaction);
 }
 
-static esp_err_t cc1101_read_status_register(uint8_t address, uint8_t *value)
+static esp_err_t cc1101_read_register(uint8_t address, uint8_t read_flags, uint8_t *value)
 {
     spi_transaction_t transaction = {
         .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
         .length = 16,
     };
-    transaction.tx_data[0] = address | CC1101_READ_BURST;
+    transaction.tx_data[0] = address | read_flags;
     transaction.tx_data[1] = 0;
 
     esp_err_t err = cc1101_spi_transmit(&transaction);
@@ -79,6 +85,70 @@ static esp_err_t cc1101_read_status_register(uint8_t address, uint8_t *value)
         *value = transaction.rx_data[1];
     }
     return err;
+}
+
+static esp_err_t cc1101_read_status_register(uint8_t address, uint8_t *value)
+{
+    return cc1101_read_register(address, CC1101_READ_BURST, value);
+}
+
+static esp_err_t cc1101_write_register(uint8_t address, uint8_t value)
+{
+    spi_transaction_t transaction = {
+        .flags = SPI_TRANS_USE_TXDATA | SPI_TRANS_USE_RXDATA,
+        .length = 16,
+    };
+    transaction.tx_data[0] = address;
+    transaction.tx_data[1] = value;
+
+    return cc1101_spi_transmit(&transaction);
+}
+
+static esp_err_t cc1101_verify_register_write(void)
+{
+    uint8_t original_value = 0;
+    esp_err_t err = cc1101_read_register(CC1101_CONFIG_IOCFG2, CC1101_READ_SINGLE, &original_value);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read IOCFG2 before register test: %s", esp_err_to_name(err));
+        return err;
+    }
+
+    const uint8_t test_value = original_value ^ 0x01;
+    err = cc1101_write_register(CC1101_CONFIG_IOCFG2, test_value);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to write IOCFG2 test value: %s", esp_err_to_name(err));
+        esp_err_t restore_err = cc1101_write_register(CC1101_CONFIG_IOCFG2, original_value);
+        if (restore_err != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to restore IOCFG2 after write error: %s", esp_err_to_name(restore_err));
+        }
+        return err;
+    }
+
+    uint8_t readback = 0;
+    err = cc1101_read_register(CC1101_CONFIG_IOCFG2, CC1101_READ_SINGLE, &readback);
+    esp_err_t restore_err = cc1101_write_register(CC1101_CONFIG_IOCFG2, original_value);
+    if (restore_err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to restore IOCFG2 after register test: %s", esp_err_to_name(restore_err));
+        return restore_err;
+    }
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to read IOCFG2 test value: %s", esp_err_to_name(err));
+        return err;
+    }
+    if (readback != test_value)
+    {
+        ESP_LOGW(TAG, "IOCFG2 read/write test failed (wrote 0x%02X, read 0x%02X)",
+                 test_value, readback);
+        return ESP_ERR_INVALID_RESPONSE;
+    }
+
+    ESP_LOGI(TAG, "IOCFG2 read/write test passed (original=0x%02X)", original_value);
+    return ESP_OK;
 }
 
 static void cc1101_release_interface(void)
@@ -196,27 +266,38 @@ esp_err_t cc1101_init(void)
 
     uint8_t part_number = 0;
     uint8_t version = 0;
+    uint8_t marcstate = 0;
     err = cc1101_read_status_register(CC1101_STATUS_PARTNUM, &part_number);
     if (err == ESP_OK)
     {
         err = cc1101_read_status_register(CC1101_STATUS_VERSION, &version);
     }
+    if (err == ESP_OK)
+    {
+        err = cc1101_read_status_register(CC1101_STATUS_MARCSTATE, &marcstate);
+    }
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Failed to read CC1101 identification registers: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "Failed to read CC1101 status registers: %s", esp_err_to_name(err));
         cc1101_release_interface();
         return err;
     }
 
-    if (part_number != 0x00 || version == 0x00 || version == 0xFF)
+    esp_err_t register_test_err = cc1101_verify_register_write();
+    const bool is_idle = (marcstate & CC1101_MARCSTATE_MASK) == CC1101_MARCSTATE_IDLE;
+    if (!is_idle || register_test_err != ESP_OK ||
+        part_number != 0x00 || version == 0x00 || version == 0xFF)
     {
-        ESP_LOGW(TAG, "CC1101 not detected (PARTNUM=0x%02X, VERSION=0x%02X)",
-                 part_number, version);
+        ESP_LOGW(TAG,
+                 "CC1101 probe failed (PARTNUM=0x%02X, VERSION=0x%02X, MARCSTATE=0x%02X, "
+                 "IOCFG2 read/write=%s)",
+                 part_number, version, marcstate,
+                 register_test_err == ESP_OK ? "passed" : "failed");
         cc1101_release_interface();
-        return ESP_ERR_NOT_FOUND;
+        return register_test_err == ESP_OK ? ESP_ERR_NOT_FOUND : register_test_err;
     }
 
-    ESP_LOGI(TAG, "CC1101 detected (PARTNUM=0x%02X, VERSION=0x%02X)",
+    ESP_LOGI(TAG, "CC1101 detected (PARTNUM=0x%02X, VERSION=0x%02X, MARCSTATE=IDLE)",
              part_number, version);
     return ESP_OK;
 }

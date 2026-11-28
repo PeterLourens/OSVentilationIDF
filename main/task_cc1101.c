@@ -12,16 +12,23 @@
 #include <esp_attr.h>
 
 #include "cc1101.h"
+#include "hardware_caps.h"
 #include "logging.h"
 #include "task_cc1101.h"
 
 static const char *TAG = "task_cc1101";
 static StaticTask_t cc1101_tcb;
-EXT_RAM_BSS_ATTR static StackType_t cc1101_stack[2048];
-static const size_t cc1101_stack_size = 2048;
+EXT_RAM_BSS_ATTR static StackType_t cc1101_stack[4096];
+static const size_t cc1101_stack_size = 4096;
 
 void start_task_cc1101(void)
 {
+    if (!hw.has_cc1101)
+    {
+        LOGI(TAG, "CC1101 task not started; hardware revision %d has no CC1101", hw_version);
+        return;
+    }
+
     TaskHandle_t task = xTaskCreateStatic(
         task_cc1101_code,
         "cc1101",

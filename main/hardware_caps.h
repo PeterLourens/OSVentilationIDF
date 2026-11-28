@@ -9,6 +9,9 @@
  * @brief Hardware capability type definitions and runtime board configuration.
  */
 
+#ifndef HARDWARE_CAPS_H
+#define HARDWARE_CAPS_H
+
 #include <stdbool.h>
 
 /**
@@ -96,3 +99,5 @@ extern hw_caps_t hw;
  * @brief Initialize the active hardware capability configuration.
  */
 void hw_init(void);
+
+#endif

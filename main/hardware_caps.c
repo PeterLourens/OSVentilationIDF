@@ -14,8 +14,8 @@
 
 #include "hardware_caps.h"
 
-// default: build for v4 in this branch
-hardware_version_t hw_version = HW_VERSION_4;
+// default: build for v5 in this branch
+hardware_version_t hw_version = HW_VERSION_5;
 
 /**
  * @brief Hardware capability profile for board version 2. This version is without Ether
@@ -136,11 +136,11 @@ static const hw_caps_t hw_v5 = {
     .w5500_int_gpio = 9,
     .w5500_rst_gpio = 8,
 
-    .cc1101_miso_gpio = 16,
-    .cc1101_mosi_gpio = 14,
-    .cc1101_sclk_gpio = 15,
-    .cc1101_cs_gpio = 21,
-    .cc1101_int_gpio = 5,
+    .cc1101_miso_gpio = 15,
+    .cc1101_mosi_gpio = 16,
+    .cc1101_sclk_gpio = 14,
+    .cc1101_cs_gpio = 5,
+    .cc1101_int_gpio = 21,
 
     .uart0_tx_gpio = 43,
     .uart0_rx_gpio = 44,
